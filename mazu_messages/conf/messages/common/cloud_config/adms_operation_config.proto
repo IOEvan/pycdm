@@ -1,0 +1,16 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+
+
+message ADMSOperationConfig {
+    optional bool DMSDistractionSwitch_cloud                = 1;   //1: open, 0: close
+    optional bool DMSDrowsinessSwitch_cloud_light           = 2;   //1: open, 0: close  轻度
+    optional bool DMSDrowsinessSwitch_cloud_medium          = 3;   //1: open, 0: close  中度
+    optional bool DMSDrowsinessSwitch_cloud_heavy           = 4;   //1: open, 0: close  重度
+    optional uint64 adms_subfunc_mask                       = 5;
+    optional uint64 high_risk_scene_mask                    = 6;
+    optional uint64 risk_scene_warn_mask                    = 7;
+}

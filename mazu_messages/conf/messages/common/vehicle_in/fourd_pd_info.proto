@@ -1,0 +1,51 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message FourdPdInfo{
+    optional float BMSDischrgPowerLimitDynamic=1;     //@Channel:EPT @Message:0x268 @Signal:BMSDischrgPowerLimitDynamic
+    optional float BMSChrgPowerLimitDynamic=2;        //@Channel:EPT @Message:0x26A @Signal:BMSChrgPowerLimitDynamic
+    optional int32 BMSMaximumCellTemp=3;              //@Channel:EPT @Message:0x271 @Signal：BMSMaximumCellTemp
+    optional int32 BMSMinimumCellTemp=4;              //@Channel:EPT @Message:0x271 @Signal：BMSMinimumCellTemp
+    optional float BMSSOC=5;                          //@Channel:EPT @Message:0xAC @Signal：BMSSOC
+    optional float BMSPACKCrrnt=6;                    //@Channel:EPT @Message:0xAC @Signal：BMSPACKCrrnt
+    optional uint32 BMSPackVoltage=7;                 //@Channel:EPT @Message:0xAC @Signal：BMSPackVoltage
+    optional uint32 ComprActPwr=8;                    //@Channel:EPT @Message:0x314 @Signal：ComprActPwr
+    optional uint32 PtcTotActPwr=9;                   //@Channel:EPT @Message:0x314 @Signal：PtcTotActPwr
+    optional uint32 DCDCInputVoltage=10;              //@Channel:EPT @Message:0x399 @Signal：DCDCInputVoltage
+    optional float DCDCInputCurrent=11;               //@Channel:EPT @Message:0x399 @Signal：DCDCInputCurrent
+
+    enum VCUVehRdy_e{
+        Veh_NoReady=0;
+        Veh_Ready=1;
+    }
+
+    optional VCUVehRdy_e VCUVehRdy=12;                //@Channel:EPT @Message:0x219 @Signal：VCUVehRdy
+
+    enum VCURegenSts_e{
+        Regen_Normal=0;
+        Regen_Low_Level=1;
+        Regen_off=2;
+        Regen_Zore=3;
+    }
+
+    optional VCURegenSts_e VCURegenSts=13;            //@Channel:EPT @Message:0x219 @Signal：VCURegenSts
+
+    enum TripState_e{
+        Trip_Undetermine=0;
+        Trip_Off=1;
+        Trip_On=2;
+        Trip_Invld=3;
+    }
+
+    optional TripState_e TripState=14;                //@Channel:EPT @Message:0x21F @Signal：TripState
+    
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909;       // uuid of the publisher
+    optional uint64 counter = 536870910;            // message counter
+    optional uint64 publish_ts = 536870911;         // publish timestamp; unit : nanosecond
+}

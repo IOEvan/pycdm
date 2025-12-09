@@ -1,0 +1,12 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+message NopVehicleOut_light {
+    optional uint32 nop_wti = 9;
+    optional uint32 NAD_PSP_WTI2 = 15;
+    optional uint32 NAD_PSP_WTI3 = 16;
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    optional uint64 publish_ptp_ts   = 536870907;
+}

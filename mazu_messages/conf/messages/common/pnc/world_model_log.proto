@@ -1,0 +1,98 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+message ObjectsDebugInfo {
+  optional uint32 od_error_code = 1 [default = 0];
+  optional double receive_objects_delay =
+      2;  // in ms, real_recevie_time - objects_time_meas
+  optional double inter_frame_raw_time_gap = 3 [
+    deprecated = true
+  ];  // in ms, raw objects time gap between two consecutive od frames
+  optional double inter_frame_sub_time_gap =
+      4;  // in ms, objects sub time gap between two consecutive od frames
+  optional double inter_frame_pub_time_gap =
+      5;  // in ms, objects pub time gap between two consecutive od frames
+  optional double od_process_duration = 6;        // in ms
+  optional uint64 applied_localization_time = 7;  // in ns
+  optional uint64 aligned_car_state_time = 8;     // in ns
+  optional double inter_frame_objs_time_meas_gap =
+      9;  // in ms, raw objects time_meas gap between two consecutive od frames
+  optional double inter_frame_objs_time_pub_gap =
+      10;  // in ms, raw objects time_pub gap between two consecutive od frames
+}
+
+message MapDebugInfo {
+  optional bool is_map_initialized = 1 [default = false];
+  optional bool is_map_data_completed = 2 [default = false];
+  optional bool is_global_routing_completed = 3 [default = false];
+  optional uint64 applied_localization_time = 4;  // in ns
+  optional uint64 aligned_car_state_time = 5;     // in ns
+}
+
+message MetaStringDebugInfo {
+  optional string data = 1;
+}
+
+message WorldModelInnerState {
+  optional bytes data = 1;
+  optional uint64 timestamp_ns = 14;
+}
+
+// all timestamp below are in nanosecond
+message WorldModelLogInfo {
+  optional uint64 frame_id = 1;
+
+  // local_perception_objects.time_meas
+  optional uint64 in_objects_time = 2;
+
+  // global_perception_objects.time_meas
+  optional uint64 out_objects_time = 3;
+
+  // localization.time_meas
+  optional uint64 localization_time = 4 [deprecated = true];
+
+  // pose.time_meas
+  optional uint64 pose_time = 5 [deprecated = true];
+
+  // static_map.time_pub
+  optional uint64 static_map_time = 6;
+
+  // dynamic_map.time_pub
+  optional uint64 dynamic_map_time = 7;
+
+  // input time of 3d road detection from perception
+  optional uint64 road_detection_time = 9;
+
+  // input time of hd map from map engine
+  optional uint64 hd_map_time = 10;
+
+  // input time of global routing from map engine
+  optional uint64 global_routing_time = 11;
+
+  // traffic info input
+  optional uint64 in_traffic_info_time = 12;
+
+  // traffic info output
+  optional uint64 out_traffic_info_time = 13;
+
+  // input car state timestamp
+  optional uint64 car_state_time = 14;
+
+  // local_map.time_pub
+  optional uint64 local_map_time = 15;
+
+  optional uint64 log_pub_time = 8;
+
+  optional ObjectsDebugInfo objects_info = 16;
+
+  optional MapDebugInfo map_info = 17;
+
+  optional uint64 corrected_pose_time = 18;
+
+  optional uint64 relative_localization_time = 19;
+
+  optional uint64 road_perception_2d_time = 20;
+}

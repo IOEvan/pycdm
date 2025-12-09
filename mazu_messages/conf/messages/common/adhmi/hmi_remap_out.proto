@@ -1,0 +1,68 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+//adhmi send wti message to arb
+//For example: fsm_driving_output(HMIinfoIf.DA_Pilot_WTIs)-->hmi_remapout(HMI_DA_Pilot_WTIs)-->can(@Channel:ADAS @Message:0x254 @Signal:DA_Pilot_WTIs)
+message HmiWtiRemap {
+    optional uint32 HMI_DA_NAD_WTI                        = 1;  //@Channel:ADAS @Message:0x150 @Signal:DA_NAD_WTIs
+    optional uint32 HMI_DA_NOP_WTIs                       = 2;  //@Channel:ADAS @Message:0x254 @Signal:DA_NOP_WTIs
+    optional uint32 HMI_DA_iACC_WTIs                      = 3;  //@Channel:ADAS @Message:0x254 @Signal:DA_iACC_WTIs
+    optional uint32 HMI_DA_Pilot_WTIs                     = 4;  //@Channel:ADAS @Message:0x254 @Signal:DA_Pilot_WTIs
+    optional uint32 HMI_DA_NopWTI                         = 5;  //@Channel:ADAS @Message:0x228 @Signal:DA_NopWTI
+    optional uint32 HMI_DA_PSP_WTIs                       = 6;  //@Channel:ADAS @Message:0x275 @Signal:DA_PSP_WTIs
+    optional uint32 HMI_NAD_PSP_WTI2                      = 7;  //@Channel:ADAS @Message:0x275 @Signal:NAD_PSP_WTI2
+    optional uint32 HMI_NAD_PSP_WTI3                      = 8;  //@Channel:ADAS @Message:0x275 @Signal:NAD_PSP_WTI3
+    optional uint32 HMI_NAD_PSP_WTI4                      = 9;  //@Channel:ADAS @Message:0x275 @Signal:NAD_PSP_WTI4
+    optional uint32 HMI_ADMS_WTIs                         = 10;  //@Channel:ADAS @Message:0x227 @Signal:ADMS_WTIs
+}
+
+//adhmi send backup message to dc
+//For example HmiBackup2dc(clear_adiz) -> can(@Channel:ADAS @Message:0x35F @Signal:clear_adiz) --> DC
+message HmiBackup2dc {
+    optional bool clear_adiz                              = 1;  //@Channel:ADAS @Message:0x35F @Signal:clear_adiz
+}
+
+
+
+
+message HmiRemapOut {
+
+    enum GoNotifyType_LeadingVeh_e{
+    GoNotifier_NoReq = 0;//No Request
+    GoNotifier_Req   = 1;//Request
+    GoNotifier_Rsrvd2= 2;//Reserved
+    GoNotifier_InVld = 3;//Invalid
+    }
+
+    enum GoNotifyType_TrafficLight_enum{
+        GoNotifierType2_NoReq    = 0;    // No Request
+        GoNotifierType2_Req1     = 1;    // Request 1
+        GoNotifierType2_Req2     = 2;    // Request 2
+        GoNotifierType2_Req3     = 3;    // Request 3
+        GoNotifierType2_Req4     = 4;    // Request 4
+        GoNotifierType2_Req5     = 5;    // Request 5
+        GoNotifierType2_Req6     = 6;    // Request 6
+        GoNotifierType2_Req7     = 7;    // Request 7
+    }
+
+    message HmiFunctionOut {
+        optional GoNotifyType_LeadingVeh_e GoNotifierReq_LeadingVeh             = 1;  //@Channel:CHASSIS @Message:0x7E @Signal:GoNotifierReq
+        optional GoNotifyType_TrafficLight_enum GoNotifierReq_TrafficLight      = 2;  //@Channel:CHASSIS @Message:0x7E @Signal:GoNotifierReq_2
+        optional bool TrafficLightWarning                                       = 3;  //通过交互区发送给DC显示闯红灯提醒的warning 0x1代表warning on，0x0代表warning off
+    }
+
+
+    optional HmiWtiRemap wti_remap                        = 1;
+    optional HmiBackup2dc backup_remap                    = 2;
+    optional HmiFunctionOut function_out                  = 3;
+    
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    optional SensorTSHeader sensor_original_ts            = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts                        = 536870907;   // publish ptp timestamp, uint in nanosec
+    optional string publisher_id                          = 536870909;   // uuid of the publisher
+    optional uint64 counter                               = 536870910;   // message counter
+    optional uint64 publish_ts                            = 536870911;   // publish utc timestamp; unit : nanosecond
+}

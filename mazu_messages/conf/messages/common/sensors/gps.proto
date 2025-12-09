@@ -1,0 +1,51 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message GPSValidFlags {
+  required bool gps_lat = 1;    // Value of GPSFrame.latitude is valid.
+  required bool gps_lon = 2;    // Value of GPSFrame.longitude is valid.
+  required bool gps_alt = 3;    // Value of GPSFrame.altitude is valid.
+  required bool gps_course = 4; // Value of GPSFrame.course is valid.
+  required bool gps_speed = 5;  // Value of GPSFrame.speed is valid.
+  required bool gps_climb = 6;  // Value of GPSFrame.climb is valid.
+  required bool gps_hdop = 7;   // Value of GPSFrame.hdop is valid.
+  required bool gps_vdop = 8;   // Value of GPSFrame.vdop is valid.
+  required bool gps_hacc = 9;   // Value of GPSFrame.hacc is valid.
+  required bool gps_vacc = 10;  // Value of GPSFrame.vacc is valid.
+}
+
+message GPSFrame {
+  required GPSValidFlags valid_flags = 1; // The flags to show which values are valid in this GPS frame.
+  required int64 timestamp_us = 2;  // Timestamp of the message when first received [usec].
+  required double latitude = 3;     // Latitude [degree].
+  required double longitude = 4;    // Longitude [degree].
+  required double altitude = 5;     // Altitude over WGS84 ellipsoid [m].
+  required double course = 6;       // Course relative to true north [degree].
+  required double speed = 7;        // Horizontal speed [m/s].
+  required double climb = 8;        // Vertical speed [m/s].
+  required string utcTime = 9;      // UTC time as provided in the GPS package [hhmmss.sss] (null terminated).
+  required string utcDate = 10;      // UTC date as provided in the GPS package [ddmmyy] (null terminated).
+  required double hdop = 11;        // Horizontal dilution of precision (HDOP).
+  required double vdop = 12;        // Vertical dilution of precision (VDOP).
+  required double hacc = 13;        // Horizontal accuracy [m].
+  required double vacc = 14;        // Vertical accuracy [m].
+
+  enum GDPRStatus_e {
+    GNSS_OFF                = 0;  // off
+    GNSS_ON_ENABLE_SHARING  = 1;  // on & enable sharing, the gnss data could be used in vehicle and out of vehicle
+    GNSS_ON_DISABLE_SHARING = 2;  // on & disable sharing, the gnss data should be used in vehicle.
+  }
+
+  optional GDPRStatus_e gdpr_status  = 15;
+  optional uint64 timestamp_ptp_ns   = 16;  // Timestamp of the message when first received [nano second].
+
+  optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin 
+  optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+  optional uint64 publish_ptp_ts = 536870907;   // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909;     // uuid of the publisher
+  optional uint64 counter = 536870910;          // message counter
+  optional uint64 publish_ts = 536870911;       // publish utc timestamp; unit : nanosecond
+}

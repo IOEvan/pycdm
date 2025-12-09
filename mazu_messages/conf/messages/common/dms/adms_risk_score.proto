@@ -1,0 +1,62 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message DriverAttnObj {
+    optional uint32 obj_id       = 1;
+    optional uint32 obj_sts      = 2;
+}
+
+message OMSHeadPoseMapElem {
+    optional int32 oms_head_pose  = 1;
+    optional uint64 num           = 2;
+    optional float acc            = 3;
+    optional float std            = 4;
+}
+
+message DriverGaze {
+    optional float headpos_x            = 1; // [m] in veh coord
+    optional float headpos_y            = 2;
+    optional float headpos_z            = 3;
+    optional float yaw                  = 4; // rad in veh coord
+    optional float pitch                = 5; // rad in veh coord
+    optional float yaw_range            = 6; // rad, single side, focus range
+    optional float yaw_edge_range       = 7; // rad, single side
+    optional float pitch_range          = 8; // rad
+    optional float pitch_edge_range     = 9; // rad
+    optional float headpose_yaw_min     = 10; // yaw min thrd for look frnt
+    optional float headpose_yaw_max     = 11; // yaw max thrd for look frnt
+}
+
+message ADMSRiskScore {
+    optional string uuid                                           = 1;
+    optional float  current_km                                     = 2; // VehOdometer  CDC_IC_01
+    optional float  total_risk_score                               = 3;
+    optional uint64 risk_score_result                              = 4; 
+    optional uint32  rs_tottime                                    = 5;
+    optional uint64  high_risk_scene                               = 6;
+    optional uint32  risk_scene_ttc                                = 7;
+    optional uint64  adms_subfunction_mask                         = 8;
+    optional uint64  high_risk_scene_mask                          = 9;
+    optional uint64  risk_scene_warn_mask                          = 10;
+    optional uint64  driver_attn_status                            = 11;
+    optional uint64  attn_alert_obj_id                             = 12;
+    optional uint64  left_gaze_info                                = 13;
+    optional uint64  front_gaze_info                               = 14;
+    optional uint64  right_gaze_info                               = 15;
+    repeated DriverAttnObj  driver_attn_obj                        = 16;
+    repeated OMSHeadPoseMapElem oms_head_pose_map                  = 17;
+    optional DriverGaze driver_gaze                                = 18;
+    optional uint64  adms_self_check                               = 98;
+    optional uint64  adms_status                                   = 99;
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin 
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts    = 536870907; // publish ptp timestamp unit : nanosecond
+    optional string publisher_id      = 536870909; // uuid of the publisher
+    optional uint64 counter           = 536870910; // message counter
+    optional uint64 publish_ts        = 536870911; // publish timestamp; unit : nanosecond
+}

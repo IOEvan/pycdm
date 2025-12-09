@@ -1,0 +1,117 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+ enum LMLaneMarkClass{
+  kLMLC_UNDECIDED = 0;
+  kLMLC_SOLID = 1;
+  kLMLC_DASHED = 2;
+  kLMLC_DOUBLELANECROSSABLE = 3;
+  kLMLC_DOUBLELANEUNCROSSABLE = 4;
+  kLMLC_MULTIPLELANECROSSABLE = 5;
+  kLMLC_MULTIPLELANEUNCROSSABLE = 6;
+  kLMLC_BOTTDOTS = 7;
+  kLMLC_CURB = 8;
+  kLMLC_SNOWEDGE = 9;
+  kLMLC_ROADEDGE = 10;
+  kLMLC_VIRTUAL = 11;
+  kLMLC_BARRIER = 12;
+  kLMLC_CONES = 13;
+  kLMLC_DECEL = 14;
+  kLMLC_INVALID = 15;
+  kLMLC_DOUBLELANESOLIDSOLID = 16;
+  kLMLC_DOUBLELANEDASHEDDASHED = 17;
+  kLMLC_HOVLANE = 18;
+}
+
+enum LMColor{
+  kLMColor_White =0;
+  kLMColor_Yellow =1;
+  kLMColor_Blue =2;
+  kLMColor_Orange = 3;
+  kLMColor_Invalid = 127;
+}
+
+enum LMSource{
+  kLMSource_NONE = 0;
+  kLMSource_CLM = 1;
+  kLMSource_LVLM = 2;
+  kLMSource_RLM = 4;
+  kLMSource_TF = 8;
+  kLMSource_HPP = 16;
+  kLMSource_ESTIMATE = 32;
+  kLMSource_HDMAP = 64;
+  kLMSource_LEAD = 128;
+  kLMSource_COPY = 256;
+  kLMSource_FUSION = 512;
+  kLMSource_MAP_ESTIMATE = 1024;
+}
+message RmeLine{
+  required float pt_conf = 1; 
+  required float c0 = 2;    // unit:m   in SAE coordinate, right is positive
+  required float c1 = 3;
+  required float c2 = 4;
+  required float c3 = 5;
+  required float lrange_start = 6;
+  required float lrange_end = 7;
+  optional float lm_width = 8;
+  required LMColor line_color = 9;
+  required LMLaneMarkClass line_type = 10;
+  required LMSource line_src = 11;
+}
+
+
+message RmeLane{
+  required RmeLine left_line = 1;
+  required RmeLine right_line = 2;
+  repeated LMLaneType lane_type = 3; //2
+  required float lane_start = 4;
+  required float lane_end = 5;
+  required float map_spd_limit = 6;
+  required float lane_width = 7;
+  optional float ca_lon_dst = 8;  //construction area lon_distance
+  repeated float cur_point = 9; //10
+  repeated float cur_value = 10; //10
+  required LMLaneDir lane_dir = 11;
+  optional bool ca_valid = 12;
+  required uint32 lane_id = 13;
+
+  enum LMLaneType {
+    kLMLT_UNDECIDED = 0;
+    kLMLT_REGULAR = 1;
+    kLMLT_SHOULDER = 2;
+    kLMLT_OPENING = 3;
+    kLMLT_CLOSING = 4;
+    kLMLT_BICYCLE = 5;
+    kLMLT_RAMP = 6;
+    kLMLT_CARPOOL = 7;
+    kLMLT_RESERVED = 8;
+    kLMLT_BUS = 9;
+    kLMLT_NONE = 10;
+    kLMLT_ACCELERATION = 11;
+    kLMLT_DECELERATION = 12;
+    kLMLT_TEMP_SHOULDER_OPEN = 13;
+    kLMLT_TEMP_SHOULDER_CLOSED = 14;
+    kLMLT_DIRECT_EXIT = 15;
+  }
+
+  enum LMLaneDir{
+    kLMLaneDir_UNDECIDED = 0;
+    kLMLaneDir_DIRECTE = 1;
+    kLMLaneDir_LEFTTURN = 2;
+    kLMLaneDir_RIGHTTURN = 4;
+    kLMLaneDir_LEFTCHANGE = 8;
+    kLMLaneDir_RIGHCHANGE = 16;
+  }
+}
+
+message RmePoint{
+  required float conf = 1;
+  required float x = 2;
+  required float y = 3;
+  required float z = 4;
+  required float w = 5;
+  required float d = 6;
+  required float s = 7;
+}

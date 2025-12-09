@@ -1,0 +1,893 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+import "common/pnc/geometry.proto"; // for Vector3d
+import "common/perception/astra_planner_trajectories.proto";
+import "common/perception/manner_map.proto";
+
+// https://nio.feishu.cn/wiki/JkxPwVIptixclRkb4KqcwaQfnIV
+message AstraSimDebug {
+    optional uint64 timestamp = 1;
+    optional EnvironmentFeature environment_feature = 2;
+    repeated ModalityFeature modality_features = 3;
+    repeated ModalityTrajectoryEvaluatorInfo modality_traj_eval_info = 4;
+    optional ChosenModalityInfo chosen_modality_info = 5;
+    optional DeciderInfo decider_info = 6;
+    optional VehicleSize ego_veh_size = 7;
+    repeated OperatorProfile operator_profiles = 8 [deprecated = true];
+    optional LaneChangeReasonInfo lane_change_reason = 9;
+    optional LaneChangePartitionInfo lane_change_partition = 10;
+    optional StateMachineTypeInfo state_machine_type_info = 11;
+    optional TrajectoryOptimizerInfo traj_optim_info = 12;
+    optional PlannerKeyFrame key_frame = 13;
+    optional StateMachineFrame state_machine_frame = 14;
+    repeated TrajectoryLongProcessorInfo trajectory_long_processor_info = 15;
+    optional ScenarioRecognition scenario_recognition = 16;
+    optional AstraSimLaneChangeDeciderDebug astra_sim_lane_change_decider_debug = 17;
+    repeated OperatorTimeCost operator_time_costs = 18;
+
+    repeated uint64 receive_map_id = 536870904;   // history receive topic ts
+    repeated AstraHistroyTime astra_histroy_time = 536870905;   // history receive topic ts
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909; // uuid of the publisher
+    optional uint64 counter = 536870910;         // message counter
+    optional uint64 publish_ts = 536870911;    // publish utc timestamp; unit : nanosecond
+}
+
+message AstraSimHistroyTime {
+    optional uint64 receive_od_ts  = 1;      // /receive od topic timestamp;unit : nanosecond
+    optional uint64 receive_relative_loc_ts  = 2;      // /receive relative_localization topic timestamp;unit : nanosecond
+    optional uint64 receive_global_loc_ts  = 3;   // receive global_localization topic timestamp;unit : nanosecond
+    optional uint64 receive_vehicle_in_10_ts  = 4;      // receive vehicle_in_10_ts topic timestamp;unit : nanosecond
+    optional uint64 receive_vehicle_in_50_ts  = 5;      // receive vehicle_in_50_ts topic timestamp;unit : nanosecond
+    optional uint64 receive_lane_post_ts  = 6;   //receive lane_post topic timestamp;unit : nanosecond
+    optional uint64 receive_marker_post_ts  = 7;   //receive marker_post topic timestamp;unit : nanosecond
+    optional uint64 receive_atlas_ts  = 8;      // receive atlas topic timestamp;unit : nanosecond
+    optional uint64 receive_sdmap_routing_ts  = 9;   //receive sdmap_routing topic timestamp;unit : nanosecond  optional uint64 receive_global_routing_ts  = 10;   //receive global_routing topic timestamp;unit : nanosecond
+    optional uint64 receive_tld_post_ts  = 11;      // receive tld_post topic timestamp;unit : nanosecond
+    optional uint64 receive_tsr_post_ts  = 12;      // receive tsr_post topic timestamp;unit : nanosecond
+    optional uint64 receive_camera_ts  = 13;      // receive camera topic timestamp;unit : nanosecond
+    optional uint64 receive_lidar_point_ts  = 14;      // receive lidar_point topic timestamp;unit : nanosecond
+    optional uint64 receive_astra_preproc_ts  = 15;      // receive astra_preproc topic timestamp;unit : nanosecond
+    optional uint64 receive_astra_planner_ts  = 16;      // receive astra_planner topic timestamp;unit : nanosecond
+}
+
+message VehicleSize {
+    optional float width = 1;
+    optional float length = 2;
+}
+
+message ChosenModalityInfo {
+    optional int32 chosen_modality_original_index = 1;
+    optional float chosen_modality_original_prob = 2;
+}
+
+message DecisionSkipInfo{
+    optional uint32 nudge_skip_type = 1;
+    optional int64 left_nudge_id = 2;
+    optional int64 right_nudge_id = 3;
+    optional float nudge_min_width = 4;
+    optional float nudge_width_threshold = 5;
+}
+
+message DeciderInfo {
+    // key objects of decision making
+    repeated TargetInfo key_od_infos = 1;
+    repeated TargetInfo key_sod_infos = 2;
+    repeated TargetInfo key_god_infos = 3;
+    repeated TargetInfo key_road_edge_infos = 4;
+    repeated TargetInfo key_lane_line_infos = 5;
+    repeated TargetInfo key_stop_line_infos = 6;
+    optional TargetInfo ego_selected_traj_info = 7;
+    repeated TargetInfo all_processed_target = 8;
+
+    // decisions
+    repeated DecisionInfo ego_path_decision_info = 9;
+    repeated DecisionInfo od_decision_infos = 10;
+    repeated DecisionInfo lane_decision_infos = 11;
+    repeated DecisionInfo road_edge_decision_infos = 12;
+    repeated DecisionInfo stop_line_decision_infos = 13;
+
+    // skip
+    optional DecisionSkipInfo nudge_skip_info = 14;
+}
+
+message TrajectoryLongProcessorInfo {
+    optional CIPVProcessorInfo cipv_processor_info = 1;
+    optional RoadCollisionProcessorInfo road_collision_processor_info = 2;
+}
+
+message CIPVProcessorInfo {
+    optional float ego_v = 1;
+    optional float ego_acc = 2;
+    optional float ttc = 3;
+    optional float final_jerk = 4;
+    optional int32 ttc_point_idx = 5;
+    optional float ego_ttc_cumsm_len = 6;
+    optional uint64 predicted_agent_id = 7;
+    optional float min_dist_one_dim = 8;
+    optional float min_dist_agent_velocity = 9;
+    optional float caching_up_jerk = 10;
+    optional float target_distance = 11;
+    optional AstraTrajectory init_traj = 12;
+    optional AstraTrajectory changed_traj = 13;
+}
+
+message RoadCollisionProcessorInfo {
+    optional int32 modality_idx = 1;
+    optional int32 min_collision_idx = 2;
+    optional bool is_triggle = 3;
+    optional float catch_up_jerk = 4;
+    optional float min_collision_distance = 5;
+    optional AstraTrajectory init_traj = 6;
+    optional AstraTrajectory optimized_traj = 7;
+}
+
+message ModalityTrajectoryEvaluatorInfo {
+    optional int32 modality_idx = 1;
+    optional TrajectoryFeature traj_feature = 2;
+    optional TrajectoryScore traj_score = 3;
+    optional CollidedObjects collided_objects = 4;
+    optional SelectedObjets selected_objects = 5;
+    optional int32 filter_type = 6;
+}
+
+message TrajectoryFeature {
+    optional SafetyTrajectoryFeature safety_feature = 1;
+    optional ComfortTrajectoryFeature comfort_feature = 2;
+    optional VehDynamicsFeature veh_dynamics_feature = 3;
+    optional ConsistencyFeature consistency_feature = 4;
+    optional ExtraTrajectoryFeature extra_traj_feature = 5;
+    optional TrafficRegulationFeature traffic_regu_feature = 6;
+}
+
+message TrajectoryScore {
+    optional float total_score = 1;
+    optional float ttc_score = 2;
+    optional float out_drivable_space_score = 3;
+    optional float lon_dist_score = 4;
+    optional float lat_dist_score = 5;
+    optional float lon_jerk_comfort_score = 6;
+    optional float lon_acc_comfort_score = 7;
+    optional float lat_jerk_comfort_score = 8;
+    optional float lat_acc_comfort_score = 9;
+    optional float smoothness_score = 10;
+    optional float curv_score = 11;
+    optional float steer_speed_score = 12;
+    optional float navi_consistency_score = 13;
+    optional float similarity_score = 14;
+    optional float lat_similarity_score = 15;
+}
+
+message CollidedObjects {
+    repeated ObjectIdVec collided_agents = 1;       // collided agent ids at each time index
+    repeated ObjectIdVec collided_road_edges = 2;   // collided road ids at each time index
+    repeated ObjectIdVec collided_sods = 3;         // collided sod ids at each time index
+    repeated ObjectIdVec collided_gods = 4;         // collided god ids at each time index
+}
+
+message SelectedObjets {
+    repeated ObjectIdVec selected_objects = 1;      // selected obj ids at the cur time idx
+}
+
+message ObjectIdVec {
+    repeated sint64 object_id = 1;
+}
+
+message SafetyTrajectoryFeature {
+    repeated float min_ttc_vec = 1;            // min ttc over all obj at each timestamp
+    repeated float min_lon_dist_rate_vec = 2;  // min lon distance over all obj at each timestamp
+    repeated float min_lat_dist_rate_vec = 3;  // min lat distance over all obj at each timestamp
+    optional float out_drivable_space_rate = 4;
+}
+
+message ConsistencyFeature {
+    repeated float yaw_vec = 1;
+    optional float ave_euclid_dist = 2;
+    repeated float v_vec = 3;
+    optional float ave_lat_euclid_dist = 4;
+}
+
+message VehDynamicsFeature {
+    repeated bool exceed_curvature_limit = 1;       // bool represents if exceeds curv limit at each timestamp
+    repeated bool exceed_steer_speed_limit = 2;     // bool represents if exceeds steer limit at each timestamp
+}
+
+message ExtraTrajectoryFeature {
+    optional int32 min_agent_collision_time_idx = 1;  // earliest collided time index with agent
+    // lateral closest agent id at each time index, 0 represents that there is no agent
+    repeated int64 latitudinal_closest_agents = 2;
+    // lateral closest agent id at each time index, 0 represents that there is no agent
+    repeated int64 longitudinal_closest_agents = 3;
+}
+
+message ComfortTrajectoryFeature {
+    optional OneHotEncodingWithMaxVal max_lon_jerk = 1;
+    optional OneHotEncodingWithMaxVal max_lon_acc = 2;
+    optional OneHotEncodingWithMaxVal max_lat_jerk = 3;
+    optional OneHotEncodingWithMaxVal max_lat_acc = 4;
+    optional float smoothness = 5;
+}
+
+message TrafficRegulationFeature {
+    repeated float stop_point_ego_front_dist = 1;
+    repeated TLColor traffic_light_color_vec = 2;
+    optional float lon_dist_with_front_cipv = 3;
+    optional float thw_front_cipv = 4;
+    optional int64 cipv_id = 5;
+    repeated bool cross_road_line_vec = 6;
+
+    enum TLColor{
+        TLCOLOR_UNKNOWN = 0;
+        TLCOLOR_RED = 1;
+        TLCOLOR_YELLOW = 2;
+        TLCOLOR_GREEN = 3;
+        TLCOLOR_GRAY = 4;
+    }
+}
+
+message OneHotEncodingWithMaxVal {
+    optional float max_val = 1;
+    repeated bool encoding_mat = 2;
+}
+
+enum DecisionTargetType {
+    DecisionTargetType_UNKNOWN = 0;
+    DecisionTargetType_SMALL_VEHICLE = 1;
+    DecisionTargetType_LARGE_VEHICLE = 2;
+    DecisionTargetType_PED = 3;
+    DecisionTargetType_CYC = 4;
+    DecisionTargetType_SOD = 5;
+    DecisionTargetType_SELECTED_TRAJECTORY = 6;
+    DecisionTargetType_ROAD_LANE_LINE = 7;
+    DecisionTargetType_ROAD_DASHED_LINE = 8;
+    DecisionTargetType_ROAD_ROAD_EDGE = 9;
+    DecisionTargetType_ROAD_STOP_LINE = 10;
+    DecisionTargetType_ROAD_CENTER_LINE = 11;
+    DecisionTargetType_ROAD_UNSAFE_AREA = 12;
+    DecisionTargetType_GOD = 13;
+    DecisionTargetType_ANIMAL = 14;
+}
+
+enum EnvironmentType {
+    EnvironmentType_NORMAL = 0;
+    EnvironmentType_JUNCTION = 1;
+    EnvironmentType_HIGHWAY = 2;
+}
+
+enum DecisionActionType {
+    // action of the vehicle/agent/god/sod
+    DecisionActionType_NUDGE_LEFT = 0;   // nudge to left
+    DecisionActionType_NUDGE_RIGHT = 1;  // nudge to right
+    DecisionActionType_YIELD = 2;        // yield the target
+    DecisionActionType_STOP = 3;         // stop before the target (Traffic light start and stop)
+    DecisionActionType_OVERTAKE = 4;     // overtake the target
+    DecisionActionType_GIVE_AWAY = 5;    // give away to the target
+
+    // action of the coarse trajectory
+    DecisionActionType_CRUISING = 6;  // cruising with target path(coarse trajectory or centerline)
+    DecisionActionType_LANE_CHANGE_LEFT = 7;   // lane change to left
+    DecisionActionType_LANE_CHANGE_RIGHT = 8;  // lane change to right
+
+    // action of the curb/road edge/lane
+    DecisionActionType_AVOID_COLLISION = 9;         // avoid collision curb (hard limit)
+    DecisionActionType_AVOID_PROHIBITED_AREA = 10;  // avoid prohibited area (hard limit)
+    DecisionActionType_AVOID_UNSAFE_AREA = 11;      // avoid unsafe area (middle limit)
+    DecisionActionType_AVOID_STOP_LINE = 12;        // avoid stop line (soft limit)
+    DecisionActionType_AVOID_PRESSING_LINE = 13;    // avoid pressing line (soft limit)
+
+    //
+    DecisionActionType_START_TO_MOVE = 14;  // start to move
+    // action of the motion limit
+    DecisionActionType_REACH_MOTION_LIMIT = 15;  // reach the motion limit
+    DecisionActionType_AVOID_MOTION_LIMIT = 16;  // avoid the motion limit
+}
+
+enum DecisionActionLevel {
+    DecisionActionLevel_LEVEL0 = 0;  // level 0: low level action
+    DecisionActionLevel_LEVEL1 = 1;  // level 1: medium level action
+    DecisionActionLevel_LEVEL2 = 2;  // level 2: high level action
+    DecisionActionLevel_LEVEL3 = 3;  // level 3: very high level action
+    DecisionActionLevel_LEVEL4 = 4;  // level 4: super high level action
+}
+
+message TargetScenarioInfo {
+    optional uint32 nudge_filter_tag = 1;
+    optional uint32 nudge_direction = 2;
+    optional float unprotected_left_turn_yield_pos_x = 3;
+    optional float unprotected_left_turn_yield_pos_y = 4;    
+}
+
+message TargetInfo {
+    optional int64 object_id = 1;
+    optional DecisionTargetType target_type = 2;
+    repeated int32 target_sampling_index = 3;
+    // ONLY FOR LANE: range of collision points index in road points
+    optional int32 target_start = 4;
+    optional int32 target_end = 5;
+    // earliest collision time, -1 represents no collision
+    optional int32 time_collision = 6;
+    optional EnvironmentType env = 7;
+    // FOR SCENARIO
+    optional TargetScenarioInfo target_scenario_info = 8;
+}
+
+message DecisionInfo {
+    optional int64 object_id = 1;
+    repeated EnvironmentType environments = 2;
+    repeated DecisionActionType actions = 3;
+    repeated DecisionActionLevel action_levels = 4;
+    optional DecisionTargetType target_type = 5;
+    optional int32 time_start_atten = 6;
+    optional int32 time_end_atten = 7;
+    optional float atten_distance_thr = 8;
+    optional float offset = 9;
+    optional uint32 scenario_tag = 10;
+    optional uint32 sub_scenario_tag = 11;
+}
+
+// https://nio.feishu.cn/wiki/B7Lmw7bz5i6Z9jkguyKcEcvwn0g
+message EnvironmentTypeInfo {
+    optional int64 id = 1;
+    optional uint32 type = 2;                // 分类
+    optional uint32 reason = 3;              // 分类原因
+    repeated int64 associated_elements = 4;  // 分类相关的动静态元素ID
+}
+
+message ModalityEgoTrajectoryInfo {
+    enum EgoTrajectorySource {
+        UNKNOWN = 0;
+        PLANNER = 1;
+        REFERENCE_LINE = 2;
+    }
+
+    optional EgoTrajectorySource source = 1;
+    // trajetcory index for PLANNER, reference_line id for REFERENCE_LINE
+    optional int64 associated_element = 2;
+    // for trajectories generated from reference_line
+    optional AstraTrajectory coarse_trajectory = 3;
+    optional EnvironmentTypeInfo type_info = 4;
+}
+
+message ModalityReferenceLineInfo {
+    optional int64 id = 1;
+    optional uint32 source = 2;
+    repeated int64 associated_elements = 3;
+}
+
+message ObstacleScreeningInfo {
+    enum ObstacleImportanceLevel {
+        NORMAL_OBSTACLE = 0;
+        CAUTION_OBSTACLE = 1;
+        IGNORE_OBSTACLE = 2;
+    }
+
+    optional int64 id = 1;
+    repeated uint32 add_reasons = 2;                        // 被添加的原因
+    repeated uint32 filter_reasons = 3;                     // 被过滤的原因
+    optional bool is_filtered = 4 [default = false];        // 是否被过滤
+    optional float risk_score = 5;                          // 障碍物的风险值
+    optional ObstacleImportanceLevel importance_level = 6;  // 重要等级
+}
+
+message ModalityObstacleManagerInfo {
+    optional int32 scenario = 1 [default = 1]; // urban = 1, highway = 2
+    repeated ObstacleScreeningInfo obstacle_screening_infos = 2;
+    repeated int64 key_obstacle_ids = 3;  // 关键障碍物ID集合
+}
+
+message RoadlineScreeningInfo {
+    enum RoadlineType {
+        Unknown = 0;
+        LaneLine = 1;
+        RoadEdge = 2;
+        StopLine = 3;
+    }
+
+    optional int64 id = 1;
+    optional RoadlineType roadline_type = 2;
+    optional bool is_filtered = 3 [default = false];  // 是否被过滤
+    repeated uint32 filter_reasons = 4;               // 被过滤的原因
+}
+
+message ModalityRoadlineManagerInfo {
+    repeated RoadlineScreeningInfo roadline_screening_infos = 1;
+    repeated int64 key_roadline_ids = 2;  // 关键车道线ID集合
+}
+
+message ModalityLaneAssignment {
+    enum ObjectLaneAssignment {
+        LaneAssignment_Unknown = 0;
+        // 完全属于某车道
+        LaneAssignment_Host = 1;            // 本车道
+        LaneAssignment_Adjacent_Left = 2;   // 相邻左车道
+        LaneAssignment_Adjacent_Right = 3;  // 相邻右车道
+        LaneAssignment_Left_Left = 4;
+        LaneAssignment_Right_Right = 5;
+        // 压某一车道车道线
+        LaneAssignment_Host_Left_Line = 6;   // 压本车道的左车道线
+        LaneAssignment_Host_Right_Line = 7;  // 压本车道的右车道线
+        LaneAssignment_Adjacent_Left_Left_Line = 8;
+        LaneAssignment_Adjacent_Left_Right_Line = 9;
+        LaneAssignment_Adjacent_Right_Left_Line = 10;
+        LaneAssignment_Adjacent_Right_Right_Line = 11;
+        LaneAssignment_LeftLeft_Left_Line = 12;
+        LaneAssignment_LeftLeft_Right_Line = 13;
+        LaneAssignment_RightRight_Left_Line = 14;
+        LaneAssignment_RightRight_Right_Line = 15;
+        // 自车压线时，完全属于某车道
+        LaneAssignment_Host_Left = 16;   // 本-左车道
+        LaneAssignment_Host_Right = 17;  // 本-右车道
+        // 自车压线时，压某一车道车道线
+        LaneAssignment_Host_Line = 18;              // 压自车所压车道线
+        LaneAssignment_Host_Left_Left_Line = 19;    // 压本-左车道左车道线
+        LaneAssignment_Host_Right_Right_Line = 20;  // 压本-右车道右车道线
+    }
+
+    message LaneAssignmentInfo {
+        optional int64 left_lane_line_id = 1;
+        optional int64 right_lane_line_id = 2;
+        optional ObjectLaneAssignment lane_assignment = 3;
+        optional float relative_time = 4;
+    }
+
+    message ObjectLaneAssignmentInfo {
+        optional int64 object_id = 1;
+        // 记录轨迹各个时刻的车道归属情况
+        repeated LaneAssignmentInfo lane_assignment_infos = 2;
+    }
+
+    repeated LaneAssignmentInfo ego_lane_assignment_infos = 1;
+    repeated ObjectLaneAssignmentInfo object_lane_assignment_infos = 2;
+}
+
+message AgentInteractionInfo {
+    enum AgentInteractionType {
+        UNKNOWN = 0;                  // unknown
+        CUT_IN_NORMAL = 10;           // normal cut-in (all types)
+        CUT_IN_NEAR_DISTANCE = 11;    // vehicle
+        CUT_IN_LARGE_SPEED_GAP = 12;  // vehicle
+        CUT_OUT_NORMAL = 20;          // vehicle
+        CROSSING_NORMAL = 30;         // normal crossing
+        CROSSING_VRU = 31;            // VRU crossing
+    }
+
+    optional int64 agent_id = 1; // perception objects id
+    optional AgentInteractionType interaction_type = 2;
+    optional int32 intersect_wpt_idx = 3;
+    optional int64 intersect_lane_id = 4;
+}
+
+message EnvironmentFeature {
+    repeated EnvironmentTypeInfo reference_lines_type_infos = 1;
+}
+
+message ModalityFeature {
+    optional int32 modality_index = 1;
+    // 轨迹信息
+    optional ModalityEgoTrajectoryInfo ego_trajectory_info = 2;
+    // 参考线信息
+    optional ModalityReferenceLineInfo reference_line_info = 3;
+    // 动态元素管理
+    optional ModalityObstacleManagerInfo obstacle_manager_info = 4;
+    // 静态元素管理
+    optional ModalityRoadlineManagerInfo roadline_manager_info = 5;
+    // 车道归属feature
+    optional ModalityLaneAssignment modality_lane_assignment = 6;
+    // modality interaction
+    repeated AgentInteractionInfo agent_interaction_infos = 7;
+}
+
+message OperatorProfile {
+    enum OperatorType {
+        Preprocess = 0;
+        ScenarioRecognizer = 1;
+        TrajectoryEvaluator = 2;
+        InternalStateMachine = 3;
+        ExternalStateMachine = 4;
+        Planner = 5;
+        TrajectoryOptimizer = 6;
+        PublishTrajectoryEvaluator = 7;
+    }
+
+    required OperatorType operator_type = 1;
+    required float operator_cost_ms = 2;
+}
+
+message OperatorTimeCost {
+    optional string operator_name = 1;
+    optional float operator_cost_ms = 2;
+}
+
+message StateMachineTypeInfo {
+    enum StateMachineProcedureType {
+        PROCEDURE_UNKNOWN = 0;
+        PROCEDURE_LANE_KEEP = 100;
+        LC_LEFT = 200;
+        LC_RIGHT = 300;
+    }
+
+    enum StateMachineType {
+        UNKNOWN = 0;
+        LANE_KEEP = 100;
+        LK = 101;
+        LK_FAIL = 102;
+
+        LANE_CHANGE = 200;
+        // preprare
+        PREPARE_LEFT_LC = 201;
+        PREPARE_RIGHT_LC = 202;
+        // ongoing
+        ONGOING_LEFT_LC = 203;
+        ONGOING_RIGHT_LC = 204;
+        // cruising
+        CRUISING_LEFT_LC = 205;
+        CRUISING_RIGHT_LC = 206;
+        // cancel
+        CANCEL_LEFT_LC = 207;
+        CANCEL_RIGHT_LC = 208;
+        // finished
+        FINISHED_LC = 209;
+
+        TURN = 300;
+    }
+
+    optional int64 id = 1;
+    optional StateMachineProcedureType state_machine_procedure_type = 2;
+    optional StateMachineType state_machine_type = 3;
+}
+
+message LaneChangePartitionInfo {
+    message LaneChangeConcernedObjInfo {
+        optional int64 object_id = 1;
+        optional float obj_rear_to_ego_front_s = 2;
+        optional float obj_to_ego_l = 3;
+        optional float obj_velocity_projected_s = 4;
+        optional float obj_velocity_projected_l = 5;
+    }
+    optional LaneChangeConcernedObjInfo lane_change_f_obj = 1;
+    optional LaneChangeConcernedObjInfo lane_change_fl_obj = 2;
+    optional LaneChangeConcernedObjInfo lane_change_fr_obj = 3;
+    optional LaneChangeConcernedObjInfo lane_change_rl_obj = 4;
+    optional LaneChangeConcernedObjInfo lane_change_rr_obj = 5;
+}
+
+message LaneChangeReasonInfo {
+    optional uint32 NotReadyForPreparingReason = 1;
+    optional uint32 NotReadyForOngoingReason = 2;
+    optional uint32 CancelReason = 3;
+}
+
+message TrajectoryOptimizerCostInfo {
+    enum OptimFactorType {
+        OptimFactorType_POSITIVE_POSITION_CONSTRAINT = 0;
+        OptimFactorType_POSITIVE_MOTION_CONSTRAINT = 1;
+        OptimFactorType_POSITIVE_LANE_CONSTRAINT = 2;
+        OptimFactorType_NEGATIVE_POSITION_CONSTRAINT = 3;
+        OptimFactorType_NEGATIVE_MOTION_CONSTRAINT = 4;
+        OptimFactorType_NEGATIVE_LANE_CONSTRAINT = 5;
+    }
+
+    enum OptimCostType {
+        OptimCostType_EXP_POSITIVE_FUNCTION = 0;
+        OptimCostType_EXP_NEGATIVE_FUNCTION = 1;
+        OptimCostType_L1_POSITIVE_FUNCTION = 2;
+        OptimCostType_L1_NEGATIVE_FUNCTION = 3;
+    }
+
+    enum EnableMethod {
+        EnableMethod_kEnableByTime = 0;
+        EnableMethod_kEnableByDistance = 1;
+    }
+
+    message BaseCostInfo {
+        optional TargetInfo target_info = 1;
+        optional OptimFactorType factor_type = 2;
+        optional OptimCostType cost_type = 3;
+        optional DecisionActionType decision_type = 4;
+        repeated float cost_param = 5;
+        repeated float sigma = 6;
+        repeated float response_state_time_list = 7;
+        optional EnableMethod enable_method = 8;
+        optional float enable_distance = 9;
+    }
+
+    repeated BaseCostInfo negative_position_cost = 1;
+    repeated BaseCostInfo negative_motion_cost = 2;
+    repeated BaseCostInfo negative_lane_cost = 3;
+    repeated BaseCostInfo positive_position_cost = 4;
+    repeated BaseCostInfo positive_motion_cost = 5;
+    repeated BaseCostInfo positive_lane_cost = 6;
+}
+
+message TrajectoryOptimizerInfo {
+    optional TrajectoryOptimizerCostInfo traj_optim_cost_info = 1;
+}
+
+message PlannerKeyFrame {
+    optional uint64 timestamp = 1;
+    optional AstraTrajectory selected_traj = 2;
+    optional uint32 selected_modality_index = 3;
+    // 7 (x, y, yaw, yaw_rate, v, acc, jerk)  * 35 points.
+    repeated float motion_states = 4;
+    repeated float motion_state_stds = 5;
+    map<int64, uint32> history_decision_map = 6;
+    // Skip serialize agent interactions and static vehicles, skip scenario operator when reproduce.
+}
+
+// Next Id: 13
+message StateMachineFrame {
+    enum InternalState {
+        UNKNOWN = 0;
+
+        NOA_STATUS = 100;   // Main state
+        NOA_ENGAGED = 102;  // sub state
+        NOA_DISABLE = 103;  // sub state
+
+        Cruise = 200;
+        LK = 201;
+        LK_FAIL = 202;
+        Nudge = 203;
+        // uturn
+        UTURN = 210;
+        UTURN_PREPARE_LEFT = 211;
+        UTURN_PREPARE_RIGHT = 212;
+        UTURN_ONGOING_LEFT = 213;
+        UTURN_ONGOING_RIGHT = 214;
+        // three point uturn
+        THREE_POINT_UTURN_PREPARE_LEFT = 215;
+        THREE_POINT_UTURN_PREPARE_RIGHT = 216;
+        THREE_POINT_UTURN_ONGOING_LEFT = 217;
+        THREE_POINT_UTURN_ONGOING_RIGHT = 218;
+        UTURN_CANCEL = 219;
+        UTURN_COMPLETE = 220;
+        UTURN_ONGOING_LEFT_FORWARD = 221;
+        UTURN_ONGOING_LEFT_BACKWARD = 222;
+        UTURN_ONGOING_RIGHT_FORWARD = 223;
+        UTURN_ONGOING_RIGHT_BACKWARD = 224;
+
+        LANE_CHANGE = 300;
+        // preprare
+        LC_PREPARE_LEFT = 301;
+        LC_PREPARE_RIGHT = 302;
+        // ongoing
+        LC_ONGOING_LEFT = 303;
+        LC_ONGOING_RIGHT = 304;
+        // cancel
+        LC_CANCEL = 305;
+        // finished
+        LC_COMPLETE = 306;
+
+        INTERSECTION = 400;
+
+        TURN = 500;
+
+        ROUNDABOUT = 600;
+        ROUNDABOUT_PREPARE = 601;
+        ROUNDABOUT_ONGOING = 602;
+        ROUNDABOUT_LEAVING = 603;
+        ROUNDABOUT_COMPLETE = 604;
+        ROUNDABOUT_LANE_CHANGE = 605;
+        ROUNDABOUT_LC_PREPARE_LEFT = 606;
+        ROUNDABOUT_LC_PREPARE_RIGHT = 607;
+        ROUNDABOUT_LC_ONGOING_LEFT = 608;
+        ROUNDABOUT_LC_ONGOING_RIGHT = 609;
+        ROUNDABOUT_LC_CANCEL = 610;
+        ROUNDABOUT_LC_COMPLETE = 611;
+    }
+
+    optional uint64 timestamp = 1;
+    optional string debug_string = 2;
+    optional bool is_in_noa_state = 3;
+    optional PathLCType lc_type = 4;
+    optional bool is_navi_path_lc = 5;
+    optional InternalState current_state = 6;
+    optional AstraPlannerAgents.InternalStateMachineState state = 12;
+    optional PathSemantic turn_type = 7;
+    optional bool is_navi_path_uturn = 8;
+    optional bool is_roundabout_scene = 9;
+    optional bool is_navi_path_exit_roundabout_right = 10;
+    optional bool is_traj_backward = 11;
+    
+    enum DAAlcCommandType {
+        NO_REQUEST         = 0;   //default
+        LANE_CHANGE_LEFT   = 1;
+        LANE_CHANGE_RIGHT  = 2;
+        LANE_CHANGE_CANCEL = 3;
+    }
+    enum LcTriggerSourceType {
+        NONE = 0;                 //default
+        LEVER_TRRIGER = 1;
+        AUTO_TRIGGER = 2;
+    }
+    optional uint32 da_nad_sts = 13;
+    optional DAAlcCommandType alc_command = 14;
+    optional DAAlcCommandType last_alc_command = 15;
+    optional PathLCType lever_lc_type = 16;
+    optional PathLCType last_lc_type = 17;
+    optional bool lever_lc_get_gap_flag = 18;
+    optional LcTriggerSourceType lc_trigger_source = 19;
+    optional bool lc_complete_suppression_t_flag = 20;
+    optional bool lc_cancel_suppression_t_flag = 21;
+}
+
+message ScenarioRecognition {
+    message ScenarioDescription {
+        message StaticDescription {
+            optional uint32 static_env_tag = 1;
+            optional int64 id = 2;
+            optional float dist_to_entry = 3;
+            optional float dist_to_exit = 4;
+            optional uint32 filtered = 5;
+        }
+        message DynamicDescription {
+            optional int64 id = 1;
+            optional float dist = 2;
+            optional uint32 interaction_tag = 3;
+            optional uint32 filtered = 4;
+        }
+        message TrafficDescription {
+            optional uint32 traffic_tag = 1;
+            optional float dist_to_entry = 2;
+            optional float dist_to_exit = 3;
+            optional uint32 filtered = 4;
+        }
+        message EgoBehaviorDescription {
+            optional uint32 ego_desc = 1;
+            optional uint32 filtered = 2;
+        }
+        // desc. static road envrionment
+        repeated StaticDescription static_desc = 1;
+        // desc. ego status
+        repeated EgoBehaviorDescription ego_desc = 2;
+        // desc. dynamic objects which maybe interactive with ego(single)
+        repeated DynamicDescription dynamic_desc = 3;
+        // desc. traffic flow grouped by dynamic objects
+        repeated TrafficDescription traffic_desc = 4;
+    }
+    message ScenarioTags {
+        optional uint32 tag_id = 1;
+        optional uint32 source = 2;
+    }
+    optional ScenarioDescription scenario_desc = 1;
+    repeated ScenarioTags scenario_tags = 2;
+    repeated ScenarioTags filtered_scenario_tags = 3;
+    repeated ScenarioTags ppl_scenario_tags = 4;        // all scenarios associated to publish_info
+    optional ScenarioTags agent_post_scenario_tag = 5;  // scenario associated to agent_post
+    optional ScenarioTags pnc_path_scenario_tag = 6;    // scenario associated to pnc_path
+}
+
+message AstraSimLaneChangeDeciderDebug {
+    optional CoordinateDebug coordinate_debug = 1;
+    optional GapSelectorDebug gap_selector_debug = 2;
+    optional PathSolutionDebug path_solution_debug = 3;
+}
+
+message CoordinateDebug {
+    message ObjectOnCurve {
+        optional int64 id = 1;
+        optional float s_min = 2;
+        optional float s_max = 3;
+        optional float l_min = 4;
+        optional float l_max = 5;
+        optional float v_s = 6;
+        optional float v_l = 7;
+        optional float heading = 8;
+        optional uint64 timestamp = 9;
+    }
+    message LinePoint {
+        optional float x = 1;
+        optional float y = 2;
+    }
+    optional string coordinate_debug_string = 1;
+    map<int64, ObjectOnCurve> object_on_curve_map = 2;
+    repeated int64 target_lane_obj_ids = 3;
+    repeated int64 original_lane_obj_ids = 4;
+    optional bool has_cross_line = 5;
+    optional int64 divide_line_id = 6;
+    repeated LinePoint divide_line = 7;
+}
+
+message GapSelectorDebug {
+    message GapCandidate {
+        optional int32 front_id = 1;
+        optional int32 back_id = 2;
+        optional int32 yield_id = 3;
+        optional int32 overtake_id = 4;
+        message MotionBound {
+            optional double time_stamp = 1;
+            optional double curr_motion_hard_upper_bound = 2;
+            optional double curr_motion_hard_lower_bound = 3;
+            optional double curr_motion_soft_upper_bound = 4;
+            optional double curr_motion_soft_lower_bound = 5;
+            optional double tgt_motion_hard_upper_bound = 6;
+            optional double tgt_motion_hard_lower_bound = 7;
+            optional double tgt_motion_soft_upper_bound = 8;
+            optional double tgt_motion_soft_lower_bound = 9;
+        }
+        repeated MotionBound motion_bounds = 5;
+        optional double gap_solution_cost = 6;
+        message GapSolutionMotion {
+            optional double time_stamp = 1;
+            optional double acc = 2;
+            optional double speed = 3;
+            optional double s = 4;
+        }
+        repeated GapSolutionMotion gap_solution_motion = 7;
+        optional double start_t = 8;
+    }
+    repeated GapCandidate gap_candidates = 1;
+    optional string gap_selector_debug_string = 2;
+    optional uint32 lc_phase_flg = 3;
+}
+
+message PathSolutionDebug {
+    message SearchGridNode {
+        optional int32 layer_index = 1;
+        optional int32 node_index = 2;
+        // SL coordinate
+        optional double s = 3;
+        optional double l = 4;
+        // car coordinate
+        optional double x = 5;
+        optional double y = 6;
+    }
+    message GapInfo {
+        optional int32 front_id = 1;
+        optional int32 back_id = 2;
+        optional int32 yield_id = 3;
+        optional int32 overtake_id = 4;
+        optional double start_t = 5;
+        repeated GapSelectorDebug.GapCandidate.GapSolutionMotion gap_solution_motion = 6;
+        optional double cost = 7;
+    }
+
+    message CostPoint {
+        optional double cost = 1;
+        optional double s = 2;
+        optional double l = 3;
+    }
+    message CostMatrix {
+        message Row {
+            repeated CostPoint cost_point = 1;
+        }
+        repeated Row rows = 1;
+    }
+    message CollisionCostMapDebug {
+        optional string debug_message = 1;
+        optional double sampling_t_step = 2;
+        repeated CostMatrix collision_cost_map = 3;
+    }
+
+    message SearchGrid {
+        message SearchGridRow {
+            repeated SearchGridNode nodes = 1;
+            optional double left_l = 2;
+            optional double right_l = 3;
+        }
+        repeated SearchGridRow rows = 1;
+        optional double start_s = 2;
+        optional double end_s = 3;
+    }
+
+    message Path {
+        repeated SearchGridNode path = 1;
+        optional double cost = 2;
+    }
+    message PathSearchCandidateDebug {
+        optional string debug_message = 1;
+        optional GapInfo gap = 2;
+        repeated Path path_debug = 3;
+        optional int32 choosen_path_index = 4;
+    }
+
+    optional string debug_message = 1;
+    optional SearchGrid search_grid = 2;
+    optional CollisionCostMapDebug collision_cost_map_debug = 3;
+    repeated PathSearchCandidateDebug path_search_result_debug = 4;
+    optional int32 choosen_candidate_index = 5;
+}

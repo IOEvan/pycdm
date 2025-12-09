@@ -1,0 +1,99 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages.debug;
+// import "common/perf/sensor_ts_header.proto";
+
+import "np/debug/dgb_ehy_meas.proto";
+import "np/apps/ehy_rme_road_base.proto";
+import "np/apps/ehy_sin_outputs.proto";
+
+//PathPredACC include three lanes(host lane, left lane and right lane)
+//Each lane has two lines: left and right within which four segments are included
+//Each line has four segments: front far and near, rear near and far 
+//Each segment is a polynominal, the start and end distance , c0, c1, c2 belongs to RmeLine attribute
+message PathPredACC{
+        optional RmeLine host_left_front_far_seg = 1; 
+        optional RmeLine host_left_front_near_seg = 2;
+        optional RmeLine host_left_rear_near_seg = 3;
+        optional RmeLine host_left_rear_far_seg = 4;
+        optional RmeLine host_right_front_far_seg = 5;
+        optional RmeLine host_right_front_near_seg = 6;
+        optional RmeLine host_right_rear_near_seg = 7;
+        optional RmeLine host_right_rear_far_seg = 8;
+        optional RmeLine left_left_front_far_seg = 9;
+        optional RmeLine left_left_front_near_seg = 10;
+        optional RmeLine left_left_rear_near_seg = 11;
+        optional RmeLine left_left_rear_far_seg = 12;
+        optional RmeLine left_right_front_far_seg = 13;
+        optional RmeLine left_right_front_near_seg = 14;
+        optional RmeLine left_right_rear_near_seg = 15;
+        optional RmeLine left_right_rear_far_seg = 16;
+        optional RmeLine right_right_front_far_seg = 17;
+        optional RmeLine right_right_front_near_seg = 18;
+        optional RmeLine right_right_rear_near_seg = 19;
+        optional RmeLine right_right_rear_far_seg = 20;
+        optional RmeLine right_left_front_far_seg = 21;
+        optional RmeLine right_left_front_near_seg = 22;
+        optional RmeLine right_left_rear_near_seg = 23;
+        optional RmeLine right_left_rear_far_seg = 24;
+}
+
+message PredCutInObj{
+        optional bool pred_cut_in_flag = 1;
+        optional float pred_cut_in_ccs_vx = 2;
+        optional float pred_cut_in_ccs_vy = 3;
+        optional float pred_cut_in_ccs_pos_x = 4;
+        optional float pred_cut_in_ccs_pos_y = 5;
+        optional float pred_cut_in_heading = 6;
+}
+
+message PredCutInLane{
+        optional float pred_cut_in_lane_c0 = 1;
+        optional float pred_cut_in_lane_c1 = 2;
+        optional float pred_cut_in_lane_c2 = 3;
+        optional float pred_cut_in_lane_start = 4;
+        optional float pred_cut_in_lane_end = 5;
+}
+
+message PredCutInVeh{
+        optional float pred_cut_in_veh_spd = 1;
+        optional float pred_cut_in_yaw_rate = 2;
+        optional float pred_cut_in_str_whl = 3;
+}
+
+message ReservedMpVar{
+        optional float res_f_var = 1;
+        optional uint32 res_u32_var = 2;
+        optional int32 res_s32_var = 3;
+        optional uint64 res_u64_var = 4;
+        optional int64 res_s64_var = 5;
+        optional bool res_bool_var = 6;
+}
+
+message ObjLMRelMp{
+        optional uint32 objlmrel_obj2D_num = 1;
+        optional uint32 objlmrel_lmj2D_num = 2;
+        repeated uint32 objlmrel_lmassociation_lm3D_id = 3; // use idx for 2D lms
+}
+
+message EHYDebugExtra{
+        optional PathPredACC path_pred_acc = 1;
+        repeated PredCutInObj pred_cutin_obj = 2;//num = 128
+        repeated PredCutInLane pred_cutin_lane = 3;//num = 2,first is left,second is right
+        optional PredCutInVeh pred_cutin_veh = 4;
+        repeated ReservedMpVar res_mp_var = 5;
+        optional ObjLMRelMp obj_lm_rel = 6;
+}
+
+message EHYDebugOut{
+        optional EHYDebugMeas meas_var = 1;
+        optional EHYDebugExtra extra_var = 2;
+        optional EHYSINOutputs ehy_sin_var = 3;
+
+        // optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+        optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+        optional string publisher_id = 536870909; // uuid of the publisher
+        optional uint64 counter = 536870910; // message counter
+        optional uint64 publish_ts = 536870911;    // publish utc timestamp; unit : nanosecond
+}

@@ -1,0 +1,69 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message FctDaInhibit{
+   optional uint32 ACCSC_flgActPrev_mp                   = 1;
+
+   optional uint32 ACCSC_uActPrev_mp                     = 2;
+   optional uint32 ACCSC_uActPrev1_mp                    = 3;
+   optional uint32 ACCSC_uActPrev2_mp                    = 4;
+   optional uint32 ACCSC_uEscFun_mp                      = 5;
+   optional uint32 ACCSC_flgHardInh_mp                   = 6;
+   optional uint32 ACCSC_flgEDAStandby2Actv_mp           = 7;
+   optional uint32 ACCSC_uHardInh1_mp                    = 8;
+   optional uint32 ACCSC_uHardInh2_mp                    = 9;
+   optional uint32 ACCSC_uHardInh3_mp                    = 10;
+   optional uint32 ACCSC_uHardInh4_mp                    = 11;
+   optional uint32 ACCSC_uEASTrgHardInh1_mp              = 12;
+   optional uint32 ACCSC_uEASTrgHardInh2_mp              = 13;
+   optional uint32 ACCSC_uEASTrgInMannualMode_mp         = 14;
+   optional uint32 da_topic_loss_comm                    = 15;
+
+   optional uint32 ACCSC_flgSoftInh_mp                   = 16;
+   optional uint32 ACCSC_uAtnDmdSoftInh1_mp              = 17;
+   optional uint32 ACCSC_uAtnDmdSoftInh2_mp              = 18;
+   optional uint32 ACCSC_uTkovDmdSoftInh1_mp             = 19;
+   optional uint32 ACCSC_uTkovDmdSoftInh2_mp             = 20;
+   optional uint32 ACCSC_uTkovDmdSoftInh3_mp             = 21;
+   optional uint32 ACCSC_uBrkSysADSoftInh1_mp            = 22;
+   optional uint32 ACCSC_uBrkSysADSoftInh2_mp            = 23;
+   optional uint32 ACCSC_uDrvAttntAvlbADSoftInh_mp       = 24;
+   optional uint32 ACCSC_uFimADSoftInh1_mp               = 25;
+   optional uint32 ACCSC_uFimADSoftInh2_mp               = 26;
+   optional uint32 ACCSC_uFimADSoftInh3_mp               = 27;
+   optional uint32 ACCSC_uVehStbTDSoftInh1_mp            = 28;
+   optional uint32 ACCSC_uVehStbTDSoftInh2_mp            = 29;
+   optional uint32 ACCSC_uBrkSysTDSoftInh1_mp            = 30;
+   optional uint32 ACCSC_uBrkSysTDSoftInh2_mp            = 31;
+   optional uint32 ACCSC_uDrvAttntAvlbTDSoftInh_mp       = 32;
+   optional uint32 ACCSC_uFimTDSoftInh1_mp               = 33;
+   optional uint32 ACCSC_uFimTDSoftInh2_mp               = 34;
+   optional uint32 ACCSC_uFimTDSoftInh3_mp               = 35;
+   optional uint32 ACCSC_uFimTDSoftInh4_mp               = 36;
+   optional uint32 ACCSC_uFimTDSoftInh5_mp               = 37;
+   optional uint32 ACCSC_uTkovDmdCDCSts_mp               = 38;
+   optional uint32 ACCSC_uFailSafeTDSoftInh1_mp          = 39;
+   optional uint32 ACCSC_uVehStbADSoftInh1_mp            = 40;
+   optional uint32 ACCSC_uVehStbADSoftInh2_mp            = 41;
+   optional uint32 ACCSC_flgSysPassive_mp                = 42;
+   optional uint32 ACCSC_uCdnPassive_mp                  = 43;
+   optional uint32 ACCSC_uNOPSuppression_mp              = 44;
+   optional uint32 ACCSC_uNOPActivationPrevention_mp     = 45;
+   optional uint32 LatCtrl_bfLCATakeOverSprsMask_mp      = 46;
+   optional uint32 LatCtrl_bfLksSprs_mp                  = 47;
+   optional uint32 HWASM_Stdummy_mp                      = 48;
+   optional uint32 ACCSC_stFAM_DAMainSts_mp              = 49;
+   repeated double reserved                              = 50;
+
+   optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+   optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+   optional uint64 publish_ptp_ts   = 536870907;      // publish ptp timestamp; unit : nanosecond
+   optional string publisher_id     = 536870909;      // uuid of the publisher
+   optional uint64 counter          = 536870910;      // message counter
+   optional uint64 publish_ts       = 536870911;      // publish timestamp; unit : nanosecond
+}
+

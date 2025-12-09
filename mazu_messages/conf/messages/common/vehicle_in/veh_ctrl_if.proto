@@ -1,0 +1,233 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+message VehCtrlIfInfo{
+	message LngCtrlFun{
+        reserved 15,16,23;
+		required bool   VLCAvl = 1;                         //@Channel:CHASSIS @Message:0x56 @Signal:VCU_VLCAvl
+                                                                //@Channel:CHASSIS2 @Message:0x56 @Signal:VCU_VLCAvl
+		required bool   VLCActv = 2;                        //@Channel:CHASSIS @Message:0x56 @Signal:VCU_VLCActv
+                                                                //@Channel:CHASSIS2 @Message:0x56 @Signal:VCU_VLCActv
+		required float  VLCTarDecel = 3;                    //@Channel:CHASSIS @Message:0x56 @Signal:VCU_VLCTarDecel
+                                                                //@Channel:CHASSIS2 @Message:0x56 @Signal:VCU_VLCTarDecel
+
+        enum LlcFctStType_e{
+            LlcFct_Init     = 0;//Init
+            LlcFct_Stdby    = 1;//Standby
+            LlcFct_Actv     = 2;//Active
+            LlcFct_Intrptn  = 3;//Interruption
+            LlcFct_ErrOr    = 4;//Error
+            LlcFct_Rsrvd5   = 5;//Reserved
+            LlcFct_Rsrvd6   = 6;//Reserved
+            LlcFct_Rsrvd7   = 7;//Reserved
+        }
+		required LlcFctStType_e LLCFctSt = 4;               //@Channel:CHASSIS @Message:0x56 @Signal:VCU_LLCFctSt
+                                                                //@Channel:CHASSIS2 @Message:0x56 @Signal:VCU_LLCFctSt
+
+        enum LlcIntrptErrType_e{
+            LlcIntrpt_NoErr       = 0;//No interruption/error
+            LlcIntrpt_VehBlock    = 1;//Vehicle block
+            LlcIntrpt_EpbIntrvntn = 2;//Unexpected EPB intervention
+            LlcIntrpt_Override    = 3;//Override
+            LlcIntrpt_FailByEpb   = 4;//Fail to apply EPB
+            LlcIntrpt_LlcErr      = 5;//LLC error
+            LlcIntrpt_Rsrvd6      = 6;//Gear change takeover
+            LlcIntrpt_Rsrvd7      = 7;//Reserved
+            LlcIntrpt_Rsrvd8      = 8;//Reserved
+            LlcIntrpt_Rsrvd9      = 9;//Reserved
+            LlcIntrpt_Rsrvd10     = 10;//Reserved
+            LlcIntrpt_Rsrvd11     = 11;//Reserved
+            LlcIntrpt_Rsrvd12     = 12;//Reserved
+            LlcIntrpt_Rsrvd13     = 13;//Reserved
+            LlcIntrpt_Rsrvd14     = 14;//Reserved
+            LlcIntrpt_Rsrvd15     = 15;//Reserved
+        }
+		required LlcIntrptErrType_e LLCIntrrptErrTyp = 5;   //@Channel:CHASSIS @Message:0x56 @Signal:VCU_LLCIntrrptErrTyp
+                                                                //@Channel:CHASSIS2 @Message:0x56 @Signal:VCU_LLCIntrrptErrTyp
+		required bool  	AutoBrkgAvl = 6;   					//@Channel:CHASSIS @Message:0x5E @Signal:AutoBrkgAvl
+                                                                //@Channel:CHASSIS2 @Message:0x5E @Signal:AutoBrkgAvl
+		required bool  	AutoBrkgActv = 7;   				//@Channel:CHASSIS @Message:0x5E @Signal:AUTOBrkgActv
+                                                                //@Channel:CHASSIS2 @Message:0x5E @Signal:AUTOBrkgActv
+
+        enum AdtStType_e{
+            AdtSt_Off    = 0;//Off
+            AdtSt_Stdby  = 1;//Standby
+            AdtSt_Actv   = 2;//Active
+            AdtSt_Rsrvd3 = 3;//Reserved
+            AdtSt_Rsrvd4 = 4;//Reserved
+            AdtSt_Rsrvd5 = 5;//Reserved
+            AdtSt_Rsrvd6 = 6;//Reserved
+            AdtSt_Rsrvd7 = 7;//Reserved
+        }
+		required AdtStType_e ADTSts = 8;                    //@Channel:CHASSIS @Message:0x56 @Signal:VCU_ADTSts
+                                                                //@Channel:CHASSIS2 @Message:0x56 @Signal:VCU_ADTSts
+
+        enum HldLampReqType_e{
+            HldLamp_NoReq  = 0;//No request
+            HldLamp_Illume = 1;//illume lamp
+        }
+        required HldLampReqType_e HldLampReq = 9;           //@Channel:CHASSIS @Message:0x56 @Signal:VCU_HldLampReq
+                                                                //@Channel:CHASSIS2 @Message:0x56 @Signal:VCU_HldLampReq
+
+        optional bool  FCC1_ForceFctEna      = 10;          //@Channel:CHASSIS @Message:0xD5 @Signal:FCC1_ForceFctEna
+        optional bool  FCC1_BrkReqEna        = 11;          //@Channel:CHASSIS @Message:0xD5 @Signal:FCC1_BrkReqEna
+        optional float FCC1_TarBrkFReq       = 12;          //@Channel:CHASSIS @Message:0xD5 @Signal:FCC1_TarBrkFReq @Comment:Target Brake Force Request
+        optional bool  FCC1_VehHldReq        = 13;          //@Channel:CHASSIS @Message:0xD5 @Signal:FCC1_VehHldReq
+        optional bool  FCC1_VLCActv          = 14;          //@Channel:CHASSIS @Message:0xD5 @Signal:FCC1_VLCActv
+        optional float  RVMCLgtDecCp         = 17;          //@Channel:CHASSIS @Message:0xD5 @Signal:FCC1_VMCLgtDecCp
+        optional uint32  RVMCLgtSts          = 18;          //@Channel:CHASSIS @Message:0xD5 @Signal:FCC1_VMCLgtSts
+
+        enum CruiseCtrlMod_e{
+            CruiseCtrl_NoReq  = 0;   //Cruise control No request
+            CruiseCtrl_Inc = 1;      //Cruise control Increase
+            CruiseCtrl_IncFast = 2;  //Cruise control Increase Fast
+            CruiseCtrl_Dec = 3;      //Cruise control Decrease
+            CruiseCtrl_DecFast = 4;  //Cruise control Decrease Fast
+            CruiseCtrl_Set = 5;      //Cruise control Set
+            CruiseCtrl_Resume = 6;   //Cruise control Resume
+            CruiseCtrl_Reserved_7 = 7;
+            CruiseCtrl_Reserved_8 = 8;
+            CruiseCtrl_Reserved_9 = 9;
+            CruiseCtrl_Reserved_10 = 10;
+            CruiseCtrl_Reserved_11 = 11;
+            CruiseCtrl_Reserved_12 = 12;
+            CruiseCtrl_Reserved_13 = 13;
+            CruiseCtrl_Reserved_14 = 14;
+            CruiseCtrl_Reserved_15 = 15;
+        }
+        optional CruiseCtrlMod_e  VCUCruiseCtrlMod = 19;    //@Channel:CHASSIS @Message:0x217 @Signal:VCUCruiseCtrlMod
+                                                                //@Channel:CHASSIS2 @Message:0x217 @Signal:VCUCruiseCtrlMod
+        enum VMCBrkOvrd_e{
+            VMCBrkOvrd_not_override=0;
+            VMCBrkOvrd_override=1;
+        }
+        optional VMCBrkOvrd_e VMCBrkOvrd           = 20;    //@Channel:CHASSIS @Message:0x56 @Signal:VMCBrkOvrd
+                                                                //@Channel:CHASSIS2 @Message:0x56 @Signal:VMCBrkOvrd
+        optional float  VMCLgtAccCp                = 21;    //@Channel:CHASSIS @Message:0x109 @Signal:VCU_VMCLgtAccCp
+                                                                //@Channel:CHASSIS2 @Message:0x109 @Signal:VCU_VMCLgtAccCp
+        optional float  VMCLgtDecCp                = 22;    //@Channel:CHASSIS @Message:0x109 @Signal:VCU_VMCLgtDecCp
+                                                                //@Channel:CHASSIS2 @Message:0x109 @Signal:VCU_VMCLgtDecCp
+        optional uint32  VMCLgtSts                 = 24;    //@Channel:CHASSIS @Message:0x109 @Signal:VCU_VMCLgtSts
+                                                                //@Channel:CHASSIS2 @Message:0x109 @Signal:VCU_VMCLgtSts
+        repeated uint64 timestamp_ptp_ns 	       = 25;    //@Channel:CHASSIS @Message:0x56
+                                                            //@Channel:CHASSIS @Message:0x5E
+                                                            //@Channel:CHASSIS @Message:0xD5
+                                                            //@Channel:CHASSIS @Message:0x109
+                                                            //@Channel:CHASSIS @Message:0x217
+        optional float FCC1_VLCTarDecel            = 26;    //@Channel:CHASSIS @Message:0xD5 @Signal:FCC1_VLCTarDecel
+        optional bool FCC1_VMCBrkOvrd              = 27;    //@Channel:CHASSIS @Message:0xD5 @Signal:FCC1_VMCBrkOvrd
+        enum VMCLLCSts_e{
+            VMCLLCSts_NotAvl               = 0;
+            VMCLLCSts_PerfrmLost           = 1;
+            VMCLLCSts_RedundencyLost       = 2;
+            VMCLLCSts_FullAvl              = 3;
+        }
+        optional VMCLLCSts_e VCU_VMCLLCSts         = 28;    //@Channel:CHASSIS @Message:0x109 @Signal:VCU_VMCLLCSts
+                                                                //@Channel:CHASSIS2 @Message:0x109 @Signal:VCU_VMCLLCSts
+        optional VMCLLCSts_e FCC1_VMCLLCSts        = 29;    //@Channel:CHASSIS @Message:0xD5 @Signal:FCC1_VMCLLCSts
+        enum FCC1_LLCFctSt_e{
+            FCC1_LLCFctSt_Init              = 0;
+            FCC1_LLCFctSt_Standby           = 1;
+            FCC1_LLCFctSt_Actv              = 2;
+            FCC1_LLCFctSt_Error             = 3;
+        }
+        optional FCC1_LLCFctSt_e FCC1_LLCFctSt     = 30;    //@Channel:CHASSIS @Message:0xD5 @Signal:FCC1_LLCFctSt
+        enum VCUTqRmpLmterSts_e{
+            VCUTqRmpLmterSts_Passive             = 0;
+            VCUTqRmpLmterSts_Standby             = 1;
+            VCUTqRmpLmterSts_Active              = 2;
+            VCUTqRmpLmterSts_Inhibit             = 3;
+        }
+        optional VCUTqRmpLmterSts_e VCUTqRmpLmterSts     = 31;    //@Channel:CHASSIS @Message:0x56 @Signal:VCUTqRmpLmterSts
+                                                                        //@Channel:CHASSIS2 @Message:0x56 @Signal:VCUTqRmpLmterSts
+        optional uint32 VMCLgtErr           = 32;    //@Channel:CHASSIS @Message:0x109 @Signal:VMCLgtErr
+                                                            //@Channel:CHASSIS2 @Message:0x109 @Signal:VMCLgtErr
+        enum VCU_AVHSts_e{
+            VCU_AVHSts_Failure             = 0;
+            VCU_AVHSts_Standby             = 1;
+            VCU_AVHSts_Active              = 2;
+            VCU_AVHSts_Off                 = 3;
+        }
+        optional VCU_AVHSts_e VCU_AVHSts     = 33;    //@Channel:CHASSIS @Message:0x56 @Signal:VCU_AVHSts
+                                                            //@Channel:CHASSIS2 @Message:0x56 @Signal:VCU_AVHSts
+        optional bool VCU_AVHCfgSts          = 34;    //@Channel:CHASSIS @Message:0x56 @Signal:VCU_AVHCfgSts
+                                                            //@Channel:CHASSIS2 @Message:0x56 @Signal:VCU_AVHCfgSts
+        optional bool VCU_HSAActv          = 35;      //@Channel:CHASSIS @Message:0x56 @Signal:VCU_HSAActv
+                                                            //@Channel:CHASSIS2 @Message:0x56 @Signal:VCU_HSAActv
+        optional bool VCU_HSAAvail          = 36;     //@Channel:CHASSIS @Message:0x56 @Signal:VCU_HSAAvail
+                                                            //@Channel:CHASSIS2 @Message:0x56 @Signal:VCU_HSAAvail
+        optional uint64 VmcLgtErrCode       = 37;       // @linescope: NT3
+        optional uint64 RVmcLgtErrCode      = 38;       // @linescope: NT3
+        optional uint64 AutoBrkErrCode      = 39;       // @linescope: NT3
+        
+	}
+	required LngCtrlFun LngCtrlIf = 1;
+
+	message StrCtrlInfo{
+
+        enum StrActvIfType_e{
+           StrActvIf_InActv = 0;    //No active request
+           StrActvIf_AdOvrL = 1;    //act. [ADC]ACI (overlay) request
+           StrActvIf_AdOvrD = 2;    //act. [ADC]ACI (override) request
+           StrActvIf_AdOvrLHvi = 3; //act. [ADC]ACI (overlay) & HVI requests
+           StrActvIf_AdOvrDHvi = 4; //act. [ADC]ACI (override) & HVI requests
+           StrActvIf_AdHvi = 5;     //act. [ADC]HVI request
+           StrActvIf_AdCti = 6;     //act. [ADC]CTI request
+           StrActvIf_VmOvrL = 7;    //act. [VMC]ACI (overlay) request
+           StrActvIf_VmOvrD = 8;    //act. [VMC]ACI (override) request
+           StrActvIf_VmOvrLHvi = 9; //act. [VMC]ACI (overlay) & HVI requests
+           StrActvIf_VmOvrDHvi = 10;//act. [VMC]ACI (override) & HVI requests
+           StrActvIf_VmHvi = 11;    //act. [VMC]HVI request
+           StrActvIf_VmCti = 12;    //act. [VMC]CTI request
+           StrActvIf_BcCti = 13;    //act. [BCU]CTI request
+           StrActvIf_VmMti = 14;    //act. [VMC]MTI request
+           StrActvIf_Rsrvd15 = 15;  //Reserved
+           StrActvIf_Rsrvd16 = 16;  //Reserved
+           StrActvIf_Rsrvd17 = 17;  //Reserved
+           StrActvIf_Rsrvd18 = 18;  //Reserved
+           StrActvIf_Rsrvd19 = 19;  //Reserved
+           StrActvIf_Rsrvd20 = 20;  //Reserved
+           StrActvIf_Rsrvd21 = 21;  //Reserved
+           StrActvIf_Rsrvd22 = 22;  //Reserved
+           StrActvIf_Rsrvd23 = 23;  //Reserved
+           StrActvIf_Rsrvd24 = 24;  //Reserved
+           StrActvIf_Rsrvd25 = 25;  //Reserved
+           StrActvIf_Rsrvd26 = 26;  //Reserved
+           StrActvIf_Rsrvd27 = 27;  //Reserved
+           StrActvIf_Rsrvd28 = 28;  //Reserved
+           StrActvIf_Rsrvd29 = 29;  //Reserved
+           StrActvIf_Rsrvd30 = 30;  //Reserved
+           StrActvIf_SigNotAvl = 31;//Signal not available
+        }
+		required StrActvIfType_e ActvExtIf = 1;             //@Channel:CHASSIS @Message:0x74 @Signal:EPS1_ActvExtIf
+                                                                //@Channel:CHASSIS2 @Message:0x77 @Signal:EPS2_ActvExtIf
+		required bool   HIAvl = 2;                          //@Channel:CHASSIS @Message:0x74 @Signal:EPS1_ADCHVIAvl
+                                                                //@Channel:CHASSIS2 @Message:0x77 @Signal:EPS2_ADCHVIAvl
+		required bool   TOIAvl = 3;                         //@Channel:CHASSIS @Message:0x74 @Signal:EPS1_ADCCTIAvl
+                                                                //@Channel:CHASSIS2 @Message:0x77 @Signal:EPS2_ADCCTIAvl
+		required bool   DAIAvl = 4;                         //@Channel:CHASSIS @Message:0x74 @Signal:EPS1_ADCACIOlAvl
+                                                                //@Channel:CHASSIS2 @Message:0x77 @Signal:EPS2_ADCACIOlAvl
+		required bool   PAIAvl = 5;                         //@Channel:CHASSIS @Message:0x74 @Signal:EPS1_ADCACIOrAvl
+                                                                //@Channel:CHASSIS2 @Message:0x77 @Signal:EPS2_ADCACIOrAvl
+        optional uint64 timestamp_ptp_ns 	   = 6;	        //@Channel:CHASSIS @Message:0x74
+                                                                //@Channel:CHASSIS2 @Message:0x77
+	}
+	required StrCtrlInfo LatCtrlIf = 2;
+
+    message TireBurstInfo{
+
+        optional bool Lat_veh_tb_flg = 1;  // false: no Tire Burst , true: Tire Burst  @Channel:CHASSIS1 @Message:0x217 @Signal:VehTireBurstMod
+        optional float tpms_burst_press_sts_fl = 2; //@Channel:CHASSIS1 @Message:0x3b4 @Signal:TpmsFrntLeBurstPressValue
+        optional float tpms_burst_press_sts_fr = 3; //@Channel:CHASSIS1 @Message:0x3b4 @Signal:TpmsFrntRiBurstPressValue
+        optional float tpms_burst_press_sts_rl = 4; //@Channel:CHASSIS1 @Message:0x3b4 @Signal:TpmsReLeBurstPressValue
+        optional float tpms_burst_press_sts_rr = 5; //@Channel:CHASSIS1 @Message:0x3b4 @Signal:TpmsReRiBurstPressValue
+        optional uint32 tpms_burst_sts_fl      = 6; // 0: no Tire Burst , 1: Tire Burst @Channel:CHASSIS1 @Message:0x3b4 @Signal:TpmsFrntLeBurstSts
+        optional uint32 tpms_burst_sts_fr      = 7; // @Channel:CHASSIS1 @Message:0x3b4 @Signal:TpmsFrntRiBurstSts
+        optional uint32 tpms_burst_sts_rl      = 8; // @Channel:CHASSIS1 @Message:0x3b4 @Signal:TpmsReLeBurstSts
+        optional uint32 tpms_burst_sts_rr      = 9; // @Channel:CHASSIS1 @Message:0x3b4 @Signal:TpmsReRiBurstSts
+	}
+	optional TireBurstInfo TireBurstCtrlIf = 3;
+}

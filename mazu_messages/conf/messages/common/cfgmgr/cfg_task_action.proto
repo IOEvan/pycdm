@@ -1,0 +1,27 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message CfgTaskAction {
+  enum ActionType {
+        ENABLE = 0; // enable mission and deal with event parameter
+        CANCEL = 1; // disable a single mission with particular parameters
+        DELETE = 2;  // delete all the mission of one sort of selector
+    }
+    optional string action_app = 1; // action app name, definite from cloud, white list
+    optional string uuid = 2;  // mission_id that trace relationship of cloud mission and app behaviours
+    optional ActionType app_action = 3; // indicates action behaviours
+    optional string action_name = 4; //indicate the sort of action,biz_type
+    optional string action_payload = 5; // parameters and behavious description definite by app user
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;   //publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909;   // uuid of the publisher
+    optional uint64 counter = 536870910;  // message counter
+    optional uint64 publish_ts = 536870911;  // publish timestamp; unit : nanosecond
+}
+
+

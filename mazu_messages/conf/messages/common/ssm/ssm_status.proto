@@ -1,0 +1,48 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+import "common/ssm/ssm_info.proto";
+//SSM: super system machine
+//该proto用于输出ssm状态信号, 5Hz
+//SSM在4个soc都进行部署
+
+message SsmOutPutStatus {
+    enum AdcRebootType {
+        reserved 1,2,3,4,5,6,7,8;
+        ADCsts_Default              = 0;    //default
+        ADCsts_Rebooting            = 9;    //4*soc reboot
+    }
+    optional AdcRebootType ssm_adc_reboot = 1 [default = ADCsts_Default];   //only ssm s1 send this message, @Channel:ADAS @Message:0x266 @Signal:ADCsts
+}
+
+
+message SystemModeBroadcast {
+    enum SystemModeType {
+        INVALID_TYPE                = 0;
+        FULL                        = 1;    //ON:All,SVC-CDC
+        ECO_PLUS_PLUS               = 2;    //eco++, S1-S4 OFF
+        SCAP                        = 3;    //Swarm Compute Acceleration Provider mode
+        FOTA                        = 4;
+        POWER_SWITCH                = 5;
+        SENTRY                      = 6;
+        EOL                         = 7;
+    }
+    
+    optional SystemModeType mode_type = 1;
+    optional SsmMachineState machine_state = 2;
+}
+
+message SsmStatusMessage{
+
+    optional SsmOutPutStatus ssm_out = 1;
+    optional SystemModeBroadcast ssm_mode_bc = 2;
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;   // publish ptp timestamp unit : nanosecond
+    optional string publisher_id = 536870909;    // uuid of the publisher
+    optional uint64 counter = 536870910;         // message counter
+    optional uint64 publish_ts = 536870911;     // publish utc timestamp; unit : nanosecond
+}

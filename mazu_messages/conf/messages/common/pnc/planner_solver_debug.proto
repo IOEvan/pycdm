@@ -1,0 +1,40 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+// Error codes enum for API's categorized by modules.
+enum LateralErrorCode {
+  // No error, returns on success.
+  CILQRERROR_OK = 0;
+  // CILQR Error Code
+  CILQRERROR_PATH_OPTIMIZE = 1;
+  CILQRERROR_SOLVE_POST_CHECK = 2;
+  CILQRERROR_INVALID_REFERENCE_LINE = 3;
+  CILQRERROR_UPDATE_REFERENCE_POLYLINE = 4;
+  CILQRERROR_LANE_BOUNDARY_POLYLINE = 5;
+  CILQRERROR_PATH_ABNORMAL = 6;
+  CILQRERROR_FALLBACK_OPTIMIZE = 7;
+  CILQRERROR_FALLBACK_CHECKPATH_KINEMATICS = 8;
+  CILQRERROR_FALLBACK_CHECKPATH_DEVIATION_ONE = 9;
+  CILQRERROR_FALLBACK_CHECKPATH_DEVIATION_TWO = 10;
+  CILQRERROR_FALLBACK_OPTIMIZE_MAX_LAMBDA = 11;
+  CILQRERROR_FALLBACK_OPTIMIZE_WARM_START = 12;
+  CILQRERROR_FALLBACK_OPTIMIZE_BACKWARD_PASS = 13;
+  CILQRERROR_FALLBACK_OPTIMIZE_POST_CHECK = 14;
+  CILQRERROR_FALLBACK_POST_CHECK = 15;
+  CILQRERROR_PATH_VALID_CHECK = 16;
+}
+
+// next id: 2
+enum LongitudinalErrorCode {
+  LONGITUDINALERROR_OK = 0;
+}
+
+// Next id: 3
+message SolverStatus {
+  optional LateralErrorCode lat_error_code = 1 [default = CILQRERROR_OK];
+  optional LongitudinalErrorCode lon_error_code = 2 [default = LONGITUDINALERROR_OK];
+  optional string msg = 3;
+}

@@ -1,0 +1,44 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+message ObserverOutput {
+  optional double VVSO_YawrateHat_radps = 1;
+  optional double VVSO_SideSlipAngleHat_rad = 2;
+
+  message AccObserver {
+    optional bool VVSO_IsValid_flag = 1;
+    optional double VVSO_AccHat_mps2 = 2;
+    optional double VVSO_SpeedDiffLPF_mps2 = 3;
+    optional double VVSO_AccImuLPF_mps2 = 4;
+    optional double VVSO_AccImuHPF_mps2 = 5;
+  }
+  optional AccObserver VVSO_AccHat = 3;
+  message AccDisturbanceObserver {
+    optional bool VVSO_IsValid_flag = 1;
+    optional double VVSO_AccDObU_mps2 = 2;
+    optional double VVSO_AccDObY_mps = 3;
+    optional double VVSO_FilteredChassisSpeed_mps = 4;
+    optional double VVSO_AccRateLimiter_mps2 = 5;
+    optional double VVSO_AccTDLpf_mps2 = 6;
+    optional double VVSO_AccLpf_mps2 = 7;
+    optional double VVSO_AccIntegralSpeed_mps = 8;
+  }
+  optional AccDisturbanceObserver VVSO_AccDHat = 4;
+}
+
+message ObserverInput {
+  optional ObserverOutput former_output = 1;
+  optional double VINP_PinionAngle_rad = 2;
+  optional double VINP_VxcogMeas_mps = 3;
+  optional double VINP_YawrateMeasChss_radps = 4;
+  optional double VINP_YawrateMeasIMU_radps = 5;
+  optional double VINP_AycogMeas_mps2 = 6;
+  optional double VINP_VxMeasChss_mps = 7;
+  optional double VINP_AxMeasChss_mps2 = 8;
+  optional double VINP_AxCmd = 9;
+  optional bool VINP_IsFSMode = 10;
+  optional bool VINP_NotSlipping = 11;
+}

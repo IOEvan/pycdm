@@ -1,0 +1,103 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+import "common/perception/svc_exceptions.proto";
+
+message SVCDetectionStatus{
+  enum SVCDetectionStatusType{
+    SVC_DET_STS_OFF = 0;
+    SVC_DET_STS_ON = 1;
+    SVC_DET_STS_RESERVED1 = 2;
+    SVC_DET_STS_RESERVED2 = 3;
+  }
+  optional SVCDetectionStatusType svc_det_status_type = 1;
+  optional bool svcsapa_detection_avl = 2;
+  optional bool svcpowerswap_detection_avl = 3;
+
+  //  SVCDetectionStatus State Change
+  //          |------NORMAL<----|
+  //          | fault           | event that
+  //          | occurs          | affects system
+  //          |->UNRECOVERABLE  | capability disappears
+  //    event |       ^ fault   |   
+  //     that |       | occurs  |
+  //  affects |-->RECOVERABLE---|
+  //  system capability occurs
+  
+  enum SVCDetectionSubStatusType {
+    SVC_DET_SUB_STS_NORMAL = 0;         // Functionality is active
+    SVC_DET_SUB_STS_RECOVERABLE = 1;    // Functionality inhibited but still recoverable
+    SVC_DET_SUB_STS_UNRECOVERABLE = 2;  // Functionality aborted and not recoverable
+  }
+  optional SVCDetectionSubStatusType svc_det_sub_status_type = 4;
+
+  // **What's the difference between a fault and an alarm**
+  // An alarm indicates system is still operating but performance maybe degraded or result maybe inaccurate
+  //  because some of the inputs are missing or some conditions are affecting system capability (usually recoverable).
+  //  an alarm will will clear automatically when system capability is no longer affected or the missing inputs appears.
+  //  svc_det_status_type may stay in SVC_DET_STS_INHIBITED status as a result.
+  //
+  // A fault indicates system is in a problematic state and can no longer function, when any fault occurs,
+  //  svc_det_status_type will transit to SVC_DET_STS_ABORTED if previous state is SVC_DET_STS_ON.
+  //  a fault is meant to stay active for however long the condition persists until the fault is cleared.
+  //  to clear a fault, a clear command must be sent in svc_perception until the target fault disappears in the fault list.
+  //  svc_det_status_type will transit to SVC_DET_STS_ABORTED status as a result.
+  //
+  //   > park_cmd_type = park_cmd_type in parking_perception_command.proto
+  //
+  // When no fault or alarm is detected, aa_app will send NO_ALARM or NO_FAULT.
+  // When the alarm or the fault field does not appear, the receiver shall assume the alarm/fault list doesn't change.
+  //
+  // Feature specific alarms or faults only generates when park_cmd_type is not off.
+  // When park_cmd_type changes from psap or sapa to off, feature specific alarms or faults will be cleared.
+
+  message SVCAlarm {
+    optional SVCPerceptionAlarmType alarm_type          = 1;
+    optional int32 alarm_code                 = 2; // Convert to Specific alarm code based on alarm type
+    // When alarm_code is no alarm, timestamp is not required
+    // Provide one of the following timestamps
+    optional uint64 utc_timestamp             = 3; // When did this alarm generated in UTC time
+    optional uint64 ptp_timestamp             = 4; // When did this alarm generated in PTP time
+    optional int32 reserved                   = 5;
+  }
+
+  repeated SVCAlarm svc_alarms                = 5;
+
+  message SVCFault {
+    optional SVCPerceptionFaultType fault_type          = 1;
+    optional int32 fault_code                 = 2; // Convert to Specific fault code based on fault type
+    // When fault_code is no fault, timestamp is not required
+    // Provide one of the following timestamps
+    optional uint64 utc_timestamp             = 3; // When did this fault generated in UTC time
+    optional uint64 ptp_timestamp             = 4; // When did this fault generated in PTP time
+    optional int32 reserved                   = 5;
+  }
+
+  repeated SVCFault svc_faults                = 6;
+
+  // For DLB
+  message SVCDLBRequest{
+    enum SVCDLBReasonType {
+      SVC_DLB_REASON_TYPE_NOT_SPECIFIED     = 0;
+      SVC_DLB_REASON_TYPE_GENERAL_ALARM     = 1;
+      SVC_DLB_REASON_TYPE_GENERAL_FAULT     = 2;
+      SVC_DLB_REASON_TYPE_SAPA_ALARM        = 3;
+      SVC_DLB_REASON_TYPE_SAPA_FAULT        = 4;
+      SVC_DLB_REASON_TYPE_PSAP_ALARM        = 5;
+      SVC_DLB_REASON_TYPE_PSAP_FAULT        = 6;
+      SVC_DLB_REASON_TYPE_OTHER             = 7; // For other reason not within fault/alarms
+    }
+    optional int32 index                          = 1;
+    // One of the following:
+    optional SVCDLBReasonType dlb_reason_type     = 2;
+    optional int32 dlb_reason_code                = 3;
+    optional uint64 dlb_begin_timestamp_utc       = 4;
+    optional uint64 dlb_end_timestamp_utc         = 5;
+    optional string description                   = 6;
+  }
+
+  optional bool is_dlb_triggered            = 7;
+  optional SVCDLBRequest dlb_request        = 8;
+}

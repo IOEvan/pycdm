@@ -1,0 +1,26 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+message HdLaneGroup {
+  optional uint64 id = 1;
+
+  // From right to left.
+  repeated uint64 lane_id = 2;
+
+  optional uint64 link_id = 3 [deprecated = true];
+
+  repeated uint64 link_id_list = 4;
+
+  // The max legal speed limit computed from all the sub-lanes.
+  // Note: This field is reserved only, and we won't fill it currently.
+  optional double max_lane_speed_limit = 5;
+
+  // The average length (in meter) from all the sub-lanes.
+  optional double average_lane_length = 6;
+}
+
+message HdLaneGroupList {
+  repeated HdLaneGroup lane_group_list = 1;
+}

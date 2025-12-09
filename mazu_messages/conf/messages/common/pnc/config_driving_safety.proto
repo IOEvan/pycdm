@@ -1,0 +1,258 @@
+
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+import "common/pnc/driving_safety_mp_config.proto";
+
+message ConfigController {
+  message PidConf {
+    optional bool integrator_enable = 1;
+    optional double integrator_saturation_level = 2;
+    optional double kp = 3;
+    optional double ki = 4;
+    optional double kd = 5;
+    optional double kaw = 6 [default = 0.0];
+    optional double output_saturation_level = 7;
+  }
+
+  message LeadLagConf {
+    optional double innerstate_saturation_level = 1;
+    optional double alpha = 2;
+    optional double beta = 3;
+    optional double tau = 4;
+  }
+
+  // part lateral
+  message ConfigLatCtrl {
+    optional double ts = 1;
+    optional double lateral_error_limit = 4;
+    optional double heading_error_limit = 5;
+    optional double yawrate_error_limit = 6;
+    optional double yawrate_req_limit = 7;
+    optional double eps_angle_req_limit = 8;
+
+    message KineGainscheduler {
+      message KineGain {
+        optional double speed = 1;
+        optional double k0 = 2;
+        optional double k1 = 3;
+        optional double k2 = 4;
+      }
+      repeated KineGain gain_scheduler = 1;
+    }
+
+    optional KineGainscheduler kine_gain_scheduler = 21;
+
+    message DynGainScheduler {
+      message DynGain {
+        optional double speed = 1;
+        optional double kp = 2;
+      }
+      repeated DynGain gain_scheduler = 1;
+    }
+
+    optional DynGainScheduler dyn_gain_scheduler = 41;
+    optional LeadLagConf dynamic_controller_conf = 42;
+
+    // 1000-
+    message LatCtrlKdc {
+      message KDCGainScheduler {
+        repeated KDCGainSchedulerInfo kdc_scheduler = 1;
+      }
+
+      message KDCGainSchedulerInfo {
+        optional double speed_mps = 1;  // m/s
+        optional double kinematic_pole = 2;
+        optional double kinematic_rho = 3;
+        optional double kinematic_sigma = 4;
+        optional double kinematic_epsion = 5;
+        optional double dynamic_k = 6;
+        optional double dynamic_pole = 7;
+        optional double dynamic_zero = 8;
+        optional double dynamic_ki = 9;
+      }
+
+      // car physics parameters
+      optional double cf_Nprad = 1 [default = 114600];
+      optional double cr_Nprad = 2 [default = 114600];
+      optional double mass_fl_kg = 3 [default = 606];
+      optional double mass_fr_kg = 4 [default = 606];
+      optional double mass_rl_kg = 5 [default = 594];
+      optional double mass_rr_kg = 6 [default = 594];
+      optional double wheel_base_m = 7 [default = 3.06];
+      optional double steer_ratio = 8 [default = 16.5];
+
+      // boundary parameters
+      optional double min_speed_limit_mps = 9 [default = 1.0];
+      optional double max_speed_limit_mps = 10 [default = 33.3];
+      optional double min_k_protection = 11 [default = 0.3];
+      optional double max_lateral_acc_limit_mps2 = 12 [default = 3.0];
+      optional double max_ref_kappa_limit_1pm = 13 [default = 0.3];
+      optional double max_lateral_error_limit_m = 14 [default = 1.0];
+      optional double max_heading_error_limit_rad = 15 [default = 0.3];
+      optional double max_yaw_rate_error_limit_radps = 16 [default = 0.3];
+
+      // control parameters
+      optional double preview_time_sec = 17 [default = 0.2];
+      optional double min_preview_dist_m = 18 [default = 0.25];
+      optional double max_preview_dist_m = 19 [default = 30];
+      optional double vehicle_speed_cut_off_freq_hz = 20 [default = 3.0];
+      optional double yaw_rate_cut_off_freq_hz = 21 [default = 3.0];
+      optional double yaw_rate_req_cut_off_freq_hz = 22 [default = 3.0];
+      optional double ref_kappa_cut_off_freq_hz = 23 [default = 3.0];
+      optional double lateral_error_cut_off_freq_hz = 24 [default = 3.0];
+      optional double heading_error_cut_off_freq_hz = 25 [default = 3.0];
+      optional double front_wheel_angle_cmd_cut_off_freq_hz = 26
+          [default = 3.0];
+      optional double kinematic_ff_gain = 27 [default = 1.0];
+      optional double kinematic_pole = 28 [default = -0.5];
+      optional double kinematic_rho = 29 [default = 0.0];
+      optional double kinematic_sigma = 30 [default = 0.08];
+      optional double kinematic_epsion = 31 [default = 0.05];
+      optional double dynamic_ff_gain = 32 [default = 1.0];
+      optional double dynamic_k = 33 [default = 1.0];
+      optional double dynamic_pole = 34 [default = -1.0];
+      optional double dynamic_zero = 35 [default = -1.0];
+      optional double dynamic_ki = 36 [default = 0.0];
+      optional bool enable_yaw_rate_hat_flg = 37;
+      optional bool enable_kus_cfg_params_flg = 38 [default = false];
+      optional double kus_cfg_params = 39 [default = 0.0];
+      optional bool enable_kinematic_integration_flg = 40 [default = false];
+      optional double max_kinematic_integration_limit_rad = 41
+          [default = 0.005];
+      optional bool enable_dynamic_integration_flg = 42 [default = false];
+      optional double max_dynamic_integration_limit_rad = 43 [default = 0.003];
+      optional bool enable_dynamic_yaw_rate_smooth_flg = 44 [default = false];
+      optional double dynamic_yaw_rate_smooth_epsion = 45 [default = 0.015];
+      optional bool enable_kdc_gain_scheduler = 46 [default = false];
+      optional KDCGainScheduler kdc_gain_scheduler = 47;
+    }
+
+    optional LatCtrlKdc lat_ctrl_kdc = 43;
+  }
+
+  // part longitudinal
+  message ConfigLonCtrl {
+    optional double ts = 1;  // longitudinal controller sampling time
+    optional double standstill_acceleration = 2;
+    optional double station_error_limit = 3;
+    optional double speed_error_limit = 4;
+    optional PidConf station_pid_conf = 5;
+    optional PidConf speed_pid_conf = 6;
+    optional double preview_time_sec = 7;
+    optional double position_err_filter_cutoff_freq_hz = 8;
+    optional double speed_err_filter_cutoff_freq_hz = 9;
+    optional double speed_ff_gain = 10;
+    optional double acc_ff_gain = 11;
+    optional double cur_speed_filter_cutoff_freq_hz = 12;
+    optional double cur_acc_filter_cutoff_freq_hz = 13;
+    optional bool enable_hysteresis_regulator = 14;
+    optional double hysteresis_speed_limit = 15;
+    optional double position_error_epsion = 16;
+    optional double position_error_kc = 17;
+    optional double speed_error_epsion = 18;
+    optional double acceleration_limit = 19;
+    optional double deceleration_limit = 20;
+  }
+
+  enum ControllerType {
+    LATERAL_CONTROLLER = 1;
+    LONGITUDINAL_CONTROLLER = 2;
+  };
+
+  optional ControllerType controller_type = 1;
+
+  oneof type {
+    ConfigLatCtrl config_lat_controller = 2;
+    ConfigLonCtrl config_lon_controller = 3;
+  }
+}
+
+message ConfigMotionController {
+  repeated ConfigController config_controller = 1;
+  optional bool enable_acc_transmission = 2;
+}
+
+message VehType {}
+message VehMode {}
+message SysMode {}
+message ArchForm {}
+message ConfigLaneKeep {
+  // bool lane_keep_registered = 1;
+}
+
+message ConfigLaneChange {}
+
+message LaneKeepParam {
+  optional bool lane_keep_registered = 1;
+}
+
+message ConfigStateManager {
+  enum FeatureType {
+    LANE_KEEP = 0;
+    LANE_CHANGE = 1;
+    NDS_ES = 3;
+    NDS_DOP = 4;
+  }
+  optional VehType veh_type = 1;
+  optional VehMode veh_mode = 2;
+  optional SysMode sys_mode = 3;
+  optional ArchForm arch_form = 4;
+  repeated FeatureType active_features = 5;
+  optional LaneKeepParam lane_keep_param = 6;
+  optional ConfigLaneKeep config_lane_keep = 7;
+  optional ConfigLaneChange config_lane_change = 8;
+}
+
+// driving safety observer calibrations
+message ConfigNDSObserver {
+  message YawRateObserver4WS {
+    optional double q_11 = 1 [default = 4.0];
+    optional double q_12 = 2 [default = 0.0];
+    optional double q_21 = 3 [default = 0.0];
+    optional double q_22 = 4 [default = 1.0];
+    repeated double r_chassis = 5;
+    repeated double r_imu = 6;
+    repeated double init_p = 7;
+    optional bool use_chss_yawrate_flg = 8 [default = false];
+    optional double yawrate_cofilt_cof_hz = 9 [default = 0.3];
+    optional double ssa_cofilt_cof_hz = 10 [default = 0.3];
+    optional double strwhlagl_deadzone_deg = 11 [default = 0.8];
+  }
+  message YawRateObserver {
+    repeated double noise_matrix_q = 1;
+    repeated double noise_matrix_r_chassis = 2;
+    repeated double noise_matrix_r_imu = 3;
+    repeated double init_p = 4;
+    optional double road_tire_friction_coefficient = 5 [default = 1.0];
+    optional double lf = 6;
+    optional double lr = 7;
+  }
+  oneof type {
+    YawRateObserver4WS yawrate_observer_4ws = 1;
+    YawRateObserver yaw_rate_observer = 2;
+  }
+  optional string name_tag = 100001;
+  optional double ts_sec = 100002;
+}
+message ConfigNDSObserverManager {
+  optional double base_sample_time_sec = 1;
+  repeated ConfigNDSObserver config_observer = 2;
+}
+
+message ConfigMotionPlanner {
+  repeated MpScenarioConf scenario_list = 1;
+  optional bool enable_escape_tower = 2 [default = true];
+}
+
+message ConfigDrivingSafety {
+  repeated ConfigController config_controller =
+      1;  // not used any more, mc config would be get from config_mc(5)
+  optional ConfigStateManager config_state_manager = 2;
+  optional ConfigNDSObserverManager config_observer_manager = 3;
+  optional ConfigMotionPlanner config_mp = 4;
+  optional ConfigMotionController config_mc = 5;
+}

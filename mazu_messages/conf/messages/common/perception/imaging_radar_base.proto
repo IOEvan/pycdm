@@ -1,0 +1,149 @@
+// @filescope: NT3
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+
+message ImgRadObjPos {
+  optional float x = 1; // unit:m   in SAE coordinate, origin is at mid of rear axel, forward is positive
+  optional float y = 2; // unit:m   in SAE coordinate, right is positive
+  optional float z = 3; // unit:m   in SAE coordinate, downwards is positive
+}
+
+message ImgRadObjPosStd {
+  optional float x_std = 1; // unit:m
+  optional float y_std = 2; // unit:m
+  optional float z_std = 3; // unit:m
+}
+
+message ImgRadObjVel {
+  optional float vx = 1; // unit:m/s  in SAE coordinate, origin is at mid of rear axel, forward is positive
+  optional float vy = 2; // unit:m/s  in SAE coordinate, right is positive
+  optional float vz = 3; // unit:m/s  in SAE coordinate, downwards is positive
+}
+
+message ImgRadObjVelStd {
+  optional float vx_std = 1; // unit:m/s
+  optional float vy_std = 2; // unit:m/s
+  optional float vz_std = 3; // unit:m/s
+}
+
+message ImgRadObjAcc {
+  optional float ax = 1; // unit:m/s^2
+  optional float ay = 2; // unit:m/s^2
+  optional float az = 3; // unit:m/s^2
+}
+
+message ImgRadObjAccStd {
+  optional float ax_std = 1; // unit:m/s^2
+  optional float ay_std = 2; // unit:m/s^2
+  optional float az_std = 3; // unit:m/s^2
+}
+
+message ImgRadObjSize {
+  optional float length = 1; // unit:m
+  optional float width  = 2; // unit:m
+  optional float height = 3; // unit:m
+}
+
+message ImgRadObjSizeStd {
+  optional float length_std = 1; // unit:m
+  optional float width_std  = 2; // unit:m
+  optional float height_std = 3; // unit:m
+}
+
+message ImgRadObjMotion {
+  optional ImgRadObjPos pos           = 1;
+  optional ImgRadObjPosStd pos_std    = 2;
+  optional ImgRadObjVel vel           = 3;
+  optional ImgRadObjVelStd vel_std    = 4;
+  optional ImgRadObjAcc acc           = 5;
+  optional ImgRadObjAccStd acc_std    = 6;
+  optional ImgRadObjSize size         = 7;
+  optional ImgRadObjSizeStd size_std  = 8;
+  optional float heading              = 9;  // unit :deg
+  optional float heading_rate         = 10; //unit:deg/s
+}
+
+message ImgRadVehInputInfo {
+  optional float ego_speed                   = 1;
+  optional float ego_yawrate                 = 2;
+  optional float ego_acc                     = 3;
+  optional float gear_pos                    = 4;
+  optional float steer_whl_ang               = 5;
+  optional float whl_spd_fr                  = 6;
+  optional float whl_spd_fl                  = 7;
+  optional float whl_spd_rr                  = 8;
+  optional float whl_spd_rl                  = 9;
+  repeated float whl_spd_dir                 = 10;
+  optional uint64 vehicle_info_ts_ns         = 11;
+  optional float wiper_sts                   = 12;
+  optional uint64 vehicle_speed_ts_ns        = 13;
+  optional uint64 yaw_rate_ts_ns             = 14;
+  optional uint64 exposure_mid_ts_ns         = 15;
+  optional float vehicle_speed_raw_kmph      = 16;
+  optional float yaw_rate_raw_degps          = 17;
+  optional float vehicle_acceleration_raw_g  = 18;
+
+}
+
+message ImgRadHeader {
+  optional uint64 packet_cnt            = 1;
+  optional uint64 radar_publish_ptp_ts  = 2;
+  optional uint64 chirp_start_ptp_ts    = 3;
+}
+
+message ImgRadAppendInfo {
+  reserved 4;
+  optional uint64 local_time_us = 1;
+  optional uint32 frame_type_parity = 2;
+  optional uint32 frame_type_rcv = 3;
+  //optional uint32 useful_len = 4;
+  repeated uint32 rsv = 5;
+}
+
+message ImgRadSuspensionInfo {
+  reserved 1, 4;
+  repeated bool susp_valve_state          = 2; //susoention adjusting(FL,FR,RL,RR) 0--no adjust 1-- adjusting
+  optional uint32 susp_cur_level            = 3; //0x0: SUSP_CURRENT_LVL_LOWLEVEL5 0x1: SUSP_CURRENT_LVL_LOWLEVEL4 0x2: SUSP_CURRENT_LVL_LOWLEVEL3 0x3: SUSP_CURRENT_LVL_LOWLEVEL2 0x4: SUSP_CURRENT_LVL_LOWLEVEL1 0x5: SUSP_CURRENT_LVL_NORMALLEVEL 
+                                                 // 0x6: SUSP_CURRENT_LVL_HIGHLEVEL1 0x7: SUSP_CURRENT_LVL_HIGHLEVEL2  0x8: SUSP_CURRENT_LVL_HIGHLEVEL3 0x9: SUSP_CURRENT_LVL_HIGHLEVEL4 0xA: SUSP_CURRENT_LVL_HIGHLEVEL5 0xB: SUSP_CURRENT_LVL_INVALID 0xF: INVALID
+  repeated sint32 susp_level_height_mm      = 5; //suspention height(FL,FR,RL,RR)
+  optional sint32 susp_comp_z               = 6;
+}
+
+message ImgRadImInfo {
+  optional uint32 im_flag_sr       = 1;
+  optional uint32 im_flag_lr       = 2;
+  optional uint32 im_chirp_num_sr  = 3;
+  optional uint32 im_sample_num_sr = 4;
+  optional uint32 im_pow_level_sr  = 5;
+  optional uint32 im_chirp_num_lr  = 6;
+  optional uint32 im_sample_num_lr = 7;
+  optional uint32 im_pow_level_lr  = 8;
+  optional float im_snr_loss_sr    = 9;
+  optional float im_snr_loss_lr    = 10;
+}
+
+message ImgRadInvalidReason {
+  repeated uint32 err = 1;
+}
+
+message ImgRadVehTypeInfo {
+  optional int32 brand             = 1;  //unit:mm
+  optional uint32 vehicle_length   = 2;
+  optional uint32 vehicle_width    = 3;
+  optional uint32 wheel_base       = 4;
+  optional int32 radar_rear_x      = 5;
+  optional int32 radar_rear_y      = 6;
+  optional int32 radar_ground      = 7;
+  optional int32 head_front_x      = 8;
+  optional float mount_direction   = 9;
+}
+
+message ImgRadCaliInfo {
+  optional uint32 cali_state    = 1;
+  optional float yaw_cali_deg   = 2;  //unit:deg
+  optional float pitch_cali_deg = 3;
+  optional float roll_cali_deg  = 4;
+}

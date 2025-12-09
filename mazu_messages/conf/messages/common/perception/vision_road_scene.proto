@@ -1,0 +1,76 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+
+message MainRoad{
+    reserved 1, 2, 3;
+    optional MainRoadType main_road_type = 4;
+    optional float score = 5; // 模型输出score
+
+    enum MainRoadType{
+        main_road = 0; // 主路
+        auxiliary_road = 1; // 辅路
+        uncertain = 2;
+    }
+}
+
+message Tunnel{
+    reserved 1, 2, 3, 4, 5;
+    optional TunnelType tunnel_type = 6;
+    optional float score = 7; // 模型输出score
+
+    enum TunnelType{
+        non_tunnel = 0; // 非隧道
+        enter_tunnel = 1; // 进入隧道
+        in_tunnel = 2; // 隧道内
+        exit_tunnel = 3; // 离开隧道
+        uncertain = 4;
+    }
+}
+
+message ElevatedBridge{
+    reserved 1, 2, 3, 4, 5, 6;
+    optional ElevatedBridgeType elevated_bridge_type = 7;
+    optional float score = 8; // 模型输出score
+
+    enum ElevatedBridgeType{
+        non_elevated_bridge = 0; // 非高架桥
+        under_elevated_bridge = 1; // 桥下
+        on_elevated_bridge = 2; // 桥上
+        high_speed_ramp = 3; // 高速匝道
+        ramp = 4; // 匝道
+        uncertain = 5;
+    }
+}
+
+message AccelerationLane{
+    reserved 1, 2, 3, 4;
+    optional AccelerationLaneType acceleration_lane_type = 5;
+    optional float score = 6;
+
+    enum AccelerationLaneType{
+        acceleration_lane = 0;
+        deceleration_lane = 1;
+        nonAcceleration_DecelerationLane = 2;
+        uncertain = 3;
+    }
+}
+
+message RoadScene{
+    optional uint64 timestamp = 1;
+    optional MainRoad main_road = 2; // 主辅路类别输出
+    optional Tunnel tunnel = 3; // 隧道类别输出
+    optional ElevatedBridge elevated_bridge = 4; // 桥上桥下类别输出
+    optional AccelerationLane acceleration_lane = 5 [deprecated=true];
+
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909;       // uuid of the publisher
+    optional uint64 counter = 536870910;            // message counter
+    optional uint64 publish_ts = 536870911;         // publish utc timestamp; unit : nanosecond
+
+}

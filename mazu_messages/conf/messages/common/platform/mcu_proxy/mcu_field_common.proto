@@ -1,0 +1,46 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+enum FieldType {
+  INVALID_FILED = 0;
+  MCU_VERSION = 1;
+  VARIANT_CONFIG = 2;
+  HW_META_INFO = 3;
+}
+
+message Fields {
+  optional McuVersion mcu_version = 1;
+  optional VariantConfig variant_config = 2;
+  optional HwMetaInfo hw_meta_info = 3;
+}
+
+message McuVersion {
+  optional bytes git_commit_hash = 1;
+  optional bytes git_commit_author = 2;
+  optional bytes git_branch = 3;
+  optional bytes git_status = 4;
+  optional bytes build_date = 5;
+  optional bytes build_machine = 6;
+  optional bytes sw_part_number = 7;
+}
+
+message VariantConfig {
+  enum VehicleProject {
+    INVALID_VEHICLE_PROJECT = 0;
+    FORCE = 1;
+    GEMINI = 2;
+    PEGASUS = 3;
+  }
+  optional VehicleProject vehicle_project = 1;
+}
+
+message HwMetaInfo {
+  optional bytes hw_part_number = 1;
+  optional bytes hw_revision_number = 2;
+  optional bytes hw_serial_number = 3;
+  optional bytes hw_board_version = 4;
+  optional bytes mcu_chip_version = 5;
+  optional bytes ufs_type = 6;
+}

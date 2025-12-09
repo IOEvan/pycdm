@@ -1,0 +1,16 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+message GlobalRoutesInfo {
+// Refs: https://nio.feishu.cn/wiki/wikcn58e2P0tO3sedpnSGRG9myO
+  
+  // 0: default data
+  // 1: deviate routes path
+  optional int32 routes_path_deviation = 1;
+  
+  optional string reserve = 2;
+
+  repeated int32 is_curr_route_map_correct = 3; 
+}

@@ -1,0 +1,572 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+import "common/perception/manner_map.proto"; // for CenterLine
+
+
+message PolyLine{
+    optional float line_C0 = 1;
+    optional float line_C1 = 2;
+    optional float line_C2 = 3;
+    optional float line_C3 = 4; 
+}
+
+// https://nio.feishu.cn/docs/doccnvvMCfjQuGkkDhxWT3obDek
+message LineProperty {
+    optional LDType LD_Type = 1;
+    optional LDColor LD_Color = 2;
+    optional PolyLine LD_Line = 3; 
+    optional float LD_Start = 4;
+    optional float LD_End = 5;
+    optional LDEndReason LD_End_Reason = 6; 
+    optional float LD_TypeConfidence = 7;
+    optional float LD_ColorConfidence = 8;
+    optional bool Line_Is_Virtual = 9;
+
+    enum LDEndReason{
+        LDEndReason_Unknown = 0;
+        LDEndReason_Loss = 1; //The lane line disapprears in the view
+        LDEndReason_Occluded = 2; // The lane line is occluded 
+        LDEndReason_Intersection = 3; //The lane line is ended when approaching a intersection
+    }
+
+    enum LDType{
+        LDType_Unknown = 0;
+        LDType_Solid = 1;
+        LDType_Dash = 2;
+        LDType_Solid_Dash = 3;
+        LDType_Dash_Solid = 4;
+        LDType_Solid_Solid = 5;
+        LDType_Deceleration_Dash = 6;
+        LDType_Deceleration_Solid = 7;
+        LDType_Guide = 8;//导流线
+        LDType_Dash_Dash = 9;//双虚线
+        LDType_Direct = 10;//可变导向线
+        LDType_Solid_Four = 11;
+        LDType_Serrate = 12; //锯齿线
+        LDType_Composite = 13; //复合线（预留接口，暂不使用）
+        LDType_Parking_Space_Entrace = 14;//车位入口线
+    }
+    
+    enum LDColor{
+        LDColor_Unknown = 0;
+        LDColor_White = 1;
+        LDColor_Yellow = 2;
+        LDColor_Orange = 3;
+        LDColor_Blue = 4;
+        LDColor_Others = 5;
+        LDColor_Green = 6;
+        LDColor_Yellow_White = 7;
+        LDColor_White_Yellow = 8;
+    }
+}
+
+message PointProperty {
+    optional float LD_Confidence = 1; //是否存在的置信度
+    optional LDType LD_Type = 2; //线型
+    optional LDColor LD_Color = 3; //线颜色
+    optional float LD_TypeConfidence = 4; //线型的置信度
+    optional float LD_ColorConfidence = 5; //颜色的置信度
+    optional bool Line_Is_Virtual = 6; //虚拟线，0: no,  1: yes
+    optional float LD_Var_X = 7;  // x轴位置标准差
+    optional float LD_Var_Y = 8;  // y轴位置标准差
+
+
+    enum LDType{
+        LDType_Unknown = 0;
+        LDType_Solid = 1;
+        LDType_Dash = 2;
+        LDType_Solid_Dash = 3;
+        LDType_Dash_Solid = 4;
+        LDType_Solid_Solid = 5;
+        LDType_Deceleration_Dash = 6;
+        LDType_Deceleration_Solid = 7;
+        LDType_Guide = 8;//导流线
+        LDType_Dash_Dash = 9;//双虚线
+        LDType_Direct = 10;//可变导向线
+        LDType_Solid_Four = 11;
+        LDType_Serrate = 12; //锯齿线
+        LDType_Composite = 13; //复合线（预留接口，暂不使用）
+        LDType_Parking_Space_Entrace = 14;//车位入口线
+
+
+    }
+    
+    enum LDColor{
+        LDColor_Unknown = 0;
+        LDColor_White = 1;
+        LDColor_Yellow = 2;
+        LDColor_Orange = 3;
+        LDColor_Blue = 4;
+        LDColor_Others = 5;
+        LDColor_Green = 6;
+        LDColor_Yellow_White = 7;
+        LDColor_White_Yellow = 8;
+    }
+}
+
+message SPoint {
+    optional float Point_x = 1; 
+    optional float Point_y = 2;
+    optional float Point_z = 3; 
+    optional PointProperty Point_Property = 4;
+    optional uint32 Track_Age = 5; 
+    optional uint32 Lost_Age = 6;
+}
+
+message Point {
+    optional float LD_Point_Lat = 1; // Lateral distance of the point in the world，对应y
+    optional float LD_Point_Long = 2;//Longitudinal distance of the point in the world，对应x
+    optional float LD_Point_Alti = 3; //Altitude distance of the point in the world，对应z
+    optional uint32 LD_Point_Track_ID = 4;
+    repeated uint32 Related_Lane_Line_Track_ID = 5; // 关联的车道线的track id
+    optional uint32 Track_Age = 6; 
+    optional uint32 Lost_Age = 7;
+}
+
+message LaneLine{    
+    optional LDRole LD_Role = 1;
+    optional LineProperty LD_First_Line = 2;
+    optional bool LD_Is_Multi_Clothoid = 3; // Whether it is multi-polynomials
+    optional LineProperty LD_Second_Line = 4;
+    optional bool LD_Special_Point_Is_Detected = 5; //Whether the special point is detected
+    optional LDSpecialPointType LD_Special_Point_Type = 6; //BL140 BEV 后废弃使用
+    optional Point LD_Special_Point = 7;//BL140 BEV 后废弃使用	
+    repeated Point LD_Point = 8; //BL140 BEV 后废弃使用      
+    optional float LD_Dash_Average_Gap = 9;
+    optional float LD_Dash_Average_Length = 10;
+    optional bool LD_Crossing = 11; // deprecated 
+    optional uint32 LD_Crossing_ID = 12;
+    optional LDMeasuringStatus LD_Measuring_Status = 13; 
+    optional LDPredictionReason LD_Prediction_Reason = 14;
+    optional uint32 LD_Track_ID = 15;
+    optional uint32 LD_Track_Age = 16;
+    optional LDQuality LD_Quality = 17;
+    optional float LD_Confidence = 18;//每条line的置信度
+    optional float LD_Marker_Width = 19; 
+    repeated Point LD_SpecialPoint_xyz = 20;//属性变化点的位置
+    repeated LDSpecialPointType LD_SpecialPoint_Type = 21;//属性变化点的类型
+    repeated SPoint LD_Points = 22; //每条line的点链和每个点的线型、颜色等属性
+    repeated float LD_SP_Type_Confidence = 23;
+    repeated float LD_SP_Pos_Confidence = 24;
+    repeated uint32 SpecialPointRelated_ID =25;
+    optional LDRole LD_Role_nop = 26; //for urban
+    optional uint32 LD_Filter = 27; //bit0 is for esd, bit0=1: esd显示, bit0=0: esd不显示
+                                    //bit1 is for urban, bit1=1: for urban, bit1=0: for other
+    optional uint32 LD_Lost_Age = 28;
+    optional float LD_Var = 29; //线级别的输出位置标准差
+
+    enum LDRole{
+        LDRole_Unknown = 0;
+        LDRole_Host_Left = 1;
+        LDRole_Host_Right = 2;
+        LDRole_Adjacent_Left_Left = 3;
+        LDRole_Adjacent_Left_Right = 4;
+        LDRole_Adjacent_Right_Left = 5;
+        LDRole_Adjacent_Right_Right = 6;
+        LDRole_LeftLeft_Left = 7;
+        LDRole_LeftLeft_Right =8;
+        LDRole_RightRight_Left = 9;
+        LDRole_RightRight_Right = 10;
+        LDRole_Fourth_Left = 11;
+        LDRole_Fourth_Right = 12;
+    }
+
+    enum LDSpecialPointType{
+        LDSpecialPointType_Unknown = 0;
+        LDSpecialPointType_Type = 1;
+        LDSpecialPointType_Color = 2;
+        LDSpecialPointType_Merge = 3;
+        LDSpecialPointType_Split = 4;
+    }
+
+    enum LDMeasuringStatus{
+        LDMeasuringStatus_Unknown = 0;
+        LDMeasuringStatus_Predict = 1;
+        LDMeasuringStatus_Measure = 2;
+    }
+
+    enum LDPredictionReason{
+        LDPredictionReason_Unknown = 0;
+        LDPredictionReason_Loss = 1;
+        LDPredictionReason_Merge = 2;
+        LDPredictionReason_Shadow = 3;
+        LDPredictionReason_Diverging = 4;
+        LDPredictionReason_Occluded = 5;
+        LDPredictionReason_Headway = 6;
+    }
+
+    enum LDQuality{
+        LDQuality_Invalid = 0;
+        LDQuality_Low = 1;
+        LDQuality_Middle = 2;
+        LDQuality_High = 3;
+    }
+}
+
+
+message LaneDetection {
+    optional float LD_Lane_Width = 1;//Width of the host lane
+    optional bool LD_Crossing_Flag = 2; // The flag of  ego vehicle crosses the lane line
+    repeated LaneLine line = 3;
+}
+
+
+message RoadSlop{
+    optional bool LD_Road_Vertical_Surface_Available = 1;
+    optional float LD_Road_Vertical_Surface_Start = 2;
+    optional float LD_Road_Vertical_Surface_End = 3;
+    optional PolyLine LD_Road_Vertical_Surface = 4;
+}
+
+message LaneLPP{
+    optional bool LPP_Available = 1;
+    optional LPPSource LPP_Source = 2;
+    optional float LPP_Ctrl_Point_Lat = 3;
+    optional float LPP_Ctrl_Point_Long = 4;
+    optional float LPP_Confidence = 5;
+    optional bool LPP_First_Valid = 6;
+    optional float LPP_First_VR_End = 7;
+    optional PolyLine LPP_First = 8;
+    optional bool LPP_Second_Valid = 9;
+    optional float LPP_Second_VR_End = 10;
+    optional PolyLine LPP_Second = 11;
+
+    enum LPPSource{
+        LPPSource_Unknown = 0;
+        LPPSource_LeftLine = 1;
+        LPPSource_RightLine = 2;
+        LPPSource_BothLine = 3;
+        LPPSource_FrontVehicle_Path = 4;
+        LPPSource_EgoVehicle_Path = 5;
+    }
+}
+
+
+message Roadedge{
+    optional LDREType LD_RE_Type = 1;//路沿是否可跨越
+    optional LDRESide LD_RE_Side = 2;
+    optional LDREFromHostIndex LD_RE_From_Host_Index = 3;
+    optional uint32 LD_RE_ID = 4;
+    optional uint32 LD_RE_Age = 5;
+    optional float LD_RE_Height = 6;
+    optional float LD_RE_VR_Start = 7;
+    optional float LD_RE_VR_End = 8;
+    optional PolyLine LD_RE_Line = 9;
+    optional float LD_RE_Confidence = 10;//每条路沿的置信度
+    optional LDREClass LDRE_Class = 11;//路沿细分类
+    repeated Point LD_RE_Point = 12; //路沿点链
+    optional float LD_RE_Type_Confidence =13 [deprecated=true]; //confidence of curb type, [0, 1]
+    optional float LD_RE_Class_Confidence =14 [deprecated=true]; //confidence of curb class, [0, 1]
+    repeated float LD_RE_Point_Confidence =15 [deprecated=true]; //deprecated
+    repeated LDREClass LD_RE_Point_Class =16 [deprecated=true];  //deprecated
+    repeated float LD_RE_Point_Class_Confidence =17 [deprecated=true]; //deprecated
+    repeated PointProperty point_property= 18; //路沿点链中每个点的属性
+
+    optional uint32 LD_RE_Filter = 19; //bit0 is for esd, bit0=1: esd显示, bit0=0: esd不显示
+                                       //bit1 is for urban, bit1=1: for urban, bit1=0: for other
+    optional uint32 LD_Lost_Age = 20;
+    optional float LD_Var = 21; //路沿整体输出位置的标准差
+
+    message PointProperty{
+        optional float LD_RE_Point_Confidence =1; //point confidence, [0, 1]
+        optional LDREType LD_RE_Type =2;  //point type
+        optional LDREClass LD_RE_Class =3;  //point class
+        optional float LD_RE_Type_Confidence =4; //confidence of point type, [0, 1]
+        optional float LD_RE_Class_Confidence =5; //confidence of point class, [0, 1]
+        optional float LD_Var_X = 6;  // x轴位置标准差
+        optional float LD_Var_Y = 7;  // y轴位置标准差
+        optional bool is_virtual = 8; //atlas 推理脑补的路沿
+    }
+
+    enum LDREType{
+        LDREType_Unknown = 0;
+        LDREType_Crossable = 1; //机动车和VRU均可跨越
+        LDREType_Uncrossable = 2; //机动车和VRU均不可跨越
+        LDREType_RoadEdge = 3;//deprecated
+        LDREType_Road_Fence = 4;//deprecated
+        LDREType_Cone = 5;//deprecated
+        LDREType_Barrier = 6;//deprecated
+        LDREType_Parked_Vehicle = 7;//deprecated
+        LDREType_Grass = 8;//deprecated
+        LDREType_Other = 9; //机动车不可跨越，VRU可跨越
+    }
+
+    enum LDREClass{
+        LDREClass_Unknown = 0;
+        LDREClass_Cement_Block = 1; //指代固定矮路沿
+        LDREClass_Fence = 2; //指代固定高路沿
+        LDREClass_Cone=3;    //锥桶
+        LDREClass_Barrel=4;  //圆桶
+        LDREClass_Barrier=5; //水马
+        LDREClass_Parked_Vehicle=6;//deprecated
+        LDREClass_Parked_Cycle=7;//deprecated
+        LDREClass_Grass=8;//deprecated，草地
+        LDREClass_gravel=9;//deprecated，碎石
+        LDREClass_ShortPole=10;//deprecated
+        LDREClass_WallFlat=11; //deprecated，墙面
+        LDREClass_Other=12; //deprecated，其他固定类路沿
+    }
+    
+    enum LDRESide{
+        LDRESide_Unknown = 0;
+        LDRESide_Left = 1;
+        LDRESide_Right = 2;
+    }
+
+    enum LDREFromHostIndex{
+        LDREFromHostIndex_Unknown = 0;
+        LDREFromHostIndex_First = 1;
+        LDREFromHostIndex_Second = 2;
+    }
+}
+
+
+message StopLine{
+    optional bool SL_Zebra_Is_Detected = 1;
+    optional float SL_Zebra_Lat_0 = 2 [deprecated=true];
+    optional float SL_Zebra_Long_0 = 3 [deprecated=true];
+    optional float SL_Zebra_Lat_1 = 4 [deprecated=true];
+    optional float SL_Zebra_Long_1 = 5 [deprecated=true];
+    optional float SL_Zebra_Lat_2 = 6 [deprecated=true];
+    optional float SL_Zebra_Long_2 = 7 [deprecated=true];
+    optional float SL_Zebra_Lat_3 = 8 [deprecated=true];
+    optional float SL_Zebra_Long_3 = 9 [deprecated=true];
+    optional bool SL_Is_Detected = 10;
+    optional uint32 SL_ID = 11;
+    optional SLType SL_Type = 12;
+    optional SLMeasureStatus SL_Measure_Status = 13 [deprecated=true];
+    optional float SL_Probability = 14;
+    optional float SL_Long_Dist_L = 15;
+    optional float SL_Long_Dist_R = 16;
+    optional float SL_Lat_Dist_L = 17;
+    optional float SL_Lat_Dist_R = 18;
+    optional SLLaneAssessment SL_Lane_Assessment = 19 [deprecated=true];
+    optional bool for_NOP = 20;
+
+    enum SLType{
+        SLType_Unknown = 0;
+        SLType_Normal_StopLine = 1;
+        SLType_Intersection_StopLine = 2;
+        SLType_Turning_StopLine = 3;
+        SLType_Zebra_StopLine = 4;
+    }
+
+    enum SLMeasureStatus{
+        SLMeasureStatus_Unknown = 0;
+        SLMeasureStatus_View = 1;
+        SLMeasureStatus_Predict = 2;
+    }
+
+    enum SLLaneAssessment{
+        SLLaneAssessment_Unknown = 0;
+        SLLaneAssessment_Ego_Lane = 1;
+        SLLaneAssessment_Left_Lane = 2;
+        SLLaneAssessment_Right_Lane = 3;
+        SLLaneAssessment_Left_Left_Lane = 4;
+        SLLaneAssessment_Right_Right_Lane = 5;
+    }
+}
+
+message SpeedBump {
+    optional float SB_Probability = 1 [deprecated=true];
+    optional float SB_Long_Dist_L = 2 [deprecated=true];
+    optional float SB_Long_Dist_R = 3 [deprecated=true];
+    optional float SB_Lat_Dist_L = 4 [deprecated=true];
+    optional float SB_Lat_Dist_R = 5 [deprecated=true];
+    optional float SB_width = 6 [deprecated=true];
+    optional uint32 SB_ID = 7 [deprecated=true];
+}
+
+message InterestPoint{
+    optional INTPType INTP_Type = 1 [deprecated=true];
+    optional uint32 INTP_ID = 2 [deprecated=true];
+    optional uint32 INTP_Age = 3 [deprecated=true];
+    optional INTPLineRole INTP_Line_Role = 4 [deprecated=true];
+    optional float INTP_Long_Distance = 5 [deprecated=true];
+    optional float INTP_Lat_Distance = 6 [deprecated=true];
+    optional float INTP_Exist_Probability = 7 [deprecated=true];
+
+    enum INTPType{
+        INTPType_Unknown = 0;
+        INTPType_Split = 1;
+        INTPType_Merge = 2;
+    }
+
+    enum INTPLineRole{
+        INTPLineRole_Unknown = 0;
+        INTPLineRole_Host_Left = 1;
+        INTPLineRole_Host_Right = 2;
+        INTPLineRole_Adjacent_Left_Left = 3;
+        INTPLineRole_Adjacent_Left_Right = 4;
+        INTPLineRole_Adjacent_Right_Left = 5;
+        INTPLineRole_Adjacent_Right_Right = 6;
+    }
+}
+
+message GuidePoint{
+    optional bool INTP_Is_Highway_Merge_Left = 1;
+    optional bool INTP_Is_Highway_Merge_Right = 2;
+    optional bool INTP_Is_Highway_Exit_Left = 3;
+    optional bool INTP_Is_Highway_Exit_Right = 4;
+    repeated InterestPoint INTP_Point = 5 [deprecated=true]; // maximum 10 points are supported
+}
+
+
+
+message LaneSemantic{
+    optional SLDDirection SLD_Direction = 1 [deprecated=true];
+    optional uint32 SLD_ID = 2 [deprecated=true];
+    optional uint32 SLD_Count = 3 [deprecated=true];
+    optional float SLD_Lat = 4 [deprecated=true];
+    optional float SLD_Long = 5 [deprecated=true];
+    optional SLDOrientation SLD_Orientation = 6 [deprecated=true];
+    optional float SLD_Orientation_Probability = 7 [deprecated=true];
+    optional float SLD_Direction_Probability = 8 [deprecated=true];
+    optional SLDRole SLD_Role = 9 [deprecated=true];
+    optional SLDType SLD_Type = 10 [deprecated=true];
+
+    optional float SLD_No_Park_Zone_Lat_0 = 11 [deprecated=true];
+    optional float SLD_No_Park_Zone_Long_0 = 12 [deprecated=true];
+    optional float SLD_No_Park_Zone_Lat_1 = 13 [deprecated=true];
+    optional float SLD_No_Park_Zone_Long_1 = 14 [deprecated=true];
+    optional float SLD_No_Park_Zone_Lat_2 = 15 [deprecated=true];
+    optional float SLD_No_Park_Zone_Long_2 = 16 [deprecated=true];
+    optional float SLD_No_Park_Zone_Lat_3 = 17 [deprecated=true];
+    optional float SLD_No_Park_Zone_Long_3 = 18 [deprecated=true];
+    optional SLDRoadStatus SLD_Road_Status = 19 [deprecated=true];
+
+    enum SLDDirection{
+        SLDDirection_Unknown = 0;
+    }
+
+    enum SLDOrientation{
+        SLDOrientation_Unknown = 0;
+        SLDOrientation_Same = 1;
+        SLDOrientation_Opposite = 2;
+    }
+
+    enum SLDRole{
+        SLDRole_Unknown = 0;
+        SLDRole_Left = 1;
+        SLDRole_Ego = 2;
+        SLDRole_Right = 3;
+        SLDRole_Left_Left = 4;
+        SLDRole_Right_Right = 5;
+    }
+
+    enum SLDType{
+        SLDType_Unknown = 0;
+        SLDType_Normal = 1;
+        SLDType_RoadShoulder = 2;
+        SLDType_Bus = 3;
+        SLDType_Bike = 4;
+        SLDType_Others = 5;
+    }
+
+    enum SLDRoadStatus{
+        SLDRoadStatus_Unknown = 0;
+        SLDRoadStatus_Dry = 1;
+        SLDRoadStatus_Wet = 2;
+        SLDRoadStatus_Water = 3;
+        SLDRoadStatus_Snow = 4;
+    }
+}
+
+message LaneCenter{
+    repeated Point center_line_points = 1 [deprecated=true]; // CenterLine points x,y,z. shape 3xP.
+                                           // P: number of points for each path.
+    repeated LanePointProperty center_line_properties = 2 [deprecated=true];// CenterLine type, confidence, direction of points 
+    repeated LaneType lane_type = 3 [deprecated=true]; // CenterLine type
+    optional float confidence = 4 [deprecated=true]; // CenterLine confidence
+    optional LaneDirection lane_direction = 5 [deprecated=true];  // CenterLine direction.
+    optional bool lane_is_virtual = 6 [deprecated=true]; //虚拟中心线，0: no,  1: yes
+    repeated Point key_point_position = 7 [deprecated=true];    // Path association point
+    repeated int32 key_point_type = 8 [deprecated=true];    // Path association point   
+    optional PolyLine center_poly_line = 9 [deprecated=true]; 
+    optional float center_line_start = 10 [deprecated=true];
+    optional float center_line_end = 11 [deprecated=true];
+    optional uint32 center_line_track_id = 12 [deprecated=true];
+    optional uint32 center_line_track_age = 13 [deprecated=true];
+    optional uint32 center_line_quality = 14 [deprecated=true]; //Invalid = 0, Low = 1, Middle = 2, High = 3
+    repeated uint32 related_left_line_track_id = 15 [deprecated=true]; //同中心线关联的左侧车道线track id
+    repeated uint32 related_right_line_track_id = 16 [deprecated=true]; //同中心线关联的右侧车道线track id  
+    repeated uint32 related_stopline_track_id = 17 [deprecated=true]; //同中心线关联的停止线tracking_ID
+    repeated uint32 related_left_curb_track_id = 18 [deprecated=true]; //同中心线关联的左侧路沿线track id
+    repeated uint32 related_right_curb_track_id = 19 [deprecated=true]; //同中心线关联的右侧路沿线track id
+    optional LaneRole lane_role = 20 [deprecated=true];
+    
+    message LanePointProperty {
+      optional float point_confidence = 1;
+      optional LaneType point_lane_type = 2;
+      optional bool point_is_virtual = 3;
+      optional LaneDirection point_lane_direction = 4;
+    }
+
+    enum LaneRole{
+        ROLE_UNKNOWN = 0;
+        ROLE_HOST = 1;
+        ROLE_LEFT = 2;
+        ROLE_RIGHT = 3;
+        ROLE_LEFT_LEFT = 4;
+        ROLE_RIGHT_RIGHT = 5;
+    }
+  
+    enum LaneDirection{
+      DIRECT_UNKNOWN = 0;
+      DIRECT_FRONT = 1; //同向车道
+      DIRECT_BEHIND = 2; //对向车道
+      DIRECT_LEFT = 3; //左向车道
+      DIRECT_RIGHT = 4; //右向车道
+    }
+    
+    enum LaneType{
+      UNKNOWN_LANE = 0;
+      NORMAL_LANE = 1; //常规车道
+      MOTORWAY_LANE =2; //机动车道
+      BICYCLE_LANE = 3; //非机动车道
+      VARIABLE_LANE = 4; //可变导向车道
+      REVERSIBLE_LANE = 5; //潮汐车道
+      EMERGENCY_LANE = 6; //应急车道
+      BUS_LANE = 7; //公交车道
+      BUS_HARBOR_LANE = 8; //公交停靠岛
+      WAITING_LANE = 9; //reserved,待行区车道
+      HOV_LANE = 10; //reserved，HOV车道
+      PARNKING_LANE = 11; //reserved,停车车道
+      CHECKPOINT_LANE = 12; //reserved,检查站车道
+      TOLL_LANE =13; //reserved,收费站车道
+    }
+}
+
+message RoadDetection{
+    optional uint64 timestamp = 1;//ptp sensor time of perception result, unit: ns
+    optional LaneDetection laneline = 2;
+    optional RoadSlop slop = 3;
+    optional LaneLPP lpp = 4;
+    repeated Roadedge roadedge = 5; 
+    repeated StopLine stopline = 6; 
+    optional GuidePoint guidepoint = 7;
+    repeated LaneSemantic lanesemantic = 8 [deprecated=true]; 
+    repeated LaneCenter lane_center = 9;
+    repeated SpeedBump speed_bump = 10 [deprecated=true]; 
+    repeated SceneQuality scene_quality = 11; // first for nop+ highway; second for elk 
+    repeated CenterLine center_line = 12 [deprecated = true];     // w/o property  will be deprecated in starlight 1.2
+    repeated Lane center_line_tracklets = 13;  // for manner centerline with properties
+
+    enum SceneQuality{
+        SceneQuality_Unknown = 0;
+        SceneQuality_LOW = 1;
+        SceneQuality_MIDDLE = 2;
+        SceneQuality_HIGH = 3;
+    }
+
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909;       // uuid of the publisher
+    optional uint64 counter = 536870910;            // message counter
+    optional uint64 publish_ts = 536870911;         // publish utc timestamp; unit : nanosecond
+
+}

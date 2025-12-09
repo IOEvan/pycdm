@@ -1,0 +1,19 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+enum ADBSysType_e{
+    NO_Error           = 0;
+    ADB_System_Error   = 1;
+    Default            = 2;
+    Reverved           = 3;
+}
+
+enum ADBAcSts_e{
+    ADB_Act_OFF            = 0;
+    ADB_Act_ON             = 1;
+    ADB_Act_INVAILD        = 2;
+    ADB_Act_Reserved_3     = 3;
+}

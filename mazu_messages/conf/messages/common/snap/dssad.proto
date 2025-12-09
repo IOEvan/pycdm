@@ -1,0 +1,117 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+import "np/apps/ehy_obf_outputs.proto";
+import "common/dms/dms_drive_assist.proto";
+
+// useless since BL235
+message DssadBasic {
+    enum EventCode {
+        INVALID         = 0;
+        ADS_ACTIVE      = 1;    // ADS激活
+        ADS_QUIT        = 2;    // ADS退出
+        INTERVENE_REQ   = 3;    // 发出介入请求
+        RISK_STRATEGY   = 4;    // 启动最小风险策略
+        SERIOUS_FAILURE = 5;    // 严重失效
+        CRASH_DETECTED  = 6;    // 碰撞
+        CRASH_RISK      = 7;    // 有碰撞风险
+        DRIVER_REQ      = 8;    // 驾驶员操作ADS激活/退出
+
+        DANADSt_PILOT_ACTV       = 0x10;    // Pilot Active (long/lat)
+        DANADSt_LAT_UNAVAIL      = 0x11;    // Pilot Active (long.only)
+        DANADSt_NOP_ACTIVE       = 0x12;    // NOP Active
+        DANADSt_NAD_ENGAGED      = 0x13;    // PSP Active
+        DANADSt_NAD_ACTIVE       = 0x14;    // NAD Active
+        DANADSt_NAD_ENGAGED_BEAT = 0x15;    // Risk Mitigation Procedure
+        DANADSt_QUIT             = 0x20;    // off state
+    }
+
+    optional string vin             = 1;
+    optional string hw_version      = 2;    // 实现自动驾驶数据记录系统功能的硬件版本号
+    optional string serial_num      = 3;    // 实现自动驾驶数据记录系统功能的序列号
+    optional string sw_version      = 4;    // 自动驾驶数据记录系统软件版本号
+    optional EventCode event_code   = 5;    // 事件类型编码
+
+    optional uint32 year    = 6;
+    optional uint32 month   = 7;
+    optional uint32 day     = 8;
+    optional uint32 hour    = 9;
+    optional uint32 minute  = 10;
+    optional uint32 second  = 11;
+
+    optional double longitude    = 12;  // 经度
+    optional double latitude     = 13;  // 纬度
+    optional bool integrity      = 14;  // 事件记录完整标志
+    optional uint32 odometer     = 15;  // 累计行驶里程
+    optional double course_angle = 16;  // 航向角
+}
+
+message VehicleStatus {
+    optional float speed              = 1;  // 车辆速度
+    optional float lateral_accelerate = 2;  // 车辆横向加速度
+    optional float axial_accelerate   = 3;  // 车辆纵向加速度
+    optional float yaw_velocity       = 4;  // 车辆横摆角速度
+    optional float roll_velocity      = 5;  // 车辆侧倾角速度
+}
+
+message ADASStatus {
+    optional float lateral_accelerate    = 1;   // ADS请求的横向加速度
+    optional float steering_wheel_angle  = 2;   // ADS请求的方向盘转向角
+    optional float turning_curvature     = 3;   // ADS请求的转向曲率
+    optional float front_wheel_angle     = 4;   // ADS请求的前轮转角
+    optional float pinion_steering_angle = 5;   // ADS请求的转向小齿轮转向角
+
+    optional float steering_wheel_torque     = 6;   // ADS请求的方向盘转向力矩
+    optional float steering_wheel_angle_rate = 7;   // ADS请求的方向盘转向角速率
+    optional uint32 gear_request             = 8;   // ADS请求的挡位
+    optional uint32 speed_request            = 9;   // ADS请求的车速
+    optional float acceleration_request      = 10;  // ADS请求的纵向加速度
+
+    optional float accelerator_pedal_ration = 11;  // ADS请求的油门踏板开度比例
+    optional float brake_pedal_ration       = 12;  // ADS请求的刹车踏板开度比例
+    optional uint32 drive_torque_request    = 13;  // ADS请求的驱动转矩
+    optional uint32 rotary_speed_request    = 14;  // ADS请求的驱动转速
+    optional uint32 wheel_torque_request    = 15;  // ADS请求的轮端扭矩
+
+    optional uint32 adaptive_lighting_status = 16;  // ADS请求的自适应照明系统状态
+    optional uint32 low_beam_status          = 17;  // ADS请求的近灯光状态
+    optional uint32 high_beam_status         = 18;  // ADS请求的远光灯状态
+    optional uint32 hazard_light             = 19;  // ADS请求的危险警告信号状态
+    optional uint32 turn_left_light          = 20;  // ADS请求的左转向信号灯状态
+    optional uint32 turn_right_light         = 21;  // ADS请求的右转向灯状态
+    optional uint32 wiper_request            = 22;  // ADS请求的车辆雨刮状态
+}
+
+message EnvironmentInfo {
+    repeated FusObject fuse_objects = 1;
+}
+
+message DriverStatus {
+    optional uint32 driver_capability   = 1;    // 驾驶员接管能力
+    optional uint32 seat_belt_status    = 2;    // 驾驶员是否系安全带
+    optional uint32 seat_occupy_status  = 3;    // 驾驶员是否在驾驶位置
+    optional float accr_pedal_position  = 4;    // 加速踏板开度
+    optional float brake_pedal_position = 5;    // 刹车踏板开度
+    optional uint32 brake_pedal_status  = 6;    // 刹车踏板状态
+    optional float steering_wheel_angle = 7;    // 转向盘角度（如有转向盘）
+    optional float torsion_bar_torque   = 8;    // 转向扭矩
+    optional DMSDriverInLoopSt driver_inloop_status = 9;
+}
+
+message DssadElement {
+    optional DssadBasic basic_info        = 1;
+    optional VehicleStatus vehicle_status = 2;
+    optional ADASStatus adas_status       = 3;
+    optional EnvironmentInfo env_info     = 4;
+    optional DriverStatus driver_status   = 5;
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts   = 536870907;   //publish ptp timestamp, uint in nanosec
+    optional string publisher_id     = 536870909;   // uuid of the publisher
+    optional uint64 counter          = 536870910;   // message counter
+    optional uint64 publish_ts       = 536870911;   // publish timestamp; unit : nanosecond
+}

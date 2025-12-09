@@ -1,0 +1,68 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+import "common/perf/sensor_ts_header.proto";
+
+
+import "common/perception/perception_objects.proto";
+import "common/perception/radar_object.proto";
+import "common/perception/side_feature_objects.proto";
+import "common/perception/vision_road_detection.proto";
+import "common/vehicle_in/vehicle_10ms.proto";
+import "common/vehicle_in/vehicle_50ms.proto";
+import "np/apps/fct_out.proto";
+import "common/perception/vision_failsafe.proto";
+import "common/perception/vision_feature_flag.proto";
+import "common/perception/free_space.proto";
+import "common/perception/vision_traffic_sign.proto";
+import "common/platform/mcu_proxy/vehicle/vehicle_info.proto";
+import "common/platform/mcu_proxy/vehicle/vehicle_variant_code.proto";
+import "common/diagnostic/fim/fim_perception.proto";
+import "common/diagnostic/fim/fim_mcuwithsoc_can.proto";
+import "common/diagnostic/fim/fim_software.proto";
+import "common/diagnostic/fim/fim_mcu_system.proto";
+import "common/diagnostic/fim/fim_lidar.proto";
+import "common/diagnostic/fim/fim_cameras.proto";
+import "common/sensors/gnss_result.proto";
+import "common/perception/side_feature.proto";
+import "common/diagnostic/fim/fim_can.proto";
+import "np/apps/ehy_target_base.proto";
+import "np/apps/ehy_tsi_outputs.proto";
+
+
+message EHYInputBundle{
+  optional ObjectsDetection vision_objects = 1;
+  optional RadarSensor radar_info = 2;
+  optional SideFeatObj side_feat_obj = 3;     
+  optional RoadDetection vision_road = 4;
+  optional VEH10ms vehicle_10ms = 5;
+  optional VEH50ms vehicle_50ms = 6;
+  optional FctOut fct_out = 7;
+  optional FailSafeDetection vision_failsafe = 8;
+  optional Features vision_feature = 9;
+  optional FreeSpaceDetection vision_fsp = 10;
+  optional TrafficSignDetection vision_traffic_sign = 11;
+  optional VehicleInfo vehicle_config = 12;
+  optional VehVariantCode variant_code = 13;
+  optional PerceptionFimInfo perception_fim_info = 14;
+  optional MCUWithSOCFimInfo mcu_soc_fim_info = 15;
+  optional FimSoftwareInfo fim_software_info = 16;
+  optional McuSystemFimInfo mcu_system_fim_info = 17;
+  optional LidarFimInfo lidar_fim_info = 18;
+  optional CameraFimInfo camera_fim_info = 19;
+  optional GnssResult gnss_data = 20;
+  optional ForceSideFeatures force_side_feature = 21;
+  optional FimCanInfo fim_can_info = 22;
+  optional EHYTsiOutputs ehy_tsi_obj = 23;
+  optional uint64 id_time = 24;
+
+  optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin   
+  optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+  optional uint64 publish_ptp_ts = 536870907; // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909;   // uuid of the publisher
+  optional uint64 counter = 536870910;        // message counter
+  optional uint64 publish_ts = 536870911;     // publish utc timestamp; unit : nanosecond
+
+}

@@ -1,0 +1,110 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+import "common/perception/lidar_cluster_output.proto";
+import "common/perception/lidar_prediction_output.proto";
+import "common/perception/perception_objects.proto";
+import "common/perf/sensor_ts_header.proto";
+import "np/apps/parking/par_vehicle_state.proto";
+
+
+message PsapVector3f {
+    optional float x = 1;
+    optional float y = 2;
+    optional float z = 3;
+}
+
+message PsapQuaternion {
+    optional float x = 1;
+    optional float y = 2;
+    optional float z = 3;
+    optional float w = 4;
+}
+
+// NOTE: the order of the euler angle is: zyx.
+message PsapEulerAngle {
+    optional float roll = 1;  // Rotation angle around the x-axis. [radian]
+    optional float pitch = 2; // Rotation angle around the y-axis. [radian]
+    optional float yaw = 3;   // Rotation angle around the z-axis. [radian] [counterclockwise positive]
+}
+
+message PsapPose {
+    optional PsapVector3f position = 1;
+    optional PsapEulerAngle orientation = 2;
+}
+
+message PsapHistoryState {
+    // The detected vehicle state.  
+    optional ParVehicleState.VehProjectTyp veh_type = 1;
+    // The detected vehicle light status.
+    optional DynamicObj.OBJLightStatus veh_light_status = 2;
+    // Reserved for debug history info.
+    repeated float veh_debug_info = 10;
+}
+
+message PsapVehicle{
+  // ID of the object.
+  optional uint32 id = 1;
+  // Type of the vehicle.
+  optional ParVehicleState.VehProjectTyp type = 2;
+  // Should be true if the pose is valid.
+  optional bool pose_valid = 3;
+  // The pose of psap vehicle in the station coordinate.
+  optional PsapPose pose = 4;
+  // The length (x), width (y), and height (z) of the vehicle.
+  optional PsapVector3f dimensions = 5;
+  // The velocity of the vehicle.
+  optional PsapVector3f velocity = 6;
+  // The roll (x), pitch (y), and yaw (z) rates of the vehicle.
+  optional PsapVector3f angle_rates = 7;
+  // The timestamp of the vehicle (unit: ns).
+  optional uint64 object_timestamp = 8;
+  // The score of the vehicle.
+  optional float score = 9;
+  // The history states of the vehicle.
+  repeated PsapHistoryState history_states = 10;
+
+  // Lidar cluster result.
+  optional LidarClusterObject lidar_cluster_object = 20;
+  // Lidar prediction result.
+  optional LidarTrajectoryPrediction lidar_trajectory_prediction = 40;
+
+  // The vehicle state message from the vehicle side.
+  optional ParVehicleState psap_veh_state_msg = 60;
+  // The timestamp when the vehicle state message is received (Unit: second).
+  optional double psap_veh_state_ts = 61;
+  // Whether the psap vehicle is determined by vehicle-side pose or not.
+  optional bool found_by_pose = 62;
+  // Whether the psap vehicle is determined by vehicle type and light status or not.
+  optional bool found_by_type_and_light = 63;
+  // The vehicle-side pose of psap vehicle (in the svc coordinate) transformed to the station coordinate.
+  optional PsapPose pose_veh = 64;
+
+  // true if station_unmanned_psap_wait_vehicle detected by station before call
+  optional bool is_station_detected_vehicle = 65;
+
+  enum StationLightRequest{
+    NO_REQUEST = 0;
+    TURN_OFF_REQUEST = 1;
+    TURN_ON_REQUEST = 2;
+  }
+  optional StationLightRequest station_light_req = 66;
+
+  optional string vid = 10000; // vid of target vehicle
+
+}
+
+message StationPsapVehicle{
+  optional uint64 timestamp = 1;  // Timestamp when the sensor data is received; unit in nanosecond.
+  optional PsapVehicle psap_vehicle = 2;
+  repeated PsapVehicle psap_wait_vehicle_list = 3;
+
+
+  optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+  optional uint64 publish_ptp_ts = 536870907;    // publish ptp timestamp; unit in nanosecond
+  optional string publisher_id = 536870909;      // uuid of the publisher
+  optional uint64 counter = 536870910;           // message counter
+  optional uint64 publish_ts = 536870911;        // publish utc timestamp; unit in nanosecond
+}

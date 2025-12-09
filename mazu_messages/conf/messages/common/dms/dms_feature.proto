@@ -1,0 +1,289 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+import "common/dms/dms_base.proto";
+
+message DMS_DrowsinessResult {
+    enum DMS_DrowsinessLevel {
+        DMS_DROWSINESS_LEVEL_NONE      = 0; // can not judge if driver is drowsy
+        DMS_DROWSINESS_LEVEL_LIGHT     = 1; // lightly drowsy
+        DMS_DROWSINESS_LEVEL_MEDIUM    = 2; // driver is drowsy in medium level
+        DMS_DROWSINESS_LEVEL_HEAVY     = 3; // driver is drowsy in heavily level
+        DMS_DROWSINESS_LEVEL_INVALID   = 4; // cannot judge
+    }
+    optional DMS_DrowsinessLevel level = 1;
+    optional bool is_valid             = 2;
+    optional float perclos             = 3;
+    optional DMS_INVALID_TYPE invalid_type = 4;
+    optional float perclos_light           = 5;
+    optional float perclos_medium          = 6;
+}
+
+message DMS_DistractionResult {
+    enum DMS_DistractionLevel {
+        DMS_DISTRACTION_LEVEL_NONE      = 0; // driver is not distracted
+        DMS_DISTRACTION_LEVEL_LIGHT     = 1; // driver is lightly distracted
+        DMS_DISTRACTION_LEVEL_MEDIUM    = 2; // driver is medium distracted
+        DMS_DISTRACTION_LEVEL_HEAVY     = 3; // driver is heavily distracted
+        DMS_DISTRACTION_LEVEL_INVALID   = 4; // can not judge if driver is distracted
+        DMS_DISTRACTION_LEVEL_REGULATION = 5; // @linescope: NT3
+        DMS_DISTRACTION_LEVEL_REGULATION_2 = 6; // @linescope: NT3
+    }
+    optional DMS_DistractionLevel level = 1;
+    optional float confidence           = 2;
+    optional bool is_valid              = 3;
+    enum DMS_DistractionLevel_Short {
+        DMS_DISTRACTION_LEVEL_NONE_SHORT            = 0; // driver is not distracted
+        DMS_DISTRACTION_LEVEL_LIGHT_SHORT           = 1; // driver is lightly distracted
+        DMS_DISTRACTION_LEVEL_MEDIUM_SHORT          = 2; // driver is medium distracted
+        DMS_DISTRACTION_LEVEL_HEAVY_SHORT           = 3; // driver is heavily distracted
+        DMS_DISTRACTION_LEVEL_INVALID_SHORT         = 4; // can not judge if driver is distracted
+        DMS_DISTRACTION_LEVEL_REGULATION_SHORT      = 5; // @linescope: NT3
+    }
+    optional DMS_DistractionLevel_Short short_level = 4;
+    enum DMS_DistractionLevel_FCW {
+        DMS_DISTRACTION_LEVEL_NONE_FCW              = 0; // driver is not distracted
+        DMS_DISTRACTION_LEVEL_FCW_SET               = 1; // continuous gaze away from forward road view for 1 second
+        DMS_DISTRACTION_LEVEL_INVALID_FCW           = 2; // can not judge if driver is distracted
+    }
+    optional DMS_DistractionLevel_FCW fcw_set       = 5;
+    optional DMS_INVALID_TYPE invalid_type          = 6;
+    optional DMS_DIST_RESULT_TYPE dist_type         = 7;
+    optional DMS_DIST_RESULT_TYPE dist_frame_result = 8;
+    optional float distraction_score                = 9;
+}
+
+message DMS_EyeStatusResult {
+    enum DMS_EyeStatus {
+        DMS_EYE_OPEN                          = 0;
+        DMS_EYE_CLOSE                         = 1;
+        DMS_EYE_INVALID                       = 2;
+    }
+
+    optional DMS_EyeStatus left_eye           = 1;
+    optional float left_open_confidence       = 2;
+    optional float left_visible_percent       = 3;
+    optional DMSVector left_eye_gaze_vector   = 4;
+    optional DMSPosition3f left_eye_position  = 5;
+
+    optional DMS_EyeStatus right_eye          = 6;
+    optional float right_open_confidence      = 7;
+    optional float right_visible_percent      = 8;
+    optional DMSVector right_eye_gaze_vector  = 9;
+    optional DMSPosition3f right_eye_position = 10;
+
+    optional DMS_INVALID_TYPE left_eye_invalid_type     = 11;
+    optional DMS_INVALID_TYPE right_eye_invalid_type    = 12;
+
+    optional DMSVector cam_left_eye_gaze_vector         = 13;
+    optional DMSPosition3f cam_left_eye_position        = 14;
+    optional DMSVector cam_right_eye_gaze_vector        = 15;
+    optional DMSPosition3f cam_right_eye_position       = 16;
+}
+
+message DMS_GazeAoiResult {
+    enum DMS_GazeAoi {
+        DMS_GAZEAOI_FRONT_WINDOWSHILED          = 0;
+        DMS_GAZEAOI_FRONT_WINDSHIELD_RIGHT_AREA = 1;
+        DMS_GAZEAOI_HUD                         = 2;
+        DMS_GAZEAOI_IC                          = 3;
+        DMS_GAZEAOI_REAR_MIRROR                 = 4;
+        DMS_GAZEAOI_ICS                         = 5;
+        DMS_GAZEAOI_LEFT_MIRROR                 = 6;
+        DMS_GAZEAOI_LEFT_Window                 = 7;
+        DMS_GAZEAOI_RIGHT_MIRROR                = 8;
+        DMS_GAZEAOI_RIGHT_Window                = 9;
+        DMS_GAZEAOI_NOMI                        = 10;
+        DMS_GAZEAOI_INVALID                     = 11;
+        DMS_GAZEAOI_OTHER                       = 12;
+        DMS_GAZEAOI_LOOKDOWN                    = 13;
+        DMS_GAZEAOI_OTHER_LEFT                  = 14;
+        DMS_GAZEAOI_OTHER_RIGHT                 = 15;
+        DMS_GAZEAOI_OTHER_CENTRALUP             = 16;
+        DMS_GAZEAOI_OTHER_CENTRALDOWN           = 17;
+        DMS_GAZEAOI_OTHER_UNSTABLE              = 18;
+        DMS_GAZEAOI_CONSOLE                     = 19;
+        DMS_GAZEAOI_COPILOT_SKYLINE             = 20;
+        DMS_GAZEAOI_LEFT_A_PILLAR               = 21;
+        DMS_GAZEAOI_RIGHT_A_PILLAR              = 22;
+    }
+    optional DMS_GazeAoi gaze_aoi               = 1;
+    optional bool is_valid                      = 2;
+    optional DMS_INVALID_TYPE invalid_type      = 3;
+}
+
+message DMS_HeadResult {
+    optional DMSPosition3f head_position = 1;
+    optional DMSPose head_pose           = 2;
+    optional DMSPosition3f cam_head_position    = 3;
+    optional DMSPose cam_head_pose              = 4;
+    optional float oms_yaw_min                  = 5;
+    optional float oms_yaw_max                  = 6;
+    optional DMSPose head_pose_by_oms           = 7;
+}
+
+message DMS_PhoneActionResult {
+    enum DMS_PhoneAction {
+        DMS_PHONE_CALLING                 = 0;
+        DMS_PHONE_USING                   = 1;
+        DMS_PHONE_NO_ACTION               = 2;
+        DMS_PHONE_INVALID                 = 3;
+    }
+    optional DMS_PhoneAction phone_action = 1;
+    optional float confidence             = 2;
+}
+
+message DMS_SmokeResult {
+    optional bool is_smoking          = 1;
+    optional float confidence         = 2;
+}
+
+message DMS_YawnResult {
+    optional bool is_yawning          = 1;
+    optional float confidence         = 2;
+    optional uint32 yawn_num          = 3;
+}
+
+message DMS_HeadMovementResult {
+    enum DMS_HeadMovement {
+        DMS_HEAD_NODDING                    = 0;
+        DMS_HEAD_SHAKING                    = 1;
+        DMS_HEAD_NO_ACTION                  = 2;
+    }
+
+    optional DMS_HeadMovement head_movement = 1;
+    optional float confidence               = 2;
+}
+
+message DMS_AgeResult {
+    optional float age              = 1;
+    optional float age_confidence   = 2;
+    optional bool is_child          = 3;
+    optional float child_confidence = 4;
+}
+
+message DMS_GenderResult {
+    enum DMS_Gender {
+        DMS_GENDER_FEMALE      = 0;
+        DMS_GENDER_MALE        = 1;
+        DMS_GENDER_INVALID     = 2;
+    }
+
+    optional DMS_Gender gender = 1;
+    optional float confidence  = 2;
+}
+
+message DMS_EmotionResult {
+    enum DMS_Emotion {
+        DMS_EMOTION_CALM         = 0;
+        DMS_EMOTION_HAPPY        = 1;
+        DMS_EMOTION_OTHER        = 2;
+        DMS_EMOTION_SURPRISE     = 3;
+        DMS_EMOTION_ANGER        = 4;
+        DMS_EMOTION_INVALID      = 5;
+        DMS_EMOTION_SAD          = 6;
+    }
+
+    optional DMS_Emotion emotion = 1;
+    optional float confidence    = 2;
+}
+
+message DMS_FaceResult {
+    optional bool is_valid          = 1;
+    repeated DMSPoint2f landmarks   = 2;
+    optional uint32 landmark_number = 3;
+    optional int32 top_left_x       = 4; // top-left x
+    optional int32 bottom_right_x   = 5; // bottom-right x
+    optional int32 top_left_y       = 6; // top-left y
+    optional int32 bottom_right_y   = 7; // bottom-right y
+    optional DMS_INVALID_TYPE invalid_type = 8;
+    optional float face_score       = 9;
+}
+
+enum DMS_StrabismusType {
+    DMS_SBT_NORMAL        = 0;
+    DMS_SBT_LEFT          = 1;
+    DMS_SBT_RIGHT         = 2;
+    DMS_SBT_UNKNOWN       = 3;
+}
+
+
+enum DMS_DownGradeSignal {
+    DMS_DOWNGRADESIGNAL_NONE                = 0;
+    DMS_DOWNGRADESIGNAL_NO_FACE             = 1;
+    DMS_DOWNGRADESIGNAL_EYE_OCCLU           = 2;
+}
+enum DMS_Status {
+    NIO_DMS_SUCCESS                            = 0;  //!< success
+    NIO_DMS_MODULE_UNINIT                      = 1;  //!< module uninit
+    NIO_DMS_PARAM_INVALID                      = 2;  //!< input parameter is invalid
+    NIO_DMS_FILE_OPEN_FAIL                     = 3;  //!< open file failed
+
+    // MDMS config errors
+    NIO_DMS_CONFIG_OPEN_FAIL                   = 100;  //!< config file open failed
+    NIO_DMS_CONFIG_PARSE_FAIL                  = 101;  //!< config parse failed
+    NIO_DMS_CONFIG_PARAM_MISSING               = 102;  //!< the parameter is missing in config file
+    NIO_DMS_CONFIG_PARAM_INVALID               = 103;  //!< the value of parameter is invalid
+    NIO_DMS_CONFIG_MISSING_MODEL               = 104;  //!< config missing model file; or model cannot load
+
+    // MDMS license errors
+    NIO_DMS_LICENSE_EXPIRE                     = 200;  //!< license expire
+    NIO_DMS_LICENSE_UDID_MISMATCH              = 201;  //!< uuid is invalid
+    NIO_DMS_LICENSE_ONLINE_ACTIVATE_FAIL       = 202;  //!< online activate failed
+    NIO_DMS_LICENSE_ACTIVATIONS_RUN_OUT        = 203;  //!< no need online activate
+    NIO_DMS_LICENSE_UNAUTH                     = 204;  //! module is unauthorized
+    NIO_DMS_LICENSE_HARDWARE_AUTH_INIT_FAIL    = 205;  //! hardware auth init fail
+    NIO_DMS_LICENSE_HARDWARE_AUTH_FAIL         = 206;  //! hardware auth fail
+    NIO_DMS_LICENSE_HARDWARE_AUTH_NOTSUPPORTED = 207;  //! not support hardware auth
+    NIO_DMS_LICENSE_INVALID                    = 208;  //!< license file is invalid
+    NIO_DMS_LICENSE_TOKEN_INVALID              = 209;
+
+    NIO_DMS_FUNC_HANDLE_INVALID                = 300;  //!< input invalid handle called api functions
+    NIO_DMS_FUNC_PIXEL_FMT_INVALID             = 302;  //!< the format of input image is invalid
+    NIO_DMS_FUNC_MODEL_FMT_INVALID             = 303;  //!< the format of loaded model is invalid
+    NIO_DMS_RECOGNITION_FACE_LOW_QUALITY       = 400;  //!< recongnition face low quality
+    NIO_DMS_RECOGNITION_FACE_NOT_FOUND         = 401;  //!< recongnition face not found; valid face is not detected.
+    NIO_DMS_MODULEMANAGER_MODULE_DISABLE       = 600;  //!< the module has not been enabled.
+
+    NIO_DMS_INTERNAL_ERROR                     = 1000;  //!< internal error
+
+    NIO_DMS_NO_STEER_CALIBRATE_TEMPLATE        = 1103;
+    NIO_DMS_STEER_CALIBRAT_INIT_ERROR          = 1104;
+
+    NIO_DMS_VEHICLE_PARAM_INVALID              = 1106;
+    NIO_DMS_STEER_CALIBRATE_FAILED             = 1107;
+    NIO_DMS_STEER_COLUMN_IS_MOVING             = 1108;
+
+    NIO_DMS_IMAGE_STUCK                        = 1204;
+    NIO_DMS_STRABISMUS_CALIBRATING             = 1205;
+    NIO_DMS_INTERNAL_NO_IMAGE_RECV             = 2000;  // nio dms_app internal error, no image received
+    NIO_DMS_TOO_BRIGHT                         = 3000;
+    NIO_DMS_TOO_DARK                           = 3001;
+    NIO_DMS_OCCULUDED                          = 3002;
+    NIO_DMS_BLURRED                            = 3003;
+}
+
+enum DMS_DistZone {
+    DMS_DistZone_DEFAULT                   = 1;
+    DMS_DistZone_LOWSPEED                  = 2;
+    DMS_DistZone_LOWSPEED_URBAN            = 3;
+}
+
+message DMS_TopicTime{
+  optional uint64 received_topic_publish_ts = 1;
+  optional uint64 received_topic_counter = 2; 
+}
+
+message DMS_ImageQuality{
+    optional float image_variance           = 1;    // variance of image pixels
+    optional float overexpo_ratio           = 2;  // over exposure pixels percantage
+}
+
+message DMS_DrinkResult{
+    optional bool is_drinking          = 1;
+    optional float confidence          = 2;
+}
+

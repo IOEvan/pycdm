@@ -1,0 +1,246 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+message EfficiencyAssessDetail {
+  optional double ego_lack_speed_to_desired_unit_cost = 1;
+  optional double ego_over_speed_to_desired_unit_cost = 2;
+  optional double ego_desired_speed_tolerate_gap = 3;
+  optional double leading_distance_th = 4;
+  optional double min_distance_ratio = 5;
+  optional double ego_speed_blocked_by_leading_unit_cost = 6;
+  optional double leading_speed_blocked_desired_vel_unit_cost = 7;
+}
+
+message SafetyAssessDetail {
+  optional bool rss_cost_enable = 1;
+  optional double rss_over_speed_power_coeff = 2;
+  optional double rss_over_speed_linear_coeff = 3;
+  optional double rss_lack_speed_power_coeff = 4;
+  optional double rss_lack_speed_linear_coeff = 5;
+  optional bool occu_lane_enable = 6;
+  optional double occu_lane_unit_cost = 7;
+  optional double safety_long_distance_threshold = 8;
+  optional double safety_lat_distance_threshold = 9;
+}
+
+message UserIntentionAssessDetail {
+  optional double late_operate_unit_cost = 1;
+  optional double cancel_operation_unit_cost = 2;
+}
+
+message NavigationAssessDetail {
+  optional double lane_change_left_unit_cost = 1;
+  optional double lane_change_right_unit_cost = 2;
+  optional double lane_change_unit_cost_vel_lb = 3;
+  optional double lane_change_left_recommendation_reward = 4;
+  optional double lane_change_right_recommendation_reward = 5;
+  optional double lateral_offset_unit_cost = 6;
+  optional double remaining_s_enable_cost_time = 7;
+  optional double remaining_s_cost_weight = 8;
+}
+message UtilityAssessDetail {
+  optional double politeness_weight = 1;
+  optional double soft_acc_time = 2;
+}
+message CostAssessCfg {
+  optional EfficiencyAssessDetail effciency = 1;
+  optional SafetyAssessDetail safety = 2;
+  optional UserIntentionAssessDetail user = 3;
+  optional NavigationAssessDetail navigation = 4;
+  optional double discount_factor = 5;
+  optional UtilityAssessDetail utility = 6;
+}
+
+message SimDurationDetail {
+  optional double layer = 1;
+  optional double last_layer = 2;
+  optional double step = 3;
+  optional int32 tree_height = 4;
+  optional double last_step = 5;
+  optional double extral_lon_action_seq_num = 6;
+}
+
+message LonSimLimit {
+  optional double acc = 1;
+  optional double acc_jerk = 2;
+  optional double soft_brake = 3;
+  optional double hard_brake = 4;
+  optional double brake_jerk = 5;
+  optional double extra_brake = 6;
+  optional double extra_brake_jerk = 7;
+}
+
+message LonSimIdm {
+  optional double min_spacing = 1;
+  optional double head_time = 2;
+  optional int32 exponent = 3;
+}
+
+message LonSimDetail {
+  optional LonSimIdm idm = 1;
+  optional LonSimLimit limit = 2;
+}
+
+message LatSimLimit {
+  optional double acc = 1;
+  optional double jerk = 2;
+  optional double curvature = 3;
+  optional double steer_angle = 4;
+  optional double steer_rate = 5;
+}
+
+message LatSimPurePursuit {
+  optional double gain = 1;
+  optional double max_lookahead_dist = 2;
+  optional double min_lookahead_dist = 3;
+  // reserved field number 3,4 Next ID： 5
+}
+
+message LatSimKinematicModel {
+  optional double first_pole = 1;
+  optional double second_pole = 2;
+  optional double curvature_weight = 3;
+}
+
+message LatSimDetail {
+  optional LatSimPurePursuit pure_pursuit = 1;
+  optional LatSimLimit limit = 2;
+  optional LatSimKinematicModel kinematic_model = 3;
+}
+
+message EvasiveSimDetail {
+  optional bool evasive_enable = 1;
+  optional double lon_acc = 2;
+  optional double lon_jerk = 3;
+  optional double lon_extraspeed = 4;
+  optional double head_time = 5;
+  optional bool virtual_barrier_enable = 6;
+  optional double virtual_barrier_tic = 7;
+}
+
+message ForwardSimDetail {
+  optional LonSimDetail lon = 1;
+  optional LatSimDetail lat = 2;
+  optional EvasiveSimDetail evasive = 3;
+  optional bool auto_dec_if_lat_failed = 4;
+  optional double cooperative_lat_range = 5;
+  optional double nudge_lat_range = 6;
+  optional double lon_aggressive_ratio = 7;
+}
+
+message SimRefLine {
+  optional double len_vel_coeff = 1;
+  optional double forward_len_max = 2;
+  optional double forward_len_min = 3;
+  optional double backward_len_max = 4;
+}
+
+message SimCfg {
+  optional SimDurationDetail duration = 1;
+  optional ForwardSimDetail ego = 2;
+  optional ForwardSimDetail agent = 3;
+  optional double acc_cmd_vel_gap = 4;
+  optional double dec_cmd_vel_gap = 5;
+  optional SimRefLine ref_line = 6;
+}
+
+message ActiveLaneChangeCfg {
+  optional double cold_duration = 1;
+  optional double activate_speed_lower_bound = 2;
+  optional double activate_speed_upper_bound = 3;
+  optional double activate_max_duration_in_seconds = 4;
+  optional double active_min_operation_in_seconds = 5;
+  optional double consistent_operate_time_min_gap = 6;
+  optional double consistent_min_num_frame = 7;
+  optional bool enable_clear_accumulation_by_forbid_signal = 8;
+  optional bool enable_auto_cancel_by_forbid_signal = 9;
+  optional bool enable_auto_cancel_by_outdate_time = 10;
+  optional bool enable_auto_canbel_by_stick_signal = 11;
+  optional double auto_cancel_if_late_for_seconds = 12;
+}
+
+message FunctionCfg {
+  optional bool mobil_enable = 1;
+  optional bool active_lc_enable = 2;
+  optional ActiveLaneChangeCfg active_lc = 3;
+  optional double stick_lane_change_in_seconds = 4;
+}
+
+message RssCfg {
+  optional double response_time = 1;
+  optional double longitudinal_acc_max = 2;
+  optional double longitudinal_brake_min = 3;
+  optional double longitudinal_brake_max = 4;
+  optional double lateral_acc_max = 5;
+  optional double lateral_brake_min = 6;
+  optional double lateral_brake_max = 7;
+  optional double lateral_miu = 8;
+}
+
+message StrictCheckCfg {
+  optional double inflation_w = 1;
+  optional double inflation_h = 2;
+}
+
+message SafetyCfg {
+  optional StrictCheckCfg strict = 1;
+  optional bool strict_check_enable = 2;
+  optional RssCfg rss = 3;
+  optional bool rss_check_enable = 4;
+  optional RssCfg rss_strict_as_front = 5;
+  optional RssCfg rss_strict_as_rear = 6;
+  optional bool rss_for_layers_enable = 7;
+}
+
+message EudmConfig {
+  optional string name = 1;
+  optional string version = 2;
+  optional string status = 3;
+  optional CostAssessCfg cost = 4;
+  optional SimCfg sim = 5;
+  optional FunctionCfg function = 6;
+  optional SafetyCfg safety = 7;
+  optional double lateral_speed_threshold_for_nudge = 8 [default = 0.2];
+  optional double ignore_time_of_object_forward_sim = 9 [default = 4];
+  optional bool enable_forward_sim_multi_thread = 10;
+  optional double fallback_trajectory_max_stop_deceleration = 11
+      [default = -3.5];
+  optional bool pre_delete_lc_behavior = 12 [default = false];
+  optional double lane_change_safety_long_distance = 13;
+  optional double lane_change_safety_forward_time = 14;
+  optional double lane_change_safety_backward_time = 15;
+  optional double leading_vehicle_time_threshold = 16;
+  optional double max_lane_change_safety_long_distance = 17;
+  // Set to false when no lane change conditions need to be checked, such as
+  // label matching offline
+  optional bool check_lane_change_condition = 18;
+  optional double backward_lane_change_safety_long_distance = 19;
+  optional double backward_max_lane_change_safety_long_distance = 20;
+}
+
+message DcpActionTreeConfig {
+  optional int32 tree_height = 1;
+  optional double layer_duration = 2;
+  optional double last_layer_duration = 3;
+  optional double layer_time_step = 4;
+  optional double last_layer_time_step = 5;
+}
+
+message ActionTreeConfig {
+  enum ActionTreeType {
+    DcpActionTree = 0;
+    ReservedTree = 1;
+  };
+  optional ActionTreeType tree_type = 1;
+
+  oneof config {
+    DcpActionTreeConfig dcp_action_tree_config = 2;
+  }
+}
+
+message BehaviorPlannerConfig {
+  optional ActionTreeConfig tree_config = 1;
+}

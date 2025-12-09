@@ -1,0 +1,650 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+import "common/pnc/geometry.proto";
+import "common/pnc/config_planner_task.proto";
+import "common/pnc/behavior_planner.proto";
+import "common/pnc/mrm_manager_config.proto";
+import "common/pnc/refpath_debug.proto";
+
+message ConfigPlanner {
+  optional ConfigRouting routing = 1;
+  optional ConfigDecision decision = 2;
+  optional ConfigPather pather = 3;
+  optional ConfigPathPlanner path_planner = 4;
+  optional ConfigStBoundaryMapper st_boundary_mapper = 5;
+  repeated TaskConfig task_config = 6;
+  optional ReferenceLineConfig reference_line = 7;
+  optional PredictionConfig prediction = 8;
+  optional EudmConfig eudm_config = 9;
+  optional string ssc_config_path = 10;
+  optional ConfigRouter router = 11;
+  optional ConfigSpeed config_speed = 12;
+  optional BehaviorPlannerConfig behavior_planner_config = 13;
+  optional LabellingMatch labelling_match = 14;
+  optional ConfigLocalRouter local_router_config = 15;
+  optional OpenSpaceConfig open_space_config = 16;
+  optional PowerSwapPilotConfig power_swap_pilot_config = 17;
+  optional MapManagerConfig map_manager_config = 18;
+  optional CreepConfig creep_config = 19;
+  optional MrmManagerConfig mrm_manager_config = 20;
+  optional RefPathConfig refpath_config = 21;
+  optional RefPathConfigPlus refpath_config_plus = 22;
+}
+
+message MapManagerConfig {
+  optional double lanemap_road_type_unsupport_exit_distance = 1;
+  optional double lanemap_curvature_limit = 2 [default = 0.02];
+  optional uint64 lanemap_center_lane_length_upper = 3 [default = 150];
+  optional uint64 lanemap_center_lane_length_lower = 4 [default = 100];
+  optional uint64 lanemap_time_span = 5 [default = 4];
+  optional bool offline_hd_map_mode_pre_check = 6 [default = false];
+}
+
+message PowerSwapPilotConfig {
+  optional double max_ref_l = 1 [default = 1.0];
+  optional double ref_l_preview_length_before_loc_box = 2 [default = 10.0];
+  optional double ref_l_weight = 3 [default = 100.0];
+  optional double loc_box_stop_buffer = 4 [default = 0.55];
+  optional bool enable_fs = 5 [default = true];
+  optional double virtual_queue_area_distance = 6 [default = 15.0];
+}
+
+message ConfigSpeed {
+  optional double planner_maximal_speed = 1 [default = 11.1];
+  optional double lat_acc_limit = 2 [default = 0.5];
+  optional double lat_acc_limit_weight = 3 [default = 1.0];
+}
+message ConfigRouting {
+  // There are two ways to search a route.
+
+  // Method 1 (cost map based): Specify origin and goal only.
+  optional uint64 origin_lane_id = 1;
+  optional double origin_s = 2;
+  optional uint64 goal_lane_id = 3;
+  optional double goal_s = 4;
+
+  // Method 2a (A* based): Specify the points to be visited sequentially.
+  repeated uint64 lane_id = 5 [packed = true];
+  repeated double lane_s = 6 [packed = true];
+
+  // Method 2b: Similar to 2a, but specify the points in (x, y).
+  optional Polyline xy_points = 7;
+}
+
+message ConfigRouter {
+  optional double large_number = 1 [default = 1.0e30];
+  optional double change_lane_factor = 2 [default = 2.0];
+  optional double penalty_change_lane_meters = 3 [default = 5.0];
+  optional double penalty_u_turn_seconds = 4 [default = 20.0];
+  optional double penalty_change_lane = 5 [default = 800.0];
+  optional double penalty_u_turn = 6 [default = 1000000.0];
+  optional double penalty_right_most_per_meter = 7 [default = 2.5];
+  optional double penalty_right_turn = 8 [default = 2.5];
+  optional double crossable_section_max_extension = 9 [default = 10000.0];
+  optional double reroute_point_filter_distance = 10 [default = 50.0];
+  optional double penalty_restricted_lane = 11 [default = 500.0];
+}
+
+message ConfigLocalRouter {
+  optional double plan_distance = 1 [default = 400.0];
+  optional double probe_distance = 2 [default = 1200.0];
+  optional double update_distance = 3 [default = 200.0];
+  optional double backward_extend_distance = 4 [default = 50.0];
+  optional bool single_thread_mode = 5 [default = false];
+  optional double lane_map_plan_distance = 6 [default = 150.0];
+  optional double lane_map_probe_distance = 7 [default = 1200.0];
+  optional double lane_map_update_distance = 8 [default = 20.0];
+  optional double plan_distance_urban = 9 [default = 300.0];
+  optional double probe_distance_urban = 10 [default = 700.0];
+}
+
+message ConfigDecision {
+  optional ConfigStGraph st_graph = 1;
+  optional bool use_ego_route = 2 [default = false];
+  optional bool use_turn_signal = 3 [default = false];
+  optional bool use_cross_walk = 4 [default = false];
+  optional bool use_traffic_lights = 5 [default = false];
+  optional bool use_stop_sign = 6 [default = false];
+
+  // [7 to 9] are used to test the stopping distance
+  optional bool use_test_stopping_distance = 7 [default = false];
+  optional double test_issue_stop_distance = 8 [default = 20.0];
+  optional double test_target_initial_stop_speed = 9 [default = 10.0];
+
+  // [10 to 18] are used by demo_inside_left_turns
+  optional bool use_demo_inside_left_turns = 10 [default = false];
+  optional double demo_lturn1_stop_x = 11 [default = -1241.6];
+  optional double demo_lturn1_stop_y = 12 [default = -238.5];
+  optional double demo_lturn2_stop_x = 13 [default = -1233.1];
+  optional double demo_lturn2_stop_y = 14 [default = -163.0];
+  optional double demo_lturn3_stop_x = 15 [default = -1631.5];
+  optional double demo_lturn3_stop_y = 16 [default = -159.9];
+  optional double demo_min_observe_s = 17 [default = -3.0];
+  optional double demo_max_observe_s = 18 [default = 30.0];
+
+  // [19 to 21] are used by unprotected left turn demos in traffic_lights
+  optional bool use_demo_tl_left_turns = 19 [default = false];
+  optional double demo_tl_lturn1_stop_x = 20 [default = -1899.2];
+  optional double demo_tl_lturn1_stop_y = 21 [default = -2122.6];
+
+  // [22 & 23] are used by ego_route and stop_sign
+  optional double object_follow_clearance_l = 22 [default = 0.2];
+  optional double object_nudge_clearance_l = 23 [default = 1.0];
+
+  // [24 & 25] are used by right turns in traffic_light
+  optional double traffic_lights_distance_to_ego_car = 24 [default = 4.0];
+  optional uint64 traffic_lights_cruise_count_thresh = 25 [default = 20];
+
+  // [26 & 27] are used by clear_zone
+  optional bool use_clear_zone = 26 [default = false];
+  optional double clear_zone_object_speed_threshold = 27 [default = 5.0];
+
+  // [28 to 34] are used by cross_walk
+  optional bool use_xili_cross_walk_settings = 28 [default = false];
+  optional bool use_cupertino_cross_walk_settings = 29 [default = false];
+  optional double crosswalk_static_obj_thresh = 30 [default = 1.0];
+  optional uint32 crosswalk_cruise_count_thresh = 31 [default = 5];
+  optional double crosswalk_obj_pred_time_max = 32 [default = 5.0];
+  optional bool use_speed_range_in_crosswalk = 33 [default = false];
+  optional double speed_range_in_crosswalk = 34 [default = 6.0];
+
+  // [35 to 37] are used by unprotected turn version of stop_sign
+  optional double ss_distance_to_front_edge = 35 [default = 1.0];
+  optional double ss_distance_to_ego_car = 36 [default = 3.0];
+  optional uint64 ss_cruise_count_thresh = 37 [default = 5];
+
+  // [38 to 40] are used by turn_without_stop_line
+  optional bool use_turn_without_stop_line = 38 [default = false];
+  optional double turn_sl_stop_speed_max = 39 [default = 1.5];
+  optional int32 turn_sl_cruise_count_num = 40 [default = 20];
+
+  // [41 to 44] are used by xili traffic_lights scenario
+  optional bool use_xili_traffic_lights_settings = 41 [default = false];
+  optional double xili_yellow_light_time = 42 [default = 4.0];
+  optional bool use_cupertino_traffic_lights_settings = 43 [default = false];
+  optional double cupertino_yellow_light_time = 44 [default = 4.0];
+
+  // [45 to 50] are used by test_creep
+  optional bool use_test_creep = 45 [default = false];
+  optional double creep_test_start_speed = 46 [default = 8.0];
+  optional double creep_test_stop_duration = 47 [default = 5.0];
+  optional double creep_test_stop_distance = 48 [default = 10.0];
+  optional double creep_test_creep_duration = 49 [default = 10.0];
+  optional double creep_test_creep_speed = 50 [default = 2.5];
+
+  // [51 to 52] are used by test_stop
+  optional bool use_test_stop = 51 [default = false];
+  optional double test_stop_s = 52 [default = 30.0];
+
+  // [53 to 57] are used by jaywalker
+  optional bool use_jaywalker = 53 [default = false];
+  optional double jaywalker_object_ignore_clearance_l = 54 [default = 5.0];
+  optional double jaywalker_normalizing_param = 55 [default = 0.6];
+  optional double jaywalker_speed_factor_offset = 56 [default = 0.2];
+  optional double jaywalker_basic_speed = 57 [default = 13.0];
+
+  // [58 & 59] are used by demo_change_lane
+  message demo_change_lane_param {
+    optional int32 start_lane_id = 1;
+    optional int32 end_lane_id = 2;
+    optional double start_s_of_lane = 3;
+    optional double end_s_of_lane = 4;
+    optional double stop_line_s_of_lane = 5;
+    optional double detect_range = 6;
+    optional double brake_distance = 7;
+    optional double low_speed = 8;
+    optional double prediction_time = 9;
+    optional Polygon detect_polygon = 10;
+  }
+
+  optional bool use_demo_change_lane = 58 [default = false];
+  repeated demo_change_lane_param demo_change_lane_params = 59;
+
+  // [60] is used to enable demo parameters inside stop_sign rule
+  optional bool use_demo_mode = 60 [default = false];
+
+  // [61 to 66] is used to enable change_lane rule
+  optional bool use_change_lane = 61 [default = false];
+  optional double speed_range_in_change_lane = 62 [default = 5.0];
+  optional double trigger_change_lane_speed = 63 [default = 4.0];
+  optional double change_lane_buffer_time = 64 [default = 6.0];
+  optional double change_lane_min_distance = 65 [default = 30.0];
+  optional double change_lane_stop_distance = 66 [default = 30.0];
+  // [67] is used to enable destination rule
+  optional bool use_destination = 67 [default = false];
+  // [68] is used to enable merge rule
+  optional bool use_merge = 68 [default = false];
+
+  // [69] is used to clear zone setting
+  optional bool use_xili_clear_zone_setting = 69 [default = false];
+  optional bool use_cupertino_clear_zone_setting = 70 [default = false];
+
+  // [71] is used to ego_route in curve lane setting
+  optional double extra_object_follow_clearance_l_in_curve = 71 [default = 0.3];
+
+  // [72] is used to change lane after finishing the action of changing lane
+  optional double after_finish_change_lane_distance = 72 [default = 30.0];
+
+  // [73] is used to crosswalk setting
+  optional double crosswalk_obj_pred_time_min = 73 [default = 3.0];
+
+  // [74 to 75] are used by xili traffic_lights scenario
+  optional bool use_wuzhen_traffic_lights_settings = 74 [default = false];
+  optional double wuzhen_yellow_light_time = 75 [default = 4.0];
+
+  // [71] is used to ego_route when ego car is static
+  optional double extra_object_follow_clearance_l_when_static = 76
+      [default = -0.5];
+
+  // [77] is used to enable crosswalk_st rule
+  optional bool use_crosswalk_st = 77 [default = false];
+}
+
+message ConfigPather {
+  optional ConfigPathPlanner path_planner = 1;
+  optional ConfigPathSmoother path_smoother = 2;
+  optional ConfigSpeedPlanner speed_planner = 3;
+  optional double path_length = 4 [default = 100.0];
+  optional double previous_path_length = 5 [default = 50.0];
+  optional double min_point_distance = 6 [default = 20.0];
+  optional double converge_factor = 7 [default = 5.0];
+  optional double max_converge_length = 8 [default = 10.0];
+  optional double min_converge_length = 9 [default = 1.0];
+  optional double ref_line_acc = 10 [default = 0.2];
+  optional double front_wheel_angle_threshold = 11 [default = 0.005];
+  optional double ego_car_position_next_l_threshold = 12 [default = 0.01];
+
+  optional double planning_upper_speed_limit = 13 [default = 11.0];
+  optional double default_lane_width = 14 [default = 3.75];
+}
+
+message ConfigPathPlanner {
+  message OptimizationDp {
+    optional uint32 sample_points_num_each_level = 1 [default = 9];
+    optional double plan_distance = 2 [default = 100.0];
+    optional double step_length = 3 [default = 0.5];
+    optional double lateral_sample_offset = 4 [default = 0.5];
+    optional double path_resolution = 5 [default = 0.1];
+    optional double obstacle_ignore_distance = 6 [default = 20.0];
+    optional double obstacle_collision_distance = 7 [default = 0.2];
+    optional double obstacle_risk_distance = 8 [default = 5.0];
+    optional uint32 history_index = 9 [default = 1];
+    optional double history_distance = 10 [default = 6.0];
+    optional uint32 short_memory_index = 11 [default = 10];
+  }
+
+  message GenerateSpline {
+    optional uint32 spline_order = 1 [default = 6];
+    optional double max_spline_length = 2 [default = 20.0];
+    optional double regularization_weight = 3 [default = 0.1];
+    optional double derivative_weight = 4 [default = 100];
+    optional double second_derivative_weight = 5 [default = 10];
+    optional double third_derivative_weight = 6 [default = 10];
+    optional double reference_weight = 7 [default = 0.0];
+    optional double time_resolution = 8 [default = 0.1];
+    optional uint32 num_output = 9 [default = 100];
+    optional double extension_buffer = 10 [default = 1.2];
+    optional double history_weight = 11 [default = 0.0];
+  }
+
+  message PathPlannerSpline {
+    optional OptimizationDp task_optimization_dp = 1;
+    optional GenerateSpline task_spline_qp = 2;
+  }
+
+  message PathPlannerSpiral {
+    optional ConfigPathSmoother path_smoother = 1;
+    optional double path_length = 2 [default = 100.0];
+    optional double previous_path_length = 3 [default = 50.0];
+    optional double min_point_distance = 4 [default = 20.0];
+    optional double converge_factor = 5 [default = 5.0];
+    optional double max_converge_length = 6 [default = 10.0];
+    optional double min_converge_length = 7 [default = 1.0];
+  }
+
+  message PathPlannerRefLine {
+    optional double path_length = 1 [default = 100.0];
+    optional double min_point_distance = 3 [default = 0.2];
+  }
+
+  oneof type {
+    PathPlannerSpline path_planner_spline = 1;
+    PathPlannerSpiral path_planner_spiral = 2;
+    PathPlannerRefLine path_planner_refline = 3;
+  }
+}
+
+message ConfigSpeedPlanner {
+  optional double lateral_max_acc = 1 [default = 0.4];
+  optional double min_curvature = 2 [default = 0.004];
+  optional double max_speed = 3 [default = 10.0];
+  optional double min_speed = 4 [default = 5.0];
+  optional double point_delta_s = 5 [default = 0.1];
+  optional uint32 num_points_to_avg_kappa = 6 [default = 20];
+  optional double high_speed_centric_acceleration_limit = 7 [default = 1.0];
+  optional double low_speed_centric_acceleration_limit = 8 [default = 1.3];
+  optional double high_speed_threshold = 9 [default = 20.0];
+  optional double low_speed_threshold = 10 [default = 7.0];
+
+  optional double cruise_speed = 11 [default = 5.0];
+
+  message Backtracking {
+    optional double longitudinal_max_acc = 1 [default = 0.7];
+  }
+
+  // station-speed graph
+  message SsGraph {
+    optional double step_s = 1 [default = 2];
+    optional double step_speed = 2 [default = 1];
+    optional double forced_min_speed = 3
+        [default = 2.5];  // This overrides speed limit on map.
+    optional double decision_stop_speed =
+        4;  // If less than 0.1, "stop" decision is not considered.
+    optional double lead_vehicle_buf = 5 [
+      default = 3.5
+    ];  // second, potential cost considered only in this time region
+    optional double stop_buff = 6
+        [default = 6.0];  // meter, enforce stop in this distance region
+
+    optional double effect_distance = 7
+        [default = 20.0];  // disregard vehicles further
+  }
+
+  message StGraph {
+    optional ConfigStGraph dp_config = 1;
+    optional ConfigQpSpline qp_spline_config = 2;
+  }
+
+  oneof type {
+    Backtracking backtracking = 12;
+    SsGraph ss_graph = 13;
+    StGraph st_graph = 14;
+  }
+}
+
+message ConfigStBoundaryMapper {
+  optional double boundary_buffer = 1 [default = 0.1];
+  optional double refine_step_s = 2 [default = 0.1];
+  optional double expand_factor_yield_overtake = 3
+      [default = 5.0];  // dimension expand factor for PerceptionObjects
+  optional double expand_factor_follow_stop = 4
+      [default = 1.0];  // dimension expand factor for PerceptionObjects
+  optional double yield_safety_distance = 5 [default = 3.0];
+  optional double stopline_safety_distance = 6 [default = 0.1];
+  optional double qp_max_s = 7
+      [default = 150.0];  // keep this value same as ConfigQpSpline max_s
+}
+
+message ConfigQpSpline {
+  optional uint32 spline_order = 1 [default = 5];
+  optional double spline_sample_t_step = 2 [default = 2.0];
+  optional double evaluated_step_t = 3 [default = 0.2];
+  optional double regularization_weight = 4 [default = 0.1];
+  optional double speed_kernel_weight = 5 [default = 0.0];
+  optional double accel_kernel_weight = 6 [default = 150.0];
+  optional double jerk_kernel_weight = 7 [default = 150.0];
+  optional double cruise_weight = 8 [default = 0.3];
+  optional double yield_weight = 9 [default = 5.0];
+  optional double history_weight = 10 [default = 0.2];
+
+  optional double dp_reference_weight = 11 [default = 0.5];
+  optional double acceleration_limit = 12 [default = 1.0];
+  optional double deceleration_limit = 13 [default = -3.0];
+  optional double emergency_acceleration_limit = 14 [default = 3.0];
+  optional double emergenct_deceleration_limit = 15 [default = -8.0];
+  optional double init_jerk_kernel_weight = 16 [default = 5.0e4];
+  optional double max_t = 17 [default = 11.0];
+  optional double max_s = 18 [default = 150.0];
+  optional double step_t_output = 19 [default = 0.1];
+  optional double max_speed = 20 [default = 12.0];
+  optional double max_speed_extend_factor = 21 [default = 1.05];
+  optional double low_speed_threshold = 22 [default = 0.4];
+
+  optional double follow_weight = 23 [default = 5.0];
+  optional double follow_drag_distance = 24 [default = 16.0];
+  optional double yield_drag_distance = 25 [default = 2.0];
+
+  message Smoother {
+    optional double speed_buffer = 1 [default = 0.5];
+    optional double low_speed_buffer = 2 [default = 0.15];
+    optional double acc_buffer = 3 [default = 0.2];
+  }
+
+  message Solver {}
+
+  oneof type {
+    Smoother smoother = 26;  // only serve as a smoother of dp result
+    Solver solver = 27;      // only use dp result as a kernel
+  }
+}
+
+message ConfigStGraph {
+  // st-graph parameters(resolution)
+  optional double step_t = 1 [default = 0.5];
+  optional double step_s = 2 [default = 0.2];
+  optional double max_t = 3 [default = 10.0];
+  optional double max_s = 4 [default = 140.0];
+  // State cost parameters
+  optional double speed_limit = 5 [default = 12.0];
+  optional double acceleration_limit = 6 [default = 1.0];
+  optional double deceleration_limit = 7 [default = 3.0];
+
+  // not even used. Not sure what these are.
+  optional double acceleration_jerk_limit = 8 [default = 1.5];
+  optional double deceleration_jerk_limit = 9 [default = 2.5];
+
+  // jerk cost config
+  optional double positive_jerk_coeff = 10 [default = 1.0];
+  optional double negative_jerk_coeff = 11 [default = 300.0];
+
+  // accel cost config
+  optional double acceleration_penalty = 12 [default = 2.0];
+  optional double deceleration_penalty = 13 [default = 2.0];
+
+  // speed cost config
+  optional double exceed_speed_penalty = 14 [default = 1.0];
+  optional double low_speed_penalty = 15 [default = 10.0];
+  optional double default_speed_cost = 16 [default = 20.0];
+
+  // obstacle cost parameters
+  optional double default_obstacle_cost = 17 [default = 3e10];
+  optional double obstacle_cost_factor = 18 [default = -1.0];
+}
+
+message ConfigPathSmoother {
+  message DiscreteCeres {
+    optional double smooth_cost = 1 [default = 1.0];
+  }
+
+  message CubicSpline {
+    // If step_s < 0.01 m, the smoothed path will have the same waypoints as the
+    // original path.
+    optional double step_s = 1 [default = 1.0];  // in meters
+  }
+
+  oneof type {
+    DiscreteCeres discrete_ceres = 1;
+    CubicSpline cubic_spline = 2;
+  }
+}
+
+message ReferenceLine1DConfig {
+  optional double lateral_acc = 1 [default = 0.6];
+}
+// fem_pos_deviation_smoothing
+message FemPosDeviationSmootherConfig {
+  optional double weight_fem_pos_deviation = 2 [default = 1.0e10];
+  optional double weight_ref_deviation = 3 [default = 1.0];
+  optional double weight_path_length = 4 [default = 1.0];
+  optional bool apply_curvature_constraint = 5 [default = false];
+  optional double weight_curvature_constraint_slack_var = 6 [default = 1.0e2];
+  optional double curvature_constraint = 7 [default = 0.2];
+  optional bool use_sqp = 8 [default = false];
+  optional double sqp_ftol = 9 [default = 1e-4];
+  optional double sqp_ctol = 10 [default = 1e-3];
+  optional int32 sqp_pen_max_iter = 11 [default = 10];
+  optional int32 sqp_sub_max_iter = 12 [default = 100];
+
+  // osqp settings
+  optional int32 max_iter = 100 [default = 500];
+  // time_limit set to be 0.0 meaning no time limit
+  optional double time_limit = 101 [default = 0.0];
+  optional bool verbose = 102 [default = false];
+  optional bool scaled_termination = 103 [default = true];
+  optional bool warm_start = 104 [default = true];
+
+  // ipopt settings
+  optional int32 print_level = 200 [default = 0];
+  optional int32 max_num_of_iterations = 201 [default = 500];
+  optional int32 acceptable_num_of_iterations = 202 [default = 15];
+  optional double tol = 203 [default = 1e-8];
+  optional double acceptable_tol = 204 [default = 1e-1];
+}
+
+message DiscretizedPointsReferenceLineSmootherConfig {
+  // The output resolution for discrete point smoother reference line is
+  // directly decided by max_constraint_interval
+  optional double max_constraint_interval = 1 [default = 5];
+  optional double longitudinal_boundary_bound = 2 [default = 1.0];
+  optional double max_lateral_boundary_bound = 3 [default = 0.5];
+  optional double min_lateral_boundary_bound = 4 [default = 0.2];
+  // The output resolution for qp smoother reference line.
+  optional uint32 num_of_total_points = 5 [default = 500];
+  optional double curb_shift = 6 [default = 0.2];
+  optional double lateral_buffer = 7 [default = 0.2];
+  // The output resolution for spiral smoother reference line.
+  optional double resolution = 8 [default = 0.02];
+
+  optional FemPosDeviationSmootherConfig fem_pos_deviation_smoothing = 9;
+}
+message QpSplineSmootherConfig {
+  optional double max_constraint_interval = 1 [default = 5];
+  optional double longitudinal_boundary_bound = 2 [default = 1.0];
+  optional double max_lateral_boundary_bound = 3 [default = 0.5];
+  optional double min_lateral_boundary_bound = 4 [default = 0.2];
+  // The output resolution for qp smoother reference line.
+  optional uint32 num_of_total_points = 5 [default = 500];
+  optional double curb_shift = 6 [default = 0.2];
+  optional double lateral_buffer = 7 [default = 0.2];
+  // The output resolution for spiral smoother reference line.
+  optional double resolution = 8 [default = 0.02];
+  optional uint32 spline_order = 9 [default = 5];
+  optional double max_spline_length = 10 [default = 25];
+  optional double regularization_weight = 11 [default = 0.1];
+  optional double second_derivative_weight = 12 [default = 0.0];
+  optional double third_derivative_weight = 13 [default = 100];
+  optional double lateral_relax_forward_range = 14 [default = 40.0];
+  optional double lateral_relax_backward_range = 15 [default = 40.0];
+  optional double lateral_relax_buffer = 16 [default = 3.0];
+}
+
+message ReferenceLineConfig {
+  oneof type {
+    ReferenceLine1DConfig reference_line_1d = 1;
+    DiscretizedPointsReferenceLineSmootherConfig
+        discretized_points_reference_line = 2;
+    QpSplineSmootherConfig qp_spline = 3;
+  }
+  optional bool enable_reference_line_multi_thread = 4;
+}
+
+message PredictionConfig {
+  optional double key_vehicle_surrounding_search_radius = 1 [default = 50.0];
+  optional double lane_surrounding_search_radius = 2 [default = 5.0];
+  optional bool enable_openloop_prediction = 3 [default = true];
+  optional bool use_right_hand_axis = 4 [default = true];
+  optional double lane_range = 5 [default = 10.0];
+  optional double nearest_lane_range = 6 [default = 1.5];
+  optional double max_distance_to_lane = 7 [default = 3.0];
+  optional double max_backward_len = 8 [default = 80.0];
+  optional double max_forward_len = 9 [default = 180.0];
+  optional double max_forward_time = 10 [default = 10.0];
+  optional double pred_time = 11 [default = 8.0];
+  optional double pred_step = 12 [default = 0.2];
+  optional double mobil_politeness = 13 [default = 0.5];
+}
+message LabellingMatch {
+  optional bool enable_labelling_match = 1;
+  optional string json_file = 2;
+}
+
+// for open space
+message HybridAStarConfig {
+  optional double xy_grid_resolution = 1;
+  optional double theta_grid_resolution = 2;
+  optional uint64 next_node_num = 3;
+  optional double step_size = 4;
+  optional double traj_forward_penalty = 5;
+  optional double traj_backward_penalty = 6;
+  optional double traj_gear_switch_penalty = 7;
+  optional double traj_steer_penalty = 8;
+  optional double traj_steer_change_penalty = 9;
+  optional double min_segment_len = 10 [default = 0.5];
+  optional double traj_obs_penalty = 11 [default = 0.0];
+  optional double anchor_ref_bias_penalty = 12 [default = 0.0];
+  // Grid a star for heuristic
+  optional double grid_a_star_xy_resolution = 20;
+  optional double node_radius = 21;
+  optional uint64 max_search_num = 22 [default = 100000];
+}
+
+message IterativeAnchoringSmootherConfig {
+  optional double interpolated_delta_s = 1;
+  optional bool estimate_bound = 2;
+  optional double default_bound = 3;
+  optional double vehicle_shortest_dimension = 4;
+  optional FemPosDeviationSmootherConfig fem_pos_deviation_smoother_config = 5;
+  optional double collision_decrease_ratio = 6;
+  optional uint64 max_iteration_num = 7;
+}
+
+message FsGenConfig {
+  optional double speed_limit = 1 [default = 1.5];                 // m/s
+  optional double static_obs_speed_threshold = 2 [default = 0.3];  // m/s
+  optional double max_speed_for_finish = 3 [default = 0.2];        // m/s
+  optional double max_theta_bias_for_finish = 4 [default = 0.15];  // rad
+  optional double max_x_bias_for_finish = 5 [default = 0.5];       // m
+  optional double max_y_bias_for_finish = 6 [default = 0.5];       // m
+  optional double path_extending_len = 7 [default = 25.0];         // m
+  optional double max_lat_offset_for_replan = 8 [default = 1.0];   // m
+  optional double max_lon_offset_for_replan = 9 [default = 2.0];   // m
+  optional bool is_fs_debug_on = 10 [default = false];
+  optional bool single_thread_mode = 11 [default = false];
+}
+
+message OpenSpaceConfig {
+  optional HybridAStarConfig hybrid_a_star_config = 1;
+  optional IterativeAnchoringSmootherConfig
+      iterative_anchoring_smoother_config = 2;
+  optional FsGenConfig fs_gen_config = 3;
+}
+
+message CreepConfig {
+  optional bool enable_creep = 1 [default = false];
+  optional double creep_enter_ego_v = 2;
+  optional double creep_exit_ego_v = 3;
+  optional double creep_static_obs_v = 4;
+  optional double creep_max_follow_s = 5;
+  optional int32 creep_max_frame_count = 6;
+  optional double creep_target_s_without_obs = 7;
+  optional double creep_target_v_without_obs = 8;
+  optional double creep_target_a_without_obs = 9;
+  optional double creep_obs_s_buffer = 10;
+  optional double creep_virtual_obs_s_buffer = 11;
+  optional double creep_large_obs_s_buffer = 12;
+  optional double creep_enter_static_obs_v = 13;
+  optional double creep_exit_static_obs_v = 14;
+}
+// for open space
+
+// for ref path
+message RefPathConfig {
+  optional bool enable = 1 [default = false];
+  repeated bool flags = 2;
+  repeated double var = 3;
+  repeated int32 id = 4;
+}

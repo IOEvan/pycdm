@@ -1,0 +1,31 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+// 1Hz; request information from DC in ummaned psap
+
+message DcUmannedPsapReqToAdc {
+
+  enum PsapDriverOffVehModType_e{
+    DriverOffVehMode_None = 0;
+    DriverOffVehMode_In_Vehicle = 1;
+    DriverOffVehMode_Out_of_Vehicle = 2;
+  }
+  optional PsapDriverOffVehModType_e psap_driver_off_vehicle_mode = 1;
+
+  optional bool is_parking_ready_clicked = 2;
+
+  optional bool is_user_abort_request = 3;//用户请求退出无人化PSAP
+
+  optional string dc_request_id = 4; // 导航每次请求会带上id，AD发送消息时带上最后一次id
+
+  optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin   
+  optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+  optional uint64 publish_ptp_ts = 536870907; // publish ptp timestamp; unit : nanosecond
+  optional string publisher_id = 536870909;   // uuid of the publisher
+  optional uint64 counter = 536870910;        // message counter
+  optional uint64 publish_ts = 536870911;     // publish utc timestamp; unit : nanosecond
+}

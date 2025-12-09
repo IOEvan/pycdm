@@ -1,0 +1,127 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message MartixPair2D {
+    optional float  x = 1;
+    optional float  y = 2;
+}
+
+message RadarPosition {
+    optional float  rad_fc_height_no_load                   = 1;  // front center radar height fron ground without load [m]
+    optional float  rad_fl_height_no_load                   = 2;  // front left radar height fron ground without load [m]
+    optional float  rad_fr_height_no_load                   = 3;  // front right radar height fron ground without load [m]
+    optional float  rad_rl_height_no_load                   = 4;  // rear left radar height fron ground without load [m]
+    optional float  rad_rr_height_no_load                   = 5;  // rear right radar height fron ground without load [m]
+    optional float  rad_fc_mount_angle                      = 6;  // front center radar angle between SAE x axis [deg]
+    optional float  rad_fl_mount_angle                      = 7;  // front left radar angle between SAE x axis  [deg]
+    optional float  rad_fr_mount_angle                      = 8;  // front right radar angle between SAE x axis deg]
+    optional float  rad_rl_mount_angle                      = 9;  // rear left radar angle between SAE x axis [deg]
+    optional float  rad_rr_mount_angle                      = 10; // rear right radar angle between SAE x axis [deg]
+    optional float  rad_fc_lat_dst_2_center                 = 11; // front center radar distance to SAE Y plane [m]
+    optional float  rad_fl_lat_dst_2_center                 = 12; // front left radar distance to SAE Y plane [m]
+    optional float  rad_fr_lat_dst_2_center                 = 13; // front right radar distance to SAE Y plane [m]
+    optional float  rad_rl_lat_dst_2_center                 = 14; // rear left radar distance to SAE Y plane [m]
+    optional float  rad_rr_lat_dst_2_center                 = 15; // rear right radar distance to SAE Y plane [m]
+    optional float  rad_fc_long_dst_2_rear_axle             = 16; // front center radar distance to rear axle [m]
+    optional float  rad_fl_long_dst_2_rear_axle             = 17; // front left radar distance to rear axle [m]
+    optional float  rad_fr_long_dst_2_rear_axle             = 18; // front right radar distance to rear axle [m]
+    optional float  rad_rl_long_dst_2_rear_axle             = 19; // rear left radar distance to rear axle [m]
+    optional float  rad_rr_long_dst_2_rear_axle             = 20; // rear right radar distance to rear axle [m]
+}
+
+message FeatureVehInfo {
+    optional float  wheel_base                              = 1;    // distance between front and rear axle [m]
+    optional float  veh_overall_length                      = 2;    // vehicle height [m]
+    optional float  veh_overall_width                       = 3;    // vehicle width with rear view mirror open [m]
+    optional float  veh_width                               = 4;    // vehicle width without rear view mirror open [m]
+    optional float  veh_height                              = 5;    // vehicle height [m]
+    optional float  front_tread_width                       = 6;    // front track width [m]
+    optional float  rear_tread_width                        = 7;    // rear track width [m]
+    repeated MartixPair2D steer_ratio_martix_left_turn      = 8;    // x: steering angle [deg]; y: steering ratio
+    repeated MartixPair2D steer_ratio_martix_right_turn     = 9;    // x: steering angle [deg]; y: steering ratio
+    optional float  front_bumper_to_rear_axle               = 10;   // front bumper to rear axle distance [m]
+    optional float  front_main_cam_to_front_bumper          = 11;   // camera FW to front bumper distance [m]
+    optional float  front_narrow_cam_to_front_bumper        = 12;   // camera FN to front bumper distance [m]
+    optional RadarPosition radar_position                   = 13; 
+    repeated MartixPair2D steer_ratio_martix_left_turn_rear = 14;    // x: steering angle [deg]; y: steering ratio
+    repeated MartixPair2D steer_ratio_martix_right_turn_rear = 15;    // x: steering angle [deg]; y: steering ratio
+    optional string  car_type                                = 16;    // car_type
+}
+
+message SensorLocation {  // ISO coordinates, origin point is middle of front axle projected on the ground
+    repeated float  angle                                   = 1;   // array: (sensor optic axis rotation angle around x axis,
+                                                                    //        sensor optic axis rotation angle around y axis,
+                                                                    //        sensor optic axis rotation angle around z axis ) [deg]
+
+    repeated float  distance                                = 2;   // array: (x, y, z) in ISO coordinates [m]
+}
+
+message CameraLocation {
+    optional SensorLocation front_wide                      = 1;  // front wide camera location
+    optional SensorLocation front_narrow                    = 2;  // front narrow camera location
+    optional SensorLocation front_right                     = 3;  // front right side camera location
+    optional SensorLocation front_left                      = 4;  // front left side camera location
+    optional SensorLocation rear_right                      = 5;  // rear right side camera location
+    optional SensorLocation rear_left                       = 6;  // rear left side camera location
+    optional SensorLocation rear_narrow                     = 7;  // rear narrow camera location
+    optional SensorLocation svc_front                       = 8;  // front svc camera location
+    optional SensorLocation svc_rear                        = 9;  // rear svc camera location
+    optional SensorLocation svc_left                        = 10; // left svc camera location
+    optional SensorLocation svc_right                       = 11; // right svc camera location
+}
+
+message LidarLocation {
+    optional SensorLocation lidar_front                     = 1;
+    optional SensorLocation lidar_left_side                 = 2;
+    optional SensorLocation lidar_right_side                = 3;
+}
+
+message ImuSensorLocation {  // ISO coordinates, origin point is middle of front axle projected on the ground
+    repeated float  angle                                   = 1;   // array: (sensor optic axis rotation angle around x axis,
+                                                                    //        sensor optic axis rotation angle around y axis,
+                                                                    //        sensor optic axis rotation angle around z axis ) [deg]
+
+    repeated float  distance                                = 2;   // array: (x, y, z) in ISO coordinates [m]
+    repeated float  angle_in_supplier_frame                 = 3;   // array: (x, y, z) in ISO coordinates [m]
+}
+
+message ImuLocation {
+    optional ImuSensorLocation imu                     = 1; // master imu
+    optional ImuSensorLocation auxiliary_imu           = 2; // auxiliary_imu
+}
+
+message AntennaLocation {
+    optional SensorLocation master_antenna                     = 1;
+    optional SensorLocation auxiliary_antenna                 = 2;
+}
+
+message CalVehInfo {
+    optional float  veh_calib_height                        = 1; // half of the wheel height, fixed value [m]
+    optional float  veh_width                               = 2; // vehicle width without rear mirror [m]
+    optional float  veh_fwheel2head                         = 3; // front axle to front most point distance [m]
+    optional float  veh_rwheel2tail                         = 4; // rear axle to rear most point distance [m]
+    optional float  veh_wheel_base                          = 5; // front axle to rear axle distance [m]
+    optional CameraLocation camera_location                 = 6; // camera locations
+    optional LidarLocation  lidar_location                  = 7; // lidar location
+    optional ImuLocation    imu_location                    = 8; // imu location
+    optional AntennaLocation  antenna_location              = 9; // antenna location
+}
+
+message VehicleInfo {
+    optional bool is_vehicle_info_valid                     = 1; // 0 - invalid; 1 -valid
+    optional FeatureVehInfo feature_vehicle_info            = 2; // vehicle info of feature 
+    optional CalVehInfo cal_vehicle_info                    = 3; // vehicle info for calibration
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin   
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909; // uuid of the publisher
+    optional uint64 counter = 536870910;         // message counter
+    optional uint64 publish_ts = 536870911;    // publish utc timestamp; unit : nanosecond
+
+}
+
+

@@ -1,0 +1,41 @@
+
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "np/apps/fct_out.proto";
+
+message HwaOut_light{
+    optional uint32 NaNadWTI        = 9;
+    optional uint32 DA_NOP_WTIs           = 20;
+    optional uint32 DA_iACC_WTIs          = 21;
+    optional uint32 DA_Pilot_WTIs         = 22;
+    optional uint32 DA_PSP_WTIs           = 27;
+}
+message EasOut_light{
+    optional uint32 EASSts              = 1;
+}
+message ALCSOut_light {
+    // optional uint32 DA_LaneChgSupReason           = 1;
+    // optional uint32 AlcManeuverSts                = 2;
+    optional uint32 DA_ALCSsts                    = 3;
+    // optional uint32 ShowSetDA_ALCS                = 4;
+ }
+message LatCtrlOut_light{
+    optional ALCSOut_light AlcsInfo           = 17;
+}
+message LonCtrlOut_light{
+    optional int32 TauGapSet              = 2;
+}
+message SasOut_light{
+    optional SasOut.SpdLmtTkOv_e SpeedLimitTakeover   = 4 [default = None];
+}
+message FctOut_light{
+    required AhcOut Ahc                              = 1;
+    required LatCtrlOut_light LatCtrl                = 2;
+    optional LonCtrlOut_light LonCtrl                = 3;
+    optional HwaOut_light Hwa                        = 4;
+    optional SasOut_light Sas                              = 6;
+    optional EasOut_light Eas                        = 12;
+    optional uint64 publish_ptp_ts   = 536870907; 
+}

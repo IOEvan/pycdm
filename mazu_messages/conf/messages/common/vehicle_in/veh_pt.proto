@@ -1,0 +1,214 @@
+//vehicle powertrain proto
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+import "common/vehicle_in/veh_enum_type.proto";
+message PtInfo{
+	reserved 4,5;
+	message AccrPedalInfo{
+		required QfZeroAsVld_e 	EfcPosnVld = 1;				//@Channel:CHASSIS @Message:0x45 @Signal:AccrPedlEfcPosnValid
+																//@Channel:CHASSIS2 @Message:0x45 @Signal:AccrPedlEfcPosnValid
+		required float 	EfcPosn			   = 2;				//@Channel:CHASSIS @Message:0x45 @Signal:AccrPedlEfcPosn
+																//@Channel:CHASSIS2 @Message:0x45 @Signal:AccrPedlEfcPosn
+		required QfZeroAsVld_e 	ActPosnVld = 3;				//@Channel:CHASSIS @Message:0x45 @Signal:AccrPedlActPosnValid
+																//@Channel:CHASSIS2 @Message:0x45 @Signal:AccrPedlActPosnValid
+		required float 	ActPosn			   = 4;				//@Channel:CHASSIS @Message:0x45 @Signal:AccrPedlActPosn
+																//@Channel:CHASSIS @Message:0x45 @Signal:AccrPedlActPosn
+		required bool 	PedlOvrd		   = 5;				//@Channel:CHASSIS @Message:0x45 @Signal:VCUAccrPedlOvrd
+																//@Channel:CHASSIS @Message:0x45 @Signal:VCUAccrPedlOvrd
+		optional uint64 timestamp_ptp_ns   = 6;				//@Channel:CHASSIS @Message:0x45
+																//@Channel:CHASSIS @Message:0x45
+	}
+	required AccrPedalInfo AccrPedal = 1;
+
+	message GearInfo{
+	reserved 2,4,6;
+		required QfZeroAsVld_e SlctrPosnVld = 1;			//@Channel:CHASSIS @Message:0x217 @Signal:VCUGearSelectorPosnVld
+																//@Channel:CHASSIS2 @Message:0x217 @Signal:VCUGearSelectorPosnVld
+		required QfZeroAsVld_e ActGearVld 	= 3;			//@Channel:CHASSIS @Message:0x217 @Signal:VCUActGearValid
+																//@Channel:CHASSIS @Message:0x217 @Signal:VCUActGearValid
+		required QfZeroAsVld_e TrgtGearVld	= 5;			//@Channel:CHASSIS @Message:0x217 @Signal:VCUTargetGearValid
+																//@Channel:CHASSIS @Message:0x217 @Signal:VCUTargetGearValid
+		enum SlctrPosn_e{
+			SlctrPosn_Init=0;
+			SlctrPosn_Drive=1;
+			SlctrPosn_Reverse=2;
+			SlctrPosn_No_request=3;
+			SlctrPosn_NR_request=4;    // @linescope: NT3
+			SlctrPosn_ND_request=5;    // @linescope: NT3
+			SlctrPosn_reserved3=6;
+			SlctrPosn_reserved4=7;
+		}
+		optional SlctrPosn_e SlctrPosn 			= 7;			//@Channel:CHASSIS @Message:0x217 @Signal:VCUGearSelectorPosn
+																	//@Channel:CHASSIS @Message:0x217 @Signal:VCUGearSelectorPosn
+		enum ActGear_e{
+			ActGear_Neutral=0;
+			ActGear_Drive=1;
+			ActGear_Reverse=2;
+			ActGear_Parking=3;
+			ActGear_Reserved1=4;
+			ActGear_Reserved2=5;
+			ActGear_Reserved3=6;
+			ActGear_Invalid=7;
+		}
+		optional ActGear_e ActGear				= 8;			//@Channel:CHASSIS @Message:0x217 @Signal:VCUActGear
+																	//@Channel:CHASSIS @Message:0x217 @Signal:VCUActGear
+		enum TrgtGear_e{
+			TrgtGear_Neutral=0;
+			TrgtGear_Drive=1;
+			TrgtGear_Reverse=2;
+			TrgtGear_Parking=3;
+			TrgtGear_Reserved1=4;
+			TrgtGear_Reserved2=5;
+			TrgtGear_Reserved3=6;
+			TrgtGear_Invalid=7;
+		}
+		optional TrgtGear_e TrgtGear			= 9;			//@Channel:CHASSIS @Message:0x217 @Signal:VCUTargetGear
+																	//@Channel:CHASSIS @Message:0x217 @Signal:VCUTargetGear
+		optional uint64 timestamp_ptp_ns			= 10;		//@Channel:CHASSIS @Message:0x217
+																	//@Channel:CHASSIS2 @Message:0x217
+	}
+	required GearInfo Gear = 2;
+
+	message MotorInfo{
+		required QfZeroAsVld_e  IntdMotTqVld = 1;			//@Channel:CHASSIS @Message:0x45 @Signal:VCUIntdFrntMotTqValid 
+															//@Channel:CHASSIS @Message:0x45 @Signal:VCUIntdReMotTqValid
+																//@Channel:CHASSIS2 @Message:0x45 @Signal:VCUIntdFrntMotTqValid 
+																//@Channel:CHASSIS2 @Message:0x45 @Signal:VCUIntdReMotTqValid
+		required float IntdMotTq			 = 2;			//@Channel:CHASSIS @Message:0x45 @Signal:VCUIntdFrntMotTq
+															//@Channel:CHASSIS @Message:0x45 @Signal:VCUIntdReMotTq
+																//@Channel:CHASSIS2 @Message:0x45 @Signal:VCUIntdFrntMotTq
+																//@Channel:CHASSIS2 @Message:0x45 @Signal:VCUIntdReMotTq	
+		required QfZeroAsVld_e  ActMotTqVld	 = 3;			//@Channel:CHASSIS @Message:0x84 @Signal:PEUFMotActTqValid 
+															//@Channel:CHASSIS @Message:0x8C @Signal:PEURMotActTqValid
+		required float ActMotTq				 = 4;			//@Channel:CHASSIS @Message:0x84 @Signal:PEUFMotActTq 
+															//@Channel:CHASSIS @Message:0x8C @Signal:PEURMotActTq
+		required QfZeroAsVld_e  MotSpdVld	 = 5;			//@Channel:CHASSIS @Message:0x84 @Signal:PEUFMotSpdValid
+															//@Channel:CHASSIS @Message:0x8C @Signal:PEURMotSpdValid
+		required float MotSpd				 = 6;			//@Channel:CHASSIS @Message:0x84 @Signal:PEUFMotSpd 
+															//@Channel:CHASSIS @Message:0x8C @Signal:PEURMotSpd
+	    optional uint32 SpdLimForFlt		 = 7;			//@Channel:CHASSIS @Message:0x84 @Signal:PEUF_SpdLimForFlt 
+															//@Channel:CHASSIS @Message:0x8C @Signal:PEUR_SpdLimForFlt
+		enum PEUDampSts_e{
+			PEUDampSts_InActv= 0;  //Inactive
+			PEUDampSts_Actv= 1;    //Active
+			PEUDampSts_Reserved_2 = 2;
+			PEUDampSts_Reserved_3 = 3;
+		}
+		optional PEUDampSts_e DampSts		 = 8;			//@Channel:CHASSIS @Message:0x84 @Signal:PEUFDampSts 
+															//@Channel:CHASSIS @Message:0x8C @Signal:PEURDampSts
+
+		enum PEUFailrSts_e{
+			PEUFailrSts_UnDtrmnd = 0;  //Undetermined
+			PEUFailrSts_NoFault = 1;   //No Fault
+			PEUFailrSts_Info = 2;   //Information
+			PEUFailrSts_Warn = 3;   //Warning
+			PEUFailrSts_Err = 4;   //Error
+			PEUFailrSts_CritiErr = 5;   //Critical Error
+			PEUFailrSts_Reserved_6 = 6;
+			PEUFailrSts_Reserved_7 = 7;
+		}
+		optional PEUFailrSts_e FailrSts		 = 9;			//@Channel:CHASSIS @Message:0x84 @Signal:PEUFFailrSts 
+															//@Channel:CHASSIS @Message:0x8C @Signal:PEURFailrSts
+
+	    enum PEUHeatCap_e{
+			PEUHeatCap_No= 0;     //No Heating capacity
+			PEUHeatCap_Lv1= 1;    //Heating capacity level 1
+			PEUHeatCap_Lv2= 2;    //Heating capacity level 2
+			PEUHeatCap_Lv3= 3;    //Heating capacity level 3
+			PEUHeatCap_Lv4= 4;    //Heating capacity level 4
+			PEUHeatCap_Lv5= 5;    //Heating capacity level 5
+			PEUHeatCap_Lv6= 6;    //Heating capacity level 6
+			PEUHeatCap_Rsrvd= 7;  //Reserved
+			PEUHeatCap_Reserved_8 = 8;
+			PEUHeatCap_Reserved_9 = 9;
+			PEUHeatCap_Reserved_10 = 10;
+			PEUHeatCap_Reserved_11 = 11;
+			PEUHeatCap_Reserved_12 = 12;
+			PEUHeatCap_Reserved_13 = 13;
+			PEUHeatCap_Reserved_14 = 14;
+			PEUHeatCap_Reserved_15 = 15;
+		}
+		optional PEUHeatCap_e HeatCap		 = 10;			//@Channel:CHASSIS @Message:0x84 @Signal:PEUFHeatCap 
+															//@Channel:CHASSIS @Message:0x8C @Signal:PEURHeatCap
+
+	    enum PEUMotHoldSts_e{
+			PEUMotHoldSts_InActv= 0;  //Not active
+			PEUMotHoldSts_Actv= 1;    //Active
+			PEUMotHoldSts_Reserved_2 = 2;
+			PEUMotHoldSts_Reserved_3 = 3;
+		}
+		optional PEUMotHoldSts_e MotHoldSts	 = 11;			//@Channel:CHASSIS @Message:0x84 @Signal:PEUFMotHoldSts 
+														    //@Channel:CHASSIS @Message:0x8C @Signal:PEURMotHoldSts
+		repeated uint64 timestamp_ptp_ns		 = 12;		//@Channel:CHASSIS @Message:0x84
+															//@Channel:CHASSIS @Message:0x8C
+															//@Channel:CHASSIS @Message:0x45
+	}
+	repeated MotorInfo Motor = 3;//0:Front 1:Rear
+	
+	
+
+	required bool VCURvsLampReq = 6;						//@Channel:CHASSIS @Message:0x217 @Signal:VCURvsLampReq
+																//@Channel:CHASSIS2 @Message:0x217 @Signal:VCURvsLampReq
+	required bool VCUBrkLampReq = 7;						//@Channel:CHASSIS @Message:0x217 @Signal:VCUBrkLampReq
+																//@Channel:CHASSIS2 @Message:0x217 @Signal:VCUBrkLampReq
+
+	enum VcuCruiseStType_e{
+		VcuCrs_Fault 	= 0 ; //Cruise Fault
+		VcuCrs_Off 	 	= 1 ; //Cruise Off
+		VcuCrs_Stdby 	= 2 ; //Cruise Standby (Enabled but not functioning)
+		VcuCrs_Actv		= 3 ; //Cruise Active
+		VcuCrs_Ovrd 	= 4 ; //Cruise Override
+		VcuCrs_Rsrvd5 	= 5 ; //Reserved
+		VcuCrs_Rsrvd6 	= 6 ; //Reserved
+		VcuCrs_Rsrvd7 	= 7 ; //Reserved
+		VcuCrs_Rsrvd8 	= 8 ; //Reserved
+		VcuCrs_Rsrvd9 	= 9 ; //Reserved
+		VcuCrs_Rsrvd10	= 10; //Reserved
+		VcuCrs_Rsrvd11	= 11; //Reserved
+		VcuCrs_Rsrvd12	= 12; //Reserved
+		VcuCrs_Rsrvd13	= 13; //Reserved
+		VcuCrs_Rsrvd14 	= 14; //Reserved
+		VcuCrs_Invld 	= 15; //Invalid
+	}
+	required VcuCruiseStType_e CruiseStatus = 8;			//@Channel:CHASSIS @Message:0x217 @Signal:CruiseStatus
+																//@Channel:CHASSIS2 @Message:0x217 @Signal:CruiseStatus
+
+	enum VcuEpbReqType_e{
+		VcuEpb_Undtrmnd = 0;	//Undetermined
+		VcuEpb_NoReq    = 1;	//No request
+		VcuEpb_Apply    = 2;	//Apply Request
+		VcuEpb_Release  = 3;	//Release Request
+	}
+	required VcuEpbReqType_e VCUEPBReq = 9;					//@Channel:CHASSIS @Message:0x217 @Signal:VCUEPBReq
+																//@Channel:CHASSIS2 @Message:0x217 @Signal:VCUEPBReq
+	required float CruiseStoredSpeed   = 10;				//@Channel:CHASSIS @Message:0x217 @Signal:CruiseStoredSpeed
+																//@Channel:CHASSIS2 @Message:0x217 @Signal:CruiseStoredSpeed
+	required bool VCUPtWakeupReq       = 11;				//@Channel:CHASSIS @Message:0x217 @Signal:VCUPtWakeupReq
+																//@Channel:CHASSIS2 @Message:0x217 @Signal:VCUPtWakeupReq
+	optional bool DCChrgrPluginSts     = 12;				//@Channel:ADAS @Message:0x219 @Signal:DCChrgrPluginSts
+	optional bool ACChrgrPluginSts     = 13;				//@Channel:ADAS @Message:0x219 @Signal:ACChrgrPluginSts
+	optional bool VCU_VehHldReq        = 14;				//@Channel:ADAS @Message:0x51 @Signal:VCU_VehHldReq
+	optional bool VCU_BrkReqEna        = 15;				//@Channel:ADAS @Message:0x51 @Signal:VCU_BrkReqEna
+	optional bool VCU_ForceFctEna      = 16;				//@Channel:ADAS @Message:0x51 @Signal:VCU_ForceFctEna
+	optional float VCU_TarBrkFReq      = 17;				//@Channel:ADAS @Message:0x51 @Signal:VCU_TarBrkFReq
+
+	enum VCUChrgDispLampReqType_e{
+		No_Charging = 0;
+		Charging_In_Process = 1;
+		Charging_Completed = 2;
+		Vehicle_Charging_Error = 3;
+		Charging_Full = 4;
+		Station_Charging_Error = 5;
+		Insulation_Error_Test_After_DC_Charging = 6;
+		Invalid = 7;
+		Charging_preparing = 8;     // @linescope: NT3
+		Charging_pause = 9;         // @linescope: NT3
+	}
+	optional VCUChrgDispLampReqType_e VCUChrgDispLampReq     = 18;				//@Channel:ADAS @Message:0x219 @Signal:VCUChrgDispLampReq
+
+	optional float BMSCustomerUsageSOC	=19; 				//@Channel:CHASSIS @Message:0xAC @Signal:BMSCustomerUsageSOC
+}

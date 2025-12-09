@@ -1,0 +1,171 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+// path bound debug
+
+enum STConstarintSourceType {
+  STOPPING_DISTANCE = 1;
+  TTC_SAFETY = 2;
+  THW_SAFETY = 3;
+  ADDITIONAL_POSITION = 4;
+  POSITION = 5;
+  VELOCITY = 6;
+  ACCELERATION = 7;
+  JERK = 8;
+}
+
+message HardBndDebug {
+  enum STBoundaryType {
+    NUDGE = 1;
+    YIELD = 2;
+    NOT_YIELD = 3;
+    SLOT_YIELD = 4;
+    SLOT_NOT_YIELD = 5;
+    MERGE_YIELD = 6;
+    MERGE_NOT_YIELD = 7;
+    ALIGN_YIELD = 8;
+    ALIGN_NOT_YIELD = 9;
+    LANE_CHANGE_HOLD_YIELD = 10 [deprecated = true]; // deprecated lc hold type, using slot alignment instead
+    VRU_YIELD = 11;
+    PATH_END = 12;
+    CROSS_YIELD = 13;
+    MULTIMODAL_YIELD = 14;
+    MP_YIELD = 15;
+    UNKNOWN = 16;
+  }
+  optional double lb = 1;
+  optional double ub = 2;
+  optional string lb_obs_id = 3;
+  optional string ub_obs_id = 4;
+  optional double solution_distance_to_lb = 5;
+  optional double solution_distance_to_ub = 6;
+  optional STBoundaryType hard_ub_type = 7;
+  optional STBoundaryType hard_lb_type = 8;
+  optional double ub_expect_distance = 9 [default = 0.0];
+  optional double lb_expect_distance = 10 [default = 0.0];
+  optional double ub_buffer = 11 [default = 0.0];
+  optional double lb_buffer = 12 [default = 0.0];
+  optional STConstarintSourceType ub_constraint_source_type = 13;
+  optional STConstarintSourceType lb_constraint_source_type = 14;
+}
+
+message SLSoftBndDebug {
+  enum SLBoundaryType {
+    NUDGE_OBS = 1;
+    NUDGE_SHOULDER = 2;
+    CROSSABLE_LANE = 3;
+    OOL_NUDGE_OBS = 4;
+    LARGE_WEIGHT_OOL_NUDGE_OBS = 5;
+    UNKNOWN = 6;
+    ROAD_EDGE_NUDGE = 7;
+    MERGE_BOUNDARY_NUDGE = 8;
+    LEGALLY_NOT_NUDGE = 9;
+    NUDGE_GOD = 10;
+    NUDGE_STATIC_OD = 11;
+    NUDGE_DYNAMIC_OD = 12;
+  }
+  optional double bnd_position = 1;
+  optional double nudge_buffer = 2;
+  optional string obs_id = 3;
+  optional SLBoundaryType bnd_source_type = 4;
+  optional double epsilon = 5 [default = 0.0];
+  optional double weight = 6;
+  optional double bnd_position_without_buffer = 7;
+  optional double bnd_position_std_without_buffer = 8;
+  optional double min_nudge_buffer = 9;
+  optional double obs_time = 10;
+}
+
+message ComfortBndDebug {
+  optional double comfort_lb = 1;
+  optional double comfort_ub = 2;
+  optional double comfort_lb_max = 3;
+  optional double comfort_ub_min = 4;
+}
+
+message ObsDecision {
+  enum ObsDecisionType {
+    YIELD = 0;
+    NOT_YIELD = 1;
+    LEFT_NUDGE = 2;
+    RIGHT_NUDGE = 3;
+    IGNORE = 4;
+    SLOT_FRONT = 5;
+    SLOT_BACK = 6;
+  }
+  optional string id = 1 [default = ""];
+  optional ObsDecisionType decision = 2 [default = IGNORE];
+  optional double prob = 3 [default = -1.0];
+}
+
+message OneAgentTrackingDebug {
+  optional string agent_id = 1;
+  optional ObsDecision.ObsDecisionType decision_type = 2;
+  optional double nudge_attention_prob =  3;
+  optional bool is_semantic_static = 10;
+  optional bool heading_mean = 11;
+  optional bool heading_std = 12;
+  optional double min_buffer = 13;
+  optional double comfort_buffer = 14;
+  optional double max_buffer = 15;
+  optional double max_pos_stable_time = 16;
+  optional double min_pos_weird_time = 17;
+}
+
+message NudgeObstaclePattern{
+  optional string id = 1;
+  optional bool is_static = 2;
+  optional string interactive_mode = 3;
+  optional double bp_start_nudge_t = 4;
+  optional double bp_end_nudge_t = 5;
+  optional double lon_conflict_t = 6;
+  optional double nudge_bound_start_t = 7;
+  optional double nudge_time_range = 8;
+  optional bool is_passive_nudge = 9;
+}
+
+message SLReferencePoint {
+  enum SLReferenceType {
+    UNDEFINED = 0;
+    MERGE_BOUNDARY_NUDGE = 1;
+    MERGE_NUDGE = 2;
+  }
+  optional double x = 1 [default = 0.0];
+  optional uint64 index = 2;
+  optional double ref_l = 3 [default = 0.0];
+  optional SLReferenceType ref_type = 4 [default = UNDEFINED];
+}
+
+message SLConstraintPoint {
+  optional double x = 1 [default = 0.0];
+  optional uint64 index = 2;
+  optional HardBndDebug hard_bound = 3;
+  repeated SLSoftBndDebug upper_bound = 4;
+  repeated SLSoftBndDebug lower_bound = 5;
+  optional ComfortBndDebug comfort_bound = 6;
+}
+
+message PathConstraintDebug {
+  message PathBoundFilterDebug{
+    optional double x = 1;
+    optional FilterDebug upper = 2;
+    optional FilterDebug lower = 3;
+  }
+  message FilterDebug{
+    optional string obs_id = 1;
+    optional double cut_off_feq = 2;
+    optional double bnd_position = 3;
+    optional double filter_bnd_positon = 4;
+  }
+  repeated SLConstraintPoint bound_constraint_points = 11;
+  repeated SLReferencePoint ref_l_points = 1;
+  repeated OneAgentTrackingDebug agent_tracking_debug = 12;
+  optional bool is_use_path_corridor = 13;
+  repeated PathBoundFilterDebug god_bound_filter = 14;
+  repeated NudgeObstaclePattern nudge_obs_pattern = 15;
+  repeated PathBoundFilterDebug god_bound_intra_stable = 16;
+  repeated PathBoundFilterDebug bp_legally_not_bound = 17;
+}

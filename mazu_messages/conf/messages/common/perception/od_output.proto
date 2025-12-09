@@ -1,0 +1,582 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+import "common/perception/lidar_cluster_output.proto";
+import "common/perception/lidar_prediction_output.proto";
+import "common/perception/vision_bev_dynamic_object.proto";
+
+//od_output.proto: this proto is for debug!!!
+message SensorHeader {
+    optional uint32 sensor_id    = 1; //SENSOR_CAMERA_FW = 0,SENSOR_CAMERA_FN = 1,SENSOR_CAMERA_RN = 2,
+                                      //SENSOR_CAMERA_FL = 3,SENSOR_CAMERA_FR = 4,SENSOR_CAMERA_RR = 5,
+                                      //SENSOR_CAMERA_RL = 6, SENSOR_CAMERA_SFW = 7, SENSOR_CAMERA_SRCW = 8,
+                                      //SENSOR_CAMERA_SLW = 9, SENSOR_CAMERA_SRW = 10, SENSOR_LIDAR_FRONT = 11
+                                      //BEV_FRONT = 21, BEV_REAR = 22
+    optional uint64 measuring_ts = 2; //(ns) camera: exposure mcu_time, lidar: center-pointcloud sampleing ts
+
+    optional uint32 valid_flag = 3; // 0 = normal, 1 = black image
+}
+
+enum OBJSpecialClass{
+        OBJSpecialClass_Unknown = 0;
+        OBJSpecialClass_PoliceCar = 101; // 警车
+        OBJSpecialClass_Ambulance = 102; // 救护车
+        OBJSpecialClass_FireTruck = 103; // 消防车
+        OBJSpecialClass_RoadMaintenanceVehicle = 104; // 工程抢险、道路养护车
+        OBJSpecialClass_WateringCar = 105; // 洒水车
+        OBJSpecialClass_SanitationCar = 106; // 环卫车
+        OBJSpecialClass_RidePolice = 201; // 骑警
+        OBJSpecialClass_DeliveryRider = 202; //骑行外卖员
+        OBJSpecialClass_Police = 301; // 警察
+        OBJSpecialClass_DeliveryPerson = 302; //步行外卖员
+}
+
+enum MotionStatusClass{
+    MotionStatusClass_Unknown       = 0;
+    MotionStatusClass_Static        = 1; // The object is static.
+    MotionStatusClass_Moving        = 2; // The object is moving.
+    MotionStatusClass_Constant_v    = 3; // The object is moving at a constant speed.
+    MotionStatusClass_Accelerating  = 4; // The object is accelerating.
+    MotionStatusClass_Decelerating  = 5; // The object is decelerating.
+    MotionStatusClass_TurningLeft   = 6; // The object is turning left.
+    MotionStatusClass_TurningRight  = 7; // The object is turning right.
+    MotionStatusClass_Break         = 8; // The object is breaking.
+    MotionStatusClass_StartUp       = 9; // The object is starting up.
+    MotionStatusClass_Reverse       = 10; // The object is reversing.
+    MotionStatusClass_Straight      = 11; // The object is going straight.
+}
+
+enum VehicleDoorStatus{
+    VehicleDoorStatus_Closed = 0; // 关闭
+    VehicleDoorStatus_Half_Opened = 1; // 半开
+    VehicleDoorStatus_Fully_Opened = 2; // 开启
+}
+
+// Next id: 23.
+message LidarObject {
+    optional uint32 sensor_id    = 1;
+    optional uint32 object_id    = 2;
+    optional int32 class_type    = 3;
+    optional float x             = 4;
+    optional float y             = 5;
+    optional float z             = 6;
+    optional float width         = 7;
+    optional float height        = 8;
+    optional float length        = 9;
+    optional float yaw           = 10;
+    optional float score         = 11;
+    optional float second_return_ration = 12;
+    optional float high_reflection_ration = 13;
+    repeated float statistics_feature = 14;
+    optional LidarObjectDetectionSource lidar_object_detection_source = 15;
+    optional LidarClusterObject lidar_cluster_object = 16;  // If lidar object has GOD object cluster, this field will be filled
+    optional LidarTrajectoryPrediction lidar_trajectory_prediction = 17;  // Lidar trajectory prediction output from lidar 3M model (~3s).
+    optional LidarTrajectoryPrediction lidar_long_term_trajectory_prediction = 22;  // Lidar long-term trajectory prediction output (~8s).
+    optional uint64 object_mean_timestamp = 18;  // The mean timestamp of the lidar points within the lidar OD bbox (unit: ns).
+    optional uint32 lidar_track_id = 19;  // Lidar track ID.
+    optional float lidar_tracking_score = 20;  // Lidar tracking confidence score (considering IOU and the time interval between the current detection and the matched prediction).
+    optional uint32 num_lidar_tracked_frames = 21;  // Num of frames from the first frame the agent was tracked to the current frame. All the intermidiate frames are counted even if the agent is not tracked in some frames. This field is mainly used for filtering false positive detections.
+    repeated float corner_variance = 23; // 11 floats: https://nio.feishu.cn/wiki/ZCHGwLAvxiiablkR3tYc4P24n5g
+    optional uint32 instance_id    = 24; // for trailer objs, x for head, x+1000 for body
+    repeated float velocity                         = 25;   // Object velocity(vx, vy, vz).
+    repeated float velocity_uncertainty             = 26;   // The uncertainty of the object velocity.
+    optional float yaw_rate                         = 29;   // A scalar that represents the rate of a lidar object orientation changes.
+    optional float yaw_rate_uncertainty             = 30;   // A scalar that represents the yaw_rate uncertainty of a lidar object.
+    optional MotionStatusClass Motion_Status_Class  = 31;   // The class of motion status includes static, moving, unkown, etc.
+    optional float Motion_Status_Score              = 32;   // Object motion status scores.
+    optional uint32 fusion_trace = 33; // record object trace info in fusion module
+}
+
+message OptObject {
+    optional float x                     = 1;
+    optional float y                     = 2;
+    optional float z                     = 3;
+    optional float width                 = 4;
+    optional float height                = 5;
+    optional float length                = 6;
+    optional float yaw                   = 7;
+    optional float v_x                   = 8;
+    optional float v_y                   = 9;
+    optional float v_z                   = 10;
+    optional float yaw_rate              = 11;
+    optional float acc_x                 = 12;// optional
+    optional float acc_y                 = 13;// optional
+    optional float acc_z                 = 14;// optional
+    optional float yaw_acc               = 15;// optional
+    optional int32 class_type            = 16;// 大类别
+    optional int32 sub_type              = 17;// 小类别["CAR", "MEDIUM_SIZED_CAR", "PICK_UP_TRUCK", "VAN", "TRUCK", "BUS", "ENGINEERING_VEHICLE", "TRICYCLE", "SPECIAL_SHAPED_VEHICLE", "PEDESTRIAN", "MOTORCYCLE", "BICYCLE", "TWO_WHEELS_HIGH_SPEED_VEHICLE", "TWO_WHEELS_LOW_SPEED_VEHICLE", "E-BIKE"]
+    optional int32 occlusion             = 18;// object occlusion score（0: not occ; 1: 0~40% occ; 2: 40~80% occ; 3: invalid）
+    optional bool  has_person            = 19;// object has_person score
+    optional float v_x_uncertainly       = 20;//(0.0~1.0)
+    optional float v_y_uncertainly       = 21;//(0.0~1.0)
+    optional float v_z_uncertainly       = 22;//(0.0~1.0)
+    optional float acc_x_uncertainly     = 23;//(0.0~1.0)
+    optional float acc_y_uncertainly     = 24;//(0.0~1.0)
+    optional float acc_z_uncertainly     = 25;//(0.0~1.0)
+    optional float x_uncertainly         = 26;//(0.0~1.0)
+    optional float y_uncertainly         = 27;//(0.0~1.0)
+    optional float z_uncertainly         = 28;//(0.0~1.0)
+    optional float width_uncertainly     = 29;//(0.0~1.0)
+    optional float height_uncertainly    = 30;//(0.0~1.0)
+    optional float length_uncertainly    = 31;//(0.0~1.0)
+    optional float yaw_uncertainly       = 32;//(0.0~1.0)
+    optional float yaw_rate_uncertainly  = 33;//(0.0~1.0)
+
+    repeated float reserve               = 100;// 预留位
+    
+}
+
+message AssociationMatrix {
+    optional bool   valid_flag          = 1; //如果该帧有关联上为1 否则为0
+    optional int32  sensor_type         = 2;// -1为无传感器 0为camera od, 1为lidar od(od/od+god), 2为camera sod, 3为lidar god only
+    optional int32  raw_detection_index   = 3;   //关联上的最优的camera lidar result索引
+    optional float  score                = 4;   //关联上的最优的camera lidar score
+    optional OptObject  opt_object      = 5;   //关联上motion输出
+    optional uint32 asso_count = 6;
+    optional uint64 measuring_ts        = 50; //(ns) camera: exposure mcu_time, lidar: center-pointcloud sampleing ts
+    optional uint64 publish_ptp_ts      = 51;   // publish ptp timestamp, uint in nanosec
+    optional uint64 publish_ts          = 52;      // publish utc timestamp; unit : nanosecond
+}
+
+/* 
+description： https://nio.feishu.cn/wiki/wikcnFyq0Sc4GBg4b9vq4iVJMxb
+*/
+
+message StampHistroyTime{
+
+    optional int32  sensor_type         = 1;// -1为无传感器 0为camera 1为lidar
+    optional uint64 measuring_ts        = 2; //(ns) camera: exposure mcu_time, lidar: center-pointcloud sampleing ts
+    optional uint64 publish_ptp_ts      = 3;   // publish ptp timestamp, uint in nanosec
+    optional uint64 publish_ts          = 4;      // publish utc timestamp; unit : nanosecond
+    optional uint64 receive_relative_loc_ts  = 5;      // /receive relative_localization topic timestamp;unit : nanosecond
+    optional uint64 receive_lane_post_ts  = 6;   // receive lane_post topic timestamp;unit : nanosecond
+    optional uint64 receive_marker_post_ts  = 7;   //receive marker_post topic timestamp;unit : nanosecond
+    optional uint64 receive_lane_nn_ts  = 8;   //receive lane_nn topic timestamp;unit : nanosecond
+    optional uint64 receive_marker_nn_ts  = 9;   //receive marker_nn topic timestamp;unit : nanosecond
+    optional uint64 receive_vehicle_in_ts  = 10;      // /receive vehicle_in_10ms topic timestamp;unit : nanosecond
+    
+}
+message StampObject {
+    optional uint32 track_id                            = 1; 
+    optional float track_score                         = 2;//  0~1
+    optional uint32 track_status                        = 3;//  0:New_Born 1: Measured 2:Predicted
+    optional StampSensorType fusion_type                = 4;//  0:only camera 1:only lidar 2: fusion
+    optional float age_second                           = 5;//  unit s
+    optional float miss_age_second                      = 6;//  unit s
+    optional uint32 asso_count                          = 7;//  count of trackmanager output  association sensor num
+    repeated AssociationMatrix       asso_matrixs       = 8;// trackmanager output of current association matrixs 
+    optional OptObject opt_object                       = 9;// model output tracker state
+    optional ImportanceStatus importance_status         = 10;//After BL220
+    optional OBJMotionStatus  motion_status                = 11;//After BL220
+    optional OBJIntention  intention                    = 12;//After BL220
+    optional bool cipv_flag                             = 13;//After BL220
+    optional bool cci_flag                              = 14;//After BL220
+    optional LidarTrajectoryPrediction short_term_trajectory_prediction = 15;//After BL220 short term prediction output  (~3s).
+    optional LidarTrajectoryPrediction long_term_trajectory_prediction = 16; //After BL220  long-term trajectory prediction output (~8s).
+    optional float risk_level = 17;//危险程度
+    optional float yield_prob = 18;//让行可能性
+
+    optional uint32 nearby_lane =19;//是否在检测车道线附近
+    
+    optional OBJMotionStaticStatus static_status = 20;//动静态
+    optional OBJMotionTurnStatus turn_status = 21;//转弯状态
+    optional OBJMotionSpeedStatus speed_status = 22;//加速状态
+
+    optional uint32 object_id     = 23; // Object id
+
+    optional float ttc_level     = 24; //假设本车维持当前运动状态（匀速）一段时间后，多久本车会碰撞该障碍物
+    optional float overlap_ego_car_level     = 25; //和本车车头的偏置区域，0为无偏置，1为100%偏置
+    
+    optional float rcm_risk_level = 26;//后向预警危险程度
+    optional float rcm_yield_prob = 27;//后向预警让行可能性
+
+    optional float risk_level_lb = 28;//low break 危险程度
+    optional float yield_prob_lb = 29;//low break 让行可能性
+    optional float risk_level_warning = 30;//warning 危险程度
+    optional float yield_prob_warning = 31;//warning 让行可能性
+    optional float release_level = 32;// aeb release 刹车释放程度
+    optional float release_prob = 33;// aeb release 是否需要刹车释放的概率
+    
+    repeated float reserve               = 100;// 预留位
+
+    enum StampSensorType{
+        StampOnlyCamera = 0;
+        StampOnlyLidar = 1;
+        StampFusion = 2;
+        StampOnlyGod = 3;
+    }
+
+    enum OBJMotionStatus{
+        OBJMotionStatus_Unknown = 0;
+        OBJMotionStatus_Static = 1;
+        OBJMotionStatus_Stopped = 2;
+        OBJMotionStatus_Moving_Slowly = 3;
+        OBJMotionStatus_Moving = 4;
+        OBJMotionStatus_Braking = 5;
+        OBJMotionStatus_Decelerate =6;
+        OBJMotionStatus_Accelerate = 7;
+    }
+
+    enum ImportanceStatus{
+        ImportanceStatus_Dangerous = 0;
+        ImportanceStatus_Caution = 1;
+        ImportanceStatus_Normal = 2;
+        ImportanceStatus_Ingore = 3;
+    }
+
+    enum OBJIntention{
+        OBJIntention_Unknown = 0;
+        OBJIntention_Passing_In = 1;
+        OBJIntention_Passing_Out = 2;
+        OBJIntention_Close_Cut_In = 3;
+        OBJIntention_Moving_In = 4;
+        OBJIntention_Moving_Out = 5;
+        OBJIntention_Left_Crossing = 6;
+        OBJIntention_Right_Crossing = 7;
+        OBJIntention_LTAP = 8; //Left turn
+        OBJIntention_RTAP = 9; //Right turn
+        OBJIntention_Preceeding = 10;
+        OBJIntention_Oncoming = 11;
+    }
+
+    enum OBJMotionStaticStatus{
+        OBJMotionStaticStatus_Static = 0;
+        OBJMotionStaticStatus_Moving = 1;
+        OBJMotionStaticStatus_Unknown = 2;
+    }
+
+    enum OBJMotionTurnStatus{
+        OBJMotionTurnStatus_Straight = 0;
+        OBJMotionTurnStatus_TurnLeft = 1;
+        OBJMotionTurnStatus_TurnRight = 2;
+        OBJMotionTurnStatus_Unknown = 99;
+    }
+
+    enum OBJMotionSpeedStatus{
+        OBJMotionSpeedStatus_ConstantSpeed = 0;
+        OBJMotionSpeedStatus_Accelerate = 1;
+        OBJMotionSpeedStatus_Decelerate = 2;
+        OBJMotionSpeedStatus_Braking = 3;
+        OBJMotionSpeedStatus_Starting = 4;
+        OBJMotionSpeedStatus_Unknown = 99;
+    }
+
+}
+
+// Next id: 3.
+message EgoCarObject {
+    optional LidarTrajectoryPrediction lidar_long_term_trajectory_prediction = 1;  // Lidar long-term trajectory prediction output (~8s).
+    optional uint64 publish_ptp_ts = 2;   // publish ptp timestamp, uint in nanosec
+}
+
+message Mono3D {
+    optional float x             = 1; // Absolute x in vhicle coordinate (unit: m, forward is positive). 
+    optional float y             = 2; // Absolute y in vehicle coordinate (unit: m, left is positive). 
+    optional float z             = 3; // Absolute z in vehicle coordinate (unit: m, up is positive). 
+    optional float width         = 4; // Object width
+    optional float height        = 5; // Object height
+    optional float length        = 6; // Object length
+    optional float theta         = 7; // Object yaw angle
+}
+
+message CameraObject {
+        optional uint32 sensor_id     = 1; // Sensor id
+        optional uint32 object_id     = 2; // Object id
+        optional float score          = 3; // Object class score
+        optional int32 class_type     = 4; // Object class type
+        optional Mono3D mono3d        = 5; // Object 3D info
+        optional float batch_id       = 6;
+
+        optional float subtype        = 7; // Object subtype 
+        repeated float subtype_scores = 8; // Object subtype scores
+        repeated float occlusion      = 9; // Object occlusion score（0: not occ; 1: 0~40% occ; 2: 40~80% occ; 3: invalid）
+        repeated float box            = 10; //(x1,y1,x2,y2)
+
+        repeated float kpts           = 11;
+        repeated float kpts_score     = 12;
+        repeated float uncertainty_2d = 13;
+        repeated float uncertainty_3d = 14;
+
+        repeated float reid_feature   = 15;
+        repeated float theta2d        = 16;
+        optional float has_person     = 17; // Object has_person score
+
+        optional int32  OBJ_Track_ID                         = 18; // Object track id
+        repeated float  OBJ_Track_ID_Scores                  = 19; // Object tracking confidence scores
+
+        repeated float  OBJ_Velocity                         = 20; // Object velocity(vx, vy, vz)
+        repeated float  OBJ_Uncertainty_Velocity             = 21; // The uncertainty of the object velocity
+        repeated float  OBJ_Angular_Velocity                 = 30; // Object angular velocity (v_yaw, 0, 0)
+        repeated float  OBJ_Uncertainty_Angular_Velocity     = 31; // The uncertainty of the object angular velocity
+        repeated float  OBJ_Acceleration                     = 32; // Object acceleration (ax, ay, az)
+        repeated float  OBJ_Uncertainty_Acceleration         = 33; // The uncertainty of the object acceleration
+        optional CameraDynamicObjectMotion OBJ_Motion_Status = 22; // Object motion status
+        optional float  OBJ_Motion_Status_Score              = 23; // Object motion status scores
+
+        optional CameraTrajectoryPrediction OBJ_Trajectory   = 24; // Object trajectory
+        optional CameraDynamicObjectCIPV OBJ_CIPV            = 25; // Object CIPV
+        optional float  OBJ_CIPV_Score                       = 26; // Object CIPV scores
+        optional CameraDynamicObjectCCI OBJ_CCI              = 27; // Object CCI
+        optional float OBJ_CCI_score                         = 28; // Object CCI scores
+        repeated TaillightObject OBJ_Taillight_Prediction = 29;
+
+        optional float  OBJ_lane_offset                      = 34; // od中心点与最近车道线的垂直距离
+        optional int32  OBJ_lane_relative_pos                = 35; // od中心点与最近车道线的相对位置关系
+        optional float  OBJ_lane_relative_pos_score          = 36; // od中心点与最近车道线的相对位置关系置信度
+        optional int32  OBJ_cut_lane                         = 37; // od是否压线
+        optional float  OBJ_cut_lane_score                   = 38; // od是否压线置信度
+        optional OBJSpecialClass OBJ_Special_Class           = 39; // od的特殊类型（警车、消防车、救护车等）
+        optional float OBJ_Special_Class_Score              = 40; // od特殊类型的置信度
+        // NOTE: Current max idx: 38
+        optional uint32 fusion_trace = 41; // record object trace info in fusion module
+
+        repeated VehicleDoorStatus door_status = 42; // 车门状态，关闭/半开/全开
+        repeated VehicleDoorStatus hood_status = 43; // 引擎盖状态，关闭/半开/开启
+        repeated VehicleDoorStatus trunk_status = 44; // 后备箱状态，关闭/半开/开启
+        optional string croped_image_block = 45; // croped image block
+}
+
+message StaticCameraObject {
+        optional uint32 sensor_id     = 1;
+        optional uint32 object_id     = 2;
+        optional float score          = 3;
+        optional int32 class_type     = 4;
+        optional Mono3D mono3d        = 5;
+        optional float batch_id       = 6;
+
+        optional float subtype        = 7;
+        repeated float subtype_scores = 8;
+        repeated float occlusion      = 9;
+        repeated float box            = 10; //(x1,y1,x2,y2)
+
+        repeated float uncertainty_2d = 11;
+        repeated float uncertainty_3d = 12;
+        optional uint32 fusion_trace = 13; // record object trace info in fusion module
+        optional uint32 gate_machine_status = 14; // Unknown = 0;closed = 1;opening = 2;open = 3;
+        optional uint32 single_lane_traffic_info = 15;  //EU施工场景单侧通行需求，unknown = 0; left_lane = 1;right_lane = 2; center_lane = 3
+}
+
+message FailSafePrediction {
+    optional uint32 rain_pred = 1;
+    optional float rain_score = 2;
+    optional uint32 heavy_rain_pred = 3;
+    optional float heavy_rain_score = 4;
+    optional uint32 full_blockage_pred = 5;
+    optional float full_blockage_score = 6;
+    optional uint32 partial_blockage_pred = 7;
+    optional float partial_blockage_score = 8;
+    optional uint32 windshield_frozen_pred = 9;
+    optional float windshield_frozen_score = 10;
+    optional uint32 low_sun_pred = 11;
+    optional float low_sun_score = 12;
+    repeated float camera_fg_blockage_levels = 13;  // (4, 5)
+    repeated float camera_fg_categories = 14;  // (4, 5, 2)
+    repeated float camera_bg_glare_levels = 15;  // (4, 5)
+    repeated float camera_bg_categories = 16;  // (4, 5, 2)
+    repeated float road_level = 17;  // (4,)
+    repeated float road_categories = 18;  // (4, 3)
+    repeated float scene_lvl_scores = 19; // (5, 4)
+}
+
+message FailsafeObject {
+    // deprecated
+    optional uint32 full_blockage_pred = 1;
+    optional float full_blockage_score = 2;
+    // deprecated
+    optional uint32 low_sun_pred = 3;
+    optional float low_sun_score = 4;
+    // deprecated
+    optional uint32 partial_blockage_pred = 5;
+    optional float partial_blockage_score = 6;
+    // deprecated
+    optional uint32 rain_pred = 7;
+    optional float rain_score = 8;
+    // deprecated
+    optional uint32 windshield_frozen_pred = 9;
+    optional float windshield_frozen_score = 10;
+
+    optional uint32 sensor_id = 11;
+    optional FailSafePrediction stage1_prediction = 12;
+    optional FailSafePrediction stage2_prediction = 13;
+    optional float blur_score = 14;
+    optional uint32 max_histogram_value = 15;
+    optional float max_histogram_ratio = 16;
+    repeated uint32 gray_histogram = 17;
+}
+
+message RoadSceneObject {
+    optional uint32 sensor_id          = 1;
+    optional float rsr_main_road_score = 2;
+    optional float rsr_elevated_bridge_score = 3;
+    optional float rsr_tunnel_score = 4;
+    optional float rsr_acceleration_lane_score = 5;
+}
+
+message TaillightObject {
+    optional uint32 sensor_id = 1;
+    optional uint32 brake_on_pred = 2; // 模型预测刹车灯状态 0: off, 1: on, 2: visible
+    optional float brake_on_score =  3; // 模型预测刹车灯为on置信度
+    optional uint32 brake_visible_pred = 4; // 模型预测刹车灯状态 0: off, 1: on, 2: visible
+    optional float brake_visible_score =  5; // 模型预测刹车灯为visible置信度
+    optional uint32 left_on_pred = 6; // 模型预测左转向灯状态 0: off, 1: on, 2: visible
+    optional float left_on_score =  7; // 模型预测左转向灯为on置信度
+    optional uint32 left_visible_pred = 8; // 模型预测左转向灯状态 0: off, 1: on, 2: visible
+    optional float left_visible_score =  9; // 模型预测左转向灯为visible置信度
+    optional uint32 right_on_pred = 10; // 模型预测右转向灯状态 0: off, 1: on, 2: visible
+    optional float right_on_score =  11; // 模型预测右转向灯为on置信度
+    optional uint32 right_visible_pred = 12; // 模型预测右转向灯状态 0: off, 1: on, 2: visible
+    optional float right_visible_score =  13; // 模型预测右转向灯为visible置信度
+    optional uint32 accumulated_frame_num = 14 [deprecated = true]; // 跟踪帧数
+}
+
+message LightKeypoint {
+    optional uint32 sensor_id          = 1;
+    optional uint32 light_id           = 2; 
+    optional int32 light_type          = 3; // 车灯类别 0:头灯 1:尾灯 2:路灯
+    optional float light_score         = 4; // 车灯检出score
+    repeated float light_keypoint      = 5; // 车灯坐标 (x, y)
+    repeated float light_pair_keypoint = 6; // 车灯匹配坐标 (x, y)
+    optional float light_brightness    = 7 [deprecated = true];
+    optional float light_scale         = 8 [deprecated = true];
+    optional float light_depth         = 9 [deprecated = true];
+}
+
+message RainDropObject {
+    optional uint32 sensor_id          = 1;
+    optional uint32 class_type         = 2;
+    optional float class_score         = 3;
+    repeated float box                 = 4; //(x1,y1,x2,y2) 2D box on image
+    optional uint32 subtype            = 5;
+    optional float subtype_score       = 6;
+}
+
+
+message StaticAttribute {
+    optional uint32 sensor_id          = 1;
+    optional uint32 obj_id             = 2;
+    repeated float bbox                = 3;
+    repeated float embedding           = 4;
+}
+
+message MultiModalObject {
+    optional uint32 sensor_id     = 1;  // Sensor id
+    optional uint32 object_id     = 2;  // Object id
+    optional int32 class_type     = 3;  // Object class type
+    optional float score          = 4;  // Object score
+    optional Mono3D object      = 5;  // Object 3D bounding box
+    optional float batch_id       = 6;
+  
+    optional float subtype        = 7; // Object subtype 
+    repeated float subtype_scores = 8; // Object subtype scores
+    repeated float occlusion      = 9; // Object occlusion score（0: not occ; 1: 0~40% occ; 2: 40~80% occ; 3: invalid）
+    repeated float box            = 10; //(x1,y1,x2,y2)
+  
+    repeated float kpts           = 11;
+    repeated float kpts_score     = 12;
+    repeated float uncertainty_2d = 13;
+    repeated float uncertainty_3d = 14;
+  
+    repeated float reid_feature   = 15;
+    repeated float theta2d        = 16;
+    optional float has_person     = 17; // Object has_person score
+  
+    optional int32  OBJ_Track_ID                          = 18; // (not used) Object track id
+    repeated float  OBJ_Track_ID_Scores                   = 19; // (not used) Object tracking confidence scores
+  
+    repeated float  OBJ_Velocity                          = 20; // Object velocity(vx, vy, vz)
+    repeated float  OBJ_Uncertainty_Velocity              = 21; // The uncertainty of the object velocity
+    repeated float  OBJ_Angular_Velocity                  = 22; // Object angular velocity (v_yaw, 0, 0)
+    repeated float  OBJ_Uncertainty_Angular_Velocity      = 23; // The uncertainty of the object angular velocity
+    repeated float  OBJ_Acceleration                      = 24; // Object acceleration (ax, ay, az)
+    repeated float  OBJ_Uncertainty_Acceleration          = 25; // The uncertainty of the object acceleration
+    optional CameraDynamicObjectMotion OBJ_Motion_Status  = 26; // Object motion status
+    optional float  OBJ_Motion_Status_Score               = 27; // Object motion status scores
+  
+    optional CameraTrajectoryPrediction OBJ_Trajectory    = 28; // Object trajectory
+    optional CameraDynamicObjectCIPV OBJ_CIPV             = 29; // Object CIPV
+    optional float  OBJ_CIPV_Score                        = 30; // Object CIPV scores
+    optional CameraDynamicObjectCCI OBJ_CCI               = 31; // Object CCI
+    optional float OBJ_CCI_score                          = 32; // Object CCI scores
+    repeated TaillightObject OBJ_Taillight_Prediction     = 33;
+  
+    optional float  OBJ_lane_offset                       = 34; // od中心点与最近车道线的垂直距离
+    optional int32  OBJ_lane_relative_pos                 = 35; // od中心点与最近车道线的相对位置关系
+    optional float  OBJ_lane_relative_pos_score           = 36; // od中心点与最近车道线的相对位置关系置信度
+    optional int32  OBJ_cut_lane                          = 37; // od是否压线
+    optional float  OBJ_cut_lane_score                    = 38; // od是否压线置信度
+    optional OBJSpecialClass OBJ_Special_Class            = 39; // od的特殊类型（警车、消防车、救护车等）
+    optional float OBJ_Special_Class_Score                = 40; // od特殊类型的置信度
+    
+    // NOTE: Current max idx: 38
+    optional uint32 fusion_trace            = 41; // record object trace info in fusion module
+  
+    repeated VehicleDoorStatus door_status  = 42; // 车门状态，关闭/半开/全开
+    repeated VehicleDoorStatus hood_status  = 43; // 引擎盖状态，关闭/半开/开启
+    repeated VehicleDoorStatus trunk_status = 44; // 后备箱状态，关闭/半开/开启
+
+    optional int32 mm_object_trace_id       = 45; // 多模态模型输出track id
+    optional float mm_object_trace_score    = 46; // 多模态模型输出track confidence
+  
+    // Lidar data
+    // NOTE: lidar motion_status, velocity is removed
+    optional float second_return_ration = 51;
+    optional float high_reflection_ration = 52;
+    repeated float statistics_feature = 53;
+    optional LidarObjectDetectionSource lidar_object_detection_source = 54;
+    optional LidarClusterObject lidar_cluster_object = 55;  // If lidar object has GOD object cluster, this field will be filled
+    optional LidarTrajectoryPrediction lidar_trajectory_prediction = 56;  // Lidar trajectory prediction output from lidar 3M model (~3s).
+    optional LidarTrajectoryPrediction lidar_long_term_trajectory_prediction = 57;  // Lidar long-term trajectory prediction output (~8s).
+    optional uint64 object_mean_timestamp = 58;  // The mean timestamp of the lidar points within the lidar OD bbox (unit: ns).
+    optional uint32 lidar_track_id = 59 [deprecated=true];  // Lidar track ID.
+    optional float lidar_tracking_score = 60 [deprecated=true];  // Lidar tracking confidence score (considering IOU and the time interval between the current detection and the matched prediction).
+    optional uint32 num_lidar_tracked_frames = 61;  // Num of frames from the first frame the agent was tracked to the current frame. All the intermidiate frames are counted even if the agent is not tracked in some frames. This field is mainly used for filtering false positive detections.
+    repeated float corner_variance = 62; // 11 floats: https://nio.feishu.cn/wiki/ZCHGwLAvxiiablkR3tYc4P24n5g
+    optional uint32 instance_id    = 63; // for trailer objs, x for head, x+1000 for body
+    optional float yaw_rate                         = 66;   // A scalar that represents the rate of a lidar object orientation changes.
+    optional float yaw_rate_uncertainty             = 67;   // A scalar that represents the yaw_rate uncertainty of a lidar object.
+    optional uint32 left_rearview_mirror_state      = 68;   //左后视镜状态，0 = Unknown,1 = open,2 = closed
+    optional uint32 right_rearview_mirror_state      = 69;   //右后视镜状态，0 = Unknown,1 = open,2 = closed
+  }
+
+message ODOutputPb {
+    repeated SensorHeader sensors                  = 1; // input multi-sensors id && timestamp,(ns); sensor_ts means that the sensor-data measuresing time.
+    optional uint64 cooking_ts                     = 2; // record the starting time of NN  (ns)
+    optional uint64 send_ts                        = 3; //  (ns)
+
+    repeated LidarObject lidar_result              = 4;
+    repeated CameraObject cam_result               = 5;
+    repeated StaticCameraObject static_cam_result  = 6;
+    repeated FailsafeObject failsafe_result        = 7;
+    repeated LightKeypoint light_result            = 8;
+
+    repeated StampObject stamp_result              = 9;
+    repeated StampHistroyTime stamp_history_time   = 10;
+
+    repeated RainDropObject raindrop_result        = 11;
+
+    optional EgoCarTrajectory ego_result           = 12;
+
+    repeated RoadSceneObject road_scene_result     = 13;
+
+    repeated StaticAttribute sa_input              = 14;
+    repeated LidarObject vision_god                = 15; // vision_god
+
+    repeated MultiModalObject mm_result            = 16;
+
+    optional uint64 timestamp = 17;
+
+    optional string reserved = 200;  //reserved for some tmp hacking？？ limit 1k string
+
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;   // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909;     // uuid of the publisher
+    optional uint64 counter = 536870910;         // message counter
+    optional uint64 publish_ts = 536870911;      // publish utc timestamp; unit : nanosecond
+
+}
+
+
+//, ahc = [9], tld = [13]

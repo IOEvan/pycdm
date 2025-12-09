@@ -1,0 +1,60 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message WetGroundStatusIf{
+    optional uint32 Rain_fail = 1;
+    optional uint32 Ponding = 2;
+    optional uint32 User_mode = 3;
+    optional string Grid = 4;
+    optional uint64 Report_ts = 5;
+    repeated Detailsvalue Details = 6;
+
+    enum SIAtsModeReq_e{
+        SIAts_No_Request = 0;
+        Wet_Mode_ON      = 1;
+        Wet_Mode_OFF     = 2;
+        Snow_Mode_ON     = 3;
+        Snow_Mode_OFF    = 4;
+    }
+    optional SIAtsModeReq_e SIAtsModeReq = 7;
+}
+
+message Detailsvalue{
+    optional string key = 1;
+    optional string value = 2;
+}
+
+message SwamInteliigenceIf{
+    optional uint32 WetGroundSts = 1;
+}
+
+message point2d{
+    optional double x = 1;
+    optional double y = 2;
+}
+
+message AtsImageInfo{
+    optional uint32 camera_id = 1;   //相机id
+    optional uint32 camera_frame_id = 2;   //相机frame_id信息，对于NV image_counter
+    optional uint32 camera_time_stamp = 3;  //图像原始时间戳信息
+    repeated point2d center_point = 4;   //原图PV视角中心点位置
+    repeated float width = 5;   //图像width
+    repeated float hight = 6;   //图像hight
+}
+
+message SwamIntelligence{
+    optional WetGroundStatusIf WetGroundStatus = 1;
+    optional SwamInteliigenceIf SwamInteliigenceMode = 2; 
+    optional AtsImageInfo       SIAtsImage = 3;
+    optional bytes          SIAtsimage_buf = 4;
+
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;               // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909;                 // uuid of the publisher
+    optional uint64 counter = 536870910;                      // message counter
+    optional uint64 publish_ts = 536870911;                   // publish timestamp; unit : nanosecond
+}

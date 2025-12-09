@@ -1,0 +1,24 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+message GazeInfo {
+  optional float x                     = 1;
+  optional float y                     = 2;
+  optional float z                     = 3;
+  
+  optional uint64 timestamp            = 100; // ptp timestamp
+  optional uint64 counter              = 101;
+}
+
+message SlotGazeInfo {
+  repeated GazeInfo gaze_2_ground_pt   = 1; // hist matched pts
+  optional int32 hmi_index             = 2; // slot idx
+  optional float adms_cost             = 3; // total cost
+}
+
+message ADMSDebug {
+  repeated SlotGazeInfo slot_gaze_info = 1;
+}

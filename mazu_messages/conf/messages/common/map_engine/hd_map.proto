@@ -1,0 +1,86 @@
+// @owner: jianxiao.hu@nio.com
+
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+import "common/map_engine/hd_lane.proto";
+import "common/map_engine/hd_lane_boundary.proto";
+import "common/map_engine/hd_lane_group.proto";
+import "common/map_engine/hd_link_info.proto";
+import "common/map_engine/hd_crosswalk.proto";
+import "common/map_engine/hd_junction.proto";
+import "common/map_engine/hd_pole.proto";
+import "common/map_engine/hd_road_geo_line.proto";
+import "common/map_engine/hd_traffic_light.proto";
+import "common/map_engine/hd_traffic_sign.proto";
+import "common/map_engine/hd_stop_line.proto";
+import "common/map_engine/hd_parking_area.proto";
+import "common/map_engine/hd_waiting_zone.proto";
+import "common/map_engine/hd_speed_bump.proto";
+import "common/map_engine/hd_arrow.proto";
+import "common/map_engine/hd_poi.proto";
+import "common/map_engine/hd_clear_zone.proto";
+import "common/map_engine/hd_virtual_junction.proto";
+import "common/map_engine/hd_common.proto";
+import "common/map_engine/hd_trajectory.proto";
+import "common/map_engine/hd_virtual_waiting_queue.proto";
+import "common/map_engine/nad_sd_link_info.proto";
+import "common/map_engine/nad_sd_traffic_light_info.proto";
+
+message HdMap {
+  repeated HdLaneGroup lane_group_list = 1;
+  repeated HdLane lane_list = 2;
+  repeated HdLaneBoundary lane_boundary_list = 3;
+  repeated HdLinkInfo link_list = 4;
+  repeated HdCrosswalk crosswalk_list = 5;
+  repeated HdJunction junction_list = 6;
+  repeated HdPole pole_list = 7;
+  repeated HdTrafficLight traffic_light_list = 8;
+  repeated HdTrafficSign traffic_sign_list = 9;
+  repeated HdRoadGeoLine road_geo_line_list = 10;
+  repeated HdStopLine stop_line_list = 11;
+
+  optional string map_tile_hash = 12;
+  optional int32 map_version = 13;
+  optional string dynamic_map_info_counter = 16;
+
+  repeated HdParkingArea parking_area_list = 14;
+  repeated HdWaitingZone waiting_zone_list = 15;
+
+  optional int32 service_area_map_version = 17;
+
+  repeated HdSpeedBump speed_bump_list = 18;
+
+  optional string sd_map_fusion_counter = 19;
+
+  repeated HdArrow arrow_list = 20;
+
+  optional uint32 current_tile_id = 21;
+  repeated uint32 tile_id_list = 22;
+  repeated uint32 service_area_tile_id_list = 23;
+  repeated HdPoi poi_list = 24;
+  repeated HdClearZone clear_zone_list = 25;
+  repeated HdVirtualJunction virtual_junction_list = 26;
+  repeated HdExperienceTrajectory experience_trajectory = 27;
+
+  enum LanesegStatus {
+    SUCCESS = 0;
+    DOWNLOAD_FAILED = 1;
+  }
+  optional LanesegStatus laneseg_status = 28;
+
+  repeated HdVirtualWaitingQueue virtual_wait_queue_list = 29;
+
+  repeated NadSdLinkInfo sd_link_list = 30;
+  repeated NadSdTrafficLightInfo sd_traffic_light_list = 31;
+
+  optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin 
+  optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+  optional uint64 publish_ptp_ts = 536870907; // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909;  // uuid of the publisher
+  optional uint64 counter = 536870910;       // message counter
+  optional uint64 publish_ts = 536870911;    // publish utc timestamp; unit : nanosecond
+}

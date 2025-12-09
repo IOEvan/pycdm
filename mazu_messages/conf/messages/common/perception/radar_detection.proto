@@ -1,0 +1,36 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+enum RadarDetectionSource{
+  ObjSource_Invalid = 0;
+  ObjSource_FCRadar = 1;
+  ObjSource_FLRadar = 2;
+  ObjSource_FRRadar = 3;
+  ObjSource_RLRadar = 4;
+  ObjSource_RRRadar = 5;
+}
+
+message RadarDetectionObject{
+  required uint32 ID = 1;
+  required RadarDetectionSource source = 2;
+  required float range = 3;                   // unit:m , at sensor coordinate
+  required float range_rate = 4;              // unit:m/s
+  required float azimuth = 5;                 // unit:rad 
+  required float elevation_angle = 6;         // unit:rad
+  required float radar_cross_section = 7;     // radar cross section estimation
+  required float azimuth_conf = 8;            // detection azimuth confidence 0-1
+  required float elevation_conf = 9;          // detection elevation confidence 0-1
+  required float exist_prob = 10;             // detection existence probability confidence 0-1
+  optional float signal_noise_ratio = 11;     // range 0-63.5 resolution 0.5 (conti/bosch radar)
+  optional bool move_status = 12;             // 0 is stationary, 1 is moving (only conti radar)
+  optional uint32 matched_obj_id = 13;        // detection cluster matched object id (only conti radar)
+  optional float radial_conf = 14;            // detection range and range rate confidence(only for bosch: DistVeloQly)
+}
+
+message RadarDetection{  
+  required uint64 timestamp = 1; // the time that aptiv sends radar detection points to us
+  required uint32 sync_bit = 2; 
+  repeated RadarDetectionObject detection = 3;  //detection points for each radar
+}

@@ -1,0 +1,106 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+import "np/apps/parking/par_base.proto";
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+import "common/cloud_config/parking_param_config.proto";
+import "np/apps/parking/par_navi_traj.proto";
+
+enum FeatureStatus {
+    PARKINGFEATURE_Off = 0;
+    PARKINGFEATURE_Standby = 1;
+    PARKINGFEATURE_Search = 2; // Localization in PSAP,equal to Search On in SAPA.
+    PARKINGFEATURE_Preguidance = 3;
+    PARKINGFEATURE_GuidanceActive = 4;
+    PARKINGFEATURE_Suspend = 5;
+    PARKINGFEATURE_Irreversible_Abort = 6;
+    PARKINGFEATURE_TakeOver_Abort = 7;
+    PARKINGFEATURE_Finish = 8;
+    PARKINGFEATURE_Fault = 9;
+    PARKINGFEATURE_RemotePrepare = 10;
+    PARKINGFEATURE_P2PLowSpeedSearch = 11;
+    PARKINGFEATURE_P2PLowSpeedReady = 12;
+    PARKINGFEATURE_CruisingActive = 13;
+    PARKINGFEATURE_ManeuveringActive = 14;
+    PARKINGFEATURE_VLNLowSpeedSearch = 15;
+}
+
+
+message StateMachine {
+    optional NodeInfo node_info = 1;
+
+    optional FeatureStatus feature_status = 2;
+
+    optional SlotBase target_slot = 3; // only has target_slot.slot_index (send when into Preguidance)
+    enum SapaModType_e{
+        SapaMode_Off    = 0;//Off
+        SapaMode_Fusion = 1;//Fusion
+        SapaMode_USS    = 2;//USS only
+        SapaMode_VISION = 3;//Vision only
+        SapaMode_Rsrvd4 = 4;//Reserved
+        SapaMode_Rsrvd5 = 5;//Reserved
+        SapaMode_Rsrvd6 = 6;//Reserved
+        SapaMode_Rsrvd7 = 7;//Reserved
+    }
+    optional SapaModType_e operation_mode = 4;
+
+    enum PsapModeType_e{
+        PsapModeType_Unknown    = 0;
+        PsapModeType_Vehicle    = 1;//vehicle-based perception
+        PsapModeType_Station    = 2;//station-based perception
+        PsapModeType_Rsrvd3     = 3;//Reserved
+        PsapModeType_Rsrvd4     = 4;//Reserved
+    }
+    optional PsapModeType_e psap_mode = 5;
+
+    enum StartRegionModType_e{
+        StartRegionModType_Unknown    = 0;
+        StartRegionModType_LocBox     = 1;
+        StartRegionModType_SwitchRgn  = 2;
+        StartRegionModType_PrkLot     = 3;
+        StartRegionModType_Rsrvd4     = 4;//Reserved
+    }
+    optional StartRegionModType_e start_region_mode = 6;
+
+    enum DriveToStartRgnModType_e{
+        DriveToStartRgnModType_Unknown  = 0;
+        DriveToStartRgnModType_HumanDrv = 1;
+        DriveToStartRgnModType_PspDrv   = 2;
+        DriveToStartRgnModType_Rsrvd3   = 3;//Reserved
+        DriveToStartRgnModType_Rsrvd4   = 4;//Reserved
+    }
+    optional DriveToStartRgnModType_e drv_to_start_region_mode = 7;
+    
+    enum StationConnectionMode_e{
+        Not_Connected  = 0;
+        TSP_Only = 1;
+        Wifi_Only   = 2;
+        Both_TSP_Wifi   = 3;
+    }
+    optional StationConnectionMode_e station_connection_mode = 8;
+
+    optional bool use_powergo_once_parking_param = 9;
+
+    optional ParkingParamConfig parking_param_cloud = 10;
+
+    optional bool maneuver_sw_sts = 11 [default = false];
+
+    //转发LowspeedCruise的信息给其他模块
+    optional bool navi_dest_match_park_entrance = 101; //导航目的地与记忆路线入口衔接点匹配标志位
+    optional bool exist_drive_out_route = 102; // 是否存在驶出路线
+    optional float dist_to_navi_dest = 103; //自车距离匹配点的距离
+    optional FamiliarRoadNaviTrajectory.UserIntentionType user_intention_drive_in = 104;  //用户驶入意图
+    optional FamiliarRoadNaviTrajectory.UserIntentionType user_intention_drive_out = 105; //用户驶出意图
+
+    optional string vid = 10000; // vid of source vehicle
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909; // uuid of the publisher
+    optional uint64 counter = 536870910; // message counter
+    optional uint64 publish_ts = 536870911; // publish utc timestamp; unit : nanosecond
+}

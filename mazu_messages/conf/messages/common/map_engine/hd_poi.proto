@@ -1,0 +1,29 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+import "common/map_engine/map_geometry.proto";
+import "common/map_engine/hd_link_info.proto";
+
+message HdPoi{
+  optional uint64 id = 1;
+  // POI的全局永久化id
+  optional string uuid = 2;
+  // poi的类型
+  // 0: 其它
+  // 1: 充电桩群poi
+  // 2: 停车场入口
+  // 3: 停车场出口
+  // 4: 换电站Poi
+  // 5: 入口闸机
+  // 6: 出口闸机
+  optional uint32 type = 3;
+  optional string poi_info = 4;
+  optional MapPoint point = 5;
+
+  // 关联道路
+  repeated uint64 link_ids = 6;
+  // 关联道路特征点,表示关联link最近的offset点
+  repeated LinkFeaturePoint link_feature_points = 7;
+}

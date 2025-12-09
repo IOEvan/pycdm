@@ -1,0 +1,28 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message EolImuResp {
+
+  //0x00: no failure
+  //0x01: vehicle speed greater than 1kph
+  //0x02: IMU data invalid
+  //0x03: IMU data out of range
+  //0x04: calibration result out of range
+  //0x05: other errors
+  optional uint32 cal_state         = 1;
+
+  optional float rsd_imu_bdy_x      = 2;    // degree, x-axial residual of IMU frame to Body frame
+  optional float rsd_imu_bdy_y      = 3;    // degree, y-axial residual of IMU frame to Body frame
+  optional float rsd_imu_bdy_z      = 4;    // degree, z-axial residual of IMU frame to Body frame
+
+  optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+  optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+  optional uint64 publish_ptp_ts = 536870907;   // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909;     // uuid of the publisher
+  optional uint64 counter = 536870910;          // message counter
+  optional uint64 publish_ts = 536870911;       // publish utc timestamp; unit : nanosecond
+
+}

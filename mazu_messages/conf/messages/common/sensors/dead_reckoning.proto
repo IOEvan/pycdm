@@ -1,0 +1,107 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message DRResult {
+  message UTCTime {
+    optional uint32 year = 1;  // [2020, 2038]
+    optional uint32 month = 2; // [1, 12]
+    optional uint32 day = 3;   // [1, 31]
+    optional uint32 hour = 4;  // [0,24)
+    optional uint32 min = 5;   // [0, 60)
+    optional uint32 sec = 6;   // [0, 60)
+    optional float msec = 7;   // [0, 999]
+  }
+
+  enum DRState {
+    NONE = 0;          // no initialized
+    SatelWheelINS = 2; // satellite + wheel + ins deckoning
+    PureINS = 3;       // no satellite, no wheel, pure ins deckoning
+    WheelINS = 4;      // no satellite, wheel + ins deckoning
+    UNAVAILABLE = 5;
+    //state 1 are reserved
+  }
+
+  optional DRState dr_type = 1; //
+
+  optional double delta_north = 2; // m, delta position in north of UTM
+  optional double delta_east = 3;  // m, delta position in east of UTM
+  optional double delta_up = 4;    // m, delta position in up of UTM
+
+  optional double velocity_north = 5; // m/s, Absolute north speed in navigation system
+  optional double velocity_east = 6;  // m/s, Absolute east speed in navigation system
+  optional double velocity_up = 7;    // m/s, Absolute up speed in navigation system
+
+  optional double roll = 8;     // degree, roll in navigation system
+  optional double pitch = 9;    // degree, pitch in navigation system
+  optional double azimuth = 10; // degree, azimuth in navigation system
+
+  // unit:rad/s, angular velocity of Axis X,Y,Z in ego system(Front-Right-Down),installation error and bias has been compensated
+  optional double gyro_x = 11;
+  optional double gyro_y = 12;
+  optional double gyro_z = 13;
+
+  // unit:m/s^2, acceleration of Axis X,Y,Z in ego system(Front-Right-Down),installation error and bias has been compensated
+  optional double acc_x = 14;
+  optional double acc_y = 15;
+  optional double acc_z = 16;
+
+  // DR precision
+  optional float std_dr_north = 17;
+  optional float std_dr_east = 18;
+  optional float std_dr_up = 19;
+  optional float std_dr_roll = 20;
+  optional float std_dr_pitch = 21;
+  optional float std_dr_azimuth = 22;
+
+  optional UTCTime utc_time = 23;               // defined in UTCTime message
+  optional double itow_time = 24;               // s [0, 604800000), seconds from the beginning of the GPS reference week
+  optional uint32 gps_ref_week = 25;            // GPS reference week number, [0, 3072)
+
+  enum GDPRStatus_e {
+    GNSS_OFF                = 0;  // off
+    GNSS_ON_ENABLE_SHARING  = 1;  // on & enable sharing, the gnss data could be used in vehicle and out of vehicle
+    GNSS_ON_DISABLE_SHARING = 2;  // on & disable sharing, the gnss data should be used in vehicle.
+  }
+
+  optional GDPRStatus_e gdpr_status  = 26;
+
+  message Quaternion {
+    optional double x = 1;
+    optional double y = 2;
+    optional double z = 3;
+    optional double w = 4;
+  }
+
+  message Vector3 {
+    optional double x = 1;
+    optional double y = 2;
+    optional double z = 3;
+  }
+
+  enum Status{
+    INVALID = 0;
+    NORMAL = 1;
+    LOW_PRECISION = 2;
+  }
+
+  optional Vector3 position = 27;               // position in odom system, unit:m
+  optional Vector3 velocity = 28;               // velocity in odom system, unit:m/s
+  optional Quaternion quaternion = 29;          // attitude in odom system
+
+  optional uint32 count = 30;                   // frame number [0-255]
+  optional Status status = 31;
+  optional uint32 msg_valid_type = 32;          // value 1 means message is valid
+  optional uint64 timestamp_ptp_ns = 33;        // internal ptp timestamp, uint in nanosec
+  optional uint64 timestamp_utc_ns = 34;        // internal utc timestamp, uint in nanosec
+
+  optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin 
+  optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+  optional uint64 publish_ptp_ts = 536870907;   // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909;     // uuid of the publisher
+  optional uint64 counter = 536870910;          // message counter
+  optional uint64 publish_ts = 536870911;       // publish utc timestamp; unit : nanosecond
+}
+

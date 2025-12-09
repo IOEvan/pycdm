@@ -1,0 +1,30 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+enum AdbEnbMode{
+        ADB_OFF_Mode = 0; 
+        GFHB_Mode    = 1; 
+        PREGFHB_Mode = 2;
+        HB_Mode      = 3; 
+}
+
+enum AdbModeType_e{
+       No_Request              = 0;
+       Basic_Glare_Free        = 1;
+       Pedestrian_Remind       = 2;
+       Traffic_Sign_Iuminate   = 3;
+       Invalid                 = 4;
+       AdbModeType_Reserved_5  = 5;
+       AdbModeType_Reserved_6  = 6;
+       AdbModeType_Reserved_7  = 7;
+}
+
+enum AdbLiErrorStsType_e{
+        No_Error               = 0;
+        Error                  = 1;
+        Reserved02             = 2;
+        Reserved03             = 3;
+} 

@@ -1,0 +1,232 @@
+syntax = "proto2"; 
+option cc_enable_arenas = true;
+       
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message FimCanInfo{// Detected by FW
+        optional CANFimInfo can_fim_info = 1;
+        optional ACMFimInfo acm_fim_info = 2;
+        optional ASDMFimInfo asdm_fim_info = 3;
+        optional APAFimInfo apa_fim_info = 4;
+        optional BCUFimInfo bcu_fim_info = 5;
+        optional BCMFimInfo bcm_fim_info = 6;
+        optional BGWFimInfo bgw_fim_info = 7;
+        optional CCUFimInfo ccu_fim_info = 8;
+        optional CDCFimInfo cdc_fim_info = 9;
+        optional EPB1FimInfo epb1_fim_info = 10;
+        optional EPB2FimInfo epb2_fim_info = 11;
+        optional EPS1FimInfo eps1_fim_info = 12;
+        optional EPS2FimInfo eps2_fim_info = 13;        
+        optional RADFimInfo radfc_fim_info = 14;
+        optional RADFimInfo radfl_fim_info = 15;
+        optional RADFimInfo radfr_fim_info = 16;
+        optional RADFimInfo radrl_fim_info = 17;
+        optional RADFimInfo radrr_fim_info = 18;
+        optional SCMFimInfo scm_fim_info = 19;
+        optional SWCFimInfo swc_fim_info = 20;
+        optional VCUFimInfo vcu_fim_info = 21;        
+
+        optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+        optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+        optional uint64 publish_ptp_ts = 536870907;   // publish ptp timestamp, uint in nanosec
+        optional string publisher_id   = 536870909; // uuid of the publisher
+        optional uint64 counter        = 536870910;         // message counter
+        optional uint64 publish_ts     = 536870911;    // publish utc timestamp; unit : nanosecond
+
+} 
+
+
+message CANFimInfo{
+        optional bool FIM_ADAS_CAN_Busoff= 1;         
+        optional bool FIM_CHS1_CAN_Busoff= 2; 
+        optional bool FIM_CHS2_CAN_Busoff= 3;
+        optional bool FIM_FrontRAD_CAN_Busoff = 4;
+        optional bool FIM_FrontSideRAD_CAN_Busoff = 5;
+        optional bool FIM_RearSideRAD_CAN_Busoff =6;
+        // 0: no fault, 1: has fault;
+}
+
+
+message ACMFimInfo{
+        optional bool FIM_CHS1_ACM_01_MsgError = 1;
+        optional bool FIM_CHS1_ACM_02_MsgError = 2;
+        optional bool FIM_CHS1_ACM_03_MsgError = 3;
+        optional bool FIM_CHS1_ACM_CAN_Error = 4;
+        // 0: no fault, 1: has fault;
+}
+
+message ASDMFimInfo{
+        optional bool FIM_CHS1_ASDM_CAN_Error = 1;
+        optional bool FIM_CHS1_ASDM_MsgError = 2;
+        // 0: no fault, 1: has fault;
+}
+
+message APAFimInfo{
+        optional bool FIM_ADAS_APA_CAN_Error = 1;
+        optional bool FIM_ADAS_APA_ADC_01_MsgError = 2;
+        optional bool FIM_ADAS_APA_ADC_02_MsgError = 3;
+        optional bool FIM_ADAS_APA_ADC_03_MsgError = 4;
+        optional bool FIM_ADAS_APA_ADC_04_MsgError = 5;
+        optional bool FIM_ADAS_APA_ADC_05_MsgError = 6;
+        optional bool FIM_ADAS_APA_ADC_06_MsgError = 7;
+        optional bool FIM_ADAS_APA_ADC_07_MsgError = 8;
+        optional bool FIM_ADAS_APA_ADC_08_MsgError = 9;
+        optional bool FIM_ADAS_APA_ADC_09_MsgError = 10;
+        optional bool FIM_ADAS_APA_ADC_10_MsgError = 11;
+        optional bool FIM_ADAS_APA_01_MsgError = 12;
+        optional bool FIM_ADAS_APA_02_MsgError = 13;
+        optional bool FIM_ADAS_APA_03_MsgError = 14;
+        optional bool FIM_ADAS_APA_04_MsgError = 15;
+        optional bool FIM_ADAS_APA_05_MsgError = 16;
+        optional bool FIM_ADAS_APA_Slot01_MsgError = 17;
+        optional bool FIM_ADAS_APA_Slot02_MsgError = 18;
+        optional bool FIM_ADAS_APA_Slot03_MsgError = 19;
+        optional bool FIM_ADAS_APA_Slot04_MsgError = 20;
+        optional bool FIM_ADAS_APA_Slot05_MsgError = 21;
+        optional bool FIM_ADAS_APA_Slot06_MsgError = 22;
+        optional bool FIM_ADAS_APA_Slot01Obj1_MsgError = 23;
+        optional bool FIM_ADAS_APA_Slot02Obj1_MsgError = 24;
+        optional bool FIM_ADAS_APA_Slot03Obj1_MsgError = 25;
+        optional bool FIM_ADAS_APA_Slot04Obj1_MsgError = 26;
+        optional bool FIM_ADAS_APA_Slot05Obj1_MsgError = 27;
+        optional bool FIM_ADAS_APA_Slot06Obj1_MsgError = 28;
+        optional bool FIM_ADAS_APA_Slot01Obj2_MsgError = 29;
+        optional bool FIM_ADAS_APA_Slot02Obj2_MsgError = 30;
+        optional bool FIM_ADAS_APA_Slot03Obj2_MsgError = 31;
+        optional bool FIM_ADAS_APA_Slot04Obj2_MsgError = 32;
+        optional bool FIM_ADAS_APA_Slot05Obj2_MsgError = 33;
+        optional bool FIM_ADAS_APA_Slot06Obj2_MsgError = 34;
+        // 0: no fault, 1: has fault;
+}
+
+message BCUFimInfo{
+        optional bool FIM_CHS1_BCU_CAN_Error = 1;
+        optional bool FIM_CHS1_BCU_01_MsgError = 2;
+        optional bool FIM_CHS1_BCU_02_MsgError = 3;
+        optional bool FIM_CHS1_BCU_03_MsgError = 4;
+        optional bool FIM_CHS1_BCU_04_MsgError = 5;
+        optional bool FIM_CHS1_BCU_07_MsgError = 6;
+        optional bool FIM_CHS1_BCU_08_MsgError = 7;
+        optional bool FIM_CHS1_BCU_09_MsgError = 8;
+        optional bool FIM_CHS1_BCU_16_MsgError = 9;
+        optional bool FIM_CHS2_BCU_CAN_Error = 10;
+        optional bool FIM_CHS2_BCU_16_MsgError = 11;
+        // 0: no fault, 1: has fault;
+}
+
+message BCMFimInfo{
+        optional bool FIM_CHS1_BCM_CAN_Error = 1;
+        optional bool FIM_ADAS_BCM_CAN_Error = 2;
+        // 0: no fault, 1: has fault;
+}
+
+message BGWFimInfo{
+        optional bool FIM_CHS1_BGW_01_MsgError = 1;
+        optional bool FIM_CHS1_BGW_02_MsgError = 2;
+        optional bool FIM_CHS1_BGW_03_MsgError = 3;
+        optional bool FIM_CHS1_BGW_LI_MsgError = 4;
+        optional bool FIM_CHS1_BGW_TCU_01_MsgError = 5;
+        optional bool FIM_CHS1_BGW_WIPR_MsgError = 6;
+        optional bool FIM_ADAS_BGW_POWER_SWAP_MsgError = 7;
+        optional bool FIM_ADAS_BGW_SCU_D_02_MsgError = 8;
+        optional bool FIM_ADAS_BGW_SCU_P_01_MsgError = 9;
+        optional bool FIM_ADAS_BGW_SCU_P_02_MsgError = 10;
+        optional bool FIM_ADAS_BGW_SNSR_MsgError = 11;
+        optional bool FIM_ADAS_BGW_STEERWHL_CMD_MsgError = 12;
+        optional bool FIM_CHS1_BGW_CAN_Error = 13;
+        optional bool FIM_ADAS_BGW_CAN_Error = 14;
+        optional bool FIM_ADAS_BGW_RPS_01_MsgError = 15;
+        // 0: no fault, 1: has fault;        
+}
+
+message CCUFimInfo{
+        optional bool FIM_CHS1_CCU_CAN_Error = 1;
+        // 0: no fault, 1: has fault;
+}
+
+message CDCFimInfo{
+        optional bool FIM_ADAS_CDC_CAN_Error = 1;
+        optional bool FIM_CHS1_CDC_CAN_Error = 2;
+        optional bool FIM_CHS1_CDC_ADC_01_MsgError = 3;
+        optional bool FIM_CHS1_CDC_HU_04_MsgError = 4;
+        optional bool FIM_CHS1_CDC_HU_09_MsgError = 5;
+        optional bool FIM_CHS1_CDC_HU_12_MsgError = 6;
+        optional bool FIM_CHS1_CDC_IC_01_MsgError = 7;
+        optional bool FIM_CHS1_CDC_IC_04_MsgError = 8;
+        optional bool FIM_ADAS_CDC_ADC_03_MsgError = 9;
+        optional bool FIM_ADAS_CDC_ADC_04_MsgError = 10;
+        optional bool FIM_ADAS_CDC_DMS_01_MsgError = 11;
+        optional bool FIM_ADAS_CDC_DMS_02_MsgError = 12;
+        optional bool FIM_ADAS_CDC_HU_03_MsgError = 13;
+        optional bool FIM_ADAS_CDC_HU_07_MsgError = 14;
+        optional bool FIM_ADAS_CDC_HU_08_MsgError = 15;
+        optional bool FIM_ADAS_CDC_HU_09_MsgError = 16;
+        optional bool FIM_ADAS_CDC_HU_19_MsgError = 17;
+        optional bool FIM_CHS2_CDC_HU_04_MsgError = 18;
+         // 0: no fault, 1: has fault;       
+}
+
+message EPB1FimInfo{
+        optional bool FIM_CHS1_EPB1_CAN_Error = 1;
+        optional bool FIM_CHS1_EPB1_01_MsgError = 2;
+        // 0: no fault, 1: has fault;
+}
+
+message EPB2FimInfo{
+        optional bool FIM_CHS2_EPB2_CAN_Error = 1;
+        optional bool FIM_CHS2_EPB2_01_MsgError = 2;
+        // 0: no fault, 1: has fault;
+}
+
+message EPS1FimInfo{
+        optional bool FIM_CHS1_EPS1_01_MsgError = 1;
+        optional bool FIM_CHS1_EPS1_02_MsgError = 2;
+        optional bool FIM_CHS1_EPS1_Error = 3;
+        // 0: no fault, 1: has fault;        
+}
+
+message EPS2FimInfo{
+        optional bool FIM_CHS2_EPS2_01_MsgError = 1;
+        optional bool FIM_CHS2_EPS2_02_MsgError = 2;
+        optional bool FIM_CHS2_EPS2_Error = 3;
+        // 0: no fault, 1: has fault;
+}
+
+message RADFimInfo{
+        optional bool FIM_RAD_Error = 1;
+        optional bool FIM_RAD_Blindness = 2;
+        optional bool FIM_RAD_MRR_MsgError = 3;
+        optional bool FIM_RAD_MRR_Header_AlignmentState_MsgError = 4;
+        optional bool FIM_RAD_MRR_Header_SensorCoverage_MsgError = 5;
+        optional bool FIM_RAD_MRR_Header_Timestamps_MsgError = 6;
+        optional bool FIM_RAD_MRR_CANVersion_MsgError = 7;
+        optional bool FIM_RAD_MRR_Status_Radar_MsgError = 8;
+}
+
+message SCMFimInfo{
+        optional bool FIM_CHS1_SCM_01_MsgError = 1;
+        optional bool FIM_CHS1_SCM_02_MsgError = 2;
+        optional bool FIM_CHS1_SCM_CAN_Error = 3;
+        // 0: no fault, 1: has fault;        
+}
+
+message SWCFimInfo{
+        optional bool FIM_CHS1_SWC_01_MsgError = 1;
+        optional bool FIM_CHS1_SWC_CAN_Error = 2;
+        // 0: no fault, 1: has fault;
+}
+
+message VCUFimInfo{
+        optional bool FIM_CHS1_VCU_CAN_Error = 1;
+        optional bool FIM_CHS2_VCU_CAN_Error = 2;
+        optional bool FIM_CHS1_VCU_13_MsgError = 3;
+        optional bool FIM_CHS1_VCU_05_MsgError = 4;
+        optional bool FIM_CHS1_VCU_02_MsgError = 5;
+        optional bool FIM_CHS1_VCU_HealthMngt_MsgError = 6;
+        optional bool FIM_CHS2_VCU_13_MsgError = 7;
+        optional bool FIM_CHS2_VCU_HealthMngt_MsgError = 8;
+        optional bool FIM_CHS1_VCU_CDC_328_MsgError = 9;
+        // 0: no fault, 1: has fault;
+}

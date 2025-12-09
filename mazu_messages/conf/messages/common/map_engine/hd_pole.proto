@@ -1,0 +1,21 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+import "common/map_engine/map_geometry.proto";
+
+
+message HdPole {
+  optional uint64 id = 1;
+
+  // The lowest point of the pole.
+  optional MapPoint ground_point = 2;
+
+  // The highest point of the pole.
+  optional MapPoint top_point = 3;
+}
+
+message HdPoleList {
+  repeated HdPole pole_list = 1;
+}

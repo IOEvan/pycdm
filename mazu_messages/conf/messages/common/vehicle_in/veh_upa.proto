@@ -1,0 +1,499 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+enum SlotObjType_e{
+    SO_None    = 0;
+    SO_Virtual = 1;
+    SO_Real    = 2;
+    SO_Sna     = 3;
+}
+
+enum SlotStsType_e{
+    PS_None       = 0;
+    PS_Unsuitable = 1;
+    PS_Ok         = 2;
+    PSOKPosOK     = 3;//PSOKPosOK
+}
+
+enum SlotType_e{
+    ST_None       = 0;
+    ST_LeParallel = 1;
+    ST_RiParallel = 2;
+    ST_LeCross    = 3;
+    ST_RiCross    = 4;
+    ST_Rsrvd5     = 5;
+    ST_Rsrvd6     = 6;
+    ST_Sna        = 7;
+}
+
+enum SlotDepthRefType_e{
+    SDR_None      = 0;
+    SDR_Curb      = 1;
+    SDR_Wall      = 2;
+    SDR_Virtual   = 3;
+    SDR_Low       = 4;
+    SDR_High      = 5;
+    SDR_Unknow    = 6;
+    SDR_Rsrvd7    = 7;
+}
+
+message USSlotInfo{
+    required uint32 SlotSizeX  = 1;                 //@Channel:ADAS @Message:0x1E9 @Signal:Slot01SizeX
+                                                    //@Channel:ADAS @Message:0x1EC @Signal:Slot02SizeX
+                                                    //@Channel:ADAS @Message:0x1EF @Signal:Slot03SizeX
+                                                    //@Channel:ADAS @Message:0x1F2 @Signal:Slot04SizeX
+                                                    //@Channel:ADAS @Message:0x1F5 @Signal:Slot05SizeX
+                                                    //@Channel:ADAS @Message:0x1F8 @Signal:Slot06SizeX
+
+    required uint32 SlotSizeY  = 2;                 //@Channel:ADAS @Message:0x1E9 @Signal:Slot01SizeY
+                                                    //@Channel:ADAS @Message:0x1EC @Signal:Slot02SizeY
+                                                    //@Channel:ADAS @Message:0x1EF @Signal:Slot03SizeY
+                                                    //@Channel:ADAS @Message:0x1F2 @Signal:Slot04SizeY
+                                                    //@Channel:ADAS @Message:0x1F5 @Signal:Slot05SizeY
+                                                    //@Channel:ADAS @Message:0x1F8 @Signal:Slot06SizeY
+
+    required int32 SlotVehX   = 3;                 //@Channel:ADAS @Message:0x1E9 @Signal:Slot01VehX
+                                                    //@Channel:ADAS @Message:0x1EC @Signal:Slot02VehX
+                                                    //@Channel:ADAS @Message:0x1EF @Signal:Slot03VehX
+                                                    //@Channel:ADAS @Message:0x1F2 @Signal:Slot04VehX
+                                                    //@Channel:ADAS @Message:0x1F5 @Signal:Slot05VehX
+                                                    //@Channel:ADAS @Message:0x1F8 @Signal:Slot06VehX
+
+    required int32 SlotVehY   = 4;                 //@Channel:ADAS @Message:0x1E9 @Signal:Slot01VehY
+                                                    //@Channel:ADAS @Message:0x1EC @Signal:Slot02VehY
+                                                    //@Channel:ADAS @Message:0x1EF @Signal:Slot03VehY
+                                                    //@Channel:ADAS @Message:0x1F2 @Signal:Slot04VehY
+                                                    //@Channel:ADAS @Message:0x1F5 @Signal:Slot05VehY
+                                                    //@Channel:ADAS @Message:0x1F8 @Signal:Slot06VehY
+
+    required float SlotVehPsi = 5;                 //@Channel:ADAS @Message:0x1E9 @Signal:Slot01VehPsi
+                                                    //@Channel:ADAS @Message:0x1EC @Signal:Slot02VehPsi
+                                                    //@Channel:ADAS @Message:0x1EF @Signal:Slot03VehPsi
+                                                    //@Channel:ADAS @Message:0x1F2 @Signal:Slot04VehPsi
+                                                    //@Channel:ADAS @Message:0x1F5 @Signal:Slot05VehPsi
+                                                    //@Channel:ADAS @Message:0x1F8 @Signal:Slot06VehPsi
+
+    required SlotDepthRefType_e SlotDepthRef = 6;   //@Channel:ADAS @Message:0x1EA @Signal:Slot01DepthRef
+                                                    //@Channel:ADAS @Message:0x1ED @Signal:Slot02DepthRef
+                                                    //@Channel:ADAS @Message:0x1F0 @Signal:Slot03DepthRef
+                                                    //@Channel:ADAS @Message:0x1F3 @Signal:Slot04DepthRef
+                                                    //@Channel:ADAS @Message:0x1F6 @Signal:Slot05DepthRef
+                                                    //@Channel:ADAS @Message:0x1F9 @Signal:Slot06DepthRef
+
+    required uint32 SlotIndex          = 7;         //@Channel:ADAS @Message:0x1EA @Signal:Slot01Index
+                                                    //@Channel:ADAS @Message:0x1ED @Signal:Slot02Index
+                                                    //@Channel:ADAS @Message:0x1F0 @Signal:Slot03Index
+                                                    //@Channel:ADAS @Message:0x1F3 @Signal:Slot04Index
+                                                    //@Channel:ADAS @Message:0x1F6 @Signal:Slot05Index
+                                                    //@Channel:ADAS @Message:0x1F9 @Signal:Slot06Index
+
+    required SlotType_e SlotType       = 8;         //@Channel:ADAS @Message:0x1EA @Signal:Slot01Type
+                                                    //@Channel:ADAS @Message:0x1ED @Signal:Slot02Type
+                                                    //@Channel:ADAS @Message:0x1F0 @Signal:Slot03Type
+                                                    //@Channel:ADAS @Message:0x1F3 @Signal:Slot04Type
+                                                    //@Channel:ADAS @Message:0x1F6 @Signal:Slot05Type
+                                                    //@Channel:ADAS @Message:0x1F9 @Signal:Slot06Type
+
+    required SlotStsType_e SlotSts     = 9;         //@Channel:ADAS @Message:0x1EA @Signal:Slot01Sts
+                                                    //@Channel:ADAS @Message:0x1ED @Signal:Slot02Sts
+                                                    //@Channel:ADAS @Message:0x1F0 @Signal:Slot03Sts
+                                                    //@Channel:ADAS @Message:0x1F3 @Signal:Slot04Sts
+                                                    //@Channel:ADAS @Message:0x1F6 @Signal:Slot05Sts
+                                                    //@Channel:ADAS @Message:0x1F9 @Signal:Slot06Sts
+
+    required SlotObjType_e SlotObj1Typ = 10;        //@Channel:ADAS @Message:0x1EA @Signal:Slot01Obj1Typ
+                                                    //@Channel:ADAS @Message:0x1ED @Signal:Slot02Obj1Typ
+                                                    //@Channel:ADAS @Message:0x1F0 @Signal:Slot03Obj1Typ
+                                                    //@Channel:ADAS @Message:0x1F3 @Signal:Slot04Obj1Typ
+                                                    //@Channel:ADAS @Message:0x1F6 @Signal:Slot05Obj1Typ
+                                                    //@Channel:ADAS @Message:0x1F9 @Signal:Slot06Obj1Typ
+
+    required  int32 SlotObj1X          = 11;        //@Channel:ADAS @Message:0x1EA @Signal:Slot01Obj1X
+                                                    //@Channel:ADAS @Message:0x1ED @Signal:Slot02Obj1X
+                                                    //@Channel:ADAS @Message:0x1F0 @Signal:Slot03Obj1X
+                                                    //@Channel:ADAS @Message:0x1F3 @Signal:Slot04Obj1X
+                                                    //@Channel:ADAS @Message:0x1F6 @Signal:Slot05Obj1X
+                                                    //@Channel:ADAS @Message:0x1F9 @Signal:Slot06Obj1X
+
+    required  int32 SlotObj1Y          = 12;        //@Channel:ADAS @Message:0x1EA @Signal:Slot01Obj1Y
+                                                    //@Channel:ADAS @Message:0x1ED @Signal:Slot02Obj1Y
+                                                    //@Channel:ADAS @Message:0x1F0 @Signal:Slot03Obj1Y
+                                                    //@Channel:ADAS @Message:0x1F3 @Signal:Slot04Obj1Y
+                                                    //@Channel:ADAS @Message:0x1F6 @Signal:Slot05Obj1Y
+                                                    //@Channel:ADAS @Message:0x1F9 @Signal:Slot06Obj1Y
+
+    required  int32 SlotObj1Alpha      = 13;        //@Channel:ADAS @Message:0x1EA @Signal:Slot01Obj1Alpha
+                                                    //@Channel:ADAS @Message:0x1ED @Signal:Slot02Obj1Alpha
+                                                    //@Channel:ADAS @Message:0x1F0 @Signal:Slot03Obj1Alpha
+                                                    //@Channel:ADAS @Message:0x1F3 @Signal:Slot04Obj1Alpha
+                                                    //@Channel:ADAS @Message:0x1F6 @Signal:Slot05Obj1Alpha
+                                                    //@Channel:ADAS @Message:0x1F9 @Signal:Slot06Obj1Alpha
+
+    required SlotObjType_e SlotObj2Typ = 14;        //@Channel:ADAS @Message:0x1EB @Signal:Slot01Obj2Typ
+                                                    //@Channel:ADAS @Message:0x1EE @Signal:Slot02Obj2Typ
+                                                    //@Channel:ADAS @Message:0x1F1 @Signal:Slot03Obj2Typ
+                                                    //@Channel:ADAS @Message:0x1F4 @Signal:Slot04Obj2Typ
+                                                    //@Channel:ADAS @Message:0x1F7 @Signal:Slot05Obj2Typ
+                                                    //@Channel:ADAS @Message:0x1FA @Signal:Slot06Obj2Typ
+
+    required int32 SlotObj2X          = 15;        //@Channel:ADAS @Message:0x1EB @Signal:Slot01Obj2X
+                                                    //@Channel:ADAS @Message:0x1EE @Signal:Slot02Obj2X
+                                                    //@Channel:ADAS @Message:0x1F1 @Signal:Slot03Obj2X
+                                                    //@Channel:ADAS @Message:0x1F4 @Signal:Slot04Obj2X
+                                                    //@Channel:ADAS @Message:0x1F7 @Signal:Slot05Obj2X
+                                                    //@Channel:ADAS @Message:0x1FA @Signal:Slot06Obj2X
+
+    required int32 SlotObj2Y          = 16;        //@Channel:ADAS @Message:0x1EB @Signal:Slot01Obj2Y
+                                                    //@Channel:ADAS @Message:0x1EE @Signal:Slot02Obj2Y
+                                                    //@Channel:ADAS @Message:0x1F1 @Signal:Slot03Obj2Y
+                                                    //@Channel:ADAS @Message:0x1F4 @Signal:Slot04Obj2Y
+                                                    //@Channel:ADAS @Message:0x1F7 @Signal:Slot05Obj2Y
+                                                    //@Channel:ADAS @Message:0x1FA @Signal:Slot06Obj2Y
+
+    required int32 SlotObj2Alpha      = 17;        //@Channel:ADAS @Message:0x1EB @Signal:Slot01Obj2Alpha
+                                                    //@Channel:ADAS @Message:0x1EE @Signal:Slot02Obj2Alpha
+                                                    //@Channel:ADAS @Message:0x1F1 @Signal:Slot03Obj2Alpha
+                                                    //@Channel:ADAS @Message:0x1F4 @Signal:Slot04Obj2Alpha
+                                                    //@Channel:ADAS @Message:0x1F7 @Signal:Slot05Obj2Alpha
+                                                    //@Channel:ADAS @Message:0x1FA @Signal:Slot06Obj2Alpha
+}
+
+enum MapObjType_e{
+    MO_None            = 0;
+    MO_Point           = 1;
+    MO_Straight0Corner = 2;
+    MO_Straight1Corner = 3;
+    MO_Reserved4       = 4;
+    MO_Straight2Corner = 5;
+    MO_Rsrvd6          = 6;
+    MO_Sna             = 7;
+}
+
+enum MapObjHeiType_e{
+    OH_Low         = 0;
+    OH_High        = 1;
+    OH_Traversable = 2;
+    OH_Unknow3     = 3;
+}
+
+enum UsSnsrFltStType_e{
+    US_NoFail       = 0;    //NoFailure
+    US_PrmntFail    = 1;    //PermanentFailure
+    US_TempFail     = 2;    //TemporaryFailure
+    US_Sna          = 3;    //Sna
+}
+
+enum UsSDWStsType_e{
+    SDW_Disable = 0;
+    SDW_Standby = 1;
+    SDW_Active  = 2;
+    SDW_Failure = 3;
+}
+
+enum APAStsType_e{
+    AS_Disabled = 0;
+    AS_Standby  = 1;
+    AS_Searching= 2;
+    AS_Tracking = 3;
+    AS_Failure  = 4;
+    AS_Rsrvd5   = 5;
+    AS_Rsrvd6   = 6;
+    AS_Rsrvd7   = 7;
+}
+
+enum MapObjStsType_e{
+    M0S_Off     = 0;
+    M0S_Standby = 1;
+    M0S_Active  = 2;
+    M0S_ReFail  = 3;   //FrontActive and RearFailure
+    M0S_FrntFail= 4;   //RearActive and FrontFailure
+    M0S_SysFail = 5;   //SystemFailure
+    M0S_Rsrvd6  = 6;
+    M0S_Rsrvd7  = 7;
+}
+
+enum UpaSysStsType_e{
+    US_Off     = 0;
+    US_Standby = 1;
+    US_Active  = 2;
+    US_ReFail  = 3;   //FrontActive and RearFailure
+    US_FrntFail= 4;   //RearActive and FrontFailure
+    US_SysFail = 5;   //SystemFailure
+    US_Rsrvd6  = 6;
+    US_Rsrvd7  = 7;
+}
+
+
+message MapObjBaseType{
+    required MapObjType_e MapObjTyp  = 1;                   //@Channel:ADAS @Message:0x15A @Signal:MapObj00Typ
+                                                            //@Channel:ADAS @Message:0x15B @Signal:MapObj01Typ
+                                                            //@Channel:ADAS @Message:0x15E @Signal:MapObj02Typ
+                                                            //@Channel:ADAS @Message:0x15F @Signal:MapObj03Typ
+                                                            //@Channel:ADAS @Message:0x160 @Signal:MapObj04Typ
+                                                            //@Channel:ADAS @Message:0x161 @Signal:MapObj05Typ
+                                                            //@Channel:ADAS @Message:0x162 @Signal:MapObj06Typ
+                                                            //@Channel:ADAS @Message:0x163 @Signal:MapObj07Typ
+                                                            //@Channel:ADAS @Message:0x164 @Signal:MapObj08Typ
+                                                            //@Channel:ADAS @Message:0x165 @Signal:MapObj09Typ
+                                                            //@Channel:ADAS @Message:0x15A @Signal:MapObj10Typ
+                                                            //@Channel:ADAS @Message:0x15B @Signal:MapObj11Typ
+                                                            //@Channel:ADAS @Message:0x15E @Signal:MapObj12Typ
+                                                            //@Channel:ADAS @Message:0x15F @Signal:MapObj13Typ
+                                                            //@Channel:ADAS @Message:0x160 @Signal:MapObj14Typ
+                                                            //@Channel:ADAS @Message:0x161 @Signal:MapObj15Typ
+                                                            //@Channel:ADAS @Message:0x162 @Signal:MapObj16Typ
+                                                            //@Channel:ADAS @Message:0x163 @Signal:MapObj17Typ
+                                                            //@Channel:ADAS @Message:0x164 @Signal:MapObj18Typ
+                                                            //@Channel:ADAS @Message:0x165 @Signal:MapObj19Typ
+
+    required float MapObjP1X        = 2;                   //@Channel:ADAS @Message:0x15A @Signal:MapObj00P1X
+                                                            //@Channel:ADAS @Message:0x15B @Signal:MapObj01P1X
+                                                            //@Channel:ADAS @Message:0x15E @Signal:MapObj02P1X
+                                                            //@Channel:ADAS @Message:0x15F @Signal:MapObj03P1X
+                                                            //@Channel:ADAS @Message:0x160 @Signal:MapObj04P1X
+                                                            //@Channel:ADAS @Message:0x161 @Signal:MapObj05P1X
+                                                            //@Channel:ADAS @Message:0x162 @Signal:MapObj06P1X
+                                                            //@Channel:ADAS @Message:0x163 @Signal:MapObj07P1X
+                                                            //@Channel:ADAS @Message:0x164 @Signal:MapObj08P1X
+                                                            //@Channel:ADAS @Message:0x165 @Signal:MapObj09P1X
+                                                            //@Channel:ADAS @Message:0x15A @Signal:MapObj10P1X
+                                                            //@Channel:ADAS @Message:0x15B @Signal:MapObj11P1X
+                                                            //@Channel:ADAS @Message:0x15E @Signal:MapObj12P1X
+                                                            //@Channel:ADAS @Message:0x15F @Signal:MapObj13P1X
+                                                            //@Channel:ADAS @Message:0x160 @Signal:MapObj14P1X
+                                                            //@Channel:ADAS @Message:0x161 @Signal:MapObj15P1X
+                                                            //@Channel:ADAS @Message:0x162 @Signal:MapObj16P1X
+                                                            //@Channel:ADAS @Message:0x163 @Signal:MapObj17P1X
+                                                            //@Channel:ADAS @Message:0x164 @Signal:MapObj18P1X
+                                                            //@Channel:ADAS @Message:0x165 @Signal:MapObj19P1X
+
+    required float MapObjP1Y        = 3;                   //@Channel:ADAS @Message:0x15A @Signal:MapObj00P1Y
+                                                            //@Channel:ADAS @Message:0x15B @Signal:MapObj01P1Y
+                                                            //@Channel:ADAS @Message:0x15E @Signal:MapObj02P1Y
+                                                            //@Channel:ADAS @Message:0x15F @Signal:MapObj03P1Y
+                                                            //@Channel:ADAS @Message:0x160 @Signal:MapObj04P1Y
+                                                            //@Channel:ADAS @Message:0x161 @Signal:MapObj05P1Y
+                                                            //@Channel:ADAS @Message:0x162 @Signal:MapObj06P1Y
+                                                            //@Channel:ADAS @Message:0x163 @Signal:MapObj07P1Y
+                                                            //@Channel:ADAS @Message:0x164 @Signal:MapObj08P1Y
+                                                            //@Channel:ADAS @Message:0x165 @Signal:MapObj09P1Y
+                                                            //@Channel:ADAS @Message:0x15A @Signal:MapObj10P1Y
+                                                            //@Channel:ADAS @Message:0x15B @Signal:MapObj11P1Y
+                                                            //@Channel:ADAS @Message:0x15E @Signal:MapObj12P1Y
+                                                            //@Channel:ADAS @Message:0x15F @Signal:MapObj13P1Y
+                                                            //@Channel:ADAS @Message:0x160 @Signal:MapObj14P1Y
+                                                            //@Channel:ADAS @Message:0x161 @Signal:MapObj15P1Y
+                                                            //@Channel:ADAS @Message:0x162 @Signal:MapObj16P1Y
+                                                            //@Channel:ADAS @Message:0x163 @Signal:MapObj17P1Y
+                                                            //@Channel:ADAS @Message:0x164 @Signal:MapObj18P1Y
+                                                            //@Channel:ADAS @Message:0x165 @Signal:MapObj19P1Y
+
+    required float MapObjP2X        = 4;                   //@Channel:ADAS @Message:0x15A @Signal:MapObj00P2X
+                                                            //@Channel:ADAS @Message:0x15B @Signal:MapObj01P2X
+                                                            //@Channel:ADAS @Message:0x15E @Signal:MapObj02P2X
+                                                            //@Channel:ADAS @Message:0x15F @Signal:MapObj03P2X
+                                                            //@Channel:ADAS @Message:0x160 @Signal:MapObj04P2X
+                                                            //@Channel:ADAS @Message:0x161 @Signal:MapObj05P2X
+                                                            //@Channel:ADAS @Message:0x162 @Signal:MapObj06P2X
+                                                            //@Channel:ADAS @Message:0x163 @Signal:MapObj07P2X
+                                                            //@Channel:ADAS @Message:0x164 @Signal:MapObj08P2X
+                                                            //@Channel:ADAS @Message:0x165 @Signal:MapObj09P2X
+                                                            //@Channel:ADAS @Message:0x15A @Signal:MapObj10P2X
+                                                            //@Channel:ADAS @Message:0x15B @Signal:MapObj11P2X
+                                                            //@Channel:ADAS @Message:0x15E @Signal:MapObj12P2X
+                                                            //@Channel:ADAS @Message:0x15F @Signal:MapObj13P2X
+                                                            //@Channel:ADAS @Message:0x160 @Signal:MapObj14P2X
+                                                            //@Channel:ADAS @Message:0x161 @Signal:MapObj15P2X
+                                                            //@Channel:ADAS @Message:0x162 @Signal:MapObj16P2X
+                                                            //@Channel:ADAS @Message:0x163 @Signal:MapObj17P2X
+                                                            //@Channel:ADAS @Message:0x164 @Signal:MapObj18P2X
+                                                            //@Channel:ADAS @Message:0x165 @Signal:MapObj19P2X
+
+    required float MapObjP2Y        = 5;                   //@Channel:ADAS @Message:0x15A @Signal:MapObj00P2Y
+                                                            //@Channel:ADAS @Message:0x15B @Signal:MapObj01P2Y
+                                                            //@Channel:ADAS @Message:0x15E @Signal:MapObj02P2Y
+                                                            //@Channel:ADAS @Message:0x15F @Signal:MapObj03P2Y
+                                                            //@Channel:ADAS @Message:0x160 @Signal:MapObj04P2Y
+                                                            //@Channel:ADAS @Message:0x161 @Signal:MapObj05P2Y
+                                                            //@Channel:ADAS @Message:0x162 @Signal:MapObj06P2Y
+                                                            //@Channel:ADAS @Message:0x163 @Signal:MapObj07P2Y
+                                                            //@Channel:ADAS @Message:0x164 @Signal:MapObj08P2Y
+                                                            //@Channel:ADAS @Message:0x165 @Signal:MapObj09P2Y
+                                                            //@Channel:ADAS @Message:0x15A @Signal:MapObj10P2Y
+                                                            //@Channel:ADAS @Message:0x15B @Signal:MapObj11P2Y
+                                                            //@Channel:ADAS @Message:0x15E @Signal:MapObj12P2Y
+                                                            //@Channel:ADAS @Message:0x15F @Signal:MapObj13P2Y
+                                                            //@Channel:ADAS @Message:0x160 @Signal:MapObj14P2Y
+                                                            //@Channel:ADAS @Message:0x161 @Signal:MapObj15P2Y
+                                                            //@Channel:ADAS @Message:0x162 @Signal:MapObj16P2Y
+                                                            //@Channel:ADAS @Message:0x163 @Signal:MapObj17P2Y
+                                                            //@Channel:ADAS @Message:0x164 @Signal:MapObj18P2Y
+                                                            //@Channel:ADAS @Message:0x165 @Signal:MapObj19P2Y
+
+    required float MapObjProblty    = 6;                   //@Channel:ADAS @Message:0x15A @Signal:MapObj00Problty
+                                                            //@Channel:ADAS @Message:0x15B @Signal:MapObj01Problty
+                                                            //@Channel:ADAS @Message:0x15E @Signal:MapObj02Problty
+                                                            //@Channel:ADAS @Message:0x15F @Signal:MapObj03Problty
+                                                            //@Channel:ADAS @Message:0x160 @Signal:MapObj04Problty
+                                                            //@Channel:ADAS @Message:0x161 @Signal:MapObj05Problty
+                                                            //@Channel:ADAS @Message:0x162 @Signal:MapObj06Problty
+                                                            //@Channel:ADAS @Message:0x163 @Signal:MapObj07Problty
+                                                            //@Channel:ADAS @Message:0x164 @Signal:MapObj08Problty
+                                                            //@Channel:ADAS @Message:0x165 @Signal:MapObj09Problty
+                                                            //@Channel:ADAS @Message:0x15A @Signal:MapObj10Problty
+                                                            //@Channel:ADAS @Message:0x15B @Signal:MapObj11Problty
+                                                            //@Channel:ADAS @Message:0x15E @Signal:MapObj12Problty
+                                                            //@Channel:ADAS @Message:0x15F @Signal:MapObj13Problty
+                                                            //@Channel:ADAS @Message:0x160 @Signal:MapObj14Problty
+                                                            //@Channel:ADAS @Message:0x161 @Signal:MapObj15Problty
+                                                            //@Channel:ADAS @Message:0x162 @Signal:MapObj16Problty
+                                                            //@Channel:ADAS @Message:0x163 @Signal:MapObj17Problty
+                                                            //@Channel:ADAS @Message:0x164 @Signal:MapObj18Problty
+                                                            //@Channel:ADAS @Message:0x165 @Signal:MapObj19Problty
+
+    required MapObjHeiType_e MapObjHeiWarn    = 7;          //@Channel:ADAS @Message:0x15A @Signal:MapObj00HeiWarn
+                                                            //@Channel:ADAS @Message:0x15B @Signal:MapObj01HeiWarn
+                                                            //@Channel:ADAS @Message:0x15E @Signal:MapObj02HeiWarn
+                                                            //@Channel:ADAS @Message:0x15F @Signal:MapObj03HeiWarn
+                                                            //@Channel:ADAS @Message:0x160 @Signal:MapObj04HeiWarn
+                                                            //@Channel:ADAS @Message:0x161 @Signal:MapObj05HeiWarn
+                                                            //@Channel:ADAS @Message:0x162 @Signal:MapObj06HeiWarn
+                                                            //@Channel:ADAS @Message:0x163 @Signal:MapObj07HeiWarn
+                                                            //@Channel:ADAS @Message:0x164 @Signal:MapObj08HeiWarn
+                                                            //@Channel:ADAS @Message:0x165 @Signal:MapObj09HeiWarn
+                                                            //@Channel:ADAS @Message:0x15A @Signal:MapObj10HeiWarn
+                                                            //@Channel:ADAS @Message:0x15B @Signal:MapObj11HeiWarn
+                                                            //@Channel:ADAS @Message:0x15E @Signal:MapObj12HeiWarn
+                                                            //@Channel:ADAS @Message:0x15F @Signal:MapObj13HeiWarn
+                                                            //@Channel:ADAS @Message:0x160 @Signal:MapObj14HeiWarn
+                                                            //@Channel:ADAS @Message:0x161 @Signal:MapObj15HeiWarn
+                                                            //@Channel:ADAS @Message:0x162 @Signal:MapObj16HeiWarn
+                                                            //@Channel:ADAS @Message:0x163 @Signal:MapObj17HeiWarn
+                                                            //@Channel:ADAS @Message:0x164 @Signal:MapObj18HeiWarn
+                                                            //@Channel:ADAS @Message:0x165 @Signal:MapObj19HeiWarn
+
+    required float MapObjHeiProblty = 8;                   //@Channel:ADAS @Message:0x15A @Signal:MapObj00HeiProblty
+                                                            //@Channel:ADAS @Message:0x15B @Signal:MapObj01HeiProblty
+                                                            //@Channel:ADAS @Message:0x15E @Signal:MapObj02HeiProblty
+                                                            //@Channel:ADAS @Message:0x15F @Signal:MapObj03HeiProblty
+                                                            //@Channel:ADAS @Message:0x160 @Signal:MapObj04HeiProblty
+                                                            //@Channel:ADAS @Message:0x161 @Signal:MapObj05HeiProblty
+                                                            //@Channel:ADAS @Message:0x162 @Signal:MapObj06HeiProblty
+                                                            //@Channel:ADAS @Message:0x163 @Signal:MapObj07HeiProblty
+                                                            //@Channel:ADAS @Message:0x164 @Signal:MapObj08HeiProblty
+                                                            //@Channel:ADAS @Message:0x165 @Signal:MapObj09HeiProblty
+                                                            //@Channel:ADAS @Message:0x15A @Signal:MapObj10HeiProblty
+                                                            //@Channel:ADAS @Message:0x15B @Signal:MapObj11HeiProblty
+                                                            //@Channel:ADAS @Message:0x15E @Signal:MapObj12HeiProblty
+                                                            //@Channel:ADAS @Message:0x15F @Signal:MapObj13HeiProblty
+                                                            //@Channel:ADAS @Message:0x160 @Signal:MapObj14HeiProblty
+                                                            //@Channel:ADAS @Message:0x161 @Signal:MapObj15HeiProblty
+                                                            //@Channel:ADAS @Message:0x162 @Signal:MapObj16HeiProblty
+                                                            //@Channel:ADAS @Message:0x163 @Signal:MapObj17HeiProblty
+                                                            //@Channel:ADAS @Message:0x164 @Signal:MapObj18HeiProblty
+                                                            //@Channel:ADAS @Message:0x165 @Signal:MapObj19HeiProblty
+
+    required MapObjHeiType_e MapObjHeiBrake   = 9;          //@Channel:ADAS @Message:0x15A @Signal:MapObj00HeiBrake
+                                                            //@Channel:ADAS @Message:0x15B @Signal:MapObj01HeiBrake
+                                                            //@Channel:ADAS @Message:0x15E @Signal:MapObj02HeiBrake
+                                                            //@Channel:ADAS @Message:0x15F @Signal:MapObj03HeiBrake
+                                                            //@Channel:ADAS @Message:0x160 @Signal:MapObj04HeiBrake
+                                                            //@Channel:ADAS @Message:0x161 @Signal:MapObj05HeiBrake
+                                                            //@Channel:ADAS @Message:0x162 @Signal:MapObj06HeiBrake
+                                                            //@Channel:ADAS @Message:0x163 @Signal:MapObj07HeiBrake
+                                                            //@Channel:ADAS @Message:0x164 @Signal:MapObj08HeiBrake
+                                                            //@Channel:ADAS @Message:0x165 @Signal:MapObj09HeiBrake
+                                                            //@Channel:ADAS @Message:0x15A @Signal:MapObj10HeiBrake
+                                                            //@Channel:ADAS @Message:0x15B @Signal:MapObj11HeiBrake
+                                                            //@Channel:ADAS @Message:0x15E @Signal:MapObj12HeiBrake
+                                                            //@Channel:ADAS @Message:0x15F @Signal:MapObj13HeiBrake
+                                                            //@Channel:ADAS @Message:0x160 @Signal:MapObj14HeiBrake
+                                                            //@Channel:ADAS @Message:0x161 @Signal:MapObj15HeiBrake
+                                                            //@Channel:ADAS @Message:0x162 @Signal:MapObj16HeiBrake
+                                                            //@Channel:ADAS @Message:0x163 @Signal:MapObj17HeiBrake
+                                                            //@Channel:ADAS @Message:0x164 @Signal:MapObj18HeiBrake
+                                                            //@Channel:ADAS @Message:0x165 @Signal:MapObj19HeiBrake
+}
+
+message ApaSdwType{
+    repeated uint32 Dst = 1;                                //0:Left 1:Middle Left 2:Middle Right 3:Right
+}
+
+
+message UsRegnDstType{
+    required UsSnsrFltStType_e  SnsrFltSt = 1;              //@Channel:ADAS @Message:0x28A @Signal:FrntSnsrFltSt
+	                                                        //@Channel:ADAS @Message:0x28B @Signal:ReSnsrFltSt
+
+    repeated uint32 RegnDst               = 2;              //0:Front
+                                                            //@Channel:ADAS @Message:0x28A @Signal:FrntLeRegnDst
+                                                            //@Channel:ADAS @Message:0x28A @Signal:FrntLeMidRegnDst
+                                                            //@Channel:ADAS @Message:0x28A @Signal:FrntMidRegnDst
+                                                            //@Channel:ADAS @Message:0x28A @Signal:FrntRiMidRegnDst
+                                                            //@Channel:ADAS @Message:0x28A @Signal:FrntRiRegnDst
+                                                            //1:Rear
+                                                            //@Channel:ADAS @Message:0x28B  @Signal:ReLeRegnDst
+                                                            //@Channel:ADAS @Message:0x28B  @Signal:ReLeMidRegnDst
+                                                            //@Channel:ADAS @Message:0x28B  @Signal:ReMidRegnDst
+                                                            //@Channel:ADAS @Message:0x28B  @Signal:ReRiMidRegnDst
+                                                            //@Channel:ADAS @Message:0x28B  @Signal:ReRiRegnDst
+
+}
+enum USSMode_e{
+    USSMode_none=0;
+    USSMode_SAPA_guidance=1;
+    USSMode_PSAP=2;
+    USSMode_ACC=3;
+    USSMode_PSAP_station=4;
+    USSMode_remote=5;
+    USSMode_sentry=6;
+    USSMode_reserved=7;
+}
+
+enum UPA_MovingDirection_e{
+    UPA_MovingDirection_invalid=0;
+    UPA_MovingDirection_forward=1;
+    UPA_MovingDirection_backward=2;
+    UPA_MovingDirection_stop=3;
+    UPA_MovingDirection_unknown=4;
+    UPA_MovingDirection_reserved=5;
+    UPA_MovingDirection_Reserved_6 = 6;
+    UPA_MovingDirection_Reserved_7 = 7;
+}
+
+message USSOdom{
+    optional float upa_x = 1;                                                  //@Channel:ADAS @Message:0x1DF @Signal:UPA_X
+    optional float upa_y = 2;                                                  //@Channel:ADAS @Message:0x1DF @Signal:UPA_Y
+    optional float upa_yaw_angle = 3;                                          //@Channel:ADAS @Message:0x1DF @Signal:UPA_YawAngle
+    optional float upa_drive_distance = 4;                                     //@Channel:ADAS @Message:0x1DF @Signal:UPA_DriveDistance
+    optional UPA_MovingDirection_e  UPA_MovingDiretion=5;                      //@Channel:ADAS @Message:0x28A @Signal:UPA_MovingDirection
+    optional float UPA_VehiclePosition_Curvature=6;                            //@Channel:ADAS @Message:0x1E8 @Signal:UPA_VehiclePosition_Curvatu
+}
+
+message UPAInfo{
+    required UsSDWStsType_e SDWSts      = 1;                //@Channel:ADAS @Message:0xC4 @Signal:SDWSts
+    required APAStsType_e APASts        = 2;                //@Channel:ADAS @Message:0xC4 @Signal:APASts
+    required MapObjStsType_e MapObjSts  = 3;                //@Channel:ADAS @Message:0xC4 @Signal:MapObjSts
+    required bool UpaSysDi              = 4;                //@Channel:ADAS @Message:0xC4 @Signal:UpaSysDi
+    required UpaSysStsType_e UpaSysSts  = 5;                //@Channel:ADAS @Message:0xC4 @Signal:UpaSysSts
+    required bool UpaSysSrv             = 6;                //@Channel:ADAS @Message:0xC4 @Signal:UpaSysSrv
+    repeated USSlotInfo USSlot          = 7;                //0~5 maximum 6 park lots
+    repeated MapObjBaseType MapObj      = 8;                //0~19 maximum 20 objects
+    repeated ApaSdwType ApaSdw          = 9;                //0:Front 1:Rear
+                                                            //@Channel:ADAS @Message:0x1E8 @Signal:APA_SDWFLDst
+                                                            //@Channel:ADAS @Message:0x1E8 @Signal:APA_SDWFMLDst
+                                                            //@Channel:ADAS @Message:0x1E8 @Signal:APA_SDWFMRDst
+                                                            //@Channel:ADAS @Message:0x1E8 @Signal:APA_SDWFRDst
+                                                            //@Channel:ADAS @Message:0x1E7 @Signal:APA_SDWRLDst
+                                                            //@Channel:ADAS @Message:0x1E7 @Signal:APA_SDWRMLDst
+                                                            //@Channel:ADAS @Message:0x1E7 @Signal:APA_SDWRMRDst
+                                                            //@Channel:ADAS @Message:0x1E7 @Signal:APA_SDWRRDst
+    repeated UsRegnDstType UsRegnDst    = 10;               //0:Front 1:Rear
+    optional USSMode_e  USSMode=11;                          //@Channel:ADAS @Message:0xC4 @Signal:USS_Mode
+    optional uint32 APA_failure_event=12;                          //@Channel:ADAS @Message:0xC4 @signal:APA_failure_event
+    optional uint32 APA_failure_event_bit2=13;              //@Channel:ADAS @Message:0xC4 @Signal:APA_failure_event_bit2
+    optional USSOdom Uss_odom = 14;                         //uss odom
+}
+

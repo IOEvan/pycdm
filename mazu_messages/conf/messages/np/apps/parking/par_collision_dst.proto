@@ -1,0 +1,174 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+import "np/apps/parking/par_base.proto";
+
+message ParCollisionDst{
+    optional float forward_dst = 1;
+    optional float backward_dst = 2;
+    optional float direct_forward_dst = 3;
+    optional float direct_backward_dst = 4;
+
+    optional NodeInfo node_info=5;
+
+    optional float min_left_dst = 6;
+    optional float min_right_dst = 7;
+    optional float forward_left_dst = 8;
+    optional float forward_right_dst = 9;
+    optional float backward_left_dst = 10;
+    optional float backward_right_dst = 11;
+    enum RPSRegnDstType_e{
+        RPSRegnDst_None = 0; //No obstacle
+        RPSRegnDst_Low = 1; //Low warning of obstacle
+        RPSRegnDst_Middle = 2; //Middle warning of obstacle
+        RPSRegnDst_High = 3; //High warning of obstacle
+    }
+    repeated RPSRegnDstType_e RPSRegnDst = 12; //@Channel:ADAS @Message:0x1E5 @Signal:RpsFrntLeRegnDst
+                                               //@Channel:ADAS @Message:0x1E5 @Signal:RpsFrntLeMidRegnDst
+                                               //@Channel:ADAS @Message:0x1E5 @Signal:RpsFrntMidRegnDst
+                                               //@Channel:ADAS @Message:0x1E5 @Signal:RpsFrntRiMidRegnDst
+                                               //@Channel:ADAS @Message:0x1E5 @Signal:RpsFrntRiRegnDst
+                                               //@Channel:ADAS @Message:0x1E5 @Signal:RpsReLeRegnDst
+                                               //@Channel:ADAS @Message:0x1E5 @Signal:RpsReLeMidRegnDst
+                                               //@Channel:ADAS @Message:0x1E5 @Signal:RpsReMidRegnDst
+                                               //@Channel:ADAS @Message:0x1E5 @Signal:RpsReRiMidRegnDst
+                                               //@Channel:ADAS @Message:0x1E5 @Signal:RpsReRiRegnDst
+                                               //@Channel:ADAS @Message:0x1E5 @Signal:RpsLeFrntRegnDst
+                                               //@Channel:ADAS @Message:0x1E5 @Signal:RpsLeMidRegnDst
+                                               //@Channel:ADAS @Message:0x1E5 @Signal:RpsLeRearRegnDst
+                                               //@Channel:ADAS @Message:0x1E5 @Signal:RpsRiFrntRegnDst
+                                               //@Channel:ADAS @Message:0x1E5 @Signal:RpsRiMidRegnDst
+                                               //@Channel:ADAS @Message:0x1E5 @Signal:RpsRiRearRegnDst
+    enum NbsBlkgRsnType_e{
+        NBSBlkg_No   = 0;//No Blockage
+        NBSBlkg_Frnt = 1;//Front Blockage
+        NBSBlkg_Rear = 2;//Rear Blockage
+        NBSBlkg_Both = 3;//Both Blockage
+    }
+    optional NbsBlkgRsnType_e  NBSBlkage = 13;               //@Channel:ADAS @Message:0x1E4 @Signal:NBSBlkage
+
+    enum CollisionObjectType_e{
+        CollisionObject_None = 0;
+        CollisionObject_Vehicle = 1;
+        CollisionObject_Bicycle = 2;
+        CollisionObject_Pedestrian = 3;
+        CollisionObject_Pillar = 4;
+        CollisionObject_Curb = 5;
+        CollisionObject_Wall = 6;
+        CollisionObject_ParkStop = 7;
+        CollisionObject_Cone = 8;
+        CollisionObject_Others = 9;
+        CollisionObject_Reserved1 = 10;
+        CollisionObject_Reserved2 = 11;
+        CollisionObject_Reserved3 = 12;
+        CollisionObject_Reserved4 = 13;
+        CollisionObject_Parklock = 14;
+        CollisionObject_Bush = 15;
+        CollisionObject_SpeedBump = 16;
+        CollisionObject_GeneralHigh = 17;
+        CollisionObject_GeneralLow = 18;
+        CollisionObject_VirtualChannel = 19;
+        CollisionObject_Freespace = 20;
+        CollisionObject_Truck = 21;
+    }
+
+    enum CollisionObjectSourceType_e{
+        CollisionObjectSource_None = 0;
+        CollisionObjectSource_Uss = 1;
+        CollisionObjectSource_VisionFS = 2;
+        CollisionObjectSource_OD = 3;
+        CollisionObjectSource_Lidar = 4;
+        CollisionObjectSource_Fusion = 5;
+        CollisionObjectSource_Others = 6;
+        CollisionObjectSource_Reserved1 = 7;
+        CollisionObjectSource_Reserved2 = 8;
+        CollisionObjectSource_Reserved3 = 9;
+        CollisionObjectSource_Virtual = 10;
+        CollisionObjectSource_Apriori = 11;
+        CollisionObjectSource_Map = 12;
+    }
+
+    enum CollisionVehiclePartType_e{
+        CollisionVehiclePartType_None = 0;
+        CollisionVehiclePartType_Body = 1;
+        CollisionVehiclePartType_Mirror = 2;
+        CollisionVehiclePartType_FrontWheel = 3;
+        CollisionVehiclePartType_RearWheel = 4;
+        CollisionVehiclePartType_Others = 5;
+        CollisionVehiclePartType_Reserved1 = 6;
+        CollisionVehiclePartType_Reserved2 = 7;
+        CollisionVehiclePartType_Reserved3 = 8;
+    }
+
+    enum CollisionVehiclePartSide_e{
+        CollisionVehiclePartSide_None = 0;
+        CollisionVehiclePartSide_Left = 1;
+        CollisionVehiclePartSide_Right = 2;
+        CollisionVehiclePartSide_Both = 3;
+    }
+
+    repeated CollisionObjectType_e collision_object_types = 14;         //[0]: forward
+                                                                        //[1]: backward
+                                                                        //[2]: direct_forward
+                                                                        //[3]: direct_backward
+                                                                        //[4]: left
+                                                                        //[5]: right
+
+    repeated CollisionObjectSourceType_e collision_object_sources = 15; //[0]: forward
+                                                                        //[1]: backward
+                                                                        //[2]: direct_forward
+                                                                        //[3]: direct_backward
+                                                                        //[4]: left
+                                                                        //[5]: right
+
+    repeated CollisionVehiclePartType_e collision_vehicle_parts = 16;   //[0]: forward
+                                                                        //[1]: backward
+                                                                        //[2]: direct_forward
+                                                                        //[3]: direct_backward
+                                                                        //[4]: left
+                                                                        //[5]: right
+    enum CollisionMotionStatus_e{
+        STATUS_UNDEFINED = 0;
+        STATUS_STATIC = 1;
+        STATUS_STOPPED = 2;
+        STATUS_MOVING = 3;
+    }
+    repeated CollisionMotionStatus_e collision_motion_status = 17;   //[0]: forward
+                                                                     //[1]: backward
+                                                                     //[2]: direct_forward
+                                                                     //[3]: direct_backward
+                                                                     //[4]: left
+                                                                     //[5]: right
+
+    repeated CollisionVehiclePartSide_e collision_vehicle_sides = 18;   //[0]: forward
+                                                                        //[1]: backward
+                                                                        //[2]: direct_forward
+                                                                        //[3]: direct_backward
+                                                                        //[4]: left
+                                                                        //[5]: right
+    optional float left_dst = 19;
+    optional float right_dst = 20;
+    repeated bool is_traj_based = 21;   //[0]: forward
+                                        //[1]: backward
+                                        //[2]: direct_forward
+                                        //[3]: direct_backward
+                                        //[4]: left
+                                        //[5]: right
+    repeated bool is_predictive = 22;   //[0]: forward
+                                        //[1]: backward
+                                        //[2]: direct_forward
+                                        //[3]: direct_backward
+                                        //[4]: left
+                                        //[5]: right
+    optional float ttc = 23;  // time to collision, unit : second
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909; // uuid of the publisher
+    optional uint64 counter = 536870910;       // message counter
+    optional uint64 publish_ts = 536870911;    // publish utc timestamp; unit : nanosecond
+}

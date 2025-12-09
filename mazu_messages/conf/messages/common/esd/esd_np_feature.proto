@@ -1,0 +1,246 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+// Version 1.0.2  date: 20240825
+message esd_np_feature{
+    repeated esd_np_line esd_np_Line=1;
+    repeated esd_np_object esd_np_Object=2;
+    optional esd_np_path  esd_np_Path =3;     
+    optional esd_np_alc esd_np_Alc=4;
+    optional uint32 esd_nop_distance_to_Odd_boundary = 5;
+    repeated esd_aeb_object esd_aeb_obj = 6;
+    optional esd_nop_path esd_nop_Path = 7;
+    optional bool esd_nop_switch = 8;
+    optional uint64 esd_nop_time_meas = 9;
+    optional esd_foi_object esd_foi_Object = 10;
+    repeated ESD_ObjectPrediction esd_object_prediction=11;
+    optional bool esd_map_switch = 12;
+    optional bool is_right_lane = 13;
+    optional uint32 esd_in_PowerStation = 14; // 0:默认值，1，不交叠 2，交叠
+
+    optional EsdNopOddExitPoint esd_nop_odd_exit_point = 15; //NOP+退出点信息
+    optional float esd_sapa_odometer =16; //SAPA处于搜车位状态的累计里程，unit: m
+    optional esd_nop_path esd_nop_second_path =17; //NOP+二层牵引线
+
+    optional uint32 esd_nop_distance_to_Odd_boundary2 = 18; // odd 倒计时的原始距离 ，unit: m
+    optional uint32 esd_sapa_status =19; //SapaStatus, 0: Standby, 1: SAPA in search, enum定义同SApaStatus
+    optional EsdLaneTld esd_lane_tld = 20; //路口导航方向红绿灯信息
+
+    repeated EsdElkObjLine esd_elk_objlines =21;//ELK high light id
+    optional EsdPspInfo esd_psp_info =22; //PSP related function
+
+    optional EsdJunction esd_junction =23;//juntion related info
+    optional LocalMapSource local_map_source = 24; // indicate the source from local map
+    optional uint64 stop_line_id_nop = 25; // stop line ID from planner 
+    optional Area area = 26; // for PSP area indicate
+    optional PSCInfo psc_info = 27; //for predictive speed control infomation
+    optional esd_nop_path esd_np_plus_path =28; //NP+下层牵引线
+     optional Nop_uturn_mode esd_nop_uturn_mode  =29; //NOP+ Uturn 模式
+    repeated esd_nop_path esd_nop_uturn_path =30; //NOP+ Uturn模式下层牵引线
+    optional esd_nop_path esd_nop_uturn_second_path =31; //NOP+ Uturn模式上层牵引线
+    optional float esd_vehicle_speed =32; //表显车速，单位kph
+    optional ESD_Gear_Status esd_gear_status =33; //档位信息
+    optional ESDVirtualWall esd_virtual_wall = 34; //虚拟墙
+
+    optional bool ptp_roadside_parkout_flag = 35; //点到点路边泊出标志
+    optional bool ptp_roadside_parkin_flag = 36; //点到点路边停靠泊入标志
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin 
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional string publisher_id = 536870909; // uuid of the publisher
+    optional uint64 publish_ptp_ts = 536870907; // publish ptp timestamp, uint in nanosec
+    optional uint64 counter = 536870910;         // message counter
+    optional uint64 publish_ts = 536870911;    // publish timestamp; unit : nanosecond
+}
+message esd_np_line{ 
+    optional uint64 esd_np_line_role=1;   // LD_Track_ID
+    optional uint64 esd_np_line_ld_level=2; //highlight level 0~3
+    optional uint64 esd_np_line_ldw_level=3;//not usd in BL070
+    
+}
+message esd_np_object{
+    optional uint64 esd_np_obj_id=1; ////  1 ~ 2 ^ 20（1048576)
+    optional uint64 esd_np_obj_level=2;//highlight level  0~5
+    optional uint64 esd_np_obj_da=3; //drive assist level 0~5  
+    optional uint64 esd_np_obj_elk=4;//0 normal 1 oncoming 2 overtaking 3 reserved  not usd in BL070
+}
+
+message esd_aeb_object{
+    optional uint32 esd_aeb_obj_id = 1;
+    optional uint32 esd_aeb_obj_func = 2; //0 normal 1 fcw 2 aeb
+}
+
+message esd_np_path{
+    optional float esd_np_path_c0=1;
+    optional float esd_np_path_c1=2;
+    optional float esd_np_path_c2=3;
+    optional float esd_np_path_c3=4;
+    optional float esd_np_path_c4=5;
+    optional float esd_np_path_c5=6;
+    optional float esd_np_path_end=7;
+    optional bool esd_np_enable=8;// 1 enable 0  not enable
+}
+message esd_np_alc{
+    optional uint64 esd_np_alc_crossing=1;  // reserved
+    optional uint64 esd_np_alc_sts=2;//0~9
+    optional uint32 esd_laneChngIntent=3;//0-none 1-left 2-right
+    optional bool   esd_crossed_left_lane=4;//ego car crosses the lane 
+    optional bool   esd_crossed_right_lane=5; //ego car crosses the lane 
+}
+
+message esd_nop_path_point{
+    optional float x = 1;
+    optional float y = 2;
+    optional float z = 3;
+}
+
+message esd_nop_path {
+    repeated esd_nop_path_point esd_nop_path_points = 1;
+    optional float esd_nop_discrete_path_length = 2;
+    optional bool esd_nop_discrete_path_enable = 3;
+    optional bool esd_psp_360_enable = 4;
+    optional bool esd_psp_psap_interface = 5;
+    optional esd_nop_path_point near_intersection_point = 6;
+    optional esd_nop_path_point far_intersection_point = 7;
+}
+
+message esd_foi_object{
+    repeated uint32 oaa_highlight_id = 1; //high light static object id
+    repeated uint32 oaa_warn_id      = 2; //warning static object id
+}
+
+message ESD_ObjectPrediction{
+    optional uint32 esd_object_id = 1;
+    repeated Way_Point esd_object_prediction_waypoint = 2; 
+}
+
+message Way_Point{
+    optional float x = 1;
+    optional float y = 2;
+    optional float z = 3;
+    optional int64 time_delta = 4;
+}
+
+message EsdNopOddExitPoint{ 
+    optional float nop_odd_exit_point_x = 1; //NOP+退出点X方向坐标。自车坐标系
+    optional float nop_odd_exit_point_y = 2; //NOP+退出点Y方向坐标。自车坐标系
+    optional float nop_odd_exit_point_z = 3; //NOP+退出点Z方向坐标。自车坐标系
+    optional uint64 co_lane_id= 4; //NOP+退出点所在lane的ID
+    optional float co_lane_width = 5; //NOP+退出点所在lane的中心线上最后一个点的宽度，单位m
+    optional uint64 co_lane_group_id= 6; //指NOP+退出点所在lane对应的lane group id
+    repeated uint64 co_lane_id_within_group = 7; //NOP+退出点所属lanegroup id内的各lane id（从右到左），From right to left
+    repeated float co_lane_width_within_group = 8; //NOP+退出点所在lane group的各个lane中心线最后一个点的宽度, 单位m。From right to left
+    optional float k_nop_odd_exit_point = 9; //指与退出点lane中心线的切线相垂直线的斜率
+}
+
+message EsdLaneTld{
+    optional uint32 esd_tld_valid= 1; //0：无效，1：有效
+    optional uint32 esd_tld_type = 2; //0：Unknown, 1：Left, 2：Right, 3：Straight, 5：U_Turn
+    optional uint32 esd_tld_color = 3; //0：Unknown, 1：Red, 2：Yellow, 3：Green
+    optional uint32 esd_tld_status = 4; //0：常亮，1：闪烁
+    optional uint32 esd_tld_timer = 5; //65535表示无效值
+}
+
+message EsdElkObjLine{
+    optional uint32 ElkObjID = 1; //high light object id
+    optional uint32 AdasLineID  = 2; //high light line id
+    optional uint32 active_flag =3; //reserved
+}
+
+message EsdJunction{
+    optional int32 distance_to_intersection_entry = 1; //本车到路口停止线的距离
+    optional AngleChangeStatus_e angle_change_status = 2; //路口抬升状态
+}
+
+enum  AngleChangeStatus_e{
+    ANGLE_CHANGE_DOWN = 0;
+    ANGLE_CHANGE_UP = 1; 
+}
+
+enum  EsdPspPsapTarget_e{
+    NONE = 0;
+    PSAP_LOC_BOX = 1; // include navi_to_loc_box and in_loc_box
+    CONNECTION_AREA = 2; // include navi_to_connection_area and in_connection_area
+}
+
+message EsdPspInfo{
+    optional EsdPspPsapTarget_e esd_psp_psap_target = 1;
+}
+
+enum LocalMapSource {
+    SOURCE_UNKNOWN = 0;
+    SOURCE_FROM_PERCEPTION = 1;
+    SOURCE_FROM_HDMAP = 2;
+    SOURCE_FROM_WM = 3;  // fusion result
+    SOURCE_FROM_SDMAP = 4;
+}
+
+enum Area{
+    AREA_UNKNOWN =0;
+    AREA_PSP = 1;
+    AREA_PN = 2;
+}
+
+enum PSCActive_e{
+    PSCActiveOFF =0;
+    PSCActiveON =1;
+}
+
+message PSCInfo{
+    optional PSCActive_e PSCActive = 1;
+}
+
+enum Nop_uturn_mode{
+    NOP_UTURN_NONE =0;
+    NOP_UTURN_NORMAL =1;
+    NOP_UTURN_COMPLEX = 2;
+}
+
+enum ESD_Gear_Status{
+    ESD_GEAR_INVALID =0;
+    ESD_GEAR_PARK =1;
+    ESD_GEAR_REVERSE =2;
+    ESD_GEAR_NEUTRAL =3;
+    ESD_GEAR_DRIVE =4;
+    ESD_GEAR_LOW =5;
+    ESD_GEAR_UNSPECIFIED =6;
+}
+
+message ESD_Point{
+    optional float x = 1;
+    optional float y = 2;
+    optional float z = 3;
+}
+
+// 导致刹停的原因
+enum ESD_Virtual_Wall_Type_e{
+    ESD_VW_TYPE_TRAFFIC_LIGHT = 0;      // 红绿灯
+    ESD_VW_TYPE_WM = 1;                 // WM的is able to ad
+    ESD_VW_TYPE_BLACK_LIST= 2;          // link组黑名单
+    ESD_VW_TYPE_RISK_EVENT= 3;          // link组风险事件
+    ESD_VW_TYPE_NP_PLUS = 4;            // NP+不能左右转
+    ESD_VW_TYPE_OTHER= 5;               // 其他
+    ESD_VW_TYPE_GATE_MACHINE = 6;       // 道闸场景
+}
+
+message ESD_VW_Categories{
+    optional ESD_Virtual_Wall_Type_e vw_type = 1;
+    optional bool vw_value = 2;
+}
+
+message ESDVirtualWall{
+    optional ESD_Point esd_vw_position = 1;                                 //虚拟墙的中心点
+    optional uint32 esd_vw_width = 2;                                       //虚拟墙的长度
+    optional float esd_vw_angle = 3;                                        //虚拟墙中心点的切线方向角度
+    optional ESD_Virtual_Wall_Type_e esd_vw_type = 4 [deprecated=true];     //虚拟墙的类型（废弃）
+    optional bool esd_js_signal = 5;                                        //路口刹停决策信号 ture=刹停
+    optional uint32 esd_vw_id = 6;                                          //路口对应的navi_stub的ID
+    repeated ESD_VW_Categories esd_vw_categories = 7;                       //虚拟墙的类别    
+}
+
+
+

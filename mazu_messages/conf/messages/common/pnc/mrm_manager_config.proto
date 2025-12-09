@@ -1,0 +1,99 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+message MrmManagerConfig {
+  repeated MrmTaskConfig task_conf = 1;
+}
+
+message MrmTaskConfig {
+  enum TaskType {
+    PLANNER_STATE_CHECKER = 0;
+    DRIVING_SPACE_ADAPTER = 1;
+    REFLINE_GENERATOR = 2;
+    MINI_LAT_PLANNER = 3;
+    MINI_LON_PLANNER = 4;
+    FRAME_ADAPTER = 5;
+    MINI_DECIDER = 6;
+    MRM_LANE_MAPPER = 7;
+    PARK_MANAGER = 8;
+  };
+  optional TaskType task_type = 1;
+
+  // common conf 2-99
+
+  oneof type {
+    PlannerStateCheckerConf planner_state_decider = 100;
+    DrivingSpaceAdapterConf driving_space_adapter = 101;
+    ReflineGeneratorConf refline_generator = 102;
+    MiniLatPlanner mini_lat_planner = 103;
+    MiniLonPlanner mini_lon_planner = 104;
+    FrameAdapter frame_adapter = 105;
+    MiniDecider mini_decider = 106;
+    MrmLaneMapper mrm_lane_mapper = 107;
+    ParkManager park_manager = 108;
+  }
+}
+
+message PlannerStateCheckerConf {
+  optional double ts = 1 [default = 0.05];
+}
+message DrivingSpaceAdapterConf {}
+
+message ReflineGeneratorConf {
+  optional lookup_table_1d lane_keep_c0_lpf_freq =
+      1;  // input: speed(mps), output: c0 lpf freq(hz)
+  optional lookup_table_1d lane_keep_c1_lpf_freq =
+      2;  // input: speed(mps), output: c1 lpf freq(hz)
+  optional lookup_table_1d lane_keep_c2_lpf_freq =
+      3;  // input: speed(mps), output: c2 lpf freq(hz)
+  optional lookup_table_1d lane_keep_c3_lpf_freq =
+      4;  // input: speed(mps), output: c3 lpf freq(hz)
+  optional lookup_table_1d junc_exit_c0_lpf_freq =
+      5;  // input: speed(mps), output: c0 lpf freq(hz)
+  optional lookup_table_1d junc_exit_c1_lpf_freq =
+      6;  // input: speed(mps), output: c1 lpf freq(hz)
+  optional lookup_table_1d junc_exit_c2_lpf_freq =
+      7;  // input: speed(mps), output: c2 lpf freq(hz)
+  optional lookup_table_1d junc_exit_c3_lpf_freq =
+      8;  // input: speed(mps), output: c3 lpf freq(hz)
+}
+
+message MiniLatPlanner {}
+message FrameAdapter {}
+message MiniDecider {
+  optional double yield_l_threshold_m = 1 [default = 1.8];
+}
+message MrmLaneMapper {}
+
+message ParkManager {}
+
+// Next id: 20
+message MiniLonPlanner {
+  optional double soft_brake_tar_acc_mps2 = 1 [default = -0.5];
+  optional double soft_brake_jerk_limit_mps3 = 2 [default = 1.0];
+  optional double hard_brake_tar_acc_mps2 = 3 [default = -2.0];
+  optional double hard_brake_jerk_limit_mps3 = 4 [default = 2.0];
+  optional int32 lon_planner_horizon = 5 [default = 100];
+  optional double lon_planner_sample_time = 6 [default = 0.1];
+  optional double stop_speed_thresh_mps = 7 [default = 0.1];
+  optional double linear_motion_prediction_time_decay = 8 [default = 2.0];
+  optional double linear_motion_prediction_pow = 9 [default = 1.0];
+  optional double soft_brake_min_spd_mps = 10 [default = 3.0];
+  optional double follow_veh_time_headway_s = 11 [default = 1.0];
+  optional double last_path_stitch_t = 12 [default = -0.1];
+  optional double stop_s_buffer_m = 13 [default = 0.5];
+  optional int32 target_s_v_preview_index = 14 [default = 8];
+  optional double follow_veh_dist_buffer_m = 15 [default = 10.0];
+  optional double weight_s = 16 [default = 1.0];
+  optional double weight_v = 17 [default = 0.5];
+  optional bool use_adaptive_cruise_control_acc = 18 [default = false];
+  optional double max_acc_while_use_np_acc = 19 [default = -0.15];
+}
+
+message lookup_table_1d {
+  repeated double bp = 1;
+  repeated double data = 2;
+}

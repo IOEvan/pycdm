@@ -1,0 +1,140 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/pnc/geometry.proto"; // for Vector3d
+
+message Vector3i {
+  optional int32 x = 1;
+  optional int32 y = 2;
+  optional int32 z = 3;
+}
+
+message Matrix3d {
+  optional Vector3d row_1 = 1;
+  optional Vector3d row_2 = 2;
+  optional Vector3d row_3 = 3;
+}
+
+message AvpVector3f {
+  optional float x = 1;
+  optional float y = 2;
+  optional float z = 3;
+}
+
+message Vector6f {
+  optional float x = 1;
+  optional float y = 2;
+  optional float z = 3;
+  optional float a = 4;
+  optional float b = 5;
+  optional float c = 6;
+}
+
+message GeoPolygon {
+  repeated Vector3d point = 1;
+}
+
+message NDTCellV2 {
+  optional uint32 nr_points = 1;   // number of points contained by voxel
+  optional AvpVector3f mean = 2; // 3D voxel centroid
+  optional Vector6f cov = 3; // voxel covariance matrix
+  optional int32 floor_id = 4;   // floor id of multi-storey parking lot
+  optional SemanticClass semantic_class = 5;  // the semantic label of the most likely semantic class
+  optional float semantic_probability = 6;
+  enum SemanticClass {
+        Vehicle                   = 0;  // Including small_vehicle, large_vehicle, three_wheel_vehicle, trailer, emergency_vehicle and other vehicles
+        Pedestrian                = 1;  // Including adult, child and other pedestrian
+        Pedestrian_object         = 2;  // Including stroller, wheelchair and other pedestrain object
+        Cyclist                   = 3;  // Including motorcyclist, ebicyclist, bicyclist and other two wheel vhicle and its riders
+        Cycle                     = 4;  // Including bicycle, ebicycle, motorcycle and other two wheel vhicle without riders
+        Animal                    = 5;  // Including dog, cat and other animal
+        Cone                      = 6;  // Including all kinds of cone bucket
+        Construction_Pole         = 7;  // Including warning post in construction or warning area
+        Barrier                   = 8;  // Including temporal barrier and drum objects
+        Vegetation                = 9;  // Including vegetation without tree trunk
+        Curb                      = 10;  // Including all kinds of curb
+        Pole_TreeTrunk            = 11;  // Including pole, tree trunk and other cylindrical objects
+        Sign                      = 12;  // Including all kinds of sign, such as traffic sign, construction sign
+        Ground                    = 13;  // Including all kinds of road surface and road marker
+        Walkable_Ground           = 14;  // Including all kinds of walkable surface, such as sidewalk and lawn
+        Bump                      = 15;  // Including bump, cateye
+        Hollow                    = 16;  // Including all kinds of holes
+        Filterable                = 17;  // Including all filterable objects, such as spray, rooster tail, dust, rain, snow and other noise or filterable ojbect
+        OtherImpermanentObject    = 18;  // Including other impermanent object that class is not included above, such as debris, tire, dropped object
+        OtherPermanentObject      = 19;  // Including other permanent object that class is not included above, such as building, traffic light, fire hydrant and parterre
+        USS_General               = 20;  // general class from USS
+    }
+}
+
+message NDTCell {
+  optional uint64 id = 1;
+  optional uint32 nr_points = 2;   // number of points contained by voxel
+  optional Vector3d mean = 3; // 3D voxel centroid
+  optional Matrix3d cov = 4; // voxel covariance matrix
+  optional Matrix3d evecs = 5;  // eigen vectors of voxel covariance matrix 
+  optional Vector3d evals = 6; // eigen values of voxel covariance matrix
+  optional int32 floor_id = 7;   // floor id of multi-storey parking lot
+  optional SemanticClass semantic_class = 8;  // the semantic label of the most likely semantic class
+  optional float semantic_probability = 9; 
+  enum SemanticClass {
+        Vehicle                   = 0;  // Including small_vehicle, large_vehicle, three_wheel_vehicle, trailer, emergency_vehicle and other vehicles
+        Pedestrian                = 1;  // Including adult, child and other pedestrian
+        Pedestrian_object         = 2;  // Including stroller, wheelchair and other pedestrain object 
+        Cyclist                   = 3;  // Including motorcyclist, ebicyclist, bicyclist and other two wheel vhicle and its riders
+        Cycle                     = 4;  // Including bicycle, ebicycle, motorcycle and other two wheel vhicle without riders
+        Animal                    = 5;  // Including dog, cat and other animal
+        Cone                      = 6;  // Including all kinds of cone bucket
+        Construction_Pole         = 7;  // Including warning post in construction or warning area
+        Barrier                   = 8;  // Including temporal barrier and drum objects
+        Vegetation                = 9;  // Including vegetation without tree trunk
+        Curb                      = 10;  // Including all kinds of curb
+        Pole_TreeTrunk            = 11;  // Including pole, tree trunk and other cylindrical objects
+        Sign                      = 12;  // Including all kinds of sign, such as traffic sign, construction sign
+        Ground                    = 13;  // Including all kinds of road surface and road marker
+        Walkable_Ground           = 14;  // Including all kinds of walkable surface, such as sidewalk and lawn 
+        Bump                      = 15;  // Including bump, cateye
+        Hollow                    = 16;  // Including all kinds of holes
+        Filterable                = 17;  // Including all filterable objects, such as spray, rooster tail, dust, rain, snow and other noise or filterable ojbect 
+        OtherImpermanentObject    = 18;  // Including other impermanent object that class is not included above, such as debris, tire, dropped object
+        OtherPermanentObject      = 19;  // Including other permanent object that class is not included above, such as building, traffic light, fire hydrant and parterre
+        USS_General               = 20;  // general class from USS
+    }
+}
+
+message Floor {
+  optional int32 floor_id = 1;
+  optional float floor_height_prior = 2;   
+}
+
+message NDTMap {
+  optional float resolution = 1; 
+  optional Vector3i min_b = 2;   // the minimum bin coordinates
+  optional Vector3i max_b = 3;   // the maximum bin coordinates
+  optional Vector3i div_b = 4;    // the number of divisions
+  optional Vector3i divb_mul = 5; // the division multiplier
+  repeated NDTCell cell = 6;    // voxel structure containing all cell nodes
+  repeated NDTCellV2 cell_lite = 8;    // voxel structure containing all cell nodes
+  repeated Floor floor = 7; // information of all floors in multi-storey parking lot
+}
+
+message AvpMap {
+  optional string map_name = 1;
+  optional string map_id = 2;
+  optional string coordination_system = 3;
+  optional Vector3d map_origin = 4;
+  optional GeoPolygon map_range = 5;
+  optional int32 format_version = 6;
+  optional string map_version = 7;
+  repeated uint32 tile_id_list = 8;
+  optional double production_time = 9; // utc time
+  optional NDTMap ndt_map = 10;
+  optional Matrix3d rotation_offset = 11;
+  optional Vector3d translation_offset = 12;
+
+  optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+  optional uint64 publish_ptp_ts = 536870907;   // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909;     // uuid of the publisher
+  optional uint64 counter = 536870910;          // message counter
+  optional uint64 publish_ts = 536870911;
+}

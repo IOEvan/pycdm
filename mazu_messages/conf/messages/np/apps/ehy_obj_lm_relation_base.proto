@@ -1,0 +1,30 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+import "common/perception/vision_road_detection.proto";
+
+enum ObjRelPosWithLM{
+    kObjRelPos_Unknown = 0;
+    kObjRelPos_Left = 1;
+    kObjRelPos_Right = 2;
+    kObjRelPos_Cross = 3;
+}
+
+message LMRelRes{
+  optional uint32 lm_id = 1;
+  optional ObjRelPosWithLM relative_pos = 2; // 1 as obj on left side of lm
+  optional float dist = 3; // -1 as invalid, take obj overlap with lm as example
+  optional float conf = 4; // 0 as lowest and 1 as highest
+}
+
+message ObjRelRes{
+  optional uint32 obj_id = 1;
+  repeated LMRelRes lm_relation = 2;
+}
+
+message ObjLMRel{
+  optional RoadDetection road_detection = 1;
+  repeated ObjRelRes pos_relation = 2; // each records relative position between one obj and other lms
+}

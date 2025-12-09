@@ -1,0 +1,41 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/localization/global_localization.proto";
+import "common/localization/global_routes.proto";
+import "common/localization/geometry.proto";
+
+message AuxiliaryParkingInfo_light {
+    optional int32 is_in_map_area = 1;
+    optional string station_id = 4;
+}
+message MapTopoLocData_light {
+    optional uint64 link_id = 2;
+    optional uint64 lane_id = 3;
+    optional float link_start_offset = 7;
+}
+message MapTopoLoc_light {
+    optional int32 hdmap_version = 4;
+    optional MapTopoLocData_light best_loc_data = 15;
+    optional MapTopoLocData_light best_sd_loc_data = 16;
+}
+message GlobalLocalization_light {
+    optional GlobalLocalization.Status status = 2;
+    optional GlobalLocalization.Mode mode = 3;
+    optional LaneLoc lane_loc = 4;
+    optional LocEulerAngle euler_angle = 5;
+    optional LocVector3 wgs84_position = 6;
+    optional LocVector3 velocity = 7;
+    optional LocVector3 angular_vel = 11; 
+    optional float confidence = 15; 
+    optional string status_message = 16;
+    repeated double online_parameters = 20;
+    optional uint32 conf_reject_reason = 22;
+    optional AuxiliaryParkingInfo_light auxiliary_parking_info = 24;
+    optional MapTopoLoc_light map_topo_loc = 25;
+    optional GlobalRoutesInfo global_routes_info = 26;
+    repeated AbnormalState abnormal_states = 20000;
+    repeated Measurement measurements      = 20001;
+    optional uint64 publish_ptp_ts   = 536870907; 
+}

@@ -1,0 +1,165 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+import "common/perception/radar_base.proto";
+
+enum DMSMissTurnWarning {
+    DMSMissTurnWarning_No_Warning                                  = 0;
+    DMSMissTurnWarning_Warning                                     = 1;
+    DMSMissTurnWarning_Invalid                                     = 2;
+    DMSMissTurnWarning_Reserved                                    = 3;
+}
+
+enum DMSSteeringTorqueReq {
+    DMSSteeringTorqueReq_No_Request                                = 0;
+    DMSSteeringTorqueReq_Request                                   = 1;
+    DMSSteeringTorqueReq_Invalid                                   = 2;
+    DMSSteeringTorqueReq_Reserved                                  = 3;
+}
+
+enum DMSRoadRageSts {
+    DMSRoadRageSts_Normal                                          = 0;
+    DMSRoadRageSts_Angry                                           = 1;
+    DMSRoadRageSts_Invalid                                         = 2;
+    DMSRoadRageSts_Reserved                                        = 3;
+}
+
+enum DMSDefensiveDriveRequest {
+  DMSDefensiveDrivReq_No_Request                                   = 0;
+  DMSDefensiveDrivReq_Defensive_Driving_Request                    = 1;
+  DMSDefensiveDrivReq_Failure                                      = 2;
+}
+
+enum DMSDefensiveDriveReason {
+  DMSDefensiveDriveReason_None                                     = 0;
+  DMSDefensiveDriveReason_ContinousDrown_Special                   = 1;
+  DMSDefensiveDriveReason_ContinousDrown_Normal                    = 2;
+  DMSDefensiveDriveReason_FrequentlyDistract                       = 3;
+  DMSDefensiveDriveReason_PhoneCall                                = 4;
+  DMSDefensiveDriveReason_Invalid                                  = 15;
+}
+
+enum DMSRiskSceneWarning {
+  DMSRiskSceneWarning_None                                         = 0;
+  DMSRiskSceneWarning_Warning_Level_1                              = 1;
+  DMSRiskSceneWarning_Warning_Level_2                              = 2;
+  DMSRiskSceneWarning_Invalid                                      = 3;
+}
+
+enum DMSASBVabrationReq {
+  DMSASBVabrationReq_No_Request                                    = 0;
+  DMSASBVabrationReq_Vabration_Request                             = 1;
+  DMSASBVabrationReq_Invalid                                       = 99;
+}
+
+enum DMSOverlayWarning {
+    DMSOverlayWarning_No_Warning                                   = 0;
+    DMSOverlayWarning_Warning_Level_1                              = 1;
+    DMSOverlayWarning_Invalid                                      = 3;
+}
+
+enum DMSRiskLevel {
+    DMSRiskLevel_Normal                                            = 0;
+    DMSRiskLevel_LowRisk                                           = 1;
+    DMSRiskLevel_Risk                                              = 2;
+    DMSRiskLevel_HighRisk                                          = 3;
+}
+
+enum DMSAttnRisk {
+    DMSAttnRisk_None                                               = 0;
+    DMSAttnRisk_Left                                               = 1;
+    DMSAttnRisk_Right                                              = 2;
+    DMSAttnRisk_Front                                              = 3;
+    DMSAttnRisk_Invalid                                            = 4;
+    DMSAttnRisk_Around                                             = 5;
+}
+
+enum DMSADtoMDWarning {
+    DMSADtoMDWarning_No_Warning                                    = 0;
+    DMSADtoMDWarning_Warning_Level_1                               = 1;
+    DMSADtoMDWarning_Invalid                                       = 2;
+}
+
+message ADMS2OAA {
+    message ADMSObjAttnSts {
+        optional uint32 obj_id                                     = 1;
+        optional ObjPos obj_pos_vcs                                = 2;
+        enum DMSAttnStatus {
+            DMSAttnStatus_AttnPaid                                 = 0;
+            DMSAttnStatus_AttnNotPaid                              = 1;
+            DMSAttnStatus_ObjOcculuded                             = 2;
+            DMSAttnStatus_BeyondJudgeRange                         = 3;
+            DMSAttnStatus_Invalid                                  = 15;
+        }   
+        optional DMSAttnStatus attn_status                         = 3;
+        optional float attn_score                                  = 4;
+    }
+    repeated ADMSObjAttnSts obj_attn_sts                           = 1;
+    optional uint64 oaa_frame_counter                              = 2;
+    optional uint64 oaa_publish_ptp_ts                             = 3;
+}
+
+enum DMSHVIReq {
+    DMSHVIReq_NoRequest                                            = 0;
+    DMSHVIReq_Profile1                                             = 1;
+    DMSHVIReq_Profile2                                             = 2;
+    DMSHVIReq_Profile3                                             = 3;
+    DMSHVIReq_Profile4                                             = 4;
+    DMSHVIReq_Profile5                                             = 5;
+    DMSHVIReq_Profile6                                             = 6;
+    DMSHVIReq_Profile7                                             = 7;
+}
+
+message ADMSESDObject {
+    optional uint32 esd_adms_obj_id                                = 1; // id in multisrc object
+    enum ADMSESDObjFunc {
+        ADMSESDObjFunc_Normal               = 0;    // no display require
+        ADMSESDObjFunc_Red                  = 1;    // highlight object in red
+    }
+    optional ADMSESDObjFunc esd_adms_obj_func                      = 2;
+    enum ADMSESDObjType {
+        ADMSESDObjType_None                 = 0;
+        ADMSESDObjType_DynamicObj           = 1;
+        ADMSESDObjType_StaticObj            = 2;
+    }
+    optional ADMSESDObjType esd_adms_obj_type                      = 3;
+    optional uint32 related_ADMS_WTI                               = 4; // internal msg, no need by ESD module
+}
+
+message ADMS {
+    optional DMSMissTurnWarning miss_turn_warning                  = 1; 
+    optional DMSSteeringTorqueReq steering_torque_req              = 2;
+    optional DMSRoadRageSts road_rage_sts                          = 3;
+    optional DMSDefensiveDriveRequest defensive_drive_req          = 4;
+    optional DMSDefensiveDriveReason defensive_drive_reason        = 5;
+    optional DMSRiskSceneWarning static_obj_warning                = 6;
+    optional DMSRiskSceneWarning sharp_turn_warning                = 7;
+    optional DMSRiskSceneWarning cutin_warning                     = 8;
+    optional DMSRiskSceneWarning contruction_redwarnsign_warning   = 9;
+    optional DMSASBVabrationReq vabration_req                      = 10; // req vibration of seatbelt
+    optional DMSOverlayWarning overlay_warning                     = 11;
+    optional DMSRiskLevel adms_risk_level                          = 12;
+    optional float driver_in_loop_conf                             = 13; // 1 as inloop, 0 as not inloop, normally output in [0,1]
+    optional DMSAttnRisk driver_attn_lost_intersection             = 14;
+    optional DMSAttnRisk driver_attn_lost_cutin                    = 15;
+    optional uint32 ADMS_WTIs                                      = 16;
+    optional ADMS2OAA adms_to_oaa                                  = 17;
+    optional uint32 driver_attn_alert                              = 18; // diifer by target class and relative position
+    optional DMSRiskSceneWarning md_rolling_warning                = 19;
+    optional DMSHVIReq hvi_req                                     = 20; // req vibration of steerwhl
+    repeated ADMSESDObject adms_esd_objects                        = 21;
+    optional DMSADtoMDWarning adtomd_warning                       = 22;
+    optional DMSRiskSceneWarning distraction_warning               = 23; 
+    optional DMSRiskSceneWarning phone_call_warning                = 24; // @linescope: NT3
+    optional uint32 takeover_ability = 25;
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin 
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts    = 536870907; // publish ptp timestamp unit : nanosecond
+    optional string publisher_id      = 536870909; // uuid of the publisher
+    optional uint64 counter           = 536870910; // message counter
+    optional uint64 publish_ts        = 536870911; // publish timestamp; unit : nanosecond
+}

@@ -1,0 +1,133 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+message NaviEvent {
+  optional uint64 event_id = 1;
+
+  // arc length in meter, from current ego car position
+  optional int32 distance = 2;   
+
+  // IDs of related links
+  repeated uint64 link_id = 3;
+
+  optional uint64 enter_link_id = 10;
+  optional uint64 exit_link_id = 11;
+
+  oneof event {
+    JunctionEvent junction = 4;
+    RoadMergeEvent road_merge = 5;
+    RoadSplitEvent road_split = 6;
+    SpecialLaneEvent special_lane = 7;
+    CrossWalkEvent crosswalk = 8;
+    OpenningEvent openning = 9;
+    ETCEvent etc = 12;
+  }
+}
+
+
+message JunctionEvent {
+  // ID of junction in RoadMap
+  optional int32 junction_id = 1[deprecated=true];
+  // ID of traffic light junction in DynamicMap
+  optional int32 traffic_light_junction_id = 2[deprecated=true];
+  // ID of navi stub
+  optional int32 navi_stub_id = 3;
+
+  enum TurnType {
+    LEFT = 0;
+    RIGHT = 1;
+    STRAIGHT = 2;
+    UTURN = 3;
+  }
+  optional TurnType turn_type = 4;
+  
+  // distance to junction entry in HD Map
+  optional double distance_to_junction_entry = 5;
+  // distance to junction exit in HD Map
+  optional double distance_to_junction_exit = 6;
+
+  // ID of junction in RoadMap
+  optional uint64 hd_junction_id = 7;
+  // ID of traffic light junction in DynamicMap
+  repeated uint64 hd_traffic_light_junction_id = 8;
+}
+
+message RoadMergeEvent {
+  // Number of roads on the left of the current road
+  optional int32 left_merge_road_num = 1;
+  // Number of roads on the right of the current road
+  optional int32 right_merge_road_num = 2;
+
+  enum RightOfWay {
+    UNDEFINED = 0;
+    HIGH = 1;
+    LOW = 2;
+    EQ = 3;
+  }
+  // Right of way of ego car with repect to the L/R side road.
+  optional RightOfWay right_of_way_to_right = 3;
+  optional RightOfWay right_of_way_to_left = 4;
+  // IDs of related links
+  repeated uint64 pre_merge_link_id = 5;
+  // IDs of related links
+  optional uint64 post_merge_link_id = 6;
+}
+
+message RoadSplitEvent {
+  // Exit order from left, consistent with exit order from right
+  optional int32 exit_seq_left = 1;
+  // Exit order from right
+  optional int32 exit_seq_right = 2;
+  // IDs of related links
+  optional uint64 pre_split_link_id = 3;
+  // IDs of related links
+  repeated uint64 post_split_link_id = 4;
+
+  enum SplitType {
+    NONE = 0;
+    LEFT_TURN = 1;
+    RIGHT_TURN = 2;
+    RAMP = 3;
+    FORM_WAY_LEFT_TURN = 4;
+    FORM_WAY_RIGHT_TURN = 5;
+    FORM_WAY_RAMP = 6;
+  }
+  optional SplitType split_type = 5;
+  
+  enum SplitDirection { 
+    NO_DIR = 0; 
+    LEFT = 1; 
+    RIGHT = 2;
+  }
+  // split exit link direction to enter link
+  optional SplitDirection split_direction = 6;  
+}
+
+message SpecialLaneEvent {
+  optional double start_dist = 1;
+  optional double end_dist = 2;
+
+  enum LaneType {
+    BUS = 0;
+    REVERSIBLE = 1;  //tidal flow 可变车道
+  }
+  optional LaneType lane_type = 3;
+}
+
+message CrossWalkEvent {
+  optional double start_dist = 1;
+  optional double end_dist = 2;
+}
+
+
+message OpenningEvent {
+  optional double start_dist = 1;
+  optional double end_dist = 2;
+}
+
+message ETCEvent {
+  optional double start_dist = 1;
+  optional double end_dist = 2;
+}

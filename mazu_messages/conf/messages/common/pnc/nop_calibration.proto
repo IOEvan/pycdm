@@ -1,0 +1,57 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+message SingleDoubleValue {
+  optional double acc_max_limit = 1;
+  optional double override_torque = 2;
+  optional double speed_error_limit = 3;
+  optional double speed_pid_param_kp = 4;
+  optional double speed_pid_param_ki = 5;
+  optional double speed_pid_param_kd = 6;
+  optional double speed_pid_param_kt = 7;
+  optional double speed_pid_param_saturation = 8;
+  optional double acc_ff_gain = 9;
+  optional double speed_error_cut_off_freq = 10;
+  optional double speed_error_epsion = 11;
+  optional double stopped_target_speed_thres_mps = 12;
+  optional double stopped_ego_speed_thres_mps = 13;
+  optional double stopped_end_point_speed_thres_mps = 14;
+  optional double startup_target_speed_thres_mps = 15;
+  optional double driving_ego_speed_thres_mps = 16;
+  optional double driving_follow_v_thres_mps = 17;
+  optional double driving_ds_to_stop_thres_m = 18;
+  optional double driving_end_point_speed_thres_mps = 19;
+  optional double decel_to_stop_follow_v_thres_mps = 20;
+  optional double decel_to_stop_ds_to_stop_thres_m = 21;
+  optional double decel_to_stop_end_point_speed_thres_mps = 22;
+  optional double decel_to_stop_target_speed_thres_mps = 23;
+  optional double esd_in_powerstation = 24;
+}
+
+message SingleBoolValue {
+  optional bool is_creep_flg = 1;
+  optional bool is_relative_pose_flg = 2;
+}
+
+message Interpolation1d {
+  repeated double breakpoint = 1;
+  repeated double tabledata = 2;
+}
+message Interpolation2d {
+  repeated double breakpoint_x = 1;
+  repeated double breakpoint_y = 2;
+  repeated double tabledata = 3;
+}
+message NOPCalibration {
+  optional SingleDoubleValue single_double_value = 1;
+  optional SingleBoolValue single_bool_value = 2;
+  optional Interpolation1d speed_kp_1d = 3;
+  optional Interpolation1d speed_ki_1d = 4;
+  optional Interpolation1d speed_same_override_toqure_1d = 5;
+  optional Interpolation1d speed_back_override_toqure_1d = 6;
+  optional Interpolation1d speed_integration_override_toqure_1d = 7;
+  optional Interpolation2d speed_kappa_gain_2d = 8;
+}

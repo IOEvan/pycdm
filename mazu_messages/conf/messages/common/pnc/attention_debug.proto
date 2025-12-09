@@ -1,0 +1,72 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+import "common/pnc/geometry.proto";
+
+message AttentionGoal {
+  enum IntentionType {
+    NO_INTENTION = 0;
+    LANE_KEEP = 1;
+    LANE_CHANGE_LEFT = 2;
+    LANE_CHANGE_RIGHT = 3;
+    LANE_CUTIN = 4;
+    FALLBACK = 5;
+    MAX_INDEX = 6;
+    VRU_CUTIN = 7;
+  }
+
+  enum SourceType {
+    NO_SOURCE = 0;
+    RULE_VEHICLE = 1;
+    RULE_VRU = 2;
+    RULE_PSP = 3;
+    LEARN_DECISION = 4;
+    JUNCTION_ATTENTION = 5;
+    OPENING_ATTENTION = 6;
+    RULE_END_POINT = 7;
+    LEARN_ATTENTION_FRENET = 8;
+    LEARN_ATTENTION_CARTESIAN = 9;
+    LON_DEDUCT_LAT_VRU = 10;
+    NEIGHBOR_BACK_VRU = 11;
+    LANE_MAP_JUNCTION_ATTENTION = 12;
+    VRU_ATTENTION = 13;
+  }
+
+  optional IntentionType intention_type = 1;
+  optional SourceType source_type = 2;
+  optional Vector3d point = 3;
+  optional double heading = 4;
+  optional uint64 lane_id = 5;
+  optional double prob = 6;
+  optional bool vru_goal_sample = 7;
+  optional bool force_parallel_by_interactive_mode = 8;
+}
+
+message AttentionPathPoint {
+  optional double time_stamp = 1;
+  optional Vector3d point = 2;
+  optional bool attention_model = 3;
+}
+
+message AttentionPath {
+  optional double prob = 1;
+  repeated AttentionPathPoint path_points = 2;
+  optional bool attention_model = 3;
+}
+
+message GoalPathInfo {
+  optional AttentionGoal goal_info = 1;
+  optional AttentionPath path_info = 2;
+}
+
+message AttentionInfo {
+  optional int32 obstacle_id = 1;
+  repeated GoalPathInfo goal_path_array = 2;
+}
+
+message AttentionDebug {
+  repeated AttentionInfo attention_info = 1;
+}

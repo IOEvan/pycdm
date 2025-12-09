@@ -1,0 +1,304 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+import "common/perception/manner_map.proto";
+import "common/perception/perception_objects.proto";
+import "common/perception/multisource_object.proto";
+
+
+message MlmSceneInfo {
+    repeated SpecialLaneSceneInfo special_lane_scene_info = 1;  //特殊车道信息
+    optional WeatherSceneInfo weather_scene_info = 2;  //天气场景信息
+    optional SurfaceInfo surface_info = 3;  //地面材料信息
+    optional AirConditionerInfo air_conditioner_info = 4;  //智能空调信息
+    optional ParkingLotInfo parking_lot_info = 5;  //停车场信息
+    optional TrafficViolationInfo traffic_violation_info = 6;  //违章守护信息
+    optional RoadSceneInfo road_scene_info = 7;  //道路场景理解信息
+    optional TollStationSceneInfo toll_station_scene_info = 8; //收费站场景信息
+    optional DasAgentInfo das_agent_info = 9;  // mlm_das功能信息
+    optional AdvisorySpeed advisory_speed = 10;  //限速功能
+    repeated DeadCarInfo dead_car_info = 11;  //死车场景识别
+    repeated SpecialTLD special_tld = 12;  //特殊红绿灯识别
+    repeated VlnOcrInfo vln_ocr_info = 13 [deprecated=true]; //vln OCR检测信息
+    optional VlnFunctionInfo vln_function_info = 14;  //vln功能信息
+
+    optional uint64 timestamp = 536870905;          // ptp timestamp, nanosecond，used for data
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909;       // uuid of the publisher
+    optional uint64 counter = 536870910;            // message counter
+    optional uint64 publish_ts = 536870911;         // publish utc timestamp; unit : nanosecond
+
+
+    message SpecialLaneSceneInfo {
+        optional uint32 id = 1;  //lane id,输出对齐规格标准
+        optional uint32 lane_id = 2;  //lane_id信息，透传manner车道线Id信息
+        optional uint32 passable_state = 3;  //unknown = 0，passable = 1，unpassable = 2
+        optional uint32 special_lane_type = 4;  //车道类型信息
+
+        message TimeLimitInfo {
+        optional float time_limit_start_time_stamp = 1;   //限行起始时间
+        optional float time_limit_end_time_stamp = 2;   //限行结束时间
+    }
+
+        repeated TimeLimitInfo time_limit_info = 5;  //通行时段信息
+        optional uint32 time_limit_data = 6;  // 限行日期信息
+        optional uint32 lane_turn_type = 7; //可变&潮汐车道车道转向信息
+        optional string bus_lane_description = 8;  // 公交车道长文本描述
+        optional uint64 special_lane_counter = 9; //特殊车道更新counter
+        optional uint64 timestamp = 10;  //透传Manner车道线image时间戳信息
+        repeated MannerPoint_3D lane_points = 11;  //车道线3D坐标信息
+        optional float special_lane_conf = 12;  //车道线置信度信息
+        optional uint32 sensor_id = 13;  //相机id信息,FW或FN
+        optional uint32 task_info = 14;  //用于表征当前帧推理状态信息，0 = none,1 = bus_lane_task,2 = pedestrian_lane_task, 3 = tidal_lane_task,4 = variable_lane_task   
+        repeated float box_2d = 15; // (x1, y1, x2, y2) 2D box on image
+    }
+
+    message WeatherSceneInfo {
+        optional uint32 wiper_command_state = 1;//雨刮档位信息
+        optional uint32 weather_type = 2;  //天气类型，雨/雪/雾
+        optional uint32 rainy_level = 3;  //雨量等级信息
+        optional uint32 fog_level = 4;  //雾天等级信息
+        optional uint32 snow_level = 5;  //雪天等级信息
+        optional string weather_info_description = 6;  //天气场景信息长文本描述
+        optional uint64 weather_info_counter = 7; //雨刮功能更新counter
+        optional uint32 sensor_id = 8;  //相机id信息,fw/FW或FN
+        optional uint64 sensor_timestamp = 9;  //相机图像原始时间戳信息
+        optional uint32 task_info = 10;  //用于表征当前帧推理状态信息,0 = none,1 = weather_scene_task
+
+    }
+
+    message SurfaceInfo {
+        optional uint32 surface_type = 1;  //路面附着状态信息 积水/积雪/正常
+        optional uint32 surface_material_type = 2;  //路面材料信息
+        optional uint32 surface_safety_level = 3;  //路沿附着情况安全等级
+        optional uint32 driving_policy = 4;  //当前路面附着系数驾驶策略
+        optional string surface_info = 5;  //地面附着情况与驾驶决策长文本描述
+        repeated bytes image_buf = 6;      // dynamic_size * sizeof(uint16)
+        optional uint64 surface_counter = 7; //路面识别更新counter
+        optional uint32 sensor_id = 8;  //相机id信息,fw/FW或FN
+        optional uint64 sensor_timestamp = 9;  //相机图像原始时间戳信息
+        optional uint32 task_info = 10;  //用于表征当前帧推理状态信息,0 = none,1 = surface_task
+    }
+
+    message AirConditionerInfo {
+        optional uint32 air_type = 1;  //空调内外循环请求 0-NoReq;1-内循环;2-外循环;
+        optional uint32 request_reson = 2; //空调内外循环原因
+        optional string air_info_description = 3;  //智能空调长文本信息
+        repeated bytes image_buf = 4;              // dynamic_size * sizeof(uint16)
+        optional uint64 air_condition_counter = 5; // 只能空调更新counter
+        optional uint32 sensor_id = 6;  //相机id信息,fw/FW或FN
+        optional uint64 sensor_timestamp = 7;  //相机图像原始时间戳信息
+        optional uint32 task_info = 8;  //用于表征当前帧推理状态信息,0 = none,1 = air_conditioner_task
+    }
+
+    message ParkingLotInfo {
+        optional uint32 parking_lot_type = 1;  //停车场类型 unknown/非停车场/地上停车场/地下停车场
+        optional string floor_info = 2;  //停车场楼层信息
+        optional string area_info = 3; //区号信息 
+        optional string parking_number = 4;  //车位号
+        repeated ImageInfo qrcode_info = 5;  //付费二维码信息
+        optional string parking_lot_description = 6; //停车场长文本描述信息
+        optional uint32 sensor_id = 7;  //相机id信息,fw/FW或FN
+        optional uint64 sensor_timestamp = 8;  //相机图像原始时间戳信息
+        optional uint32 task_info = 9;  //用于表征当前帧推理状态信息,0 = none,1 = parking_lot_info
+    }
+
+    message TrafficViolationInfo {
+        optional bool traffic_violation = 1;  //是否违章
+        optional uint32 traffic_violation_type = 2;  //违章类型信息 
+        optional ImageInfo violation_attention_info = 3; //违章PV信息
+        optional string traffic_violation_description = 4;  //违章长文本信息
+        optional uint32 sensor_id = 5;  //相机id信息,fw/FW或FN
+        optional uint64 sensor_timestamp = 6;  //相机图像原始时间戳信息
+        optional uint32 task_info = 7;  //用于表征当前帧推理状态信息,0 = none,1 = traffic_violation_task    
+    }
+
+    message RoadSceneInfo {
+        optional uint32 multi_layer_road_info = 1;  // 桥上/桥下道路信息
+        optional uint32 main_service_road_info = 2;  //主辅路信息
+        optional uint32 right_turn_lane_info = 3;  // 右转专用道信息
+        optional uint64 road_scene_counter = 4; //道路场景识别更新counter
+        optional uint32 sensor_id = 5;  //相机id信息,fw/FW或FN
+        optional uint64 sensor_timestamp = 6;  //相机图像原始时间戳信息
+        optional uint32 task_info = 7;  //用于表征当前帧推理状态信息,0 = none,1 = road_scene_task
+    }
+
+    message ImageInfo {
+        optional uint32 camera_id = 1;  //付费二维码相机id
+        optional uint32 camera_frame_id = 2; //相机frame_id信息，对应NV image_counter
+        optional float camera_time_stamp = 3;  //相机图像原始时间戳信息
+        repeated point2d center_point = 4;  //原图PV视角中心点位置
+
+        message point2d {
+            optional float point_x = 1;
+            optional float point_y = 2;
+        }
+
+
+        repeated float width = 5; //二维码图像width
+        repeated float hight = 6;  //二维码图像hight
+    }
+
+
+    message TollStationSceneInfo{
+        
+        message TollGateInfo {
+            optional uint32 toll_gate_id = 1;   //通道ID
+            optional uint64 bind_hd_lane_id = 2; //方案二预留
+            optional int32 toll_gate_relative_pos = 3; //以自车正对方向的通道为0通道，往左以此减少，往右以此增加
+            optional uint32 toll_gate_passable_state = 4;  //通道可通行状态
+            optional uint32 suggest_pass_state = 5;  //是否推荐通行
+            repeated float suggest_gate_line = 6; //(x1,y1,x2,y2) 2D line on image
+        }
+
+        message TollGateGroup {
+            optional uint32 toll_gate_group_id = 1; //通道组ID
+            optional uint32 toll_gate_group_type = 2; //通道组类型: 0 = 人工, 1 = 客车ETC， 2 = ETC混合, 3 = 货车ETC, 4 = 车道关闭, 5 = 其它
+            repeated TollGateInfo toll_gate_info = 3; //收费站口信息
+            repeated float box = 4; //(x1, y1, x2, y2) 2D box on image
+            repeated uint32 relative_pos = 5; //相对于自车正对向车道的位置的左右边界；正对向为0，往左以此减少，往右以此增加。
+        }
+        
+        optional uint32 toll_station_type = 1; //前方收费站类型信息 0 = unknown,1 = 高速收费站，2 = 公安检查站
+        repeated TollGateGroup toll_gate_groups = 2;  //收费站通道组信息
+        optional uint32 toll_phase = 3;  //自车所处位置 0 = unknown，1 = 减速渐变段， 2 = 收费服务段（即在收费通道内）， 3 = 加速渐变段
+        optional uint32 gate_state = 4;  //收费通道(闸机抬杆)通行状态 0 = 可通行， 1 = 不可通行， 2 = unknown， 3 = unavailable  
+        optional uint32 camera_id = 5; //观测相机id，0 = FN， 1 = FW, 2 = unknown
+        optional uint64 timestamp = 6; //camera_id 对应的时间戳
+        optional uint32 task_info = 7;  //用于表征当前帧推理状态信息,0 = none,1 = toll_gate_task
+    }
+
+     message DasAgentInfo {
+        repeated Answer answers = 1;
+        optional uint64 request_seq = 2;
+
+        message Answer {
+            enum FunctionInfo{
+                DeadCar = 0;
+                ConstructionArea = 1;
+            }
+            optional FunctionInfo function_info = 1; // 0 = 死车,..
+            optional string object_info_description = 2;
+        }
+
+    }
+
+    message SpeedLimitSceneInfo {
+        optional uint32 up_down_hill_info = 1;  //上下坡限速场景信息
+        optional uint32 construction_area_info = 2;  //施工限速场景信息
+        optional uint32 pothole_info = 3;  //坑洼限速场景信息
+        optional uint32 night_narrow_road_info = 4;  //夜晚窄小路限速场景信息
+        optional uint32 extreme_weather_info = 5;  //极端天气限速场景信息
+        optional uint64 speed_limit_info = 6;  //限速场景debug信息字段
+    }
+
+        message AdvisorySpeed {
+        optional uint32 max_speed = 1;  // 建议最大限速值 
+        optional uint32 min_speed = 2;  // 建议最小限速值 
+        optional string info_description = 3;  // 限速原因描述文本输出
+        repeated bool multi_lane_flag = 4; // 纵向 [x, y, z]m 是否是多车道
+        repeated float lane_width = 5; // 纵向 [x, y, z]m 道路宽度
+        repeated uint32 pedestrian_num = 6; // 纵向 [x, y, z]m 行人数量
+        repeated uint32 cyclist_num = 7; // 纵向 [x, y, z]m 骑车人数量
+        repeated uint32 vehicle_num = 8; // 纵向 [x, y, z]m 车辆数量
+        optional uint32 legacy_spd_max = 9; //透传法规限速
+        optional uint32 legacy_spd_min = 10; //透传法规限速
+        optional uint32 camera_spd = 11; //透传电子眼限速
+        optional uint32 advisory_spd = 12; //透传挖掘限速
+        optional uint32 road_class = 13; //透传道路等级
+        optional float ego_speed = 14; //透传本车车速
+        optional SpeedLimitSceneInfo speed_limit_scene_info = 15;  //限速场景信息   
+    }
+
+    message DeadCarInfo {
+        optional uint32 object_id = 1;
+        optional uint32 sensor_id = 2;
+        optional uint64 sensor_timestamp = 3;
+        optional uint32 object_stop_info = 4;  //死车状态信息,0 = unknown;1 = stop;2 = unstop
+        optional uint32 object_crash_info = 5;  //事故车状态信息Unknown = 0;object_crashed = 1;object_not_crashed = 2;
+        optional uint32 object_hazard_light = 6;  //目标双闪灯信息 unknown = 0; hazard_light_on = 1;hazard_light_off = 2;
+        optional uint32 object_door_info = 7; //目标开门状态信息 uknwon = 0;object_door_opened = 1 ; object_door_off = 2;
+        optional uint32 object_stop_roadside = 8;  //目标静止靠边停车信息uknwon = 0;true= 1 ; false = 2;
+        optional string dead_car_description = 9;  //死车长文本语义信息   
+        optional uint64 dead_car_counter = 10; //死车功能更新counter值
+        optional uint32 task_info = 11;  //用于表征当前帧推理状态信息,0 = none,1 = dead_car_task
+        optional DynamicObj object = 12;    // 筛选后进行推理的动目标信息
+    }
+
+    message SpecialTLD {
+        optional uint32 sensor_id = 1;  //FW或FN
+        optional float sensor_timestamp = 2;  //相机图像原始时间戳信息
+        optional float call_timestamp = 3;  //调用时间戳信息
+        repeated Box box = 4;  //红绿灯灯框信息
+        optional uint32 allow_to_pass = 5; // -1:ignore；0：不可通行；1：可通行
+        optional uint32 task_info = 6;  //用于表征当前帧推理状态信息,0 = none,1 = special_tld_task
+
+        message Box{
+        repeated float box=1;  //红绿灯几何框信息 [x1,y1,x2,y2]
+        }      
+
+    }
+
+    message VlnOcrInfo {
+        optional uint32 ocr_id = 1; // ocr实例id信息
+        optional uint32 sensor_id = 2; // fw/fn相机sensor id
+        optional uint64 sensor_timestamp = 3; //sensor时间戳信息
+        repeated uint32 box = 4;  // 实例ocr 2bbox PV坐标信息(x1,y1,x2,y2)
+        repeated PoiOcrInfo poi_ocr_info = 5;  // OCR语义信息
+        optional uint32 task_info = 6;  //用于表征当前帧推理状态信息,0 = none,1 = vln_ocr_task
+
+    message PoiOcrInfo {
+        optional uint32 poi_type = 1; //0-unkown;1-floor;2-area;3-exit;4-entrance;5 - traffic_sign
+        optional string poi_indication_info =2;  //用于描述ocr的方向指引信息，填写规则："当前区位""转向信息" "目标区号"
+    }
+
+    } 
+
+    message UserInstructionInfo {
+        optional uint64 user_instruction_id = 1;  //透传adhmi用户指令id信息
+        optional uint64 user_instruction_timestamp =2;  //透传adhmi时间戳信息
+        optional string user_instruction = 3;  //用户意图解读信息
+        optional uint32 user_instruction_type = 4;  //用户意图类型
+        optional uint32 user_instruction_status = 5;  //用户意图状态
+        optional uint32 user_instruction_unavailable_reason = 6;//用户意图不可用原因
+
+    }
+
+    message VlnGateInfo {
+        optional uint32 gate_machine_id = 1;  //透传fusion闸机id信息
+        repeated uint32 box = 2;  // 实例闸机2bbox PV坐标信息(x1,y1,x2,y2)
+        optional MoObjPos pos = 3; //闸机3D中心点位置信息
+        optional MoObjSize size = 4; //闸机3D尺寸信息
+        optional float heading = 5;  //闸机朝向信息
+        optional uint32 gate_machine_access_attribute = 6; //闸机进出属性 闸机进出属性 0-unknown,1-同向,2-对向,3-both方向
+        optional uint32 gate_machine_status = 7;  //闸机目标开合状态 Unknown-0;Closed -1 ,Opening-2;Open-3; 
+        optional uint64 obj_timestamp = 8;  //目标时间戳信息   
+        optional uint32 sensor_id = 9;  //sensor_id    
+    }
+
+    message ImageBuf {
+        optional uint32 sensor_id = 1;  //相机id信息
+        optional uint64 sensor_timestamp = 2; //相机图像原始时间戳信息
+        optional bytes image_buf = 3 [deprecated = true];      // vln dc图像接口 dynamic_size * sizeof(uint16)
+        repeated bytes image_bufs = 4; //vln dc图像接口，repeated
+    }
+
+    message VlnFunctionInfo {
+        repeated VlnOcrInfo vln_ocr_info = 1;  // vln ocr检测结果信息
+        repeated bytes image_buf = 2 [deprecated= true];      // vln dc图像接口 dynamic_size * sizeof(uint16)
+        optional uint32 vln_task_info = 3;     // 用于表征当前帧推理状态信息
+        optional uint32 parking_scene_info = 4;  //mlm地下停车场状态 0-unknown，1-地下停车场，2-停车场通道，3-others
+        repeated UserInstructionInfo latest_user_guidance_instruction_info = 5; //当前用户意图队列中最新一帧有效意图信息
+        repeated UserInstructionInfo latest_user_receive_instruction_info = 6;  //最新接收用户意图检测信息
+        optional string current_floor_info = 7;  //自车当前楼层信息
+        optional string current_area_info = 8;   //自车当前区号信息
+        repeated VlnGateInfo vln_gate_info = 9;  //vln闸机识别信息
+        repeated ImageBuf raw_image_buf = 10;   //mlm模型推理原图信息
+        optional uint32 vln_function_status = 11;  //0-unknown,1- finish
+    }
+
+}   

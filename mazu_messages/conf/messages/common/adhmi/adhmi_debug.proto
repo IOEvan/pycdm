@@ -1,0 +1,364 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+import "common/perf/sensor_ts_header.proto";
+import "common/adhmi/adhmi_environment.proto";
+
+// 20 Hz定频发送，AD发布用于单Orin平台的debug topic 
+
+enum Hmi_NadSts{
+	Hmi_MdOff                = 1;
+	Hmi_MdPassive            = 2;
+	Hmi_MdRdy                = 3;
+	Hmi_MdAccStby            = 4;
+	Hmi_MdPilotStby          = 5;
+	Hmi_DaAccActv            = 6;
+	Hmi_DaActvLongLat        = 7;
+	Hmi_DaActvLong           = 8;
+	Hmi_DaNOPActv            = 9;
+	Hmi_DaNADEngaged         = 10;    //NAD engaged
+	Hmi_DaNADTrsnDmd         = 11;    //NAD Transition Demand
+	Hmi_Da_NADEngagedBETA    = 12;    //NAD engaged BETA
+}
+
+
+enum Hmi_LaneChangeTriggerType {
+	HMI_DRIVER = 0;
+	HMI_EMERGENCY_AVOIDANCE = 1;
+	HMI_SPLIT = 2;
+	HMI_OFF_RAMP = 3;
+	HMI_RAMP_TO_ROAD = 4;
+	HMI_MERGE = 5;
+	HMI_PRIORITY = 6;
+	HMI_SPEED = 7;
+	HMI_OVERTAKE = 8;
+	HMI_NOTHING = 9;
+	HMI_PREFERED_LANE = 10;
+	HMI_LANE_KEEP_SPLIT = 11;
+	HMI_RISK_OBSTACLE = 12;
+	HMI_AVOID_MERGE_LANE = 13;
+	HMI_AVOID_CONSTRUCTION_ZONE = 14;
+	HMI_AVOID_STATIC_VEHICLE = 15;
+	HMI_AVOID_VEHICLE_IN_JUNCTION = 16;
+	HMI_AVOID_BUS_LANE = 17;
+}
+
+enum Hmi_DynamicSource {
+    HMI_SOURCE_UNKNOWN = 0;
+    HMI_SOURCE_FROM_PERCEPTION = 1;
+    HMI_SOURCE_FROM_HDMAP = 2;
+    HMI_SOURCE_FROM_WM = 3;  // fusion result
+    HMI_SOURCE_FROM_SDMAP = 4;
+}
+
+
+message Hmi_TurnInfo {
+	optional uint64 dist_to_first_turn = 1;
+	optional uint64 first_turn_info = 2;
+	optional uint64 dist_to_second_turn = 3;
+	optional uint64 second_turn_info = 4;
+	repeated uint64 lanenr_info = 5;
+}
+
+
+enum Hmi_TLColor {
+    HMI_TLCOLOR_UNKNOWN = 0;
+    HMI_TLCOLOR_RED = 1;
+    HMI_TLCOLOR_YELLOW = 2;
+    HMI_TLCOLOR_GREEN = 3;
+    HMI_TLCOLOR_GRAY = 4;
+}
+
+
+enum Hmi_TLDType {
+	TLDType_Unknown = 0;
+	TLDType_Circle = 1;
+	TLDType_Left = 2;
+	TLDType_Right = 3;
+	TLDType_Up = 4;
+	TLDType_U_Turn = 5;
+	TLDType_Pedestrian = 6;
+	TLDType_Bicycle = 7;
+	TLDType_Straight_Up = 8;
+	TLDType_Forbid = 9;
+	TLDType_Straight_Down = 10;
+	TLDType_Warning = 11;
+	TLDType_Railway = 12;
+	TLDType_Turn_Right = 13;
+	TLDType_Turn_Left = 14;
+	TLDType_Bus = 15;
+	TLDType_Left_Uturn = 16;
+	TLDType_Right_Uturn = 17;
+	TLDType_Timer = 100;
+}
+
+
+message Hmi_TrafficLightStatus {
+    optional Hmi_TLColor color = 1;
+    optional uint32 is_flash = 2;
+    optional uint32 tracking_duration_ms = 3;  // millisecond
+    optional uint32 status_duration_ms = 4;  // millisecond
+    repeated uint64 lane_ids = 5; // all the lane ids corresponding to this direction
+    optional bool is_blocked = 6; //  indicate the light is blocked by objects
+    optional uint32 countdown = 7; // 65535 for undetected countdown  
+    repeated uint32 panel_ids = 8;
+    repeated Hmi_TLDType types = 9;
+    optional uint32 tld_failure_status = 10; 
+}
+
+
+message Hmi_Polyline {
+  repeated Hmi_Vector3d point = 1;
+  optional uint64 id = 2;
+}
+
+
+message Hmi_Polygon {
+  repeated Hmi_Vector3d points = 1;
+  optional uint64 id = 2;
+}
+
+
+message Hmi_FullStopLine{
+  optional uint64 id = 1;
+  optional Hmi_Polyline stop_line = 2;
+  
+  // A StopLine corresponds to one of the followings:
+  optional uint64 stop_sign_id = 3[deprecated = true];
+  optional uint64 yield_sign_id = 4[deprecated = true];
+  repeated uint64 traffic_light_id = 5 [packed = true];
+  repeated uint64 lane_ids = 6 [packed = true];
+  repeated uint64 stop_sign_ids = 7[packed = true];
+  repeated uint64 yield_sign_ids = 8[packed = true];
+  repeated uint64 junction_ids = 9[packed = true];
+
+  enum StopLineType {
+    SL_UNCLASSIFIED = 20000;
+    SL_STOPLINE = 20001;
+    SL_PARKING = 20002;
+    SL_DECELERATE = 20003;
+    SL_VIRTUAL = 20004;
+    SL_SLOW = 20005;
+    SL_LEFT_TURN_WAIT = 20006;
+    SL_STRAIGHT_WAIT = 20007;
+    SL_OTHERS = 20099;
+  }
+  optional StopLineType stop_line_type = 10;
+
+  // [NadMap2.0]stopline group id
+  optional uint64 group_id = 11;
+}
+
+
+
+message Hmi_CrossWalk {
+	optional uint64 id = 1;
+	optional Hmi_Polygon polygon = 2;
+	repeated uint64 lane_id = 3;
+	optional float heading = 4;
+
+	enum CrossWalkType {
+		CROSSWALK = 9;
+		CROSSWALK_JUNCTION_BICYCLE = 52010;
+	}
+	optional CrossWalkType crosswalk_type = 5;
+}
+
+
+
+message Hmi_TrafficLightJunction {
+
+    enum State{
+        APPROACHING = 0;
+        IN = 1;
+        PASSED = 2;
+    }
+
+    enum Type{ 
+        UNKNOWN = 0;
+        RAMP = 1;
+    }
+
+    message EntryExit {
+
+        enum Type {
+            UNKNOWN = 0;
+            ENTRY = 1;
+            EXIT = 2;
+        }
+
+        enum OverlapType {
+            FUSION = 0;
+            CROSSWALK = 1;
+            STOPLINE = 2;
+            TRAFFIC_LIGHT = 3;
+        }
+
+        enum PedestrianCrossable {
+            CROSSABLE_UNKNOWN = 0;
+            CROSSABLE = 1;
+            PROHIBITED = 2;
+        }
+
+        optional uint64 id = 1;                                // id of the entry or exit
+        optional PedestrianCrossable pedestrian_crossable = 2; // whether pedestrian can cross the entry or exit
+        optional Type type = 3;                                // the type of entry or exit
+        repeated uint64 overlap_id = 4;                        // id of the overlapping(crosswalk, stopline, etc.)
+        repeated OverlapType overlap_type = 5;                 // type of the overlapping
+        repeated Hmi_DynamicSource overlap_source = 6;         // source of the overlapping
+    }
+
+    optional uint64 timestamp_ns = 1;                 // timestamp of traffic light detection
+    optional uint64 id = 2;                           // from perception TLD_junction ID
+    repeated uint64 tld_panel_id = 3;
+    repeated uint64 stopline_id = 4;                  // hdmap stopline_id if available, otherwise from perception
+    optional uint64 hd_junction_id = 5;               // hdmap junction_id if available, otherwise no such field
+    optional Hmi_TrafficLightStatus tl_uturn = 6;    
+    optional Hmi_TrafficLightStatus tl_straight = 7;
+    optional Hmi_TrafficLightStatus tl_left = 8;
+    optional Hmi_TrafficLightStatus tl_right = 9;
+    optional Hmi_DynamicSource source = 10;           // indicate the source of junction and stopline's geometry info
+    optional Hmi_Vector3d tld_position = 11;
+    optional string extra_info = 12;
+    optional double virtual_stopline_distance = 13;
+    repeated Hmi_FullStopLine stoplines = 14;             // only stoplines from 
+    repeated Hmi_CrossWalk crosswalks = 15;           // perception only
+    optional bool is_controlled_by_traffic_light = 16;
+    optional Hmi_DynamicSource trafficlight_info_source = 17; // trafficlight info source: SD-means from GaoDe, PERCEPTION-means from perception
+    optional uint32 wait_num = 18;                    // wait num from GaoDe trafficlight countdown
+    optional double distance_to_entry = 19;
+    optional double distance_to_exit = 20;
+    optional State state = 21;
+    optional Type type = 22;
+    repeated EntryExit entries_exits = 23;            // all entries/exits of this junction with respect to the current navigation path
+}
+
+
+enum Hmi_NavigationState {
+	HMI_NS_NONE = 0; //default value, e.g. received nothing from the cdc
+	HMI_ROUTE_CRUISING = 1; // cruise mode
+	HMI_ROAMING = 2; // when calculating route or no avalibale sd data
+	HMI_NAVIGATING = 3; // navigation mode
+}
+
+
+message Hmi_NaviStub {
+    enum StubType {
+        UNKNOWN_TYPE = 0;
+        JUNCTION = 1; 
+        MERGE_IN = 2;
+        SPLIT_OUT = 3;
+    }
+    enum TurnDirection {
+        UNKNOWN_DIRECTION = 0;
+        STRAIGHT = 1;
+        LEFT = 2;
+        RIGHT = 3;
+        TURN_AROUND = 4;
+    }
+    enum StubSubType {
+        NORMAL = 0;
+        T_MERGE = 1;
+        T_SPLIT = 2;         
+    }   
+    optional uint64 id = 1;
+    optional StubType type = 2;
+    optional bool is_controlled_by_traffic_light = 3;
+    optional double distance_to_intersection_center = 4;
+    optional TurnDirection turn_direction = 5;
+    optional double distance_to_intersection_entry = 6;
+    optional bool is_controlled_access = 7;
+    optional StubSubType sub_type = 8; 
+    optional bool is_covered_by_hdmap = 9;
+    optional bool is_able_to_ad = 10;
+    repeated uint64 event_type = 11;
+}
+
+
+message Hmi_DSPoint{
+    optional float x = 1;  // x in ego-car coordinates, front direction is positive
+    optional float y = 2;  // y in ego-car coordinates, left direction is positive
+}
+
+enum Hmi_DrivingType{
+	UNKNOWN_UNDRIVABLE  = 0;  // unknown-undrivable
+	OBSERVED_UNDRIVABLE = 1;  // observed-undrivable
+	INFERRED_UNDRIVABLE = 2;  // inferred-undrivable
+	OBSERVED_DRIVABLE   = 3;  // observed-drivable
+	INFERRED_DRIVABLE   = 4;  // inferred-drivable
+	UNKNOWN_DRIVINGTYPE = 5;
+}
+
+
+message Hmi_DSPoint3D{
+    optional Hmi_DSPoint point = 1;  // driving space points list
+    optional float min_z   = 2;  // min_z in ego-car coordinates, up direction is positive
+    optional float max_z   = 3;  // max_z in ego-car coordinates, up direction is positive
+    optional Hmi_DrivingType driving_type    = 5;  // driving type
+}
+
+
+message Hmi_DSPolygon{
+    repeated Hmi_DSPoint3D point3d                            = 1;  // driving space point3d list
+    optional Hmi_DrivingType driving_type                     = 2;  // driving type
+    optional AtlasFusionSource fusion_source              = 3;  // fusion source
+    optional FusionSemanticClass semantic_class           = 4;  // fusion semantic class
+    
+    optional UnsafeAreaSemanticClass unsafe_area_semantic_class    = 7;  // unsafe area semantic class from unsafe_area detection
+    
+    enum AtlasFusionSource{
+        FUSION_ONLY_FROM_LIDAR                          = 0;
+        FUSION_ONLY_FROM_VISIONOCC                      = 1;
+        FUSION_FROM_LIDAR_CURB                          = 2;
+        FUSION_FROM_VISIONOCC_CURB                      = 3;
+        FUSION_FROM_LIDAR_VISIONOCC                     = 4;
+        FUSION_FROM_LIDAR_VISIONOCC_CURB                = 5;
+        FUSION_FROM_LIDAR_VISIONOCC_UNDRIVABLEAREA      = 6;
+        FUSION_FROM_LIDAR_VISIONOCC_UNDRIVABLEAREA_CURB = 7;
+    }
+
+    enum FusionSemanticClass{
+        UNKNOWN              = 0;  // unknown
+        GROUND               = 1;  // drivable ground
+        CURB                 = 2;  // curb
+        WALKABLE_GROUND      = 3;  // walkable
+        ANTI_COLLISION       = 4;  // anti-collision static objects
+    }
+
+    enum UnsafeAreaSemanticClass{
+        SEMANTIC_UNKNOWN              = 0;  // unknown
+        SEMANTIC_GUIDE                = 1;  // guide
+        SEMANTIC_UNSAFE_AREA          = 2;  // unsafe area
+    }
+}
+
+
+// HMI Debug Topic
+message Hmi_Debug {      
+    optional Hmi_NadSts                   hmi_nad_sts = 1;
+    optional Hmi_LaneChangeTriggerType    hmi_alc_trigger = 2;
+	optional Hmi_Vector3d                 hmi_roll_pitch_yaw = 3;
+    optional Hmi_Vector3d                 hmi_position = 4;
+    optional Hmi_Vector3d                 hmi_relative_roll_pitch_yaw = 5;
+	optional Hmi_Vector3d                 hmi_relative_position = 6;
+    optional Hmi_TurnInfo                 hmi_turn_info = 7;
+	repeated Hmi_TrafficLightJunction     hmi_traffic_light_junctions = 8;        
+	optional Hmi_NavigationState          hmi_navi_map_navigation_state = 9;
+	repeated Hmi_NaviStub                 hmi_long_range_info_navi_stub = 10;
+	repeated Hmi_ParkingArea              hmi_parking_areas = 11;
+	optional Hmi_DynamicSource            hmi_dynamic_map_source = 12;
+	repeated Hmi_DSPolygon                hmi_fg_polygons = 13;
+
+    optional string hmi_version = 1000 [default = "1.0.2"] ;                // proto version 
+    optional string hmi_update_date = 1001 [default = "20250228"] ;         // proto updated date
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    optional SensorTSHeader sensor_original_ts = 536870906;     // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;                 // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909;                   // uuid of the publisher
+    optional uint64 counter = 536870910;                        // message counter
+    optional uint64 publish_ts = 536870911;                     // publish timestamp; unit : nanosecond
+}
+

@@ -1,0 +1,30 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message DataDesensitizationReq {
+    enum EncodeType {
+        H264  = 0;
+        H265  = 1;
+        JPG   = 2;
+    }
+    
+    optional string uuid                = 1;  // uuid of the desensitization task
+    optional string raw_video           = 2;  // "/nfs/s1/dlb/event/xxxxx/front120.h264" or file path
+    optional string desensitized_video  = 3;  // "/nfs/s1/dlb/event/xxxxx/front120_desensitized.h264" or file path
+    optional uint64 expiration_time     = 4;  // default 0. in second. for example 3600.  after expiration time, resend request
+    optional EncodeType encode_type     = 5;  //
+    optional string datamask_conf       = 6;  // desensitization config
+    optional bool is_dir                = 7;  // desensitization path is file or dir
+    optional uint64   picture_number    = 8;  // useful in picture recorder
+    optional uint32   video_duration    = 9;  // time in ms
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin    
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts    = 536870907;     // publish ptp timestamp, uint in nanosec
+    optional string publisher_id      = 536870909;     // uuid of the publisher
+    optional uint64 counter           = 536870910;     // message counter
+    optional uint64 publish_ts        = 536870911;     // publish utc timestamp, unit in nanosec
+}

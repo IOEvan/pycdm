@@ -1,0 +1,139 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+message PlannerAdhmi {
+
+    enum ALCFuncSts {
+        ALC_NOT_ENGAGED = 0;                          // 不允许变道
+        ALC_LANE_CENTERING = 1;                       // lane keep
+        ALC_PREPARING_LANE_CHANGE_TOWARDS_LEFT = 2;   // 左变道prepare，变道确认等待
+        ALC_PREPARING_LANE_CHANGE_TOWARDS_RIGHT = 3;  // 右变道prepare，变道确认等待
+        ALC_EXECUTING_LANE_CHANGE_TOWARDS_LEFT = 4;   // 左变道change
+        ALC_EXECUTING_LANE_CHANGE_TOWARDS_RIGHT = 5;  // 右变道change
+        ALC_ABORTING_LANE_CHANGE_INTO_NEW_LANE = 6;   // 变道取消
+    }
+
+    enum EsdPspPsapTarget {
+        PSAP_NONE = 0;
+        PSAP_LOC_BOX = 1;
+        PSAP_CONNECTION_AREA = 2;
+    }
+
+    enum NopFsMode {
+        NOP_FS_NONE = 0;
+        NOP_FS_NORMAL = 1;
+        NOP_FS_COMPLEX = 2;
+    }
+
+    enum EsdNopLineRole{
+        LDRole_Unknown = 0;    // 不高亮车道线
+        Host_Left = 1;         // 标红左侧车道线
+        Host_Right = 2;        // 标红右侧车道线
+    }
+
+    // 导致刹停的原因
+    enum ESD_Virtual_Wall_Type_e{    
+        ESD_VW_TYPE_TRAFFIC_LIGHT = 0;      // 红绿灯       
+        ESD_VW_TYPE_GATE_MACHINE = 1;       // 道闸场景
+    }
+
+    message ESDLocQuaternion {
+        optional double x = 1;
+        optional double y = 2;
+        optional double z = 3;
+        optional double w = 4;
+    }
+
+    message ESDLocVector3 {
+        optional double x = 1;
+        optional double y = 2;
+        optional double z = 3;
+    }
+
+
+    message NopEsdObject {
+    optional uint64 esd_nop_obj_id = 1;       // 高亮的ID
+    optional uint64 esd_nop_obj_type = 2;     // highlight level  0~5
+                                    //0=Gray：默认值，下述之外的目标。
+                                    //1=White：自车跟随目标，例如前方跟随目标。
+                                    //2=White flashing：对本车产生影响，即便NOP+不做动作，也不会产生危险，例如触发主动偏移的车辆。
+                                    //3=Red：风险目标或使用户心理紧张、不安的目标，例如触发非舒适性减速的目标，影响变道的目标
+                                    //4=半边标蓝：车道外绕行的目标
+                                    //5=全标蓝：让行的目标
+                                    //6=半边标蓝：防御性舒适减速让行的目标
+    }
+
+    message ESD_Point {
+    optional float x = 1;
+    optional float y = 2;
+    optional float z = 3;
+    }
+
+    message NopEsdPath {
+    repeated ESD_Point esd_nop_path_points = 1;
+    optional float esd_nop_discrete_path_length = 2;
+    }
+
+    message RiskObjects{
+        optional NopEsdPath risk_object_path = 1;  // 风险目标轨迹
+        optional uint64 risk_object_id = 2;        // 风险目标ID
+    }
+
+    message NopPath{
+        repeated NopEsdPath esd_nop_path = 1;                   // NOP,腾挪牵引线
+        optional NopFsMode esd_nop_fs_mode = 2;                 // 0 = 输出NOP牵引线，非0 = 输出腾挪牵引线
+        optional ESDLocQuaternion esd_nop_quaternion = 3;       // 当前帧的四元数
+        optional ESDLocVector3 esd_nop_position = 4;            // 当前帧的相对定位
+        repeated RiskObjects esd_nop_risk_objects = 5;          // 风险目标
+    }
+
+
+    message ESD_VW_Categories{    
+        optional ESD_Virtual_Wall_Type_e vw_type = 1;    
+        optional bool vw_value = 2;
+    }
+
+    message ESDVirtualWall{    
+        optional ESD_Point esd_vw_position = 1;                                 //虚拟墙的中心点    
+        optional uint32 esd_vw_width = 2;                                       //虚拟墙的长度    
+        optional float esd_vw_angle = 3;                                        //虚拟墙中心点的切线方向角度           
+        repeated ESD_VW_Categories esd_vw_categories = 4;                       //虚拟墙的类别    
+    }
+
+
+
+    message PlannerIntention {
+        optional uint32 policy_wti = 1;  //老的信号名为 DA_NopWTI
+    }
+
+
+    message EsdPspInfo {
+        optional EsdPspPsapTarget esd_psp_psap_target = 1;
+        optional bool esd_psp_psap_interface = 2 [default = false];
+        optional uint32 esd_in_powerstation =  3;  // 0 default, 1 no overlap, 2 overlap
+    }
+
+    message EsdFeature {
+
+        optional EsdNopLineRole esd_nop_line_role = 1;                            // ALC实线抑制高亮                                                                                 // ALC实线报警
+        repeated NopEsdObject esd_nop_object = 2;                                 // NOP目标高亮
+        optional ALCFuncSts esd_nop_alc_sts = 3 [default = ALC_NOT_ENGAGED];      // ALC状态
+        optional uint32 esd_nop_distance_to_odd_boundary = 4;                     // ODD倒计时距离
+        repeated NopPath esd_nop_path = 5;                                        // NOP,腾挪牵引线
+        optional EsdPspInfo esd_psp_info = 6;                                     // PSP相关信息
+        optional ESDVirtualWall esd_virtual_wall = 7;                             // 虚拟墙相关信息
+                                                        
+    }
+
+  optional EsdFeature esd_feature = 1;
+  optional PlannerIntention planner_intention = 2;
+
+  optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+  optional uint64 publish_ptp_ts = 536870907;  // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909;  // uuid of the publisher
+  optional uint64 counter = 536870910;       // message counter
+  optional uint64 publish_ts = 536870911;  // publish utc timestamp; unit : nanosecond
+}

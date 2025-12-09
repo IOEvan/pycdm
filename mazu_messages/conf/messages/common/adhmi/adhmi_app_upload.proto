@@ -1,0 +1,24 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+//The proto message is cloned from https://git.nevint.com/dlb/nt2_tsp_proto/-/blob/master/event/adhmi/adhmi_app_upload.proto
+//Any changes must be synced with the source proto
+
+message AdhmiAppUpload {
+    optional string vehicle_id          = 1;    // vehicle id
+    optional string uuid                = 2;    // message uuid
+    optional string adc_version         = 3;    // global version of the vehicle//BL061
+    optional string app_uuid            = 4;    // app uuid
+    optional uint64 utc_nano_timestamp  = 5;    // utc nano timestamp
+    optional uint64 ptp_nano_timestamp  = 6;    // ptp nano timestamp
+    repeated ConfigInfo configs         = 7;    
+}
+
+message ConfigInfo {
+    optional string type                = 1;    //config file type
+    optional string version             = 2;    //config file version
+    optional uint32 status_code         = 3;
+    optional string status_message      = 4;
+}

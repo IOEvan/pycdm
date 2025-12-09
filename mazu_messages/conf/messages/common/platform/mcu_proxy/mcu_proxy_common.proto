@@ -1,0 +1,15 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+enum TargetMcu {
+  INVALID_MCU = 0;
+  MCU1 = 1;
+  MCU2 = 2;
+}
+
+enum ErrorCode {
+  NO_ERROR = 0;
+  GENERAL_ERROR = 1;
+}

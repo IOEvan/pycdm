@@ -1,0 +1,123 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+enum EvdDcsDir{
+  kEVD_DIR_ST = 0;
+  kEVD_DIR_LEFT = 1;
+  kEVD_DIR_RIGHT = 2;
+  kEVD_DIR_INVALID = 127;
+}
+
+message EvdParamLaneChange{
+  required EvdDcsDir change_dir = 1;
+  required EvdLaneChangeReason lane_change_reason = 2;
+
+  enum EvdLaneChangeReason{
+    kEVD_LCReason_NONE = 0;
+    kEVD_LCReason_NAVI = 1;
+    kEVD_LCReason_RECL = 2;
+    kEVD_LCReason_AVOID = 3;
+  }
+}
+
+message EvdParamPathSelect{
+  required EvdDcsDir path_dir = 1;
+}
+
+message EvdParamLeading{
+  required EvdDcsDir leading_dir = 1;
+}
+
+//Takeover source 0: VD_TAKEOVER_INFO_NONE; 2:NOMOSTRI_SPLIT,   NOLANECHANGE_RI_BRANCH,NOLANECHANGE_RI_SOLIDLINE,BADLATLOC_RI_BRANCH
+//3:NOMOSTLE_SPLIT,NOLANECHANGE_LE_BRANCH,NOLANECHANGE_LE_SOLIDLINE,BADLATLOC_LE_BRANCH 4:NOLEADING_SPLIT, BADLATLOC_LE_OFFRAMP,BADLATLOC_RI_OFFRAMP
+//5:NOLANECHANGE_LE_MERGE, BADLATLOC_LE_MERGE 6:NOLANECHANGE_RI_MERGE, BADLATLOC_RI_MERGE 7:GEOFENCE  1: Default
+
+message EvdParamTakeover{
+  required uint32 takeover_src = 1;
+}
+
+message EvdParamHW2Ramp{
+  required EvdDcsDir ramp_dir = 1;
+  required float dst2leading = 2;
+}
+
+message EvdParam{
+  required EvdParamLaneChange lane_change = 1;
+  required EvdParamPathSelect path_select = 2;
+  required EvdParamLeading leading = 3;
+  required EvdParamTakeover takeover = 4;
+  required EvdParamHW2Ramp hw2ramp = 5;
+}
+
+message EvdGLimit{
+  required uint32 spd = 1;
+  required float dist = 2;
+  required uint32 valid = 3;  //valid status of speed limitation. when current spd limit >0, it will be true
+  required CurrSpdLmtSrc source = 4;
+  optional uint32 regulation = 5; //Need to find the what does the value stand for. Currently is set to 0;
+
+  enum CurrSpdLmtSrc{
+    kEVD_CurrSpdLmtSrc_None = 0;
+    kEVD_CurrSpdLmtSrc_Curv = 1;
+    kEVD_CurrSpdLmtSrc_TraffFlow = 2;
+    kEVD_CurrSpdLmtSrc_FusSt = 3;
+    kEVD_CurrSpdLmtSrc_FreeSpace = 4;
+    kEVD_CurrSpdLmtSrc_Cone = 5;
+  }
+}
+
+message EvdDecsLimit{
+  required bool spd_valid = 1;  // same as curr_limit.valid
+  required uint32 spd = 2;       //
+  required uint32 distance_valid = 3;
+  required float distance = 4;
+  required uint32 deadline_valid = 5;
+  required float deadline = 6;
+  required EvdGLimit curr_limit = 7;
+  repeated EvdGLimit tar_limit = 8;
+}
+
+message EvdGeofence{
+  required uint32 valid = 1;  //Need to find the what does the value stand for
+  required GFPDirClass classification = 2; //Need to find the what does the value stand for
+  required float distance = 3;
+  required uint32 type = 4;  //Need to find the what does the value stand for
+
+  enum GFPDirClass{
+    kEVD_GFP_Class_NONE = 0;
+    kEVD_GFP_Class_IN = 1;
+    kEVD_GFP_Class_OUT = 2;
+  }
+}
+
+message EHYEvdOutputs{
+  required EvdDecisionName decision = 1;
+  required EvdParam parameters = 2;
+  required EvdDecsLimit limitations = 3;
+  required EvdGeofence gfp_info =4;
+
+  optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin 
+  optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+  optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909; // uuid of the publisher
+  optional uint64 counter = 536870910;         // message counter
+  optional uint64 publish_ts = 536870911;    // publish utc timestamp; unit : nanosecond
+
+  enum EvdDecisionName{
+    EVD_DECISION_NONE = 0;
+    EVD_DECISION_PILOT = 1;
+    EVD_DECISION_RAMP2HW = 2;
+    EVD_DECISION_HW2RAMP = 3;
+    EVD_DECISION_LANECHANGE = 4;
+    EVD_DECISION_PATHSELECT = 5;
+    EVD_DECISION_TAKEOVER = 6;
+    EVD_DECISION_ALTERNATEPASS = 7;  // close cut-in;
+    EVD_DECISION_PILOT2SPEC = 8;
+    EVD_DECISION_LEADING = 9;
+    EVD_DECISION_MERG2MAINRD = 10;  // merging to main road
+  }
+
+}

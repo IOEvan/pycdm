@@ -1,0 +1,8 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+import "common/vehicle_in/adb_enum_type.proto";
+package nio.ad.messages;
+message AdbActvSts{
+  optional ADBAcSts_e    ActvnOfADB = 1;          //@Channel:ADAS   @Message:0x1E6 @Signal:ActvnOfADB
+}

@@ -1,0 +1,15 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package ros;
+
+message Time {
+  required uint32 sec = 1;
+  required uint32 nsec = 2;
+}
+
+message Duration {
+  required uint32 sec = 1;
+  required uint32 nsec = 2;
+}

@@ -1,0 +1,42 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+enum XStreamQueueType {
+    FIFO = 0;
+    MAILBOX = 1;
+}
+message XStreamConfig {
+    optional bool enable_monitor_switch = 1;   // 是否打开xstream的监控开关，输出更详细的debug log, default: false
+    optional bool enable_reconnect_switch = 2; // 当Server断链时，是否enable reconnect功能，default: false
+    optional int32 reconnect_times = 3;        // 断连是重试次数，default：3，值域[1~10]
+    optional int32 reconnect_interval = 4;     // 断连重试间隔 100ms，default：100，值域[10~10000]
+    optional int32 packet_num = 5;             // Server端Packet数目, default：2，值域[1~5]
+    optional int32 limiter_num = 6;            // Client的Limiter值。如果超过该值，则不向该Client发消息, default：2，值域[1~5]
+    optional bool enable_limiter_flag = 7;     // 是否打开client的limiter block。default: true
+    optional XStreamQueueType queue_type = 8;  // Client端的Queue Type, default：MAILBOX
+    optional int32 connect_check_interval = 9; // pcie断联检测时间, default：350ms, 值域[100~2000]
+    optional int32 reserved1 = 10;             // reserved variable. default: 0, 值域[0-10000]
+}
+
+enum DeploymentOption {
+    DEPOLYED_NONE = 0;
+    DEPOLYED_IN_ARGAPP = 1;
+    DEPOLYED_STANDALONE = 2;
+}
+
+message PcieParamConfig {
+    optional DeploymentOption delopyed_option = 1; // 传输程序的部署方式，default: DEPOLYED_NONE
+    optional bool trigger_from_camera = 2;         // 是否使用camera数据源触发消息发送，default: false
+    optional bool enable_monitor_task = 3;         // 开启监控线程，每10s输出帧率是否正常log，default: true
+    optional XStreamConfig xstream_config = 4;     // xstream内部配置
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts   = 536870907;   //publish ptp timestamp, uint in nanosec
+    optional string publisher_id     = 536870909;   // uuid of the publisher
+    optional uint64 counter          = 536870910;   // message counter
+    optional uint64 publish_ts       = 536870911;   // publish timestamp; unit : nanosecond
+}

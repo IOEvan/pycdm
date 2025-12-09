@@ -1,0 +1,82 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message RadRr01 {
+    optional uint32 bsdlca_onoff_sts = 1;                   // BSD/LCA on off switch status;
+    optional uint32 bsdlca_left_sts = 2;                    // BSD/LCA system left status;
+    optional uint32 bsdlca_right_sts = 3;                   // BSD/LCA system right status;
+    optional uint32 bsdlca_left_warn_req = 4;               // BSD/LCA left warning request status;
+    optional uint32 bsdlca_right_warn_req = 5;              // BSD/LCA right warning request status;
+    optional uint32 bsdlca_haptic_onoff_sts = 6;            // BSD/LCA haptic on off switch status;
+    optional uint32 ext_req = 7;                            // BSD/LCA external request;
+    optional uint32 sdow_onoff_sts = 8;                     // SDOW on off switch status;
+    optional uint32 sdow_left_sts = 9;                      // SDOW system left status;
+    optional uint32 sdow_right_sts = 10;                    // SDOW system right status;
+    optional uint32 sdow_left_warn_req = 11;                // SDOW left warning request status;
+    optional uint32 sdow_right_warn_req = 12;               // SDOW right warning request status;
+    optional uint32 rcta_onoff_sts = 13;                    // RCTA on off switch status;
+    optional uint32 rcta_left_sts = 14;                     // RCTA system left status;
+    optional uint32 rcta_right_sts = 15;                    // RCTA system right status;
+    optional uint32 rcta_left_warn_req = 16;                // RCTA left warning request status;
+    optional uint32 rcta_right_warn_req = 17;               // RCTA right warning request status;
+    optional uint32 mirr_light_left_req = 18;               // Left rear view mirror light request;
+    optional uint32 mirr_light_right_req = 19;              // Right rear view mirror light request;
+    optional uint32 rear_rad_fault_disp = 20;               // Rear side feature fault display status;
+}
+
+message RadFl01 {
+    optional uint32 fcta_left_sts = 1;                      // FCTA system left status;
+    optional uint32 fcta_left_warn_req = 2;                 // FCTA left warning request status;
+    optional uint32 front_left_rad_fault_disp = 3;          // Front left radar system fault display;
+}
+
+message RadFr01 {
+    optional uint32 fcta_right_sts = 1;                     // FCTA system right status;
+    optional uint32 fcta_right_warn_req = 2;                // FCTA right warning request status;
+    optional uint32 front_right_rad_fault_disp = 3;         // Front right radar system fault display;
+}
+
+message RadFc01 {
+    optional uint32 acc_decel_stop_req = 1;                 // RCTA-B related VLC request, only {vlc_func_req} and
+    optional uint32 drv_off_req = 2;                        // {acc_tar_accel} are used;
+    optional float acc_max_jerk_accel = 3;
+    optional float acc_min_jerk_accel = 4;
+    optional uint32 acc_mode = 5;
+    optional uint32 acc_shutdown_req = 6;
+    optional float acc_tar_accel = 7;
+    optional uint32 vlc_func_req = 8;
+}
+
+message RadFC03 {
+    optional uint32 rcta_brk_sts = 1;                       // RCTA-B system status;
+}
+
+message AdcEps02 {
+    optional uint32 adc1_eps_hvi_req = 1;                   // BSD/LCA haptiv warning request type;
+    optional uint32 adc1_eps_hvi_req_val = 2;               // BSD/LCA haptiv warning request validity;
+}
+
+message CamFc03 {
+    optional uint32 fcta_onoff_sts = 1;                     // FCTA on off switch status;
+}
+
+message ForceSideFeatures {
+    optional RadRr01 rad_rr_01 = 1;
+    optional RadFl01 rad_fl_01 = 2;
+    optional RadFr01 rad_fr_01 = 3;
+    optional RadFc01 rad_fc_01 = 4;
+    optional RadFC03 rad_fc_03 = 5;
+    optional AdcEps02 adc_eps_02 = 6;
+    optional CamFc03 cam_fc_03 = 7;
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin 
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;    // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909;      // uuid of the publisher
+    optional uint64 counter = 536870910;           // message counter
+    optional uint64 publish_ts = 536870911;        // publish utc timestamp; unit : nanosecond
+
+}

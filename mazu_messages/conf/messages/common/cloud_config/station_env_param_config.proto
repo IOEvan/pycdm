@@ -1,0 +1,71 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+// 位置坐标
+message PositionCoord {
+    optional float x = 1;
+    optional float y = 2;
+    optional float z = 3;
+}
+
+message SlotInfo {
+    enum SlotType {
+        UNKNOWN                   = 0;
+        LEFT_PARALLEL_PARKIN      = 1;   //valid,左侧平行车位,泊入
+        RIGHT_PARALLEL_PARKIN     = 2;   //valid,右侧平行车位,泊入
+        LEFT_CROSS_PARKIN         = 3;   //valid,左侧垂直车位,泊入
+        RIGHT_CROSS_PARKIN        = 4;   //valid,右侧垂直车位,泊入
+        LEFT_CROSS_PARKOUT        = 5;
+        RIGHT_CROSS_PARKOUT       = 6;
+        LEFT_ANGLED_PARKIN        = 7;   //valid,左侧斜车位,泊入
+        RIGHT_ANGLED_PARKIN       = 8;   //valid,右侧斜车位,泊入
+        LEFT_OTHER_PARKIN         = 9;
+        RIGHT_OTHER_PARKIN        = 10;
+        LEFT_PARALLEL_PARKOUT     = 11;
+        RIGHT_PARALLEL_PARKOUT    = 12;
+        LEFT_ANGLE_PARKOUT        = 13;
+        RIGHT_ANGLE_PARKOUT       = 14;
+        PARK_BACKUP_SLOT          = 15;  //备用泊车车位
+
+        LEFT_PSAP_IN              = 30;
+        RIGHT_PSAP_IN             = 31;
+        LEFT_PSAP_OUT             = 32;
+        RIGHT_PSAP_OUT            = 33;
+    }
+    optional uint32 slot_id                 = 1;  //车位编号
+    optional SlotType slot_type             = 2;  //车位类型
+    repeated PositionCoord corners          = 3;  //车位四个角点, 严格按照pt1,pt2,pt3,pt4顺序
+    optional bool park_stop_valid           = 4;  //车位内是否存在车档, 存在为true
+    repeated PositionCoord park_stop_points = 5;  //车档端点对应的两个点, 若不存在, 填默认值0
+    optional bool park_lock_valid           = 6;  //车位内是否存在地锁, 存在为true
+    repeated PositionCoord park_lock_points = 7;  //地锁对应的两个点（参考目前车端感知输出即可, 不存在时默认输出0
+    optional bool park_lock_is_open         = 8;  //地锁开关状态, 开地锁为true, 默认为false
+    optional bool curb_valid                = 9;  //平行车位内侧是否存在curb, 存在为true, 其他车位类型默认为false
+    repeated PositionCoord curb_points      = 10; //抽象出的curb平行与车位底边线, 端点与侧边线平齐. 若不存在，默认输出为0
+    optional bool wall_valid                = 11; //平行车位内侧是否存在wall, 存在为true, 其它车位类型默认为false
+    repeated PositionCoord wall_points      = 12; //含义与curb类似
+    optional bool slot_is_occupancy         = 13; //车位是否被占据，预留字段，可以默认填false, 若后续感知可以直接给出占据属性，可以填写
+}
+
+message SlotState {
+    optional uint32 slot_id                 = 1; //车位编号
+    optional bool slot_is_open              = 2; //车位是否开启, 开启为true, 默认为false
+    optional string slot_info_hash          = 3; //车位信息的hash值, 将每个车位info的字符串直接做hash
+}
+
+
+message StationEnvParamConfig {
+    repeated SlotInfo slots                 = 1;  //站端车位信息
+    repeated SlotState all_slot_state       = 2;  //全部车位的状态信息, 按车位号从小到大顺序排列
+    optional string map_version             = 3;  //车位地图版本, 示例 20240511151225
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts   = 536870907;   //publish ptp timestamp, uint in nanosec
+    optional string publisher_id     = 536870909;   // uuid of the publisher
+    optional uint64 counter          = 536870910;  // message counter
+    optional uint64 publish_ts       = 536870911;  // publish timestamp; unit : nanosecond
+}

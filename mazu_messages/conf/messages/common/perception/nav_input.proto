@@ -1,0 +1,270 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message NavInput_Point2D {
+  optional float x = 1;
+  optional float y = 2;
+}
+
+message NavInput_Polygon2D {
+  optional int32 id = 1;
+  repeated NavInput_Point2D points = 2;
+}
+
+message NavInput_Line2D {
+  optional int32 id = 1;
+  repeated NavInput_Point2D points = 2;
+}
+
+message ActionInput {
+  enum TBTGuideAction {
+    NO_NAVI_ACTION = 0;
+    TURN_LEFT = 1;
+    TURN_RIGHT = 2;
+    DRIVE_LEFT_FRONT = 3;
+    DRIVE_RIGHT_FRONT = 4;
+    DRIVE_LEFT_REAR = 5;
+    DRIVE_RIGHT_REAR = 6;
+    TURN_LEFT_TURN_AROUND = 7;
+    GO_STRAIGHT = 8;
+    FRONT_ROAD_ALONG_LEFT = 9;
+    FRONT_ROAD_ALONG_RIGHT = 10;
+    TRIFURCATION_ALONG_LEFT = 11;
+    TRIFURCATION_ALONG_MIDDLE = 12;
+    TRIFURCATION_ALONG_RIGHT = 13;
+    TWO_STRAIGHT_ALONG_LEFT = 14;
+    TWO_STRAIGHT_ALONG_RIGHT = 15;
+    THREE_STRAIGHT_ALONG_LEFT = 16;
+    THREE_STRAIGHT_ALONG_MIDDLE = 17;
+    THREE_STRAIGHT_ALONG_RIGHT = 18;
+    ENTRY_RING = 19;
+    LEAVE_RING = 20;
+    DESTINATION = 21;
+
+    MainActionInvalid = 9999;                                // 无效操作
+    MainActionNULL = 10000;                                  // 无基本导航动作
+    MainActionTurnLeft = 10001;                              // 左转
+    MainActionTurnRight = 10002;                             // 右转
+    MainActionSlightLeft = 10003;                            // 向左前方行驶
+    MainActionSlightRight = 10004;                           // 向右前方行驶
+    MainActionTurnHardLeft = 10005;                          // 向左后方行驶
+    MainActionTurnHardRight = 10006;                         // 向右后方行驶
+    MainActionUTurn = 10007;                                 // 左转调头
+    MainActionContinue = 10008;                              // 直行
+    MainActionMergeLeft = 10009;                             // 靠左
+    MainActionMergeRight = 10010;                           // 靠右
+    MainActionEntryRing = 10011;                            // 进入环岛
+    MainActionLeaveRing = 10012;                            // 离开环岛
+    MainActionSlow = 10013;                                 // 减速行驶
+    MainActionPlugContinue = 10014;                         // 插入直行（泛亚特有）
+    MainActionEnterBuilding = 10065;                        // 进入建筑物
+    MainActionLeaveBuilding = 10066;                        // 离开建筑物
+    MainActionByElevator = 10067;                           // 电梯换层
+    MainActionByStair = 10068;                              // 楼梯换层
+    MainActionByEscalator = 10069;                          // 扶梯换层
+    MainActionCount = 10070;                                 // 导航主动作最大个数
+  }
+  enum AssistAction {
+    ASSI_ACTION_NULL = 0;
+    ASSI_ACTION_ENTRY_MERGE_LEFT = 1;
+    ASSI_ACTION_ENTRY_MERGE_CENTER = 2;
+    ASSI_ACTION_ENTRY_MERGE_RIGHT = 3;
+    ASSI_ACTION_ENTRY_LEFT_ROAD_STRAIGHT = 4;
+    ASSI_ACTION_ENTRY_CENTER_ROAD_STRAIGHT = 5;
+    ASSI_ACTION_ENTRY_RIGHT_ROAD_STRAIGHT = 6;
+
+    AssiActionInvalid = 9999;                  // 无效操作
+    AssiActionNULL = 10000;                     // 无辅助导航动作
+    AssiActionEntryMain = 10001;                // 进入主路
+    AssiActionEntrySideRoad = 10002;            // 进入辅路
+    AssiActionEntryFreeway = 10003;             // 进入高速
+    AssiActionEntrySlip = 10004;                // 进入匝道
+    AssiActionEntryTunnel = 10005;              // 进入隧道
+    AssiActionEntryCenterBranch = 10006;        // 进入中间岔道
+    AssiActionEntryRightBranch = 10007;         // 进入右岔路
+    AssiActionEntryLeftBranch = 10008;          // 进入左岔路
+    AssiActionEntryRightRoad = 10009;           // 进入右转专用道
+    AssiActionEntryLeftRoad = 10010;            // 进入左转专用道
+    AssiActionEntryMergeCenter = 10011;         // 进入中间道路
+    AssiActionEntryMergeRight = 10012;          // 进入右侧道路
+    AssiActionEntryMergeLeft = 10013;           // 进入左侧道路
+    AssiActionEntryMergeRightSild = 10014;      // 靠右行驶进入辅路
+    AssiActionEntryMergeLeftSild = 10015;       // 靠左行驶进入辅路
+    AssiActionEntryMergeRightMAIN = 10016;      // 靠右行驶进入主路
+    AssiActionEntryMergeLeftMAIN = 10017;       // 靠左行驶进入主路
+    AssiActionEntryMergeRightRight = 10018;     // 靠右行驶进入右转专用道
+    AssiActionEntryFerry = 10019;               // 到达航道
+    AssiActionLeftferry = 10020;                // 驶离轮渡
+    AssiActionAlongRoad = 10023;                // 沿当前道路行驶
+    AssiActionAlongSild = 10024;                // 沿辅路行驶
+    AssiActionAlongMain = 10025;                // 沿主路行驶
+    AssiActionArriveExit = 10032;               // 到达出口
+    AssiActionArriveServiceArea = 10033;        // 到达服务区
+    AssiActionArriveTollGate = 10034;           // 到达收费站
+    AssiActionArriveWay = 10035;                // 到达途经地
+    AssiActionArriveDestination = 10036;        // 到达目的地的
+    AssiActionArriveChargingStation = 10037;    // 到达充电站;新能源汽车专用
+    AssiActionEntryRingLeft = 10048;            // 绕环岛左转
+    AssiActionEntryRingRight = 10049;           // 绕环岛右转
+    AssiActionEntryRingContinue = 10050;        // 绕环岛直行
+    AssiActionEntryRingUTurn = 10051;           // 绕环岛调头
+    AssiActionSmallRingNotCount = 10052;        // 小环岛不数出口
+    AssiActionRightBranch1 = 10064;             // 到达复杂路口，走右边第一出口
+    AssiActionRightBranch2 = 10065;             // 到达复杂路口，走右边第二出口
+    AssiActionRightBranch3 = 10066;             // 到达复杂路口，走右边第三出口
+    AssiActionRightBranch4 = 10067;             // 到达复杂路口，走右边第四出口
+    AssiActionRightBranch5 = 10068;             // 到达复杂路口，走右边第五出口
+    AssiActionLeftBranch1 = 10069;              // 到达复杂路口，走左边第一出口
+    AssiActionLeftBranch2 = 10070;              // 到达复杂路口，走左边第二出口
+    AssiActionLeftBranch3 = 10071;              // 到达复杂路口，走左边第三出口
+    AssiActionLeftBranch4 = 10072;              // 到达复杂路口，走左边第四出口
+    AssiActionLeftBranch5 = 10073;              // 到达复杂路口，走左边第五出口
+    AssiActionEnterUline = 10080;               // 进入调头专用路
+    AssiActionPassCrossWalk = 10090;            // 通过人行横道
+    AssiActionPassOverPass = 10091;             // 通过过街天桥
+    AssiActionPassUnderground = 10092;          // 通过地下通道
+    AssiActionPassSquare = 10093;               // 通过广场
+    AssiActionPassPark = 10094;                 // 通过公园
+    AssiActionPassStaircase = 10095;            // 通过扶梯
+    AssiActionPassLift = 10096;                 // 通过直梯
+    AssiActionPassCableway = 10097;             // 通过索道
+    AssiActionPassSkyChannel = 10098;           // 通过空中通道
+    AssiActionPassChannel = 10099;              // 通过建筑物穿越通道
+    AssiActionPassWalkRoad = 10100;             // 通过行人道路
+    AssiActionPassBoatLine = 10101;             // 通过游船路线
+    AssiActionPassSightseeingLine = 10102;      // 通过观光车路线
+    AssiActionPassSkidway = 10103;              // 通过滑道
+    AssiActionPassLadder = 10105;               // 通过阶梯
+    AssiActionPassSlope = 10106;                // 通过斜坡
+    AssiActionPassBridge = 10107;               // 通过桥
+    AssiActionPassFerry = 10108;                // 通过轮渡
+    AssiActionPassSubway = 10109;               // 通过地铁通道
+    AssiActionSoonEnterBuilding = 10112;        // 即将进入建筑(当前未下发)
+    AssiActionSoonLeaveBuilding = 10113;        // 即将离开建筑(当前未下发)
+    AssiActionEnterRoundabout = 10114;          // 进入环岛(骑步特有)
+    AssiActionLeaveRoundabout = 10115;          // 离开环岛(骑步特有)
+    AssiActionEnterPath = 10116;                // 进入小路
+    AssiActionEnterInner = 10117;               // 进入内部路
+    AssiActionEnterLeftBranchTwo = 10118;        // 进入左侧第二岔路
+    AssiActionEnterLeftBranchThree = 10119;      // 进入左侧第三岔路
+    AssiActionEnterRightBranchTwo = 10120;       // 进入右侧第二岔路
+    AssiActionEnterRightBranchThree = 10121;     // 进入右侧第三岔路
+    AssiActionEnterGasStation = 10122;           // 进入加油站道路
+    AssiActionEnterHousingEstate = 10123;        // 进入小区道路
+    AssiActionEnterParkRoad = 10124;             // 进入园区道路
+    AssiActionEnterOverhead = 10125;             // 上高架
+    AssiActionEnterCenterBranchOverhead = 10126; // 走中间岔路上高架
+    AssiActionEnterRightBranchOverhead = 10127;  // 走最右侧岔路上高架
+    AssiActionEnterLeftBranchOverhead = 10128;   // 走最左侧岔路上高架
+    AssiActionAlongStraight = 10129;             // 沿当前道路直行
+    AssiActionDownOverhead = 10130;              // 下高架
+    AssiActionEnterLeftOverhead = 10131;         // 走左侧道路上高架
+    AssiActionEnterRightOverhead = 10132;        // 走右侧道路上高架
+    AssiActionUptoBridge = 10133;                // 上桥
+    AssiActionEnterParking = 10134;              // 进停车场
+    AssiActionEnterOverpass = 10135;             // 进入立交桥
+    AssiActionEnterBridge = 10136;               // 进入桥梁
+    AssiActionEnterUnderpass = 10137;            // 进入地下通道
+    AssiActionMax = 14096;                       // 辅动作最大值
+  }
+  optional TBTGuideAction guide_action = 1;
+  optional AssistAction assist_action = 2;
+  optional float offset = 3;
+}
+
+message HighLightLane {
+  enum TurnDirection {
+    UNKNOWN_DIRECTION = 0;
+    STRAIGHT = 1;
+    LEFT = 2;
+    RIGHT = 3;
+    TURN_AROUND_LEFT = 4;
+    TURN_AROUND_RIGHT = 5;
+  }
+  optional bool is_drivable = 1; // 是否可通行
+  repeated TurnDirection lane_turn_direction = 2;
+}
+
+message HighLightLaneInput {
+  repeated uint32 recommend_lane_info = 1;
+  optional float offset = 2;
+  optional uint32 lanenr_id = 3;
+  optional bool is_show = 4;  //是否在DC界面显示
+  optional HighLightLane.TurnDirection turn_direction = 5; // 路口的转向方向
+  repeated HighLightLane high_light_lanes = 6; // 解析的结果，从左到右
+}
+
+message SDDirInput {
+  optional float dx = 1;
+  optional float dy = 2;
+  optional float offset = 3;
+}
+
+message NaviPathInput {
+  repeated ActionInput action_input = 1;
+  repeated HighLightLaneInput hl_input = 2;
+  repeated SDDirInput sddir_input = 3;
+}
+
+message GoalPointDebug {
+  message LineItem {
+    optional string key = 1;
+    optional NavInput_Line2D val = 2;
+  }
+
+  message PolygonItem {
+    optional string key = 1;
+    optional NavInput_Polygon2D val = 2;
+  }
+
+  optional NavInput_Line2D main_shape_points = 1;
+  map<string, NavInput_Line2D> sub_path_lines = 2 [ deprecated = true ];
+  map<string, NavInput_Polygon2D> inner_regions = 3 [ deprecated = true ];
+  repeated LineItem sub_path_lines_v2 = 4;
+  repeated PolygonItem inner_regions_v2 = 5;
+}
+
+message SceneStub {
+    enum StubType {
+        UNKNOWN_TYPE = 0;
+        JUNCTION = 1; // 十字路口
+        MERGE_IN = 2;
+        SPLIT_OUT = 3;
+    }
+    enum TurnDirection {
+        UNKNOWN_DIRECTION = 0;
+        STRAIGHT = 1;
+        LEFT = 2;
+        RIGHT = 3;
+        TURN_AROUND = 4;
+    }
+    optional uint32 id = 1;
+    optional StubType type = 2;
+    optional bool is_controlled_by_traffic_light = 3;
+    optional TurnDirection turn_direction = 4;
+    optional double distance_to_intersection_center = 5;
+    optional double distance_to_intersection_entry = 6;
+    optional double distance_to_intersection_exit = 7;
+    optional uint32 lanenr_id = 8;
+    optional string debug_string = 9;
+}
+
+message SceneManagerDebug {
+    repeated SceneStub scene_stubs = 1;
+}
+
+message NaviPathInputDebug {
+  optional NaviPathInput nav_input = 1;
+  optional GoalPointDebug goal_point_debug = 2;
+  optional SceneManagerDebug scene_manager_debug = 3;
+  optional uint64 timestamp = 10000;     // image receive time
+
+  optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+  optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909; // uuid of the publisher
+  optional uint64 counter = 536870910;         // message counter
+  optional uint64 publish_ts = 536870911;      // publish utc timestamp, unit : nanosecond
+}

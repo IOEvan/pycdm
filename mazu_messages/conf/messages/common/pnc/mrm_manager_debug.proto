@@ -1,0 +1,285 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+import "common/pnc/geometry.proto";
+import "common/pnc/path.proto";
+import "common/pnc/perception_object.proto";
+import "common/pnc/planner_debug.proto";
+import "common/pnc/road_map.proto";
+import "np/apps/ehy_tse_outputs.proto";
+import "np/apps/ehy_tsi_outputs.proto";
+
+message MiniDrivingSpace {
+  optional uint64 time_meas = 1;
+  optional Transformation3d reference_frame = 2;
+  optional Polyline left_boundary = 3;
+  optional Polyline right_boundary = 4;
+  optional PathPointNop target_point = 5;
+}
+
+message BoundaryLine {
+  optional Polyline line = 1;
+  optional uint32 line_id = 2;
+  optional double start_heading_rad = 3;
+  optional double end_heading_rad = 4;
+  optional CurveFitLine curve_fit_line = 5;
+}
+
+message CurveFitLine {
+  optional double c0 = 1;
+  optional double c1 = 2;
+  optional double c2 = 3;
+  optional double c3 = 4;
+  optional double start_x = 5;
+  optional double end_x = 6;
+  optional double init_l = 7;
+}
+
+message VisionBoundary {
+  optional uint64 time_meas = 1;
+  repeated BoundaryLine cur_left_roadedge = 2;
+  repeated BoundaryLine cur_right_roadedge = 3;
+  repeated BoundaryLine cur_yellow_solid_line = 4;
+  repeated BoundaryLine nxt_left_roadedge = 5;
+  repeated BoundaryLine nxt_right_roadedge = 6;
+  repeated BoundaryLine nxt_yellow_solid_line = 7;
+}
+
+message MrmRefPath {
+  optional uint64 time_meas = 1;
+  optional Transformation3d reference_frame = 2;
+  repeated PathPointNop points = 3;
+}
+
+message MrmLaneInfo {
+  optional uint32 slot_id = 1;             // 从左往右数第几个车道
+  optional CurveFitLine center_line = 2;   // 拟合车道中心线
+  optional uint32 left_lane_line_id = 3;   // 左车道线ID
+  optional uint32 right_lane_line_id = 4;  // 右车道线ID
+  enum LaneType {
+    LEFT_TURN = 1;
+    RIGHT_TURN = 2;
+    U_TURN = 3;
+    STRAIGHT_LANE = 4;
+  }
+  repeated LaneType lane_type = 5;  // 车道属性多样可叠加
+}
+
+message MrmLaneMap {
+  repeated BoundaryLine curr_lane_line = 1;
+  repeated BoundaryLine next_lane_line = 2;
+  repeated MrmLaneInfo curr_lane = 3;
+  repeated MrmLaneInfo next_lane = 4;
+  optional uint32 curr_slot_id = 5;
+}
+
+message MrmEgoState {
+  optional uint64 time_meas = 1;
+  // px,py,pz, m
+  optional Vector3d position = 2;
+  // vx,vy,vz, mps
+  optional Vector3d velocity = 3;
+  // ax,ay,az, mpss
+  optional Vector3d linear_acc = 4;
+  // wx,wy,wz, radps
+  optional Vector3d angular_vel = 5;
+  // roll,pith,yaw, rad
+  optional Vector3d euler_angle = 6;
+
+  optional double front_wheel_angle_rad = 7;
+  optional double disp_spd_mps = 10;
+  optional double current_s_m = 11;
+}
+
+message MrmInputDebug {
+  optional MiniDrivingSpace mini_driving_space = 1;
+  optional MrmRefPath last_refline = 2;
+  repeated PerceptionObject obstacles = 3;
+  optional VisionBoundary vision_boundary = 4;  // vision road detection
+  optional MrmLaneMap lane_map = 5;
+}
+
+message MrmStateCheckerDebug {
+  message RoadSts {
+    optional uint32 road_class = 1;
+    optional uint32 nad_sts = 2;
+    optional double dist_to_fork = 3;
+    optional double ref_kappa = 4;
+  }
+  message CheckPt {
+    optional double x = 1;
+    optional double y = 2;
+    optional double s = 3;
+    optional double l = 4;
+    optional uint32 index = 5;
+  }
+  optional bool mrm_enable_flg = 1 [default = false];
+  optional bool mrm_active_flg = 2 [default = false];
+  optional RoadSts road_sts = 3;
+  repeated uint32 valid_road_edge_id = 4;
+  optional double path_length = 5;
+  optional CheckPt ego_pos = 6;
+  optional CheckPt collision_pt = 7;
+  optional double check_end_s = 8;
+  optional double refline_end_s = 9;
+  repeated uint32 collision_road_edge_id = 10;
+  optional bool raw_path_collsion_flg = 11;
+  optional bool raw_path_safety_flg = 12;
+  optional bool collision_counter_trigger_flg = 13;
+  optional bool kappa_triger_flg = 14;
+  optional double risk_check_dist = 15;
+  optional bool risk_release_dist_flg = 16;
+  optional bool risk_release_time_flg = 17;
+  optional bool risk_release_flg = 18;
+  optional bool risk_trigger_flg = 19;
+  optional bool collision_degrade_triggered_flg = 20;
+  optional bool collision_degrade_enabled_flg = 21;
+  optional bool final_risk_flg = 22 [default = false];
+  optional double len_ratio = 23;
+  optional double lat_width_buffer = 24;
+}
+
+message MrmReflineDebug {
+  enum ReflineType {
+    LAST_REFLINE = 0;
+    PERCEPTION_LANELINE = 1;
+    TPP_REFLINE = 2;
+    SEARCHED_REFLINE = 3;
+    FORWARDSIMU_REFLINE = 4;
+    INVALID = 5;
+  }
+  optional ReflineType type = 1;
+  optional MrmRefPath refline = 2;
+  optional CurveFitLine fit_refline = 3;
+  optional CurveFitLine tpp_refline = 4;
+
+  optional bool is_history_last_refline_valid = 100;
+  optional bool is_path_has_large_offset_flg = 101;
+  optional double relative_lateral_error_m = 102;
+  optional double relative_heading_angle_rad = 103;
+}
+
+message MrmFrameAdapterDebug {
+  optional uint64 time_meas = 1;
+  enum FrameDependencyType {
+    LaneDetection = 0;
+    DrivingSpace = 1;
+    ObjectDetection = 2;
+    EgoState = 3;
+    Invalid = 4;
+  }
+  optional FrameDependencyType frame_type = 2;
+  optional Transformation3d ref_frame = 3;
+  optional bool is_in_relative_flg = 4;
+
+  repeated PathPointNop refline_points = 5;
+
+  optional VisionBoundary vision_boundary = 6;
+
+  optional MiniDrivingSpace driving_space = 7;
+
+  repeated PerceptionObject objects = 8;
+
+  optional MrmEgoState ego_states = 9;
+
+  optional MrmLaneMap lane_map = 10;
+}
+
+// Next id: 5
+message MrmSpeedPlannerDebug {
+  repeated PerceptionObject key_obstacles = 1;
+  message LonState {
+    optional double s_m = 1;
+    optional double v_mps = 2;
+    optional double a_mpss = 3;
+    optional double u_mpss = 4;
+    optional double du_mpss = 5;
+    optional double sample_time = 6;
+    optional double s_hard_bnd_m = 7 [default = inf];
+  }
+  repeated LonState ref_lon_state = 2;
+  enum SpeedPlannerMode {
+    SoftBrakeToStop = 1;
+    HardBrakeToStop = 2;
+    AdaptiveCruiseControl = 3;
+  }
+  optional SpeedPlannerMode speed_planner_mode = 3;
+  optional double distance_to_ref_line_end_m = 4;
+  repeated LonState follow_state = 5;
+  optional bool is_yield_front_obs = 6;
+  optional double distance_to_stopline_m = 7;
+}
+
+message MrmDeciderDebug {
+  optional KeyObjectsInfo key_objects_info = 1;
+  repeated SLTTrajectory obs_slt_trajectories = 2;
+}
+
+message MrmMidOutputDebug {
+  optional MrmReflineDebug refline_debug = 1;
+  optional MrmSpeedPlannerDebug speed_debug = 2;
+  optional MrmRefPath mrm_path = 3;
+  optional MrmStateCheckerDebug state_checker_debug = 4;
+  optional MrmFrameAdapterDebug frame_adapter_debug = 5;
+  optional MrmDeciderDebug decider_debug = 6;
+}
+
+message MrmFinalOutputDebug {
+  optional bool mrm_active_flg = 1;
+  optional PathNop path_pub = 2;
+
+  optional uint64 time_meas = 1000;
+  optional uint64 time_pub = 1001;
+}
+
+message MrmManagerDebug {
+  optional MrmInputDebug input_debug = 1;
+  optional MrmMidOutputDebug mid_output_debug = 2;
+  optional MrmFinalOutputDebug final_output_debug = 3;
+
+  repeated MrmErrorInfo err_info = 100000;
+  repeated MrmErrorInfo warn_info = 100001;
+
+  optional uint64 time_pub = 536870911;
+}
+message MrmErrorInfo {
+  optional uint64 err_code = 1;
+  optional string err_msg = 2;
+}
+
+enum MrmErrorCode {
+  MRM_MANAGER_OK = 0;
+  MRM_NULL_PTR = 1;
+
+  // Driving Space Adapter
+  MRM_EGO_FORWARD_SIMULATION_FAILED = 100;
+  MRM_ADAPT_DRIVING_SPACE_FAILED = 101;
+  MRM_FIND_GOAL_POSITION_FAILED = 102;
+
+  // Refline Generator
+  MRM_TPP_OUTPUT_INVALID = 200;
+  MRM_VISION_ROAD_DETECTION_INVALID = 201;
+  MRM_LAST_REFLINE_INVALID = 202;
+  MRM_MINI_DRIVING_SPACE_INVALID = 203;
+  MRM_EGO_SIMU_REFLINE_INVALID = 204;
+  MRM_GET_REF_FRAME_FAILED = 205;
+
+  // Frame Adapter
+  MRM_ADAPT_FRAME_FAILED = 300;
+  MRM_TRANSFORM_REFLINE_FAILED = 301;
+  MRM_TRANSFORM_LD_FAILED = 302;
+  MRM_TRANSFORM_DRIVINGSPACE_FAILED = 303;
+  MRM_TRANSFORM_OD_FAILED = 304;
+  MRM_TRANSFORM_GOD_FAILED = 305;
+
+  // State Checker
+  MRM_EGO_S_OUT_RANGE = 400;
+  MRM_REFLINE_IS_TOO_SHORT = 401;
+  MRM_EGO_S_CALCULATION_FAILED = 402;
+  MRM_PATH_IS_EMPTY = 403;
+  MRM_PATH_IS_SHORT = 404;
+}
+

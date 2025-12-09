@@ -1,0 +1,121 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/pnc/geometry.proto";
+import "common/pnc/dynamic_map.proto";
+import "common/perf/sensor_ts_header.proto";
+
+message AccessPort {
+  optional uint32 id = 1;
+  optional Vector2f exit = 2;
+  optional Vector2f direct = 3;
+
+  optional uint32 straight_od_nums = 100;
+  optional uint32 turn_left_od_nums = 101;
+  optional uint32 turn_right_od_nums = 102;
+}
+
+message CrossHDInfo {
+  optional uint32 id = 1;
+  optional uint32 turn_info = 2;
+  repeated AccessPort entry_lines = 3;
+  repeated AccessPort exit_lines = 4;
+  optional Polyline entry_stop_line = 5;
+  optional Polyline exit_stop_line = 6;
+  optional Vector2f road_head = 7;
+  repeated Polyline road_edges = 8;
+}
+
+message CrossSDInfo {
+  optional uint32 id = 1;
+  optional LaneNum entry_lane_num = 2;
+  optional LaneNum exit_lane_num = 3;
+  repeated AccessPort exit_lines = 4;
+  optional Polyline shape_points = 5;
+  optional Polyline align_shape_points = 6;
+
+  message LaneNum {
+    optional uint32 drv_lane_num = 1;
+    optional uint32 opp_lane_num = 2;
+  }
+}
+
+message CrossBevInfo {
+  optional Vector2f road_head = 1;
+  repeated AccessPort exit_lines = 2;
+  repeated LineSegment post_bev_normal_center_lines = 3;
+  repeated LineSegment post_bev_extend_center_lines = 4;
+  repeated LineSegment post_bev_normal_boundaries = 5;
+  repeated LineSegment post_bev_extend_boundaries = 6;
+  repeated LineSegment post_bev_origin_center_lines = 7;
+  repeated LineSegment post_bev_origin_boundaries = 8;
+  repeated LineSegment post_bev_origin_roadedges = 9;
+
+  message LineSegment {
+    optional uint32 id = 1;
+    optional Polyline points = 2;
+  }
+}
+
+message CrossODInfo {
+  repeated AccessPort exit_lines = 1;
+  repeated OdInfo ods_info = 2;
+
+  message OdInfo {
+    enum Direct {
+      DIRECT_UNKNOWN = 0;
+      OPPOSITE = 1;
+      DRIVING = 2;
+      TURN_LEFT = 3;
+      TURN_RIGHT = 4;
+      VERTICAL_LEFT = 5;
+      VERTICAL_RIGHT = 6;
+    }
+
+    enum TurnDirection {
+      TURN_DIRECT_NONE = 0;
+      STRAIGHT = 1;
+      RIGHT = 2;
+      LEFT = 3;
+    }
+
+    optional uint32 id = 1;
+    optional Direct direct = 2;            // forward & inverse
+    optional TurnDirection turn_info = 3;  // left & right
+    optional Vector2f pose = 4;
+    optional Vector2f vel = 5;
+    optional Vector2f heading = 6;
+  }
+}
+
+message CorridorInfo {
+  repeated AccessPort hd_exit_lines = 1;
+  repeated AccessPort per_exit_lines = 2;
+  repeated AccessPort od_exit_lines = 3;
+  repeated AccessPort sd_exit_lines = 4;
+  repeated AccessPort init_hd_exit_lines = 5;
+  optional Vector2f road_head = 6;
+  optional Vector2f road_exit = 7;
+  optional RoadEdge road_edge = 8;
+  repeated AccessPort curb_exit_lines = 9;
+}
+
+message CrossFusionMap {
+  optional uint64 time = 1;
+  optional CrossHDInfo cross_hd = 2;
+  optional CrossSDInfo cross_sd = 3;
+  optional CrossBevInfo cross_bev = 4;
+  optional CrossODInfo cross_od = 5;
+  optional CorridorInfo cross_corridor = 6;
+
+  optional uint64 timestamp = 536870905;     // ptp time, nanosec, for cosine bundle timestamp 
+  optional SensorTSHeader sensor_original_ts = 536870906;  // sensor original ts
+  optional uint64 publish_ptp_ts =
+      536870907;  // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909;  // uuid of the publisher
+  optional uint64 counter = 536870910;       // message counter
+  optional uint64 publish_ts =
+      536870911;  // publish utc timestamp; unit : nanosecond
+}

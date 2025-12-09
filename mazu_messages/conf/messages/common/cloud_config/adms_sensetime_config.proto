@@ -1,0 +1,59 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+message ADMSSenseTimeConfig {
+    message EyeConfig {
+        optional double perclos_light          =1;      // 0 < perclos_light < perclos_medium
+        optional double perclos_medium         =2;      // perclos_light < perclos_medium < 1
+        optional double perclos_window_time    =3;      // 0 < perclos_window_time 
+    }
+    message MouthConfig {
+        optional uint32 yawn_light              =1;     // 0 < yawn_light < yawn_medium
+        optional uint32 yawn_medium             =2;     // yawn_light < yawn_medium
+        optional double yawn_windown_time       =3;     // 0 < yawn_windown_time, 目前yawn没有用于疲劳判断，所以yawn_light=58， yawn_medium=59， yawn_windown_time=60，不可能出现的情况
+    }
+    message Customized {
+        optional double eye_close_thr    =1;            //重度疲劳， 0 < eye_close_thr
+        optional double eye_open_thr     =2;            // 0 < eye_open_thr  重度疲劳快速消退阈值
+    }
+    message Gaze3DPoint {
+        optional double anchors_front_ratio = 1;
+        optional double anchors_ic_ratio    = 2;
+    }
+    message Zones {
+        optional double min    =1;
+        optional double max    =2;
+    }
+    message HeadPose {
+        optional Zones yaw      =1;
+        optional Zones pitch    =2;
+        optional Zones roll     =3;
+    }
+    message DistractionScoreThr {
+        optional double distraction_light_thr    =1;     // 0 < distraction_light_thr < distraction_medium_thr
+        optional double distraction_medium_thr   =2;     // distraction_light_thr < distraction_medium_thr < distraction_heavy_thr
+        optional double distraction_heavy_thr    =3;     // distraction_medium_thr < distraction_heavy_thr < distraction_duration_time
+    }
+    message DistractionRectangle {
+        optional Gaze3DPoint    gaze_3D_point    =1;    //eyegaze区域
+        optional HeadPose    head_pose           =2;    //头姿角度
+    }
+
+    message DrowsinessConfig {
+        optional EyeConfig    eye_config        =1;     //10s滚动窗口闭眼百分比判断
+        optional MouthConfig    mouth_config    =2;     //60s滚动窗口打哈欠个数判断
+        optional Customized    customized       =3;     //连续闭眼判断重度疲劳
+    }
+
+    message DistractionConfig {
+        optional DistractionScoreThr    distraction_score_thr    =1; //分心时长区分轻度中度重度分心
+        optional DistractionRectangle    distraction_rectangle   =2; //分心区域配置
+        optional double distraction_fast_fade_time               =3; //分心消退时间 0 < distraction_fast_fade_time < distraction_duration_time
+        optional uint32 distraction_duration_time                =4; //分心窗口
+    }
+
+    optional DrowsinessConfig drowsiness_config         = 1;
+    optional DistractionConfig distraction_config       = 2;
+}

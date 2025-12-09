@@ -1,0 +1,370 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/pnc/road_map.proto";
+import "common/pnc/geometry.proto";
+import "common/perception/vision_road_detection.proto";
+import "common/perception/vision_traffic_light.proto";
+import "common/perception/vision_road_scene.proto";
+import "common/pnc/navigation_map.proto";
+import "common/esd/esd_np_feature.proto";
+import "common/map_engine/sd_map.proto";
+import "common/map_engine/hd_speed_bump.proto";
+import "np/apps/road_model_adasmap.proto";
+import "common/perf/sensor_ts_header.proto";
+
+
+enum DynamicScene {
+  SCENE_UNKNOWN = 0;
+  SCENE_NORMAL = 1;
+  SCENE_CONSTRUCTION = 2;           // road construction in case of cones, etc.
+  SCENE_HDMAP_OUTDATED = 3;         // lane types conflict
+  SCENE_LANE_DETECTION_FAILED = 4;  // perception lanes unreliable
+  SCENE_BREACH = 5;
+  SCENE_FRONTAGE = 6;
+  SCENE_RIGHT_TURN_LANE = 7;
+}
+
+enum BoundaryRole {
+  BR_UNKNOWN = 0;
+  BR_HOST_LEFT = 1;
+  BR_HOST_RIGHT = 2;
+  BR_LEFTLANE_LEFT = 3;
+  BR_LEFTLANE_RIGHT = 4;
+  BR_RIGHTLANE_LEFT = 5;
+  BR_RIGHTLANE_RIGHT = 6;
+  BR_HOSTLANE = 7;   // exclusively used for construction scene
+  BR_LEFTLANE = 8;   // exclusively used for construction scene
+  BR_RIGHTLANE = 9;  // exclusively used for construction scene
+}
+
+enum BoundaryType {
+  TYPE_UNKNOWN = 0;
+  TYPE_BARREL = 1;
+  TYPE_CONE = 2;
+  TYPE_SHORTPOLE = 3;
+  TYPE_WATERBARRIER = 4;  // water-filled barrier, from perception
+  TYPE_BGM = 5;
+}
+
+message ConstructionInfo {
+  optional BoundaryRole construction_start = 1;
+  optional BoundaryRole construction_end = 2;
+}
+
+message DynamicBoundary {
+  optional BoundaryRole role = 1;
+  optional LaneBoundaryRoadMap boundary = 2;  // crossable & type & geometry
+  optional LocalMapSource source = 3;
+  optional DynamicScene scene = 4;
+  optional string extra_info = 5;
+  optional uint64 timestamp_ns = 6;
+  optional ConstructionInfo construction_info = 7;
+  optional BoundaryType type = 8;
+  repeated Polygon regions = 9;
+}
+
+enum TLColor {
+  TLCOLOR_UNKNOWN = 0;
+  TLCOLOR_RED = 1;
+  TLCOLOR_YELLOW = 2;
+  TLCOLOR_GREEN = 3;
+  TLCOLOR_GRAY = 4;
+}
+
+message TrafficLightStatus {
+  optional TLColor color = 1;
+  optional uint32 is_flash = 2;
+  optional uint32 tracking_duration_ms = 3;  // millisecond
+  optional uint32 status_duration_ms = 4;    // millisecond
+  repeated uint64 lane_ids =
+      5;  // all the lane ids corresponding to this direction
+  optional bool is_blocked = 6;   //  indicate the light is blocked by objects
+  optional uint32 countdown = 7;  // 65535 for undetected countdown
+  repeated uint32 panel_ids = 8;
+  repeated TrafficLight.TLDType types = 9;
+  optional uint32 tld_failure_status = 10;
+  // tld_failure_status: ref1:
+  // https://ad-gitlab.nioint.com/ad/system/mazu_messages/-/blob/d7011fcf/common/perception/vision_traffic_light.proto#L146
+  //                     ref2:
+  //                     https://nio.feishu.cn/wiki/TrcpwdQUfiy7JXk7RgScEyrAnjd#ZJYsdWq94oiX5dxLEN6cz8dBnhe
+  //                     ref3:
+  //                     https://nio.feishu.cn/wiki/wikcnWmYAclW8GK6tCPkMEEX5lb
+}
+
+message SdSegment {
+  optional uint32 offset = 1;
+  optional uint32 id = 2;
+  optional uint32 speed_limit = 3;
+  optional AdasRoadClass road_class = 4;
+  optional uint32 form_of_way = 5;
+  optional bool is_tunel = 6;
+}
+
+message TrafficLightJunctionDynamicMap {
+  enum State {
+    APPROACHING = 0;
+    INSIDE = 1;
+    PASSED = 2;
+  }
+
+  // Indicate the type of junction
+  enum Type {
+    UNKNOWN = 0;
+    RAMP = 1;
+  }
+
+  message EntryExit {
+    enum Type {
+      UNKNOWN = 0;
+      ENTRY = 1;
+      EXIT = 2;
+    }
+
+    enum OverlapType {
+      FUSION = 0;
+      CROSSWALK = 1;
+      STOPLINE = 2;
+      TRAFFIC_LIGHT = 3;
+    }
+
+    enum PedestrianCrossable {
+      CROSSABLE_UNKNOWN = 0;
+      CROSSABLE = 1;
+      PROHIBITED = 2;
+    }
+
+    optional uint64 id = 1;  // id of the entry or exit
+    optional PedestrianCrossable pedestrian_crossable =
+        2;                   // whether pedestrian can cross the entry or exit
+    optional Type type = 3;  // the type of entry or exit
+    repeated uint64 overlap_id =
+        4;  // id of the overlapping(crosswalk, stopline, etc.)
+    repeated OverlapType overlap_type = 5;       // type of the overlapping
+    repeated LocalMapSource overlap_source = 6;  // source of the overlapping
+  }
+
+  optional uint64 timestamp_ns = 1;  // timestamp of traffic light detection
+  optional uint64 id = 2;            // from perception TLD_junction ID
+  repeated uint64 tld_panel_id = 3;
+  repeated uint64 stopline_id =
+      4;  // hdmap stopline_id if available, otherwise from perception
+  optional uint64 hd_junction_id =
+      5;  // hdmap junction_id if available, otherwise no such field
+  optional TrafficLightStatus tl_uturn = 6;
+  optional TrafficLightStatus tl_straight = 7;
+  optional TrafficLightStatus tl_left = 8;
+  optional TrafficLightStatus tl_right = 9;
+  optional LocalMapSource source =
+      10;  // indicate the source of junction and stopline's geometry info
+  optional Vector3d tld_position = 11;
+  optional string extra_info = 12;
+  optional double virtual_stopline_distance = 13;
+  repeated StopLineRoadMap stoplines = 14;  // only stoplines from
+  repeated CrossWalk crosswalks = 15;       // perception only
+  optional bool is_controlled_by_traffic_light = 16;
+  optional LocalMapSource trafficlight_info_source =
+      17;  // trafficlight info source: SD-means from GaoDe, PERCEPTION-means
+           // from perception
+  optional uint32 wait_num = 18;  // wait num from GaoDe trafficlight countdown
+  optional double distance_to_entry = 19;
+  optional double distance_to_exit = 20;
+  optional State state = 21;
+  optional Type type = 22;
+  repeated EntryExit entries_exits =
+      23;  // all entries/exits of this junction with respect to the current
+           // navigation path
+  optional TrafficLightCountdown sd_traffic_light_countdown = 24;  // from DC/gaode 
+}
+
+message SceneInfo {
+  enum SceneType {
+    SCENE_UNKNOWN = 0;
+    SCENE_ROAD_SPLIT = 1;       // Y分叉
+    SCENE_FRONTAGE = 2;         // 主辅路
+    SCENE_GRADUALLY_WIDEN = 3;  // 渐变宽
+    SCENE_RIGHT_TURN_LANE = 4;  // 右转专用道
+    SCENE_NO_LANELINES = 5;
+    SCENE_OFFRAMP = 6;  // 下匝道
+  }
+
+  enum TurnDirection {
+    TURN_STRAIGHT = 0;
+    TURN_LEFT = 1;
+    TURN_RIGHT = 2;
+  }
+
+  optional SceneType scene_type =
+      1;  // 场景类型，目前仅限Y分叉和主辅路，后期扩展右转专用
+  optional uint32 difficulty_level =
+      2;  // 难度等级，暂定0 ～ 5，0为无难度，5为最高难度
+  optional TurnDirection turn_direction = 3;  // 场景方位，左右
+  optional int32 scene_distance =
+      4;  // 场景开始距离，仅为粗略估计，预计300m内输出
+  optional LocalMapSource source = 5;
+  optional int32 scene_distance_to_exit =
+      6;  // 场景结束距离，仅为粗略估计，预计300m内输出
+}
+
+enum ExitPointSource {
+  EXIT_POINT_SOURCE_UNKNOWN = 0;
+  SD = 1;
+  HDMAP_INIT = 2;
+  OD = 3;
+  CURB = 4;
+  PERCEPTION_LANE = 5;
+  HDMAP_LANE = 6;
+}
+
+message RoadEdge {
+  message FusionEdge {
+    enum Side {
+      SIZE_UNKNOWN = 0;
+      LEFT = 1;
+      RIGHT = 2;
+    }
+
+    enum FusionType {
+      FUSION_TYPE_UNKNOWN = 0;
+      HDMAP_ONLY = 1;
+      SDMAP_ONLY = 2;
+      BEV_ONLY = 3;
+      OD_ONLY = 4;
+      OTHER = 5;
+    }
+
+    enum MeasureType {
+      MEASURE_TYPE_UNKNOWN = 0;
+      NORMAL = 1;
+      VIRTUAL = 2;
+      INFERRED = 3;
+    }
+
+    optional Side position_type = 1;
+    optional FusionType fusion_type = 2;
+    optional MeasureType measure_type = 3;
+    optional Vector2f point = 4;
+  }
+
+  repeated FusionEdge edges = 1;
+}
+
+message CrossFrameMap {
+  optional Polyline stop_line = 1;
+  optional Vector2f exit_point = 2;
+  optional Vector2f exit_direction = 3;
+  optional ExitPointSource exit_source = 4;
+  optional RoadEdge road_edge = 5;
+}
+
+message GoalReferPoint {
+    enum GoalReferPointType {
+        DEFAULT = 0;
+        VIRTUAL = 1;
+        REAL = 2;
+    }
+    optional Vector3d point = 1;
+    optional GoalReferPointType point_type = 2;
+}
+message GoalReferLine {
+    repeated GoalReferPoint reference_points = 1;
+    optional uint64 lane_id = 2;
+    optional double reward = 3;
+    repeated double sub_rewards = 4;
+
+    enum AdjustReason {
+        NONE = 0;
+        CURB = 1;
+        GOD = 2;
+        STOP_LINE = 3;
+        YELLOW_LINE = 4;
+        REVERSE_TRAFFIC = 5;
+        DYN_OBJS_PTS = 6;
+        REVERSE_OBJS = 7;
+        PERC_LANES = 8;
+        UNDIVIDED_SHIFT = 9;
+        OUT_COMPENSATION = 10;
+        IN_COMPENSATION = 11;
+        INFER_LANE = 12;
+        NON_MOTOR = 13;
+    }
+    repeated AdjustReason adjust_reasons = 5;
+}
+
+message DriveGoalInfo {
+    repeated GoalReferLine multi_goal_refer_lines = 1;
+    optional uint64 ref_link_id = 2;
+}
+
+message SolidIndex {
+    optional uint64 start_index = 1;
+    optional uint64 end_index = 2;
+}
+
+message MapReferenceLine {
+    optional Polyline ref_points = 1; // include line id
+    optional uint64 refline_id = 2;
+    repeated SolidIndex solid_index = 3;
+}
+
+message TollSceneInfo{
+  enum SceneTypeForToll {
+    NON_TOLL = 0;
+    TOLL_MAINROAD_IN = 1;
+    TOLL_PLAZA_IN = 2;
+    TOLL_GATE = 3;
+    TOLL_PLAZA_OUT = 4;
+    TOLL_MAINROAD_OUT = 5;
+  }
+
+  optional float dist_to_toll = 1;
+  optional float dist_to_toll_gate = 2;
+  optional SceneTypeForToll scene_type_for_toll = 3;
+}
+
+// DynamicMap is always centered on the ego car.
+message DynamicMap {
+  optional uint64 time_pub = 1;
+  optional uint64 time_meas = 2;  // timestamp of vision_road_detection
+  optional RoadMap map = 3;  // wm localmap, short range in vehicle body frame
+  optional uint64 current_lane_id = 4;
+  repeated DynamicBoundary dyn_boundaries = 5;
+  repeated TrafficLightJunctionDynamicMap traffic_light_junctions = 6;
+  repeated SdSegment sd_segments = 7;
+  optional LocalMapSource dynamic_map_source = 8;
+  repeated Roadedge roadedge = 9;  // roadedge from perception
+  optional NaviMap navi_map = 10;
+  optional RoadMap geo_map =
+      11;  // wm localmap, short range in vehicle body frame
+  optional SceneInfo scene_info = 12;
+  optional bool has_lane_unstable_risk =
+      13;  // used for 236, indicating dynamic lane maybe unstable
+  optional CrossFrameMap cross_frame_map = 14;  // local map 2.0
+  repeated HdSpeedBump speedbumps = 15;         // perception only
+  optional bool basetraj_trigger = 16;
+  repeated MapReferenceLine reference_lines = 17;
+
+  optional uint32 map_error_code = 100;
+  optional string extra_info = 101;
+  optional uint32 dlb_trigger_event = 102;
+  optional LocalMapSource source_of_onemap = 103;
+
+  optional TollSceneInfo toll_scene_info = 104;
+
+  optional Area area = 200;  // when auxiliary_parking_info.is_in_map_area is
+                             // true area value is 1
+  optional DriveGoalInfo drive_goal_info = 300; // BL310
+  optional RoadScene perception_road_scene = 400; // perception road scene
+                                                 // BL310
+
+  optional uint64 tld_fw_camera_ts = 536870904; // for tld chain monitor                                               
+  optional uint64 timestamp = 536870905;     // ptp time, nanosec, for cosine bundle timestamp
+  optional SensorTSHeader sensor_original_ts = 536870906;  // sensor original ts
+  optional uint64 publish_ptp_ts =
+      536870907;  // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909;  // uuid of the publisher
+  optional uint64 counter = 536870910;       // message counter
+  optional uint64 publish_ts =
+      536870911;  // publish utc timestamp; unit : nanosecond
+}

@@ -1,0 +1,306 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+import "common/perception/lidar_cluster_output.proto";
+import "common/perception/lidar_prediction_output.proto";
+
+message esd_Velocity {
+    optional float esd_Long_Velocity = 1;//ISO coordinate system, x axis points to the forward direction of the vehicle, unit: m/s
+    optional float esd_Long_Velocity_STD = 2;// standard longitudinal velocity, unit: m/s
+    optional float esd_Lat_Velocity = 3;//ISO coordinate system, y axis points to the left direction of the vehicle, unit: m/s
+    optional float esd_Lat_Velocity_STD = 4;//standard lateral velocity, unit: m/s
+    optional float esd_Up_Velocity = 5;//ISO coordinate system, z axis points to the up direction of the vehicle, unit: m/s
+    optional float esd_Up_Velocity_STD = 6;//standard up velocity, , unit: m/s
+}
+
+message esd_Acceleration {
+    optional float esd_Long_Acc = 1;//ISO coordinate system, x axis points to the forward direction of the vehicle, unit: m/s^2
+    optional float esd_Long_Acc_STD = 2;// standard longitudinal acceleration, unit: m/s^2
+    optional float esd_Lat_Acc = 3;//ISO coordinate system, y axis points to the left direction of the vehicle, unit: m/s^2
+    optional float esd_Lat_Acc_STD = 4;//standard lateral acceleration, unit: m/s^2
+    optional float esd_Up_Acc = 5;//ISO coordinate system, z axis points to the up direction of the vehicle, unit: m/s^2
+    optional float esd_Up_Acc_STD = 6;//standard up acceleration, , unit: m/s^2
+}
+
+message esd_Position {
+    optional float esd_Long_Position = 1;//ISO coordinate system, x axis points to the forward direction of the vehicle, unit: meters
+    optional float esd_Long_Position_STD = 2;// standard longitudinal distance, unit: meters
+    optional float esd_Lat_Position = 3;//ISO coordinate system, y axis points to the left direction of the vehicle, unit: meters
+    optional float esd_Lat_Position_STD = 4;//standard lateral distance, unit: meters
+    optional float esd_Vertical_Position = 5; //ISO cooridnate system, z axis point to the upwords direction of the vehicle, uint: meters
+    optional float esd_Vertical_Position_STD = 6; //standard vertical distance, unit: meters
+}
+
+message esd_Dimension {
+    optional float esd_OBJ_Length = 1;//Distance between reference points RearLeft and FrontLeft (same as |RearRight-
+                                //FrontRight| and |RearMidwidth-FrontMidwidth|). It is the object dimension along X-axis in local
+                                //coordinate system. The position of the reference point is the origin of the bounding box
+    optional float esd_OBJ_Length_STD = 2;
+    optional float esd_OBJ_Width = 3;//Distance between reference points RearLeft and RearRight (same as |FrontLeft-
+                                //FrontRight| and |MidsideRight-MidsideLeft|). It is the object dimension along Y-axis. in local
+                                //coordinate system. The position of the reference point is the origin of the bounding box.
+    optional float esd_OBJ_Width_STD = 4;
+    
+    optional float esd_OBJ_Height = 5;//Height of the object. It is the object dimension along Z-axis. in local coordinate system.
+                                //The position of the reference point is the origin of the bounding box
+    optional float esd_OBJ_Height_STD = 6;
+}
+
+enum esd_Source{
+    esd_Source_Vision = 0;
+    esd_Source_Lidar = 1;
+    esd_Source_Fusion = 2;
+}
+
+message esd_ObjInfo{
+    optional uint32	esd_OBJ_Object_Count = 1;
+    optional uint32	esd_OBJ_VRU_Count = 2;
+    optional uint32	esd_OBJ_VD_Count = 3;
+    optional uint32	esd_OBJ_CIPV_ID	= 4;
+    optional bool esd_OBJ_CIPV_Lost	= 5;
+    optional bool esd_OBJ_Is_CCI = 6;
+    optional esd_OBJCCISide	esd_OBJ_CCI_Side = 7;
+    optional uint32	esd_OBJ_CCI_ID = 8;
+
+
+    enum esd_OBJCCISide{
+        esd_OBJCCISide_Unknown = 0;
+        esd_OBJCCISide_Left = 1;
+        esd_OBJCCISide_Right = 2;
+    }
+}
+
+message esd_DynamicObj{
+    optional esd_OBJObjectClass esd_OBJ_Object_Class = 1;
+    optional uint32	esd_OBJ_Age_Frame = 2; // object tacking frame number
+    optional uint32 esd_OBJ_Object_ID = 3;  //  1 ~ 2 ^ 20（1048576)
+    optional esd_OBJColor	esd_OBJ_Color = 4;
+    optional float esd_OBJ_Existence_Probability = 5;
+    optional bool esd_OBJ_Is_Very_Close = 6;
+    optional esd_OBJLaneAssignment esd_OBJ_Lane_Assignment = 7;
+    optional uint32 esd_OBJ_Measuring_Status = 8; // Bitwise: Bit0: New_Or_Old, Bit1: Predicted_Or_Measured, Bit2: Unstable_Or_Stable,Bit3: Invalid_Or_Valid
+    optional esd_OBJMotionStatus esd_OBJ_Motion_Status = 9;
+    optional esd_OBJMotionCategory esd_OBJ_Motion_Category = 10;
+    optional uint32 esd_OBJ_Is_Blocked_Parts = 11;
+    optional float esd_OBJ_Heading = 12;
+    optional float esd_OBJ_Heading_STD = 13;
+    optional float esd_OBJ_Angle_Rate = 14;
+    optional float esd_OBJ_Angle_Rate_STD = 15;
+    optional esd_OBJBrakeLight esd_OBJ_Brake_Light = 16;
+    optional esd_OBJTurnIndicator esd_OBJ_Turn_Indicator = 17;
+    optional esd_OBJHBStatus esd_OBJ_HB_Status = 18;
+    optional float esd_OBJ_Dst_Left_Line = 19;
+    optional float esd_OBJ_Dst_Right_Line = 20;
+    optional bool esd_OBJ_Is_Blocked_Left = 21;
+    optional bool esd_OBJ_Is_Blocked_Right = 22;
+    optional esd_Position esd_OBJ_Distance = 23;
+    optional esd_Velocity esd_OBJ_Abs_Velocity = 24;
+    optional esd_Acceleration esd_OBJ_Abs_Acc = 25;
+    optional esd_Dimension esd_OBJ_Dimension = 26;
+    optional esd_Source esd_source =27; // object source
+    optional uint32 esd_OBJ_Relate_ID = 28; //Only for vehicle with trailor, the ID of the vehicle
+    optional esd_OBJDoorStatus esd_OBJ_Object_Door_Left_Status = 29; //status of the left Door
+    optional esd_OBJDoorStatus esd_OBJ_Object_Door_Right_Status = 30;
+    optional float esd_OBJ_Cut_In_Lat_Distance = 31;
+    optional float esd_OBJ_Cut_In_Lat_Distance_STD = 32;
+    optional float esd_OBJ_Cut_In_Long_Distance = 33;
+    optional float esd_OBJ_Cut_In_Long_Distance_STD = 34;
+    optional float esd_OBJ_Cut_In_Angle = 35;
+    optional float esd_OBJ_Cut_In_Angle_STD = 36;
+    optional float esd_OBJ_Age_Second = 37; // object tacked time in seconds
+    optional float esd_OBJ_Missing_Age_Second = 38; // object missed tracking time in seconds
+    optional LidarClusterObject esd_Lidar_Cluster_Object = 39; // If lidar object has GOD object cluster, this field will be filled
+                                                           // If lidar object only has GOD object cluster, we will generate a dummy box based on cluster info
+    optional LidarObjectDetectionSource esd_Lidar_Object_Detection_Source = 40;
+    
+    optional LidarTrajectoryPrediction esd_lidar_trajectory_prediction = 41; // Lidar trajectory prediction output.
+
+
+
+    enum esd_OBJObjectClass{
+        esd_OBJObjectClass_Unknown = 0;
+        esd_OBJObjectClass_SmallVehicle = 100;
+        esd_OBJObjectClass_Car = 101;
+        esd_OBJObjectClass_SUV = 102;
+        esd_OBJObjectClass_PickUp = 103;
+        esd_OBJObjectClass_VAN = 104;
+        esd_OBJObjectClass_BigVehicle = 200;
+        esd_OBJObjectClass_Truck = 201;
+        esd_OBJObjectClass_BUS = 202;
+        esd_OBJObjectClass_Special_Truck = 203;
+        esd_OBJObjectClass_Trailer = 204;
+        esd_OBJObjectClass_Tricycle = 300;
+        esd_OBJObjectClass_Two_wheels_vehicle = 400;
+        esd_OBJObjectClass_Motorbike = 401;
+        esd_OBJObjectClass_Ebike = 402;
+        esd_OBJObjectClass_Bicycle = 403;
+        esd_OBJObjectClass_Two_wheels_vehicle_P = 410;
+        esd_OBJObjectClass_Motorbike_P = 411;
+        esd_OBJObjectClass_Ebike_P = 412;
+        esd_OBJObjectClass_Bicycle_P = 413;
+        esd_OBJObjectClass_Pedestrian = 500;
+        esd_OBJObjectClass_Adult = 501;
+        esd_OBJObjectClass_Child = 502;
+        esd_OBJObjectClass_Animal = 600;
+        esd_OBJObjectClass_Cat = 601;
+        esd_OBJObjectClass_Dog = 602;
+        esd_OBJObjectClass_Special = 700;
+        esd_OBJObjectClass_Pram = 701;
+        esd_OBJObjectClass_ShoppingCart = 702;
+
+    }
+
+    enum esd_OBJColor{
+        esd_OBJColor_Unknown = 0;
+        esd_OBJColor_White = 1;
+        esd_OBJColor_Black = 2;
+        esd_OBJColor_Blue = 3;
+        esd_OBJColor_Red = 4;
+    }
+  
+    enum esd_OBJLaneAssignment{
+        esd_OBJLaneAssignment_Unknown = 0;
+        esd_OBJLaneAssignment_Host = 1;
+        esd_OBJLaneAssignment_Left = 2;
+        esd_OBJLaneAssignment_Right = 3;
+        esd_OBJLaneAssignment_Left_Left = 4;
+        esd_OBJLaneAssignment_Right_Right = 5;
+    }
+
+    enum esd_OBJMotionStatus{
+        esd_OBJMotionStatus_Unknown = 0;
+        esd_OBJMotionStatus_Static = 1;
+        esd_OBJMotionStatus_Stopped = 2;
+        esd_OBJMotionStatus_Moving_Slowly = 3;
+        esd_OBJMotionStatus_Moving = 4;
+    }
+
+    enum esd_OBJMotionCategory{
+        esd_OBJMotionCategory_Unknown = 0;
+        esd_OBJMotionCategory_Passing_In = 1;
+        esd_OBJMotionCategory_Passing_Out = 2;
+        esd_OBJMotionCategory_Close_Cut_In = 3;
+        esd_OBJMotionCategory_Moving_In = 4;
+        esd_OBJMotionCategory_Moving_Out = 5;
+        esd_OBJMotionCategory_Left_Crossing = 6;
+        esd_OBJMotionCategory_Right_Crossing = 7;
+        esd_OBJMotionCategory_LTAP = 8; //Left turn
+        esd_OBJMotionCategory_RTAP = 9; //Right turn
+        esd_OBJMotionCategory_Preceeding = 10;
+        esd_OBJMotionCategory_Oncoming = 11;
+    }
+
+    enum esd_OBJBrakeLight{
+        esd_OBJBrakeLight_Invalid = 0;
+        esd_OBJBrakeLight_On = 1;
+        esd_OBJBrakeLight_Off = 2;
+    }
+
+    enum esd_OBJTurnIndicator{
+        esd_OBJTurnIndicator_Off = 0;
+        esd_OBJTurnIndicator_Left = 1;
+        esd_OBJTurnIndicator_Right = 2;
+        esd_OBJTurnIndicator_Both = 3;
+    }
+
+    enum esd_OBJHBStatus{
+        esd_OBJHBStatus_Off = 0;
+        esd_OBJHBStatus_On = 1;
+        esd_OBJHBStatus_Blink = 2;
+    }
+
+    enum esd_OBJDoorStatus{
+        esd_OBJDoorStatus_Close = 0;
+        esd_OBJDoorStatus_Open = 1;
+        esd_OBJDoorStatus_Partial = 2;
+    }
+   
+}
+
+message esd_StaticObjects {
+    optional uint32 esd_OBS_Age = 1;
+    optional uint32 esd_OBS_ID = 2;
+    optional  esd_ObsType esd_OBS_Type = 3;
+    optional float esd_OBS_Type_Probability = 4;
+    optional  float esd_OBS_Lat_Distance = 5;
+    optional  float esd_OBS_Lat_Distance_STD = 6;
+    optional  float esd_OBS_Long_Distance = 7;
+    optional  float esd_OBS_Long_Distance_STD = 8;
+    optional  float esd_OBS_Object_Length = 9;
+    optional  float esd_OBS_Object_Length_STD = 10;
+    optional  float esd_OBS_Object_Width = 11;
+    optional  float esd_OBS_Object_Width_STD = 12;
+    optional  float esd_OBS_Object_Height = 13;
+    optional  float esd_OBS_Object_Height_STD = 14;
+    optional esd_Source esd_source = 15; // object source
+    optional LidarClusterObject esd_Lidar_Cluster_Object = 16; // If lidar object has GOD object cluster, this field will be filled
+                                                           // If lidar object only has GOD object cluster, we will generate a dummy box based on cluster info
+    optional LidarObjectDetectionSource esd_Lidar_Object_Detection_Source = 17;
+    optional esd_OBSLaneAssignment esd_OBS_Lane_Assignment = 18;
+
+
+    enum esd_ObsType{
+        esd_ObsType_Invalid = 0;
+        esd_ObsType_Barrel = 1;
+        esd_ObsType_Cone = 2;
+        esd_ObsType_ShortPole = 3;
+        esd_ObsType_ObstructionBW = 4;
+        esd_ObsType_ObstructionUP = 5;
+        esd_ObsType_ObstructionLeft = 6;
+        esd_ObsType_ObstructionRight = 7;
+        esd_ObsType_RedWarningSign = 8;
+        esd_ObsType_FishboneLeft = 9;
+        esd_ObsType_FishboneRight = 10;
+        esd_ObsType_OverheadObject = 11;
+        esd_ObsType_ObsType_Indicator_Arrow_Left = 12;
+        esd_ObsType_ObsType_Indicator_Arrow_Right = 13;
+        esd_ObsType_ObsType_Indicator_Arrow_Both = 14;
+        esd_ObsType_ObsType_Indicator_Arrow_Left_Up = 15;
+        esd_ObsType_ObsType_Indicator_Arrow_Left_Down = 16;
+        esd_ObsType_ObsType_Indicator_Arrow_Right_Up = 17;
+        esd_ObsType_ObsType_Indicator_Arrow_Right_Down = 18;
+        esd_ObsType_MetalFence = 19;
+        esd_ObsType_WarningPole = 20;
+        esd_ObsType_CircularColumn =21;//only svc
+        esd_ObsType_StoneColumn =22;//only svc
+        esd_ObsType_OtherImpermanentObject = 23;  // Including other impermanent object that class is not included above, such as debris, tire, dropped object
+        esd_ObsType_OtherPermanentObject = 24;  // Including other permanent object that class is not included above, such as building, traffic light, fire hydrant and parterre
+
+    }
+
+
+    enum esd_OBSLaneAssignment{
+        esd_OBSLaneAssignment_Unknown = 0;
+        esd_OBSLaneAssignment_Host = 1;
+        esd_OBSLaneAssignment_Left = 2;
+        esd_OBSLaneAssignment_Right = 3;
+        esd_OBSLaneAssignment_Left_Left = 4;
+        esd_OBSLaneAssignment_Right_Right = 5;
+    }
+
+
+}
+message esd_DynamicObjects {
+    optional esd_ObjInfo esd_OBJ_Info = 1;
+    repeated esd_DynamicObj esd_OBJ = 2;
+}
+
+message esd_ObjectsDetection{
+    optional uint64 esd_timestamp = 1;//Timestamp_Receive_Image
+    repeated esd_StaticObjects esd_staticobj = 2;
+    optional esd_DynamicObjects esd_dynamicobj = 3;
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin 
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907; // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909; // uuid of the publisher
+    optional uint64 counter = 536870910;         // message counter
+    optional uint64 publish_ts = 536870911;    // publish timestamp; unit : nanosecond
+}
+
+
+

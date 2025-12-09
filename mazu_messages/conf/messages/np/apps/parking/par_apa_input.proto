@@ -1,0 +1,87 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.parking;
+// import "common/perf/sensor_ts_header.proto";
+
+message InternalStatus {
+// APA specified message
+  enum ApaStatus {
+    APA_STANDBY = 0;
+    APA_SEARCH = 1;
+    APA_PREGUIDANCE = 2;
+    APA_GUIDANCEACTIVE = 3;
+    APA_SUSPEND = 4;
+    APA_IRREVERSIBLE_ABORT = 5;
+    APA_TAKEOVER_ABORT = 6;
+    APA_EMERGE_STOP = 7;
+    APA_PARKING_FINISH = 8;
+    APA_FAULT = 9;
+  }
+
+  enum ParlInstructionStatus {
+    PARL_WAIT_GUIDANCE_OFF = 0;
+    PARL_STOP = 1;
+    PARL_DRIVE_FORWARD = 2;
+    PARL_DRIVE_BACKWARD = 3;
+    PARL_GUIDANCE_FINISH = 4;
+    PARL_GUIDANCE_ABORT = 5;
+    PARL_INTERMEDIATE = 6;
+  }
+
+  enum PerpInstructionStatus {
+    PERP_WAIT_GUIDANCE_OFF = 0;
+    PERP_STOP = 1;
+    PERP_DRIVE_FOREARD = 2;
+    PERP_DRIVE_BACKWARD = 3;
+    PERP_GUIDANCE_FINISH = 4;
+    PERP_GUIDANCE_ABORT = 5;
+    PERP_INTERMEDIATE = 6;
+  }
+
+  enum ApaCommand {
+    NONE = 0;
+    SEARCH = 1;
+    PARALLEL_LEFT = 2;
+    PARALLEL_RIGHT = 3;
+    CROSS_LEFT = 4;
+    CROSS_RIGHT = 5;
+    POC_LEFT_PARL = 6;
+    POC_RIGHT_PARL = 7;
+    POC_LEFT_CROSS = 8;
+    POC_RIGHT_CROSS = 9;
+    SUMN_IN = 10;
+    SUMN_OUT = 11;
+    ABORT = 12;
+  }
+
+  // APS main stateflow status
+  optional ApaStatus aps_st_status = 1;
+  // whether vehicle is still
+  optional bool aps_flg_standstill = 2 [default = false];
+  // APS sub stateflow status(parallel)
+  optional ParlInstructionStatus parl_st_instruction = 3;
+  // flag of USS intervene
+  optional bool flg_uss_intervene = 5;
+  // apa command
+  optional ApaCommand apa_command = 6;
+  // flg of preguidance to search(BCU control)
+  optional bool aps_flg_preguidance_to_search = 8;
+  // flg of whether in suspend
+  optional bool aps_flg_inter_suspend = 9;
+  // flag of lateral control feedback enable
+  optional bool flg_lateral_feedback_enable = 13;
+  // flag of adjust angle overlay
+  optional bool aps_flg_adjust_angle_overlay = 15;
+  // aps sub stateflow status(perpendicular)
+  optional PerpInstructionStatus perp_instruction_status = 16;
+	
+  optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin  
+  // optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+  optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909; // uuid of the publisher
+  optional uint64 counter = 536870910;       // message counter
+  optional uint64 publish_ts = 536870911;    // publish utc timestamp; unit : nanosecond
+
+}

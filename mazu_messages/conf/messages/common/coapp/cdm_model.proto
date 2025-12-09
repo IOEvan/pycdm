@@ -1,0 +1,148 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message FrameDescriptor {
+    repeated int32 cids                     = 1;
+    repeated float scores                   = 2;
+    repeated int32 sub_cids                 = 3;
+    repeated float sub_scores               = 4;
+    repeated float embeddings               = 5;
+}
+
+message Object2D {
+    optional int32 cid                      = 1;            // category_id
+    optional float score                    = 2;
+    optional int32 sub_cid                  = 3;
+    optional float sub_score                = 4;
+    repeated float box                      = 5;            // (x1,y1,x2,y2), raw image
+    optional float theta                    = 6;
+    repeated float keypoints                = 7;            // [x, y, att, x, y, att, ...]
+    repeated float embeddings               = 8;
+    optional int32 kp_dim                   = 9;
+    repeated int32 level3_cid               = 10;
+    repeated float level3_score             = 11;
+}
+
+message Object3D {
+    optional int32 cid                      = 1;            // category_id
+    optional float score                    = 2;
+    optional int32 sub_cid                  = 3;
+    optional float sub_score                = 4;
+    optional float cx                       = 5;
+    optional float cy                       = 6;
+    optional float cz                       = 7;
+    optional float width                    = 8;
+    optional float height                   = 9;
+    optional float length                   = 10;
+    optional float theta                    = 11;
+    repeated float keypoints                = 12;           // [x,y,z,att,x,y,z,att,...]
+    repeated float embeddings               = 13;
+    optional int32 kp_dim                   = 14;
+}
+
+message LaneInfo {
+    message Lane {
+        optional int32 cid                  = 1;            // category_id
+        optional float score                = 2;
+        optional int32 sub_cid              = 3;
+        optional float sub_score            = 4;
+        repeated float points               = 5;            // [x,y,x,y,...]
+        repeated float coefs                = 6;            // reserve
+        optional int32 special_cid          = 7;
+        repeated float special_points       = 8;
+    }
+    optional int32 dims                     = 1;            // lane2d=2, lane3d=3
+    repeated Lane lanes                     = 2;
+}
+
+message SegmentInfo {
+    optional string data_format             = 1;
+    optional bytes  data                    = 2;           // png data
+}
+
+message ImageInfo {
+    optional string desc                    = 1;
+    optional string format                  = 2;
+    optional bytes  data                    = 3;           // png data
+}
+
+message EventInfo {
+    optional uint64 beg_ts                  = 1;
+    optional uint64 end_ts                  = 2;
+    optional uint64 beg_ptp_ts              = 3;
+    optional uint64 end_ptp_ts              = 4;
+    optional int32  event_type              = 5;
+    optional string event_tag               = 6;
+    optional float  event_score             = 7;
+}
+
+message VehicleDynamicInfo {
+
+    enum VehicleStatus {
+        default                     = 0;    // 默认状态
+        stop                        = 1;    // 静止
+        left                        = 2;    // 左转
+        right                       = 3;    // 右转
+        straight                    = 4;    // 直行
+        turn_around                 = 5;    // 掉头
+        parking_in                  = 6;    // 泊入
+        parking_out                 = 7;    // 泊出
+        vehicle_bumps               = 8;    // 车辆碰撞
+        vehicle_uphill              = 9;    // 车辆颠簸
+    }
+    
+    enum InteractionStatus {
+        default_status              = 0;    // 默认状态
+        change_lanes                = 1;    // 车辆变道
+        ohter_cut_In                = 2;    // 他车切入
+        front_cut_Out               = 3;    // 前车切出
+        overtaking_cut_in           = 4;    // 自车超车并切入到对方车道
+        opposite_cut_in_diagonally  = 5;    // 对向车斜向切入
+        driving_in_reverse          = 6;    // 自车逆向行驶
+        other_driving_in_reverse    = 7;    // 他车逆向行驶
+    }
+
+    optional uint64 beg_ts                  = 1;    // 开始时间
+    optional uint64 end_ts                  = 2;    // 结束时间
+    optional VehicleStatus ego_status       = 3;    // 自车状态
+    optional float ego_status_score         = 4;    // 自车状态分数
+    repeated int32 obj_id                   = 5;    // 他车id
+    repeated VehicleStatus obj_status       = 6;    // 他车状态
+    repeated float obj_status_score         = 7;    // 他车状态分数
+    repeated InteractionStatus inte_status  = 8;    // 他车交互状态
+    repeated float inte_status_score        = 9;    // 他车交互分数
+}
+
+
+// SENSOR_CAMERA_FW = 0, SENSOR_CAMERA_FN = 1, SENSOR_CAMERA_RN = 2,
+// SENSOR_CAMERA_FL = 3, SENSOR_CAMERA_FR = 4, SENSOR_CAMERA_RR = 5,
+// SENSOR_CAMERA_RL = 6, SENSOR_LIDAR_FRONT = 11
+message CdmModelResult {
+    optional int32  sensor_id                   = 1;
+    optional uint64 sensor_ts                   = 2;            // camera: exposure mcu_time, lidar: center-pointcloud sampleing ts
+    optional uint64 cooking_ts                  = 3;            // record the starting time of NN (ms)
+    optional string model_name                  = 4;            // ${name}:${version}
+    optional int32 im_width                     = 5;
+    optional int32 im_height                    = 6;
+    optional FrameDescriptor frame_descriptor   = 7;
+    repeated Object2D object_2d                 = 8;
+    repeated Object3D object_3d                 = 9;
+    optional LaneInfo lane_info                 = 10;
+    optional SegmentInfo segment_info           = 11;
+    map<string, bytes> extend_info              = 12;
+    map<string, bytes> debug_info               = 13;
+    repeated EventInfo event_info               = 14;
+    repeated ImageInfo image_info               = 15;
+    optional VehicleDynamicInfo veh_dy_info     = 16;
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts              = 536870907;     // publish ptp timestamp, uint in nanosec
+    optional string publisher_id                = 536870909;     // uuid of the publisher
+    optional uint64 counter                     = 536870910;     // message counter
+    optional uint64 publish_ts                  = 536870911;     // publish utc timestamp; unit : nanosecond
+}

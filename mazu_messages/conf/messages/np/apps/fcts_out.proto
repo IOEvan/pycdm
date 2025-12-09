@@ -1,0 +1,318 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+import "common/perception/radar_base.proto";
+
+message RctbOut{
+    optional uint32 vlc_driveoffreq = 1;
+    optional float vlc_maxjerka = 2;
+    optional float vlc_minjerka = 3;
+    optional uint32 vlc_mode = 4;
+    optional uint32 vlc_reqrctb = 5;
+    optional uint32 vlc_shutdownmodreq = 6;
+    optional float vlc_tara = 7;
+    optional uint32 vlc_deceltostopreq = 8;
+    optional uint32 rctbbrksts = 9;
+    optional uint32 vlc_reqfcn = 10;
+}
+
+message RcmbOut{
+    optional uint32 vlc_driveoffreq    = 1;
+    optional float vlc_maxjerka        = 2;
+    optional float vlc_minjerka        = 3;
+    optional uint32 vlc_mode           = 4;
+    optional uint32 vlc_reqrcmb        = 5;
+    optional uint32 vlc_shutdownmodreq = 6;
+    optional float vlc_tara            = 7;
+    optional uint32 vlc_deceltostopreq = 8;
+    optional uint32 rcmbbrksts         = 9;
+    optional uint32 vlc_reqfcn         = 10;
+    optional uint32 vlc_fctseln        = 11;
+}
+
+message BsdOut{
+    optional uint32 bsd_hvireq = 1;
+}
+
+message AebOut{
+    optional uint32 aba_req     = 1;
+    optional uint32 abalvl_req  = 2;
+    optional uint32 abp_req     = 3;
+    optional uint32 aeb_req     = 4;
+    optional float aeb_tar_decel= 5;
+    optional uint32 awb_req     = 6;
+    optional uint32 awblvl_req  = 7;
+    optional uint32 eba_req     = 8;
+    optional uint32 aebsts      = 9;
+    optional uint32 fcwsetst    = 10;
+    optional uint32 prewarnreq  = 11;
+    optional uint32 txtinfo     = 12;
+    optional uint32 AEBDecelReq_DummyForDVR = 13;
+    optional uint32 HornCtrlReq             = 14;
+}
+
+message AebRearOut{
+    optional uint32 aebrearsts  = 1;
+    optional uint32 txtinfo     = 2;
+}
+
+message AesOut{
+    optional uint32 aes_pncsts              = 1;
+    optional uint32 epsaciramprate          = 2;
+    optional float epsacireqsae             = 3;
+    optional float epsacisaflim_angdyn      = 4;
+    optional uint32 epsacisaflim_angdynoffs = 5;
+    optional uint32 epsacisaflim_anglm      = 6;
+    optional uint32 epsacisaflim_angrm      = 7;
+    optional uint32 epsacisaflim_mode       = 8;
+    optional uint32 epsacisaflim_rate       = 9;
+    optional uint32 epsaciovrthr            = 10;
+    optional uint32 epsacitsusup            = 11;
+    optional float epsctireqsae             = 12;
+    optional uint32 laneassiststs           = 13;
+    optional uint32 aes_sts                 = 14;
+    optional uint32 aes_warningsts          = 15;
+}
+
+message OaaOut{
+    optional uint32 oaa_prewarningreq       = 1;
+    optional uint32 oaasetsts               = 2;
+    optional uint32 oaasts                  = 3;
+    optional uint32 oaatextinfo             = 4;
+    optional uint32 reargoasts              = 5;
+}
+
+message Fcts_Esd_Oaa_Object{
+    repeated uint32 oaa_highlight_id = 1; //high light static object id
+    repeated uint32 oaa_warn_id      = 2; //warning static object id
+}
+
+message Fcts_Esd_Rcm_Object{
+    repeated uint32 rcm_highlight_id = 1; //
+    repeated uint32 rcm_warn_id      = 2; //for rcm
+}
+
+message Fcts_Esd_Aeb_Object{
+    optional uint32 esd_aeb_obj_id = 1;
+    optional uint32 esd_aeb_obj_func = 2; //0 normal 1 fcw 2 aeb
+}
+
+message MaiOut{
+    optional uint32 maists                  = 1;
+    optional uint32 mai_warnreq             = 2;
+    optional uint32 tqrmplimreq             = 3;
+    optional uint32 mai_warnreq_new         = 4;
+    optional uint32 rearmaists              = 5;
+}
+
+message Fcts_ElkOut{
+    enum Fcts_ELKSts{
+       ELKOff        = 0;
+       ELKStandby    = 1;
+       ELKActive     = 2;
+       ELKFailure    = 3;
+    }
+    enum Fcts_ESFWarnSts{
+       ESFNoRequest            = 0;//no request
+       ESFOncomingLeftWarn     = 1;//Oncoming warning left
+       ESFOvertakingLeftWarn   = 2;//Overtaking warning left
+       ESFOncomingRightWarn    = 3;//Oncoming warning right
+       ESFOvertakingRightWarn  = 4;//Overtaking warning right
+    }
+    optional Fcts_ELKSts ElkSts             = 1;
+    optional Fcts_ESFWarnSts ESFWarnSts     = 2;
+    optional uint32 ElkActive               = 3;
+    optional uint32 ElkType                 = 4;
+    optional uint32 ElkObjID                = 5;
+    optional uint32 AdasLineID              = 6;
+    optional uint32 TextInfo                = 7;
+}
+
+message Fcts_LdwOut{
+    optional int32 AdasLeLine       = 1;
+    optional int32 AdasRiLine       = 2;
+    optional int32 LaneAsstSts      = 3;
+    optional int32 EPSReqTyp        = 4;
+    optional int32 Snvty            = 5;
+    optional int32 LaneAsstTyp      = 6;
+    optional int32 HapticOnOffSts   = 7;
+    optional uint32 LdwActive       = 8;
+    optional uint32 LdwType         = 9;
+}
+
+message Fcts_LatCtrlOut{
+    enum ACITsuSup{
+       ACITsuSupSet1    = 0;
+       ACITsuSupSet2    = 1;
+       ACITsuSupSet3    = 2;
+       ACITsuSupSet4    = 3;
+       ACITsuSupSet5    = 4;
+       ACITsuSupSet6    = 5;
+       ACITsuSupSet7    = 6;
+       ACITsuSupSet8    = 7;
+    }
+
+    optional int32 ExtReqCAMFC          = 1;
+    optional int32 LeLineTyp            = 2;
+    optional int32 RiLineTyp            = 3;
+    optional int32 LeTrackingSts        = 4;
+    optional int32 RiTrackingSts        = 5;
+    optional int32 LaneAssiTyp          = 6;
+    optional int32 LkaSnsvty            = 7;
+    optional float AbsltPinionAgReq     = 8;
+    optional int32 EPSReqTyp            = 9;
+    optional int32 LkaLnAsstSts         = 10;
+    optional int32 LkaHODWarnSeq        = 11;
+    optional bool  LatCtrlActv          = 12;
+    optional ACITsuSup EPSACITsuSup     = 13;
+    optional ACITsuSup VMC1ACITsuSup    = 14;
+    optional uint32 LkaActive           = 15;
+    optional uint32 LkaType             = 16;
+
+    optional uint32 RwsReqTyp           = 17;
+    optional float  RwsAciReq           = 18;
+    optional bool   RwsActWhlAngVld     = 19;
+    optional float  RwsAciSafLimAngLm   = 20;
+    optional float  RwsAciSafLimAngRm   = 21;
+    optional float  RwsAciSafLimRate    = 22;
+
+}
+
+message Fcts_AhcOut{
+    optional int32 AhcSysSt   = 1;
+    optional bool  AhcHiBmReq = 2;
+ }
+
+message Fcts_AcmEdrOut{ // this message is for ACM EDR regulation
+    optional uint32 lane_assist_sts_edr = 1; // same as CAN signal LaneAsstSts
+    optional uint32 lane_assist_typ_edr = 2; // same as CAN signal LDWLKALaneAssiTyp
+    optional uint32 adas_le_line_edr    = 3; // same as CAN signal AdasLeLine
+    optional uint32 adas_ri_line_edr    = 4; // same as CAN signal AdasRiLine
+    optional uint32 elk_sts_edr         = 5; // same as CAN signal ELKSts
+    optional uint32 esf_warning_sts_edr = 6; // same as CAN signal ESFWarningSts
+}
+
+message Fcts_SideFeatureOut{
+    optional uint32 BsdLcaLeSts         = 1;
+    optional uint32 BsdLcaRiSts         = 2;
+    optional uint32 BsdLcaReLeWarnReq   = 3;
+    optional uint32 BsdLcaReRiWarnReq   = 4;
+    optional uint32 BsdLcaOnOffSts      = 5;
+    optional uint32 BSDLcaWtiDisp       = 6;
+    optional uint32 SdowOnOffSts        = 7;
+    optional uint32 SdowLeWarnReq       = 8;
+    optional uint32 SdowRiWarnReq       = 9;
+    optional uint32 SdowLeSts           = 10;
+    optional uint32 SdowRiSts           = 11;
+    optional uint32 SdowWtiDisp         = 12;
+    optional uint32 FctaOnOffSts        = 13;
+    optional uint32 FctaFrntLeWarnReq   = 14;
+    optional uint32 FctaFrntRiWarnReq   = 15;
+    optional uint32 FctaLeSts           = 16;
+    optional uint32 FctaRiSts           = 17;
+    optional uint32 FctaWtiDisp         = 18;
+    optional uint32 FctabOnOffSts       = 19;
+    optional uint32 FctabWarnReq        = 20;
+    optional uint32 FctabWtiDisp        = 21;
+    optional uint32 FctabSts            = 22;
+    optional uint32 RctaOnOffSts        = 23;
+    optional uint32 RctaReLeWarnReq     = 24;
+    optional uint32 RctaReRiWarnReq     = 25;
+    optional uint32 RctaWtiDisp         = 26;
+    optional uint32 RctaLeSts           = 27;
+    optional uint32 RctaRiSts           = 28;
+    optional uint32 RctabOnOffSts       = 29;
+    optional uint32 RctabWtiDisp        = 30;
+    optional uint32 RctabWarnReq        = 31;
+    optional uint32 RctabSts            = 32;
+    optional uint32 MirrLightLeReq      = 33;
+    optional uint32 MirrLightRiReq      = 34;
+    optional uint32 ExSdowLeWarnReq     = 35;
+    optional uint32 ExSdowRiWarnReq     = 36;
+    optional uint32 lcahapticonoffsts   = 37;
+    optional uint32 SCTABOnOffSts       = 38;
+    optional uint32 fcta_candi_id       = 39;
+    optional uint32 lca_le_candi_id     = 40;
+    optional uint32 lca_ri_candi_id     = 41;
+}
+
+message RcmOut{
+    optional uint32 rcmsts              = 1;
+    optional uint32 rcm_WarnReq         = 2;
+    optional uint32 rcmonoffsts         = 3;
+    optional uint32 rcmwtidisp          = 4;
+    optional uint32 rcmhazardreq        = 5;
+    optional uint32 rcmecallreq         = 6;
+    optional uint32 rcmASBReq           = 7;
+    optional uint32 rcmFASReq           = 8;
+    optional uint32 rcmtextinfo         = 9;
+    optional uint32 rcmhazardreq_nomass = 10;
+}
+
+message OAA2ADMS{
+    message OAACandiObjInfo {
+       optional uint32 obj_id                         = 1;
+       optional ObjPos obj_pos_vcs                    = 2;
+       enum objSrc {
+           objSrc_none                                = 0;
+           objSrc_raw                                 = 1;
+           objSrc_obf                                 = 2;
+       }
+       optional objSrc obj_src                        = 3;
+       optional double reserved                       = 4;
+    }
+    repeated OAACandiObjInfo attn_obj                 = 1;
+    optional uint64 reserved_1                        = 2;
+    optional uint64 reserved_2                        = 3;
+ }
+
+ message PrecrashOut{
+    optional uint32 asb_req                           = 1;
+    optional bool   fas_precrash_func_req             = 2;
+    optional bool   pre_crash_mode                    = 3;
+ }
+
+message FctsConfigure {
+    optional bool       is_enhance                    = 1;
+}
+
+message PlannerYieldList {
+    optional uint32 candidate_id                      = 1;
+    optional uint32 risk_level                        = 2;
+}
+
+message FctsOut{
+    optional AebOut                 Aeb         = 1;
+    optional AesOut                 Aes         = 2;
+    optional RctbOut                Rctb        = 3;
+    optional AebRearOut             AebRear     = 4;
+    optional BsdOut                 Bsd         = 5;
+    optional OaaOut                 Oaa         = 6;
+    optional Fcts_Esd_Oaa_Object    Esd_Oaa     = 7;
+    repeated Fcts_Esd_Aeb_Object    Esd_Aeb     = 8;
+    optional MaiOut                 Mai         = 9;
+    optional Fcts_ElkOut            Elk         = 10;
+    optional Fcts_LdwOut            Ldw         = 11;
+    optional Fcts_LatCtrlOut        LatCtrl     = 12;
+    optional Fcts_AhcOut            Ahc         = 13;
+    optional Fcts_AcmEdrOut         AcmEdr      = 14;
+    repeated double                 FctsReserved = 15;
+    optional Fcts_SideFeatureOut    Side_Feature = 16;
+    optional OAA2ADMS               oaa_2_adms   = 17;
+    optional FctsConfigure          config       = 18;
+    repeated PlannerYieldList       yieldlist    = 19;
+    optional Fcts_Esd_Rcm_Object    Esd_Rcm      = 20;
+    optional RcmOut                 Rcm          = 21;
+    optional RcmbOut                Rcmb         = 22;
+    optional PrecrashOut            Precrash     = 23;
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts      = 536870907;        // publish ptp timestamp; unit : nanosecond
+    optional string publisher_id        = 536870909;        // uuid of the publisher
+    optional uint64 counter             = 536870910;        // message counter
+    optional uint64 publish_ts          = 536870911;        // publish timestamp; unit : nanosecond
+}

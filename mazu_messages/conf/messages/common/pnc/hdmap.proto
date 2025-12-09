@@ -1,0 +1,14 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+import "common/pnc/geometry.proto";
+import "common/map_engine/hd_traffic_light.proto";
+
+// Contains all the proxy from HdMap.
+
+message HdTrafficLightGroup {
+  repeated HdTrafficLight traffic_light_group = 1;
+}

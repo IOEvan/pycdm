@@ -1,0 +1,578 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+import "common/function_arb/function_arb_in.proto";
+
+message AhcOut{
+   required int32 AhcSysSt   = 1;
+   required bool  AhcHiBmReq = 2;
+}
+
+message LatCtrlOut{
+
+   enum ACITsuSup_e{
+      ACITsuSupSet1    = 0;
+      ACITsuSupSet2    = 1;
+      ACITsuSupSet3    = 2;
+      ACITsuSupSet4    = 3;
+      ACITsuSupSet5    = 4;
+      ACITsuSupSet6    = 5;
+      ACITsuSupSet7    = 6;
+      ACITsuSupSet8    = 7;
+   }
+   enum LatCtrlTar_e{
+      DALatCtrlInActv  = 0;//DA lateral control not engaged
+      NotLatCtrlTgt    = 1;//left/right lane line not used as lateral control target
+      LatCtrlTgt       = 2;//left/right lane line used as lateral control target
+      DriftOut         = 3;//vehicle drifting out of lane towards the left/right side
+   }
+
+   required int32 ExtReqCAMFC          = 1;
+   required int32 LeLineTyp            = 2;
+   required int32 RiLineTyp            = 3;
+   required int32 LeTrackingSts        = 4;
+   required int32 RiTrackingSts        = 5;
+   required int32 LaneAssiTyp          = 6;
+   required int32 LkaSnsvty            = 7;
+   required float AbsltPinionAgReq     = 8;
+   required int32 EPSReqTyp            = 9;
+   required int32 LkaLnAsstSts         = 10;
+   required int32 LkaHODWarnSeq        = 11;
+   optional bool  LatCtrlActv          = 12;
+   optional ACITsuSup_e EPSACITsuSup   = 13;
+   optional ACITsuSup_e VMC1ACITsuSup  = 14;
+   optional LatCtrlTar_e LatCtrlTarLe  = 15;
+   optional LatCtrlTar_e LatCtrlTarRi  = 16;
+
+   message ALCSOut { // this message is for ACM EDR regulation
+      optional uint32 DA_LaneChgSupReason           = 1;
+      optional uint32 AlcManeuverSts                = 2;
+      optional uint32 DA_ALCSsts                    = 3;
+      optional uint32 ShowSetDA_ALCS                = 4;
+   }
+   optional ALCSOut AlcsInfo           = 17;
+
+}
+
+message LonCtrlOut{
+   enum TauGapChg_e{
+      NoChange   = 0;//no change in tau-gap
+      MinTauGap  = 1;//no change as already at minimum
+      TauGapDec  = 2;//tau-gap decreased
+      TauGapInc  = 3;//tau-gap increased
+      MaxTauGap  = 4;//no change as already at maximum
+   }
+   enum VlcReqFctType_e{
+      Off       = 0;//Off
+      DA        = 1;//Drive Assist
+      FCTA      = 2;//FCTA_B
+      RCTA      = 3;//RCTA_B
+      SSD       = 4;//NAD_SSD
+      USD       = 5;//NAD_USD
+      EAS       = 6;//EAS
+      PSP       = 7;//PSP
+   }
+   optional int32 ModeESP                = 1;
+   optional int32 TauGapSet              = 2;
+   optional bool  ObjValid               = 3;
+   optional float DsplVelocitySet        = 4;
+   optional int32 GoNotfrReq             = 5;
+   optional int32 TextInfo               = 6;
+   optional int32 GoNotfrOnOffSts        = 7;
+   optional int32 TSRSpdLimDataOnOffSts  = 8;
+   optional int32 TakeOverReq            = 9;
+   optional float TargetAccel            = 10;
+   optional float CmftLowerAccl          = 11;
+   optional float CmftUpprAccl           = 12;
+   optional float MinJerkAccl            = 13;
+   optional float MaxJerkAccl            = 14;
+   optional int32 DecelToStopReq         = 15;
+   optional int32 ShutdownModReq         = 16;
+   optional int32 DrvOffReq              = 17;
+   optional int32 BrkPreferReq           = 18;
+   optional int32 MinBkrgReq             = 19;
+   optional int32 ACCNPDrvMsg            = 20;
+   optional int32 ClsObjTyp              = 21;
+   optional float ClsObjDst              = 22;
+   optional TauGapChg_e TauGapChgDisp    = 23;
+   optional bool DisplSetSpdEnbl         = 24;
+   optional VlcReqFctType_e VlcReqFct    = 25;
+   optional uint32 SpdUnit               = 26;
+   enum DA_SetSpdAnmt_e{
+        DASetSpdAnmt_None       = 0;//no animation
+        DASetSpdAnmt_Change     = 1;//speed change animation
+        DASetSpdAnmt_MinMax     = 2;//max./min. set-speed animation
+        DASetSpdAnmt_Reserved   = 3;//reserved
+    }
+    optional DA_SetSpdAnmt_e DA_SetSpeedAnimation         =27;
+   optional uint32 DA_Inhibit            = 28;
+   optional int32 GoNotifyTyp2           = 29;
+}
+
+message HwaOut{
+   enum AccNpSts_e{
+      Off                          = 0;
+      Passive                      = 1;
+      Standby                      = 2;
+      AccAct                       = 3;
+      AccStby                      = 4;
+      PilotAct                     = 5;
+      LatUnAvl                     = 6;
+      PilotStby                    = 7;
+   }
+   enum NadSts_e{
+      MdOff                        = 1;
+      MdPassive                    = 2;
+      MdRdy                        = 3;
+      MdAccStby                    = 4;
+      MdPilotStby                  = 5;
+      DaAccActv                    = 6;
+      DaActvLongLat                = 7;
+      DaActvLong                   = 8;
+      DaNOPActv                    = 9;
+      DaNADEngaged                 = 10;//NAD engaged
+      DaNADTrsnDmd                 = 11;//NAD Transition Demand
+      Da_NADEngagedBETA            = 12;//NAD engaged BETA
+      DaTJPActv                    = 15;
+   }
+   optional AccNpSts_e AccNpSts    = 1 [default = Off];
+   optional int32 LongCtrlActv     = 2;
+   optional int32 LatCtrlActv      = 3;
+   optional int32 HodWarnReq       = 4;
+   optional int32 HzrdLiReq        = 5;
+   optional int32 DoorUnlckReq     = 6;
+   optional int32 HodTakeOver      = 7;
+   optional NadSts_e NaNadSts      = 8 [default = MdOff];
+   optional uint32 NaNadWTI        = 9;
+   optional bool FreespaceIntrsn   = 10;
+   optional bool ADC_VehDisp_Warn  = 11;
+   optional bool DA_TurnIndctrLeTip      = 12;
+   optional bool DA_TurnIndctrRiTip      = 13;
+   optional bool DA_TurnIndctrLeLatch    = 14;
+   optional bool DA_TurnIndctrRiLatch    = 15;
+   optional bool DA_TurnIndctrLePush     = 16;
+   optional bool DA_TurnIndctrRiPush     = 17;
+   enum DA_NOP_Avl_e{
+      DA_NOP_Avl_NotAvl       = 0;//default
+      DA_NOP_Avl_Avl          = 1;
+      DA_NOP_Avl_Engaged      = 2;//same as {DA-NAD-Sts} = state 31 (DA / NOP active)
+  }
+   optional DA_NOP_Avl_e DA_NOP_Avl      = 18;
+   optional bool NeedNOPCtrl             = 19;
+   optional uint32 DA_NOP_WTIs           = 20;
+   optional uint32 DA_iACC_WTIs          = 21;
+   optional uint32 DA_Pilot_WTIs         = 22;
+   optional bool DA_SysFailSymbol        = 23;
+   optional bool ADC_VehAutoHoldReq      = 24;
+   optional uint32 ADMS_WTIs             = 25;
+   optional uint32 ADCWorkMod            = 26;
+   optional uint32 DA_PSP_WTIs           = 27;
+   enum ADCtoCDC_temp2bit_2_e{
+      ADCtoCDC_temp2bit_2_NotAvl       = 0;//default
+      ADCtoCDC_temp2bit_2_Avl          = 1;
+      ADCtoCDC_temp2bit_2_Engaged      = 2;//same as {DA-NAD-Sts} = 11 (NAD active)
+   }
+   optional ADCtoCDC_temp2bit_2_e ADCtoCDC_temp2bit_2   = 28;
+
+   enum ADCtoCDC_temp1bit_1_e{
+        ADCtoCDC_temp1bit_1_0       = 0;
+        ADCtoCDC_temp1bit_1_1       = 1;
+    }
+    optional ADCtoCDC_temp1bit_1_e ADCtoCDC_temp1bit_1 = 29;
+
+   enum ADCtoCDC_temp1bit_2_e{
+        ADCtoCDC_temp1bit_2_0          = 0;
+        ADCtoCDC_temp1bit_2_1          = 1; // default 
+    }
+    optional ADCtoCDC_temp1bit_2_e ADCtoCDC_temp1bit_2    =30;             
+
+    enum ADCtoCDC_temp1bit_3_e{
+        ADCtoCDC_temp1bit_3_0          = 0; // default 
+        ADCtoCDC_temp1bit_3_1          = 1; 
+    }
+    optional ADCtoCDC_temp1bit_3_e ADCtoCDC_temp1bit_3    =31;
+
+    enum ADCtoCDC_temp1bit_4_e{
+        ADCtoCDC_temp1bit_4_0          = 0; // default 
+        ADCtoCDC_temp1bit_4_1          = 1; 
+    }
+    optional ADCtoCDC_temp1bit_4_e ADCtoCDC_temp1bit_4    =32;
+
+    enum ADCtoCDC_temp1bit_5_e{
+        ADCtoCDC_temp1bit_5_0          = 0; // default 
+        ADCtoCDC_temp1bit_5_1          = 1; 
+    }
+    optional ADCtoCDC_temp1bit_5_e ADCtoCDC_temp1bit_5    =33;
+
+    enum ADCtoCDC_temp1bit_6_e{
+        ADCtoCDC_temp1bit_6_0          = 0; 
+        ADCtoCDC_temp1bit_6_1          = 1; // default 
+    }
+    optional ADCtoCDC_temp1bit_6_e ADCtoCDC_temp1bit_6   =34;
+
+    enum ADCtoCDC_temp1bit_7_e{
+        ADCtoCDC_temp1bit_7_0          = 0; // default 
+        ADCtoCDC_temp1bit_7_1          = 1; 
+    }
+    optional ADCtoCDC_temp1bit_7_e ADCtoCDC_temp1bit_7    =35;
+
+    enum ADCtoCDC_temp2bit_1_e{
+        ADCtoCDC_temp2bit_1_00          = 0; 
+        ADCtoCDC_temp2bit_1_01          = 1; 
+        ADCtoCDC_temp2bit_1_10          = 2; // default 
+        ADCtoCDC_temp2bit_1_11          = 3;
+    }
+    optional ADCtoCDC_temp2bit_1_e ADCtoCDC_temp2bit_1    =36; 
+
+
+
+
+    enum ADCtoCDC_temp3bit_1_e{
+        ADCtoCDC_temp3bit_1_000          = 0; 
+        ADCtoCDC_temp3bit_1_001          = 1; 
+        ADCtoCDC_temp3bit_1_010          = 2; 
+        ADCtoCDC_temp3bit_1_011          = 3; // default 
+        ADCtoCDC_temp3bit_1_100          = 4; 
+        ADCtoCDC_temp3bit_1_101          = 5; 
+        ADCtoCDC_temp3bit_1_110          = 6; 
+        ADCtoCDC_temp3bit_1_111          = 7;
+    }
+    optional ADCtoCDC_temp3bit_1_e ADCtoCDC_temp3bit_1    =38;
+
+    enum ADCtoCDC_temp4bit_1_e{
+        ADCtoCDC_temp4bit_1_0000          = 0; // default 
+        ADCtoCDC_temp4bit_1_0001          = 1; 
+        ADCtoCDC_temp4bit_1_0010          = 2; 
+        ADCtoCDC_temp4bit_1_0011          = 3; 
+        ADCtoCDC_temp4bit_1_0100          = 4; 
+        ADCtoCDC_temp4bit_1_0101          = 5; 
+        ADCtoCDC_temp4bit_1_0110          = 6; 
+        ADCtoCDC_temp4bit_1_0111          = 7;
+        ADCtoCDC_temp4bit_1_1000          = 8; 
+        ADCtoCDC_temp4bit_1_1001          = 9; 
+        ADCtoCDC_temp4bit_1_1010          = 10; 
+        ADCtoCDC_temp4bit_1_1011          = 11; 
+        ADCtoCDC_temp4bit_1_1100          = 12; 
+        ADCtoCDC_temp4bit_1_1101          = 13; 
+        ADCtoCDC_temp4bit_1_1110          = 14; 
+        ADCtoCDC_temp4bit_1_1111          = 15;
+    }
+    optional ADCtoCDC_temp4bit_1_e ADCtoCDC_temp4bit_1    =39; 
+
+    optional bool DA_AccPilot_ModeSwitch                   = 40;
+    optional bool ShowOverSpeedAlertFaultIcon              = 41;
+
+    enum ButtonDisplay_e{
+       DontDisplay      = 0;
+       Display_Gray     = 1;
+       Display_Color    = 2; 
+       Display_Reserved = 3; 
+    }
+   optional ButtonDisplay_e DA_PSPactTriggerDisplay = 42;
+   optional uint32 DA_NAD_WTIs                      = 43;
+}
+
+message LdwOut{
+   optional int32 AdasLeLine       = 1;
+   optional int32 AdasRiLine       = 2;
+   optional int32 LaneAsstSts      = 3;
+   optional int32 EPSReqTyp        = 4;
+   optional int32 Snvty            = 5;
+   optional int32 LaneAsstTyp      = 6;
+   optional int32 HapticOnOffSts   = 7;
+}
+
+message SasOut{
+   enum SpdLmtAttr_e{
+      NoDisplay           = 0;//[default]no display
+      Warning             = 1;//warning (color)
+      HighConfidence      = 2;//high confidence (color)
+      LowConfidence       = 3;//low confidence (gray)
+   }
+   enum SpdLmtTkOv_e{
+      None          = 0;//no takeover possible [default]
+      UpBtn_TkOv    = 1;//manual takeover possible via up button
+      DownBtn_TkOv  = 2;//manual takeover possible via down button
+      AutoAdjust    = 3;//auto set-speed adjustment ongoing
+   }
+   enum SLIFWarnTrgSts_e{
+      NoWarning           = 0;//no warning (default)
+      Stg1_SpdWarning     = 1;//speed warning (stage 1)
+      Stg2_SpdWarning     = 2;//speed warning (stage 2)
+      Snow_SpdWarning     = 3;//speed warning (for condition snow)
+   }
+   enum SLIFSts_e{
+      Init           = 0;//INIT (default)
+      GPSDisabled    = 1;//GPS disabled
+      TSR            = 2;//TSR-only
+      Map            = 3;//Map-only
+      Fusion         = 4;//MAP & TSR fusion
+      Fault          = 5;//Fault
+   }
+   optional uint32 SpeedLimitValue            = 1 [default = 0];
+   optional uint32 SpeedUnit                  = 2 [default = 0];
+   optional SpdLmtAttr_e SpeedLimitAttribute  = 3 [default = NoDisplay];
+   optional SpdLmtTkOv_e SpeedLimitTakeover   = 4 [default = None];
+   optional uint32 SupSignType                = 5 [default = 0];
+   optional uint32 SupSignAttribute           = 6 [default = 0];
+   optional uint32 RoadFeatureWarningSign     = 7;
+   optional uint32 TrafficLightSts            = 8;
+   optional uint32 LocalHazards               = 9;
+   optional SLIFSts_e SLIFState               = 10 [default = Init];
+   optional SLIFWarnTrgSts_e SLWFWarnTrigger  = 11 [default = NoWarning];
+}
+
+message HeaterOut{
+   optional bool WSHeatReq       = 1;
+   optional bool WSHeatReqValid  = 2;
+}
+
+message ElkOut{
+   enum ELKSts_e{
+      ELKOff        = 0;
+      ELKStandby    = 1;
+      ELKActive     = 2;
+      ELKFailure    = 3;
+   }
+   enum ESFWarningSts_e{
+      ESFNoRequest            = 0;//no request
+      ESFOncomingLeftWarn     = 1;//Oncoming warning left
+      ESFOvertakingLeftWarn   = 2;//Overtaking warning left
+      ESFOncomingRightWarn    = 3;//Oncoming warning right
+      ESFOvertakingRightWarn  = 4;//Overtaking warning right
+   }
+   optional ELKSts_e ElkSts                = 1;
+   optional ESFWarningSts_e ESFWarningSts  = 2;
+}
+
+message AcmEdrOut { // this message is for ACM EDR regulation
+   optional uint32 acsf_b1_sts_edr           = 1; // 0:off 1:standby 2:active 3:fault
+   optional uint32 acsf_b2_sts_edr           = 2; // 0:off 1:standby 2:active 3:fault
+   optional uint32 acsf_c_sts_edr            = 3; // 0:off 1:standby 2:active 3:fault
+   optional uint32 acsf_d_sts_edr            = 4; // 0:off 1:standby 2:active 3:fault
+   optional uint32 acsf_e_sts_edr            = 5; // 0:off 1:standby 2:active 3:fault
+   optional uint32 lane_assist_sts_edr       = 6; // same as CAN signal LaneAsstSts
+   optional uint32 ldw_lka_lane_assi_typ_edr = 7; // same as CAN signal LDWLKALaneAssiTyp
+   optional uint32 adas_le_line_edr          = 8; // same as CAN signal AdasLeLine
+   optional uint32 adas_ri_line_edr          = 9; // same as CAN signal AdasRiLine
+   optional uint32 elk_sts_edr               = 10; // same as CAN signal ELKSts
+   optional uint32 esf_warning_sts_edr       = 11; // same as CAN signal ESFWarningSts
+   optional uint32 acc_sts_edr               = 12; // 0:on but not active 1:active 2:off 3:fault
+}
+
+message HMIIconOut { // this message is for ACM EDR regulation
+   optional uint32 ShowSetSWF                = 1;
+   optional bool ShowSetDA_ALCS              = 2;
+   optional uint32 ShowSetDA_SpdAssist       = 3;
+   optional bool ShowSetDA_SetSpdCtrl        = 4;
+   optional uint32 ShowSetDA_SteerAssist     = 5;
+   optional bool ShowSetDA_CurveSpdAssist    = 6;
+   optional uint32 ReRADfeatures_FactoryDft  = 7;
+   optional uint32 LaneFeautres_FactoryDft   = 8;
+
+}
+
+message EasOut{
+   enum AD_ActvSftyBltReq_e{
+   AD_ActvSftyBltReq_NoReq       = 0;//No Request
+   AD_ActvSftyBltReq_HWL1Req     = 1;//HW_L1 Req
+   AD_ActvSftyBltReq_HWL2Req     = 2;//HW_L2 Req
+   AD_ActvSftyBltReq_HWL3Req     = 3;//HW_L3 Req
+   AD_ActvSftyBltReq_PPLReq      = 4;//PP_L Req
+   AD_ActvSftyBltReq_PPMReq      = 5;//PP_M Req
+   AD_ActvSftyBltReq_PPHReq      = 6;//PP_H Req
+   ADDrvMod_Rsrvd1               = 7;//Reserved
+}
+   optional uint32 EASSts              = 1;
+   optional uint32 EASWarningLv        = 2;
+   optional uint32 RpsLockUnlckCtrl    = 3;
+   optional bool   EasCall             = 4;
+   optional AD_ActvSftyBltReq_e AD_ActvSftyBltReq = 5;
+}
+
+message SnsrStsOut{
+   enum SnsrSts_e{
+      SnsrSts_OK                 = 0;
+      SnsrSts_Dirty              = 1;
+      SnsrSts_Blockage           = 2;
+      SnsrSts_OverHeat           = 3;
+      SnsrSts_Error              = 4;
+      SnsrSts_OutCal             = 5;
+      SnsrSts_CalError           = 6;
+      SnsrSts_Windshield_Frozen  = 7;
+      SnsrSts_Reserved1          = 8;
+      SnsrSts_Reserved2          = 9;
+      SnsrSts_Reserved3          = 10;
+      SnsrSts_Reserved4          = 11;
+      SnsrSts_Reserved5          = 12;
+      SnsrSts_Reserved6          = 13;
+      SnsrSts_Reserved7          = 14;
+      SnsrSts_Reserved8          = 15;
+   }
+   optional SnsrSts_e LidarSts              = 1;
+   optional SnsrSts_e Camera_FrntWideSts    = 2;
+   optional SnsrSts_e Camera_FrntNarrowSts  = 3;
+   optional SnsrSts_e Camera_SideFrntLeSts  = 4;
+   optional SnsrSts_e Camera_SideFrntRiSts  = 5;
+   optional SnsrSts_e Camera_SideReLeSts    = 6;
+   optional SnsrSts_e Camera_SideReRiSts    = 7;
+   optional SnsrSts_e Camera_ReSts          = 8;
+   optional SnsrSts_e Camera_FrntSVCSts     = 9;
+   optional SnsrSts_e Camera_RearSVCSts     = 10;
+   optional SnsrSts_e Camera_LeSVCSts       = 11;
+   optional SnsrSts_e Camera_RiSVCSts       = 12;
+
+   enum SnsrImuSts_e{
+      SnsrImuSts_OK                 = 0;
+      SnsrImuSts_HwtempError        = 1;
+      SnsrImuSts_HwperpetualError   = 2;
+      SnsrImuSts_Reserved1          = 3;
+      SnsrImuSts_Reserved2          = 4;
+      SnsrImuSts_Reserved3          = 5;
+      SnsrImuSts_Reserved4          = 6;
+      SnsrImuSts_Reserved5          = 7;
+      SnsrImuSts_Reserved6          = 8;
+      SnsrImuSts_Reserved7          = 9;
+      SnsrImuSts_Reserved8          = 10;
+      SnsrImuSts_Reserved9          = 11;
+      SnsrImuSts_Reserved10         = 12;
+      SnsrImuSts_Reserved11         = 13;
+      SnsrImuSts_Reserved12         = 14;
+      SnsrImuSts_Reserved13         = 15;
+   }
+   optional SnsrImuSts_e SnsrImuSts         = 13;
+
+   enum FailsafeSts_e{
+      FailsafeSts_OK                = 0;
+      FailsafeSts_FsRain            = 1;
+      FailsafeSts_FsFog             = 2;
+      FailsafeSts_FsSnow            = 3;
+      FailsafeSts_FsLowsunSunray    = 4;
+      FailsafeSts_FSIlluminance     = 5;
+      FailsafeSts_Reserved1         = 6;
+      FailsafeSts_Reserved2         = 7;
+      FailsafeSts_Reserved3         = 8;
+      FailsafeSts_Reserved4         = 9;
+      FailsafeSts_Reserved5         = 10;
+      FailsafeSts_Reserved6         = 11;
+      FailsafeSts_Reserved7         = 12;
+      FailsafeSts_Reserved8         = 13;
+      FailsafeSts_Reserved9         = 14;
+      FailsafeSts_Reserved10        = 15;
+   }
+   optional FailsafeSts_e FailsafeSts      = 14;
+
+}
+
+message RcvProtoPTPTimeOut{
+   optional uint64 function_arb_out_ptp_ts          = 1;
+   optional uint64 sd_map_ptp_ts                    = 2;
+   optional uint64 nop_functionstatus_ptp_ts        = 3;
+   optional uint64 nop_speedlimitvalue_ptp_ts       = 4;
+   optional uint64 nop_vehicleout_ptp_ts            = 5;
+   optional uint64 side_feature_ptp_ts              = 6;
+   optional uint64 vision_illumnance_flag_ptp_ts    = 7;
+   optional uint64 vision_road_detection_ptp_ts     = 8;
+   optional uint64 vehicle_10ms_ptp_ts              = 9;
+   optional uint64 vehicle_50ms_ptp_ts              = 10;
+   optional uint64 ehy_lpp_outputs_ptp_ts           = 11;
+   optional uint64 ehy_obf_outputs_ptp_ts           = 12;
+   optional uint64 ehy_rme_road_outputs_ptp_ts      = 13;
+   optional uint64 ehy_tpp_outputs_ptp_ts           = 14;
+   optional uint64 ehy_tse_outputs_ptp_ts           = 15;
+   optional uint64 ehy_tsi_outputs_ptp_ts           = 16;
+   repeated uint64 reserved_ptp_ts                  = 99;
+}
+
+message esd_np_tld_fct{
+   optional uint32 tld_valid= 1; //0：无效，1：有效
+   optional uint32 tld_type = 2; //0：Unknown, 1：Left, 2：Right, 3：Straight, 5：U_Turn
+   optional uint32 tld_color = 3; //0：Unknown, 1：Red, 2：Yellow, 3：Green
+   optional uint32 tld_status = 4; //0：常亮，1：闪烁
+   optional uint32 tld_timer = 5; //65535表示无效值
+}
+
+message esd_np_feature_fct{
+    repeated esd_np_line_fct esd_np_Line_fct=1;
+    repeated esd_np_object_fct esd_np_Object_fct=2;
+    optional esd_np_path_fct  esd_np_Path_fct =3;
+    optional esd_np_alc_fct esd_np_Alc_fct=4;
+    optional esd_np_tld_fct esd_tld_fct = 5;
+}
+
+message esd_np_line_fct{
+    optional uint64 esd_np_line_role_fct      = 1;   // LD_Track_ID
+    optional uint64 esd_np_line_ld_level_fct  = 2; //highlight level 0~3
+    optional uint64 esd_np_line_ldw_level_fct = 3;
+
+}
+message esd_np_object_fct{
+    optional uint64 esd_np_obj_id_fct   =1; ////  1 ~ 2 ^ 20（1048576)
+    optional uint64 esd_np_obj_level_fct=2;//highlight level  0~5
+    optional uint64 esd_np_obj_da_fct   =3; //drive assist level 0~5
+    optional uint64 esd_np_obj_elk_fct  =4;//0 normal 1 oncoming 2 overtaking 3 reserved
+}
+message esd_np_path_fct{
+    optional float esd_np_path_c0_fct =1;
+    optional float esd_np_path_c1_fct =2;
+    optional float esd_np_path_c2_fct =3;
+    optional float esd_np_path_c3_fct =4;
+    optional float esd_np_path_c4_fct =5;
+    optional float esd_np_path_c5_fct =6;
+    optional float esd_np_path_end_fct=7;
+    optional bool esd_np_enable_fct   =8;// 1 enable 0  not enable
+}
+message esd_np_alc_fct{
+    optional uint64 esd_np_alc_crossing_fct    =1;  // reserved
+    optional uint64 esd_np_alc_sts_fct         =2;//0~9
+    optional uint32 esd_laneChngIntent_fct     =3;//0-none 1-left 2-right
+    optional bool   esd_crossed_left_lane_fct  =4;//ego car crosses the lane
+    optional bool   esd_crossed_right_lane_fct =5; //ego car crosses the lane
+}
+
+message DriveAssistToAdhmi{
+   optional uint32 DAmain_to_ADinfo =1;
+   optional uint32 DAmain_to_WTI =2;
+}
+message ManualDriveToAdhmi {
+       optional uint32  MD_to_ADinfo = 1;
+       optional  uint32 MD_to_WTI = 2;
+}
+
+message FctOut{
+   required AhcOut Ahc                              = 1;
+   required LatCtrlOut LatCtrl                      = 2;
+   optional LonCtrlOut LonCtrl                      = 3;
+   optional HwaOut Hwa                              = 4;
+   optional LdwOut Ldw                              = 5;
+   optional SasOut Sas                              = 6;
+   optional HeaterOut Heater                        = 7;
+   optional ElkOut Elk                              = 8;
+   repeated FunctionXstatus Function                = 9;       //0:DA_Main 1:EAS 2:DA_SDC 3:DA_LCC 4:ELK 5:AHB 6:DA_NBC
+   optional AcmEdrOut AcmEdr                        = 10;
+   optional HMIIconOut HmiIcon                      = 11;
+   optional EasOut Eas                              = 12;
+   repeated double Reserved                         = 13;
+   optional SnsrStsOut SesrSts                      = 14;
+   optional RcvProtoPTPTimeOut RcvProtoPTPTime      = 15;
+   optional esd_np_feature_fct esd_np_feature_out       = 16;
+   optional DriveAssistToAdhmi drive_assist_to_adhmi = 17;
+   optional double ramp_distance = 18;
+   optional int32  ramp_lane_change_nums = 19;
+   optional ManualDriveToAdhmi manual_drive_to_adhmi = 20;
+   optional int32  DA_L3TJP_Avl                      = 21;
+   optional bool  isTJPConfigOn                      = 22;
+   optional bool  isDriverInLoopForTjp               = 23;
+
+   optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+   optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+   optional uint64 publish_ptp_ts   = 536870907;      // publish ptp timestamp; unit : nanosecond
+   optional string publisher_id     = 536870909;      // uuid of the publisher
+   optional uint64 counter          = 536870910;      // message counter
+   optional uint64 publish_ts       = 536870911;      // publish timestamp; unit : nanosecond
+}
+

@@ -1,0 +1,184 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages.wm;
+
+import "common/perf/sensor_ts_header.proto";
+
+enum TurnDirection { // 导航状态
+  Unknown = 0; 
+  GoStraight = 1; // 直行
+  TurnLeft = 2;   // 左转
+  TurnRight = 3;  // 右转
+  TurnAroundLeft = 4; // 左掉头
+  TurnAroundRight = 5; // 右掉头
+}
+
+enum NavigationState {    
+  NS_NONE = 0;          // 未知状态
+  ROUTE_CRUISING = 1;   // 巡航状态
+  ROAMING = 2;          // 导航算路中
+  NAVIGATING = 3;       // 导航状态
+}
+
+enum LaneType { // 车道类型
+  UnKnown = 0;
+  MotorLane = 1; // 机动车道
+  BicycleLane = 2; // 非机动车道
+  BusLane = 3;  // 公交车道
+  ReverseLane = 4; // 对向车道
+  BusHarborLane = 5; // 公交岛车道
+  SpecialCarLane = 6; // 特殊车道  
+}
+
+enum DriverIntention { // 人驾意图
+  UNKOWN = 0;
+  LANEKEEP = 1;
+  LANECHANGE = 2;
+  OVERTAKE = 3;
+  NUDGE = 4;
+}
+
+message Point {  
+ optional float x = 1;  
+ optional float y = 2;
+ optional float z = 3;
+}
+
+message ExitRegion {
+  optional float idx = 1;
+  optional float width = 2;
+  optional Point left = 3;   // region 左几何点
+  optional Point right = 4;  // region 右几何点
+  optional uint64 motor_way_confidence = 5;   // 机动车空间置信度
+  optional uint64 reverse_way_confidence = 6;  // 反向空间置信度
+}
+
+message CrossLineInfo {
+  optional bool is_matched_stopline = 1; // 是否与停止线关联
+  optional bool is_matched_zebra = 2; // 是否与斑马线关联
+  repeated Point cross_line = 3; // 横截面几何
+}
+
+message PathExitRegionInfo {
+  optional Point exit_point = 1;  // 出口点
+  optional LaneType exit_lane_type = 2; // 出口车道属性
+  optional bool path_select = 3;  // path是否选中
+}
+
+message JunctionInfo {
+  optional bool is_controlled_by_traffic_light = 1; // 是否与红绿灯关联
+  optional float distance_to_intersection_entry = 2; // 到路口入口距离
+  optional float distance_to_intersection_center = 3; // 到路口中心距离
+  optional float distance_to_intersection_exit = 4; // 到路口中心距离
+  optional NavigationState navi_state = 5;  // 导航状态
+  optional TurnDirection direction = 6; // 导航方向
+  optional bool is_controlled_access = 7; //是否是受控道路（高速，匝道等）
+  optional bool is_right_turn_lane = 8; //右转专用道
+  optional bool is_main_auxiliary = 9; //主辅路
+  optional CrossLineInfo in_cross_line = 10; // 路口入口横截面
+  optional CrossLineInfo out_cross_line = 11; // 路口出口横截面
+  repeated ExitRegion exit_regions = 12; // 路口出口硬隔离空间
+  optional int32 navi_path_exit_region_idx = 13;  // T-delat时刻 navi_path选择出口idx, -1表示
+}
+
+message SingleLaneInfo {
+  optional float pass_probability = 1; // 通行概率
+  optional LaneType lane_type = 2;  // 车道类型
+  optional uint64 id = 3; // 车道 id， 考虑到基于左中右的逻辑，可能在依赖前后帧的逻辑会有混淆
+}
+
+message RelatedLanesInfo { // 与自车相关联的左中右三条车道信息
+  optional SingleLaneInfo host_lane = 1; // 本车道
+  optional SingleLaneInfo left_lane = 2; // 左车道
+  optional SingleLaneInfo right_lane = 3; // 右车道
+}
+
+message SceneInfo {
+  optional NavigationState navi_state = 1;  // 导航状态
+  optional bool is_highway = 2; // 高快
+  optional bool is_frontage = 3; // 主辅路场景
+  optional bool is_right_turn_lane = 4; // 右转专用道场景
+  optional bool is_slipway = 5; // 匝道
+}
+
+message PathPoint { // 路径点（仅静态信息）
+  optional bool is_valid = 1; //该点是否在局部图以内，例如建图建了10m，点在10m外，视为无效
+  optional Point point = 2; // 在局部图中的坐标
+  optional float heading = 3; // 在局部图中的坐标
+  optional float lateral_distance_to_host_center = 4; // 点到本车道中心线横向偏移
+  optional float lateral_distance_to_left_line = 5;  // 点到左车道线横向偏移
+  optional float lateral_distance_to_right_line = 6; // 点到右车道线横向偏移
+  optional bool static_interference = 7; // 该点是否存在静态干涉
+  optional int32 at_which_lane = 8; // 该点在哪条车道内 -1:左 0:本 1:右 -99:不在车道内
+  optional float accumulate_s = 9; // 从path起点开始的累加距离，用于查找时距点
+  optional float driving_prob = 10; // 点所在车道的通行概率
+}
+
+message NaviPathInfo {
+  optional float sample_stamp = 1; // navi path 点的采样间隔，如 0.5s/1.0s
+  repeated PathPoint path_points = 2; // 所有navi path 点
+  optional LaneType target_lane_type = 3; // navi path的目标车道属性
+  optional uint64 target_lane_id = 4;
+  optional PathExitRegionInfo exit_region_info = 5; // navi path出路口信息
+}
+
+message EgoStatus { // 车辆状态
+  optional float velocity = 1; // 速度
+  optional float longitude_accel = 2; // 纵向加速度
+  optional float lateral_accel = 3; // 横向加速度
+  optional float steerwhlang = 4; // 方向盘转角
+  optional float steerwhlang_grad = 5; // 方向盘转角梯度
+  optional uint32 turn_light = 6; // 转向灯，0: 左右转均不亮 1: 左转灯亮 2:右转灯亮 3:双闪
+}
+
+message TrajectoryPoint { // 轨迹点（含车辆状态）
+  optional EgoStatus ego_state = 1; // 当前车辆状态
+  optional PathPoint path_point = 2; // 这一点的静态信息 
+  optional PathExitRegionInfo exit_region_info = 3; // 出路口信息
+  optional int32 select_exit_region_idx = 4; // 人驾轨迹选中出口idx, -1表示没选择
+}
+
+message ManualDrivingInfo {
+  optional float sample_stamp = 1; // md 轨迹 点的采样间隔，如 0.5s/1.0s
+  optional DriverIntention intention = 2;
+  repeated TrajectoryPoint traj_points = 3; // 所有md 轨迹点
+  optional LaneType target_lane_type = 4;
+  optional uint64 target_lane_id = 5;
+}
+
+message LocalMapInfo {
+  optional float publish_step = 1;  // 局部图发送的帧率
+  optional JunctionInfo junction_info = 2; // 路口信息
+  optional RelatedLanesInfo lane_info = 3; // 车道信息
+  optional SceneInfo scene_info = 4;  // 场景信息
+}
+
+message RoadedgePoint {
+  optional Point pt = 1;
+  optional uint64 id = 2;
+}
+
+message EvaluationDetail {
+  optional uint64 eval_timestamp = 1;
+  repeated NaviPathInfo navi_path = 2; // navi path
+  optional ManualDrivingInfo md_traj = 3; // 人驾轨迹
+  repeated RoadedgePoint roadedge_between_navi_md = 4; // roadedge_between_navi_md
+}
+
+message EnvEvaluator {
+  optional LocalMapInfo local_map = 2;
+  repeated EvaluationDetail evaluation_detail = 3;
+  
+  //新增字段请用50之前的编号
+  repeated float reserved = 50;
+  repeated string extra_info = 51;
+  
+  optional uint64 timestamp = 536870905;   // ptp timestamp, nanosecond，used for data bundle readin
+  optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+  optional uint64 publish_ptp_ts = 536870907;   // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909;     // uuid of the publisher
+  optional uint64 counter = 536870910;          // message counter
+  optional uint64 publish_ts = 536870911;       // publish utc timestamp; unit : nanosecond
+}

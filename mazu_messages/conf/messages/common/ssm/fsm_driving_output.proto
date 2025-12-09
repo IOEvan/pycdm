@@ -1,0 +1,163 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+import "common/vehicle_out/ads_actu.proto";
+import "common/vehicle_out/ads_drv_if.proto";
+import "common/vehicle_in/veh_enum_type.proto";
+
+
+message VehLngCtrlIf{
+    enum TarGrReqType_e{
+        TarGr_NoReq = 0;//No request
+        TarGr_Drv   = 1;//Driving
+        TarGr_Rvrs  = 2;//Reverse
+        TarGr_Park  = 3;//Parking
+    }
+    optional TarGrReqType_e TarGearReq = 1;
+    optional VLCStType_e VLCMode       = 2;
+    optional float VLCTarA             = 3;
+    optional float VLCMinJerkA         = 4;
+    optional float VLCMaxJerkA         = 5;
+
+    enum VLC_Fctseln_e{
+        VLC_Fctseln_Off       = 0;//Off
+        VLC_Fctseln_DA        = 1;//Drive Assist
+        VLC_Fctseln_FCTA      = 2;//FCTA_B
+        VLC_Fctseln_RCTA      = 3;//RCTA_B
+        VLC_Fctseln_SSD       = 4;//NAD_SSD
+        VLC_Fctseln_USD       = 5;//NAD_USD
+        VLC_Fctseln_EAS       = 6;//EAS
+        VLC_Fctseln_PSP       = 7;//PSP
+        VLC_Fctseln_SAPA      = 8;//SAPA
+        VLC_Fctseln_VPPS      = 9;//PSAP VPPS
+        VLC_Fctseln_NBS       = 10;//NBS
+        VLC_Fctseln_RPA_in    = 11;//RPA_in RPSAP_out
+        VLC_Fctseln_ODS       = 12;//ODS
+        VLC_Fctseln_RPSAP_in  = 13;//RPSAP_in
+    }
+    optional VLC_Fctseln_e VLC_Fctseln = 6;
+}
+
+message DaStatusInfo{
+    // DAmain Status Info
+    optional uint32 DAmain_Status        = 1;  // 0:Default 1:Off/Unavailable 2:Standby 3:Pilot 4:NOP 5:EAS/MRM 6:L3
+    optional uint32 DA_NAD_Sts           = 2;
+    optional uint32 DA_iACC_Avl          = 3;
+    optional uint32 DA_Pilot_Avl         = 4;
+    optional uint32 DA_NOPhw_Avl         = 5;
+    optional uint32 DA_NOPpsp_Avl        = 6;
+    optional uint32 DA_NOPurban_Avl      = 7;
+    optional uint32 DA_NAD_Avl           = 8;
+    optional uint32 DA_ControlStatus     = 9;     //0:No request 1:Longitudinal only 2:Longitudinal & LatCtrl
+    optional uint32 DA_MRMMode           = 10;    //0:No request 1:Takeover_Demand 2:MRM 3:EAS
+    optional Da_Inhibit_e DA_Inhibit_out = 11;
+    optional bool DA_ActvPre_out         = 12;
+    optional bool DA_NOPsuppression      = 13;
+    optional bool DA_AccPilot_ModeSwitch = 14;
+    optional bool DA_P2Psuppression      = 36;
+
+    //TauGapSet    
+    optional TauGapType_e TauGapSet            = 15;
+    optional DA_TauGapOprtn_e TauGapChangeDisp = 16;
+    optional bool DA_Set_EuPsc                 = 17;  //0:off 1:on
+    
+    //SetSpeed
+    optional bool DisplaySetSpeedSwtch            = 18;
+    optional bool SetSpeedUnit                    = 19;   // 0:kph 0:mph
+    optional uint32 DisplaySetSpd                 = 20;
+    optional uint32 DisplaySetSpdSec              = 35;   //only for data reflow
+    optional DA_SetSpdAnmt_e DA_SetSpeedAnimation = 21; 
+
+
+    //Symbol Display    
+    optional ButtonDisplay_e DA_PSPactTriggerDisplay           = 22;
+    optional DriverSteeringWheelPull_e DriverSteeringWheelPull = 23;   //For DVR
+    optional HODsymbol_e HODsymbol   = 24;
+    optional bool DA_SysFailSymbol   = 25; 
+
+    //ALC Status
+    optional uint32 ALCSsts              = 26;     //only used by EU
+    optional uint32 DA_AlcStatus         = 27;     //Definition:https://nio.feishu.cn/docx/PtvgdKfPsoaNgBxn7fEceYLsnud
+    optional uint32 DA_AlcHmiStatus      = 28;  
+
+    enum DA_AlcCommand_e {
+        NO_REQUEST         = 0;   //default
+        LANE_CHANGE_LEFT   = 1;
+        LANE_CHANGE_RIGHT  = 2;
+        LANE_CHANGE_CANCEL = 3;
+    }
+    optional DA_AlcCommand_e DA_AlcCommand  = 29;
+
+    optional uint32 NOPRainMode             = 30;
+    optional uint32 DA_PilotMode            = 31;
+    optional uint32 DA_NOPMode              = 32;
+    optional uint32 DA_NADMode              = 33;   //DA_L3_Mode
+    optional bool   DA_BlindStopActv        = 34;   //1：BlindStop Active
+}
+
+message HMIinfoIf{
+    // DAmain WTI Triggers to Adhmi
+    optional uint32 DA_iACC_WTIs  = 1;
+    optional uint32 DA_Pilot_WTIs = 2;
+    optional uint32 DA_NOP_WTIs   = 3;
+    optional uint32 DA_PSP_WTIs   = 4;
+    optional uint32 DA_NAD_WTIs   = 5;
+    optional uint32 DA_EU_WTIs    = 6;
+    optional uint32 NAD_PSP_WTI3  = 7;
+    optional uint32 DA_to_ADInfo  = 8;
+    optional bool   DA_Shadow_Avl = 9;
+    optional uint32 DA_NadHodWarningLevel = 10;
+}
+
+
+
+message EASFuncInfo{
+    optional EASSts_e EASSts                   = 1;
+    optional EASWarnLevel_e EASWarningLevel    = 2;
+    optional bool EcallReq                     = 3;
+    optional ADCDoorLockReq_e ADCDoorLockReq   = 4;
+}
+
+message DaStaticInfo {
+  optional bool ProperGear = 1; // 挡位条件【C1.2】
+  optional bool NopSubscriptionValidForScenario =2 ; // 订阅权限【C2.1.1-C2.1.2】
+  optional bool NopSettingOnForScenario = 3; // NOP 使能开关状态【C2.4】
+  optional bool NopTrainingComplete = 4; // 用户学习状态【C2.2.1-C2.2.3】
+  optional bool PilotLinkedToNavi = 5; // 
+}
+
+message DaDynamicInfo {
+  optional bool AnyOtherConditionPreventingNopStart = 1; // 功能抑制【C1.5】
+  optional bool BrakePedalReleased = 2; // 车辆与驾驶员状态【C3.1.1-C3.1.10】
+  optional bool ClosedDoors = 3; // 车辆与驾驶员状态【C3.1.1-C3.1.10】
+  optional bool ClosedHood = 4; // 车辆与驾驶员状态【C3.1.1-C3.1.10】
+  optional bool ClosedTrunk = 5; // 车辆与驾驶员状态【C3.1.1-C3.1.10】
+  optional bool DriverBuckledUp = 6; // 车辆与驾驶员状态【C3.1.1-C3.1.10】
+  optional bool DriverHandsOn = 7; // 车辆与驾驶员状态【C3.1.1-C3.1.10】
+  optional bool HazardLightsOff = 8;  // 车辆与驾驶员状态【C3.1.1-C3.1.10】
+  optional bool NavigationStatusOk = 9; // - 导航状态【C1.1】
+  optional bool VehiclePositioningOnRoadOk = 10; // - 启动范围【C1.3】
+}
+
+message DAmainOut{
+    optional LatCtrlIf LatCtrl                 = 1;
+    optional VehLngCtrlIf LngCtrlCmfrt         = 2;
+    optional HMIinfoIf HMIinfo                 = 3;  //Fsm output Da_WTI Status
+    optional SpdDispAndCfgInfo SpdDispAndCfgIf = 4;  //SAS & SILF
+    optional EASFuncInfo EASFuncIf             = 5;  //EAS outputs
+    optional DaStatusInfo DaStatus             = 6;  //Fsm output Damain Status
+    optional DaStaticInfo  da_static_info        = 7;
+    optional DaDynamicInfo da_dynamic_info       = 8;
+}
+
+
+message FsmDrivingOutput {
+    optional DAmainOut damain_out      = 1;
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    optional uint64 publish_ptp_ts = 536870907;   // publish ptp timestamp unit : nanosecond
+    optional string publisher_id = 536870909;    // uuid of the publisher
+    optional uint64 counter = 536870910;         // message counter
+    optional uint64 publish_ts = 536870911;     // publish utc timestamp; unit : nanosecond
+}

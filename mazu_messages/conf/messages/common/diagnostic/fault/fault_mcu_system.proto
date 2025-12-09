@@ -1,0 +1,256 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message McuSystemFaultInfo {
+  optional EthCanFaultInfo eth_can_fault_info = 1; // eth can message error fault
+  optional OverloadFaultInfo overload_fault_info = 2; //mcu cpu overload fault
+  optional TemperatureFaultInfo temperature_fault_info = 3; // system overtemerature fault
+  optional PrimaryPowerFaultInfo primary_power_fault_info = 4; // primary power rail fault
+  optional SecondaryPowerFaultInfo secondary_power_fault_info = 5; // secondary power rail fault
+  optional SOCFaultInfo soc_fault_info = 6; // SOC hardware fault
+  optional VersionFaultInfo device_fault_info = 7; //version fault
+
+  optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+  optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+  optional uint64 publish_ptp_ts = 536870907;   // publish ptp timestamp, uint in nanosec
+  optional string publisher_id   = 536870909; // uuid of the publisher
+  optional uint64 counter        = 536870910;         // message counter
+  optional uint64 publish_ts     = 536870911;    // publish utc timestamp; unit : nanosecond
+}
+
+message EthCanFaultInfo {
+  optional bool s1tomcu1_ethcan_msgerror = 1;
+  optional bool s1tomcu2_ethcan_msgerror = 2;
+}
+
+message OverloadFaultInfo {
+  optional bool mcu1_cpu0_overload = 1;
+  optional bool mcu1_cpu1_overload = 2;
+  optional bool mcu1_cpu2_overload = 3;
+  optional bool mcu1_cpu3_overload = 4;
+  optional bool mcu1_cpu4_overload = 5;
+  optional bool mcu1_cpu5_overload = 6;
+  optional bool mcu2_cpu0_overload = 7;
+  optional bool mcu2_cpu1_overload = 8;
+  optional bool mcu2_cpu2_overload = 9;
+  optional bool mcu2_cpu3_overload = 10;
+  optional bool mcu2_cpu4_overload = 11;
+  optional bool mcu2_cpu5_overload = 12;
+}
+
+message TemperatureFaultInfo {
+  optional bool mcu1_therm1_hightemprature = 1;
+  optional bool mcu1_therm1_lowtemprature = 2;
+  optional bool mcu1_therm2_hightemprature = 3;
+  optional bool mcu1_therm2_lowtemprature = 4;
+  optional bool mcu1_therm3_hightemprature = 5;
+  optional bool mcu1_therm3_lowtemprature = 6;
+  optional bool mcu1_therm4_hightemprature = 7;
+  optional bool mcu1_therm4_lowtemprature = 8;
+  optional bool mcu1_therm5_hightemprature = 9;
+  optional bool mcu1_therm5_lowtemprature = 10;
+  optional bool mcu2_therm1_hightemprature = 11;
+  optional bool mcu2_therm1_lowtemprature = 12;
+  optional bool mcu2_therm2_hightemprature = 13;
+  optional bool mcu2_therm2_lowtemprature = 14;
+  optional bool mcu2_therm3_hightemprature = 15;
+  optional bool mcu2_therm3_lowtemprature = 16;
+  optional bool mcu2_therm4_hightemprature = 17;
+  optional bool mcu2_therm4_lowtemprature = 18;
+  optional bool s1_therm_hightemprature = 19;
+  optional bool s2_therm_hightemprature = 20;
+  optional bool s3_therm_hightemprature = 21;
+  optional bool s4_therm_hightemprature = 22;
+}
+
+message PrimaryPowerFaultInfo{
+        optional bool BAT_IN1_VSENSE_Overvoltage = 1;
+        optional bool BAT_IN1_VSENSE_Undervoltage = 2;
+        optional bool BAT_FIN1_DIO_VSENSE_Overvoltage = 3;
+        optional bool BAT_FIN1_DIO_VSENSE_Undervoltage = 4;
+        optional bool P14V_MAIN1_VSENSE_Overvoltage = 5;
+        optional bool P14V_MAIN1_VSENSE_Undervoltage = 6;
+        optional bool P5V8_TLF1_VSENSE_Overvoltage = 7;
+        optional bool P5V8_TLF1_VSENSE_Undervoltage = 8;
+        optional bool V_PP3V3_CHCAN1_Overvoltage = 9;
+        optional bool V_PP3V3_CHCAN1_Undervoltage = 10;
+        optional bool V_PP5V_MAIN1_Overvoltage = 11;
+        optional bool V_PP5V_MAIN1_Undervoltage = 12;
+        optional bool V_PP14V_S1_Overvoltage = 13;
+        optional bool V_PP14V_S1_Undervoltage = 14;
+        optional bool V_PP5V_S1_Overvoltage = 15;
+        optional bool V_PP5V_S1_Undervoltage = 16;
+        optional bool V_PP5V_ANT_L1L5_Overvoltage = 17;
+        optional bool V_PP5V_ANT_L1L5_Undervoltage = 18;
+        optional bool V_PP5V_ANT_L1L2_Overvoltage = 19;
+        optional bool V_PP5V_ANT_L1L2_Undervoltage = 20;
+        optional bool P3V_GNSS_VSENSE_Overvoltage = 21;
+        optional bool P3V_GNSS_VSENSE_Undervoltage = 22;
+        optional bool V_PP14V_S2_Overvoltage = 23;
+        optional bool V_PP14V_S2_Undervoltage = 24;
+        optional bool V_PP5V_S2_Overvoltage = 25;
+        optional bool V_PP5V_S2_Undervoltage = 26;
+        optional bool V_PP12V_REG1_Overvoltage = 27;
+        optional bool V_PP12V_REG1_Undervoltage = 28;
+        optional bool V_PP3V3_MISC1_Overvoltage = 29;
+        optional bool V_PP3V3_MISC1_Undervoltage = 30;
+        optional bool V_PP1V05_SPR1_Overvoltage = 31;
+        optional bool V_PP1V05_SPR1_Undervoltage = 32;
+        optional bool V_PP1V5_SPR1_Overvoltage = 33;
+        optional bool V_PP1V5_SPR1_Undervoltage = 34;
+        optional bool V_PP1V8_MISC1_Overvoltage = 35;
+        optional bool V_PP1V8_MISC1_Undervoltage = 36;
+        optional bool V_PP0V9_PHY1_Overvoltage = 37;
+        optional bool V_PP0V9_PHY1_Undervoltage = 38;
+        optional bool V_PP1V2_DES1_Overvoltage = 39;
+        optional bool V_PP1V2_DES1_Undervoltage = 40;
+        optional bool V_PP1V0_DES1_Overvoltage = 41;
+        optional bool V_PP1V0_DES1_Undervoltage = 42;
+        optional bool V_PP0V9_ISP1_Overvoltage = 43;
+        optional bool V_PP0V9_ISP1_Undervoltage = 44;
+        optional bool V_PP1V8_DES1_Overvoltage = 45;
+        optional bool V_PP1V8_DES1_Undervoltage = 46;
+        optional bool V_PP3V3_TXVPHY1_Overvoltage = 47;
+        optional bool V_PP3V3_TXVPHY1_Undervoltage = 48;
+        optional bool V_PP3V3_GNSS_Overvoltage = 49;
+        optional bool V_PP3V3_GNSS_Undervoltage = 50;
+        optional bool V_PP3V3_S1_Overvoltage = 51;
+        optional bool V_PP3V3_S1_Undervoltage = 52;
+        optional bool V_PP1V8_S1_Overvoltage = 53;
+        optional bool V_PP1V8_S1_Undervoltage = 54;
+        optional bool V_PP3V3_S2_Overvoltage = 55;
+        optional bool V_PP3V3_S2_Undervoltage = 56;
+        optional bool V_PP1V8_S2_Overvoltage = 57;
+        optional bool V_PP1V8_S2_Undervoltage = 58;
+        optional bool V_PP3V3_DP1_Overvoltage = 59;
+        optional bool V_PP3V3_DP1_Undervoltage = 60;
+        optional bool V_PP1V8_MCU1_Overvoltage = 61;
+        optional bool V_PP1V8_MCU1_Undervoltage = 62;
+        optional bool BAT_IN1_VSENSE_2nd_Overvoltage = 63;
+        optional bool BAT_IN1_VSENSE_2nd_Undervoltage = 64;
+        optional bool BAT_FIN1_DIO_VSENSE_2nd_Overvoltage = 65;
+        optional bool BAT_FIN1_DIO_VSENSE_2nd_Undervoltage = 66;
+        optional bool P14V_MAIN1_VSENSE_2nd_Overvoltage = 67;
+        optional bool P14V_MAIN1_VSENSE_2nd_Undervoltage = 68;
+        optional bool P5V8_TLF1_VSENSE_2nd_Overvoltage = 69;
+        optional bool P5V8_TLF1_VSENSE_2nd_Undervoltage = 70;
+        optional bool V_PP5V_MAIN1_2nd_Overvoltage = 71;
+        optional bool V_PP5V_MAIN1_2nd_Undervoltage = 72;
+        optional bool V_PP14V_S1_2nd_Overvoltage = 73;
+        optional bool V_PP14V_S1_2nd_Undervoltage = 74;
+        optional bool V_PP5V_S1_2nd_Overvoltage = 75;
+        optional bool V_PP5V_S1_2nd_Undervoltage = 76;
+        optional bool V_PP3V3_MISC1_2nd_Overvoltage = 77;
+        optional bool V_PP3V3_MISC1_2nd_Undervoltage = 78;
+        optional bool V_PP1V8_DES1_2nd_Overvoltage = 79;
+        optional bool V_PP1V8_DES1_2nd_Undervoltage = 80;
+        optional bool V_PP3V3_GNSS_2nd_Overvoltage = 81;
+        optional bool V_PP3V3_GNSS_2nd_Undervoltage = 82;
+        optional bool BAT_IN21_VSENSE_Overvoltage = 83;
+        optional bool BAT_IN21_VSENSE_Undervoltage = 84;
+        optional bool P3V3_MCU21_VSENSE_Overvoltage = 85;
+        optional bool P3V3_MCU21_VSENSE_Undervoltage = 86;        
+        optional bool V_PP1V2_S1_Overvoltage = 87;
+        optional bool V_PP1V2_S1_Undervoltage = 88;
+        optional bool V_PPVCC_UFS1_Overvoltage = 89;
+        optional bool V_PPVCC_UFS1_Undervoltage = 90;
+        optional bool V_PP1V2_S2_Overvoltage = 91;
+        optional bool V_PP1V2_S2_Undervoltage = 92;
+        optional bool V_PPVCC_UFS2_Overvoltage = 93;
+        optional bool V_PPVCC_UFS2_Undervoltage = 94;
+
+}
+
+message SecondaryPowerFaultInfo{
+        optional bool BAT_IN2_VSENSE_Overvoltage = 1;
+        optional bool BAT_IN2_VSENSE_Undervoltage = 2;
+        optional bool BAT_FIN2_DIO_VSENSE_Overvoltage = 3;
+        optional bool BAT_FIN2_DIO_VSENSE_Undervoltage = 4;
+        optional bool P14V_MAIN2_VSENSE_Overvoltage = 5;
+        optional bool P14V_MAIN2_VSENSE_Undervoltage = 6;
+        optional bool P5V8_TLF2_VSENSE_Overvoltage = 7;
+        optional bool P5V8_TLF2_VSENSE_Undervoltage = 8;
+        optional bool IBAT2_OUT_Overvoltage = 9;
+        optional bool IBAT2_OUT_Undervoltage = 10;
+        optional bool V_PP3V3_CHCAN2_Overvoltage = 11;
+        optional bool V_PP3V3_CHCAN2_Undervoltage = 12;
+        optional bool V_PP5V_MAIN2_Overvoltage = 13;
+        optional bool V_PP5V_MAIN2_Undervoltage = 14;
+        optional bool V_PP14V_S3_Overvoltage = 15;
+        optional bool V_PP14V_S3_Undervoltage = 16;
+        optional bool V_PP5V_S3_Overvoltage = 17;
+        optional bool V_PP5V_S3_Undervoltage = 18;
+        optional bool V_PP14V_S4_Overvoltage = 19;
+        optional bool V_PP14V_S4_Undervoltage = 20;
+        optional bool V_PP5V_S4_Overvoltage = 21;
+        optional bool V_PP5V_S4_Undervoltage = 22;
+        optional bool V_PP12V_REG2_Overvoltage = 23;
+        optional bool V_PP12V_REG2_Undervoltage = 24;
+        optional bool V_PP3V3_MISC2_Overvoltage = 25;
+        optional bool V_PP3V3_MISC2_Undervoltage = 26;
+        optional bool V_PP1V05_SPR2_Overvoltage = 27;
+        optional bool V_PP1V05_SPR2_Undervoltage = 28;
+        optional bool V_PP1V5_SPR2_Overvoltage = 29;
+        optional bool V_PP1V5_SPR2_Undervoltage = 30;
+        optional bool V_PP1V8_MISC2_Overvoltage = 31;
+        optional bool V_PP1V8_MISC2_Undervoltage = 32;
+        optional bool V_PP0V9_PHY2_Overvoltage = 33;
+        optional bool V_PP0V9_PHY2_Undervoltage = 34;
+        optional bool V_PP1V2_DES2_Overvoltage = 35;
+        optional bool V_PP1V2_DES2_Undervoltage = 36;
+        optional bool V_PP1V8_DES2_Overvoltage = 37;
+        optional bool V_PP1V8_DES2_Undervoltage = 38;
+        optional bool V_PP3V3_TXVPHY2_Overvoltage = 39;
+        optional bool V_PP3V3_TXVPHY2_Undervoltage = 40;
+        optional bool V_PP3V3_S3_Overvoltage = 41;
+        optional bool V_PP3V3_S3_Undervoltage = 42;
+        optional bool V_PP1V8_S3_Overvoltage = 43;
+        optional bool V_PP1V8_S3_Undervoltage = 44;
+        optional bool V_PP3V3_S4_Overvoltage = 45;
+        optional bool V_PP3V3_S4_Undervoltage = 46;
+        optional bool V_PP1V8_S4_Overvoltage = 47;
+        optional bool V_PP1V8_S4_Undervoltage = 48;
+        optional bool P14V_S3_ISEN_Overvoltage = 49;
+        optional bool P14V_S3_ISEN_Undervoltage = 50;
+        optional bool P14V_S4_ISEN_Overvoltage = 51;
+        optional bool P14V_S4_ISEN_Undervoltage = 52;
+        optional bool V_PP1V8_MCU2_Overvoltage = 53;
+        optional bool V_PP1V8_MCU2_Undervoltage = 54;
+        optional bool BAT_IN2_VSENSE_2nd_Overvoltage = 55;
+        optional bool BAT_IN2_VSENSE_2nd_Undervoltage = 56;
+        optional bool BAT_IN12_VSENSE_Overvoltage = 57;
+        optional bool BAT_IN12_VSENSE_Undervoltage = 58;
+        optional bool P3V3_MCU12_VSENSE_Overvoltage = 59;
+        optional bool P3V3_MCU12_VSENSE_Undervoltage = 60;
+        optional bool V_PP1V2_S3_Overvoltage = 61;
+        optional bool V_PP1V2_S3_Undervoltage = 62;
+        optional bool V_PPVCC_UFS3_2V5_Overvoltage = 63;
+        optional bool V_PPVCC_UFS3_2V5_Undervoltage = 64;
+        optional bool V_PP1V2_S4_Overvoltage = 65;
+        optional bool V_PP1V2_S4_Undervoltage = 66;
+        optional bool V_PPVCC_UFS4_2V5_Overvoltage = 67;
+        optional bool V_PPVCC_UFS4_2V5_Undervoltage = 68;
+        
+}
+
+
+  message SOCFaultInfo{
+        optional bool S1_HeatBeat_Error = 1;
+        optional bool S2_HeatBeat_Error = 2;
+        optional bool S3_HeatBeat_Error = 3;
+        optional bool S4_HeatBeat_Error = 4;
+  }
+
+  message VersionFaultInfo{
+    optional bool S1_Version_Error = 1;
+    optional bool S2_Version_Error = 2;
+    optional bool S3_Version_Error = 3;
+    optional bool S4_Version_Error = 4;
+    optional bool MCU1_Version_Error = 5;
+    optional bool MCU2_Version_Error = 6;
+    optional bool Misc_Version_Error = 7;
+}

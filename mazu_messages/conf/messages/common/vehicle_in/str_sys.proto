@@ -1,0 +1,288 @@
+//vehicle steering system proto
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+import "common/vehicle_in/veh_enum_type.proto";
+
+enum StrAgFailStsType_e{
+    SAS_NoFail  = 0;    //No failure
+    SAS_Fail    = 1;    //Failure
+    SAS_Rsrvd3  = 2;  //Reserved
+    SAS_Invalid = 3;    //Invalid
+}
+
+enum StrAgCalStsType_e{
+    Calibrated    = 0 ;
+    NotCalibrated = 1; 
+}
+
+enum EPSStsType_e{
+    EpsSt_Init 		= 0; //Init (Park Status)
+    EpsSt_Normal 	= 1; //Normal
+    EpsSt_Dgrd 		= 2; //Degraded 
+    EpsSt_ErrTemp 	= 3; //Temporary error 
+    EpsSt_ErrPrmnt 	= 4; //Permanent error 
+    EpsSt_Rsrvd5    = 5; //Reserved_5
+    EpsSt_Rsrvd6    = 6; //Reserved_6 
+    EpsSt_Invalid 	= 7; //Invalid
+}
+
+enum EpsDrvModType_e{
+    EpsMd_lght 	= 0; //Light
+    EpsMd_Mdm  	= 1; //Medium (default)
+    EpsMd_Hv   	= 2; //Heavy
+    EpsMd_Race  = 3; // @linescope: NT3
+}
+
+message StrSysInfo{
+reserved 8,36;
+	required StrAgFailStsType_e StrAgFailSts = 1 ; //@Channel:CHASSIS @Message:0xD4 @Signal:SteerAgSnsrFailSts
+												   		//@Channel:CHASSIS2 @Message:0xD4 @Signal:SteerAgSnsrFailSts
+	required StrAgCalStsType_e StrAgCalSts   = 2 ; //@Channel:CHASSIS @Message:0xD4 @Signal:SteerAgSnsrCalSts
+														//@Channel:CHASSIS2 @Message:0xD4 @Signal:SteerAgSnsrCalSts
+	required float  StrWhlAgSAE 			 = 3 ; //@Channel:CHASSIS @Message:0xD4 @Signal:SteerWhlAg :SteerWhlAgDir 
+												   //@Comment: -1*(SteerWhlAgDir == 0 ? SteerWhlAg : -1*SteerWhlAg)
+												   		//@Channel:CHASSIS2 @Message:0xD4 @Signal:SteerWhlAg :SteerWhlAgDir 
+	required float  StrWhlAgSpdSAE			 = 4 ; //@Channel:CHASSIS @Message:0xD4 @Signal:SteerWhlAgSpd :SteerWhlAgSpdDir
+												   //@Comment: -1*(SteerWhlAgSpdDir == 0 ? SteerWhlAgSpd : -1*SteerWhlAgSpd)
+												   		//@Channel:CHASSIS2 @Message:0xD4 @Signal:SteerWhlAgSpd :SteerWhlAgSpdDir
+	required QfZeroAsVld_e PnnAgVld			 = 5 ; //@Channel:CHASSIS @Message:0x74 @Signal:EPS1_PinAngVal
+												   		//@Channel:CHASSIS2 @Message:0x77 @Signal:EPS2_PinAngVal
+	required float  PnnAgSAE				 = 6 ; //@Channel:CHASSIS @Message:0x74 @Signal:EPS1_PinAng 
+												   //@Comment:EPS1_PinAng*-1
+												   		//@Channel:CHASSIS2 @Message:0x77 @Signal:EPS2_PinAng 
+												   		//@Comment:EPS2_PinAng*-1
+	required float  PnnAgOffsetSAE			 = 7 ; //@Channel:CHASSIS @Message:0x74 @Signal:EPS1_PinAngOffset
+												   //@Comment:EPS1_PinAngOffset*-1
+												   		//@Channel:CHASSIS2 @Message:0x77 @Signal:EPS2_PinAngOffset
+												   		//@Comment:EPS2_PinAngOffset*-1
+	required QfZeroAsVld_e EstRackFrcVld	 = 9 ; //@Channel:CHASSIS @Message:0x75 @Signal:EPS1_EstRackForceVal
+														//@Channel:CHASSIS2 @Message:0x78 @Signal:EPS2_EstRackForceVal
+	required float  EstRackFrcSae			 = 10; //@Channel:CHASSIS @Message:0x75 @Signal:EPS1_EstRackForce
+												   //@Comment:EPS1_EstRackForce * -1
+												   		//@Channel:CHASSIS2 @Message:0x78 @Signal:EPS2_EstRackForce
+												   		//@Comment:EPS2_EstRackForce * -1
+	required QfZeroAsVld_e MtrTqVld			 = 11; //@Channel:CHASSIS @Message:0x75 @Signal:EPS1_TotMotorTqVal
+														//@Channel:CHASSIS2 @Message:0x78 @Signal:EPS2_TotMotorTqVal
+	required float  MtrTqSAE				 = 12; //@Channel:CHASSIS @Message:0x75 @Signal:EPS1_TotMotorTq
+												   //@Comment:EPS1_TotMotorTq * -1
+												   		//@Channel:CHASSIS2 @Message:0x78 @Signal:EPS2_TotMotorTq
+												   		//@Comment:EPS2_TotMotorTq * -1
+	required QfZeroAsVld_e TorsBarTqVld		 = 13; //@Channel:CHASSIS @Message:0x75 @Signal:EPS1_TorsBarTqVal
+														//@Channel:CHASSIS2 @Message:0x78 @Signal:EPS2_TorsBarTqVal
+	required float  TorsBarTqSAE			 = 14; //@Channel:CHASSIS @Message:0x75 @Signal:EPS1_TorsBarTq
+												   //@Comment:EPS1_TorsBarTq * -1
+												   		//@Channel:CHASSIS2 @Message:0x78 @Signal:EPS2_TorsBarTq
+												   		//@Comment:EPS2_TorsBarTq * -1
+	required EPSStsType_e EPSSts			 = 15; //@Channel:CHASSIS @Message:0x74 @Signal:EPS1_Sts
+														//@Channel:CHASSIS2 @Message:0x77 @Signal:EPS2_Sts
+	required EpsDrvModType_e DrvngMod		 = 16; //@Channel:CHASSIS @Message:0x74 @Signal:EPS1_DrivingMod
+														//@Channel:CHASSIS2 @Message:0x77 @Signal:EPS2_DrivingMod
+	required bool   RampSts					 = 17; //@Channel:CHASSIS @Message:0x74 @Signal:EPS1_RampSts
+														//@Channel:CHASSIS2 @Message:0x77 @Signal:EPS2_RampSts
+	required QfZeroAsVld_e   ACIMtrTqVld	 = 18; //@Channel:CHASSIS @Message:0x75 @Signal:EPS1_ACIMotorTqVal
+														//@Channel:CHASSIS2 @Message:0x78 @Signal:EPS2_ACIMotorTqVal
+	required float  ACIMtrTqSAE				 = 19; //@Channel:CHASSIS @Message:0x75 @Signal:EPS1_ACIMotorTq
+												   //Comment:EPS1_ACIMotorTq * -1
+												   		//@Channel:CHASSIS2 @Message:0x78 @Signal:EPS2_ACIMotorTq
+												   		//Comment:EPS2_ACIMotorTq * -1
+	required uint32 Temperature				 = 20; //@Channel:CHASSIS @Message:0x75 @Signal:EPS1_Temperature
+														//@Channel:CHASSIS2 @Message:0x78 @Signal:EPS2_Temperature
+   	required uint32 SupInfo					 = 21; //@Channel:CHASSIS @Message:0x75 @Signal:EPS1_SupInfo
+														//@Channel:CHASSIS2 @Message:0x78 @Signal:EPS2_SupInfo
+	optional uint32 VMCHVIAvl				 = 22; //@Channel:CHASSIS @Message:0x74 @Signal:EPS1_VMCHVIAvl
+														//@Channel:CHASSIS2 @Message:0x77 @Signal:EPS2_VMCHVIAvl
+	optional uint32 EPSReqTyp			     = 23; //@Channel:CHASSIS @Message:0x5F @Signal:BCU_EPSReqTyp
+	optional bool   BCUCTIAvl			     = 24; //@Channel:CHASSIS @Message:0x74 @Signal:EPS1_BCUCTIAvl
+														//@Channel:CHASSIS2 @Message:0x77 @Signal:EPS2_BCUCTIAvl
+
+	enum WarnLampReq_e{
+        WarnLamp_Off = 0; //Off
+        WarnLamp_RedLamp  = 1; //Red Lamp
+        WarnLamp_YelLamp  = 2; //Yellow Lamp
+        WarnLamp_SgnlNtAvl = 3; //Signal Not Available
+    }
+	optional WarnLampReq_e   WarnLampReq	 = 25; //@Channel:CHASSIS @Message:0x74 @Signal:EPS1_WarnLampReq
+														//@Channel:CHASSIS2 @Message:0x77 @Signal:EPS2_WarnLampReq
+	optional bool   SteerWhlAgAndSpdValid	 = 26; //@Channel:CHASSIS @Message:0xD4 @Signal:SteerWhlAgAndSpdValid
+														//@Channel:CHASSIS2 @Message:0xD4 @Signal:SteerWhlAgAndSpdValid
+
+	enum SWCFailSts_e{
+        SWCFail_Nrml  = 0;//Normal
+        SWCFail_Fail  = 1;//Fail
+        SWCFail_Rsrvd = 2;//Reserved
+        SWCFail_InVld = 3;//Invalid
+    }
+    optional SWCFailSts_e    SWCFailSts	    = 27; //@Channel:CHASSIS @Message:0x29F @Signal:SWCFailSts
+    
+	enum StrColCtrlSts_e{
+        StrColCtrlSts_NoAct   = 0;  //No action
+        StrColCtrlSts_Manual  = 1;  //Manual control
+        StrColCtrlSts_Recall  = 2;  //Recall
+        StrColCtrlSts_SysFail = 3;  //System failure
+		StrColCtrlSts_Crash   = 4;  //Crash event
+		StrColCtrlSts_Rsrvd5  = 5;  //Reserved
+		StrColCtrlSts_Rsrvd6  = 6;  //Reserved
+		StrColCtrlSts_Inval   = 7;  //Invalid
+    }
+	optional StrColCtrlSts_e  SteerColTiltCtrlSts  = 28;  //@Channel:ADAS @Message:0x31D @Signal:SteerColTiltCtrlSts
+	optional uint32  SteerColTiltPos  = 29;               //@Channel:ADAS @Message:0x31D @Signal:SteerColTiltPos
+	optional StrColCtrlSts_e  SteerColTeleCtrlSts  = 30;  //@Channel:ADAS @Message:0x320 @Signal:SteerColTeleCtrlSts
+	optional uint32  SteerColTelescopePos  = 31;          //@Channel:ADAS @Message:0x321 @Signal:SteerColTelescopePos
+	optional bool  HODErrSts  = 32;                       //@Channel:ADAS @Message:0x2BC @Signal:HODErrSts
+	
+	enum HOSts_e{
+        HOSts_HandsOff  = 0;  //Hands off(initial and default)
+        HOSts_EnergySav = 1;  //Energy saving mode
+        HOSts_HandsOn   = 2;  //Hands on
+		HOSts_NotAvail  = 3;  //Not Available
+		HOSts_ErrExist  = 4;  //Error exist
+		HOSts_Rsrvd5    = 5;  //Reserved
+		HOSts_Rsrvd6    = 6;  //Reserved
+		HOSts_Rsrvd7    = 7;  //Reserved
+		HOSts_Rsrvd8    = 8;  //Reserved
+		HOSts_Rsrvd9    = 9;  //Reserved
+		HOSts_Rsrvd10   = 10;  //Reserved
+		HOSts_Rsrvd11   = 11;  //Reserved
+		HOSts_Rsrvd12   = 12;  //Reserved
+		HOSts_Rsrvd13   = 13;  //Reserved
+		HOSts_Rsrvd14   = 14;  //Reserved
+		HOSts_Initial   = 15;  //Initialization
+    }
+	optional HOSts_e  HOSts  = 33;                        //@Channel:ADAS @Message:0x2BC @Signal:HOSts	
+	enum OverRideDetn_e{
+		OverRideDetn_not_override=0;
+		OverRideDetn_override=1;
+	}
+	optional OverRideDetn_e OverRideDetn			 = 34; //@Channel:CHASSIS @Message:0x74 @Signal:EPS1_OverRideSts
+																//@Channel:CHASSIS2 @Message:0x77 @Signal:EPS2_OverRideSts 
+	repeated uint64 timestamp_ptp_ns = 35;				    //@Channel:CHASSIS @Message:0xD4
+																//@Channel:CHASSIS2 @Message:0xD4
+															//@Channel:CHASSIS @Message:0x5F
+															//@Channel:CHASSIS @Message:0x74
+																//@Channel:CHASSIS2 @Message:0x77
+															//@Channel:CHASSIS @Message:0x75
+																//@Channel:CHASSIS2 @Message:0x78
+															//@Channel:CHASSIS @Message:0x29F
+															//@Channel:ADAS @Message:0x2BC
+															//@Channel:ADAS @Message:0x31D
+															//@Channel:ADAS @Message:0x320
+															//@Channel:ADAS @Message:0x321
+    // @begin segscope: NT3
+	// Begin Rws Interface
+	enum RwsSysSts_e {
+        VlatcRwsSysSts_Init            = 0;
+        VlatcRwsSysSts_Normal          = 1;
+        VlatcRwsSysSts_Temporary_Error = 2;
+        VlatcRwsSysSts_Permanent_Error = 3;
+    }
+    optional RwsSysSts_e RwsSysSts      = 37;    //nt3 @Service:VehlatCtrl @Interface:IfRwsInfo
+    
+    optional float RwsActWhlAng         = 38;    //nt3 @Service:VehlatCtrl @Interface:IfRwsInfo
+    optional bool  RwsActWhlAngVld      = 39;    //nt3 @Service:VehlatCtrl @Interface:IfRwsInfo
+    optional float RwsTarWhlAng         = 40;    //nt3 @Service:VehlatCtrl @Interface:IfRwsInfo
+    optional bool RwsTarWhlAngVld       = 41;    //nt3 @Service:VehlatCtrl @Interface:IfRwsInfo
+    
+    enum RwsActvExtif_e {
+        VlatcRwsAei_Manual_Driving     = 0;
+        VlatcRwsAei_Active_ADC_Request = 1;
+        VlatcRwsAei_Active_VDC_Request = 2;
+        VlatcRwsAei_Active_Both        = 3;
+    }
+    optional RwsActvExtif_e RwsActvExtif = 42;    //nt3 @Service:VehlatCtrl @Interface:IfRwsInfo
+    
+    optional bool RwsAdcifAvl            = 43;    //nt3 @Service:VehlatCtrl @Interface:IfRwsInfo
+    optional float RwsMaxAvlWhlAng       = 44;    //nt3 @Service:VehlatCtrl @Interface:IfRwsInfo
+    optional bool RwsMaxAvlWhlAngVld     = 45;    //nt3 @Service:VehlatCtrl @Interface:IfRwsInfo
+    optional float RwsMaxAvlWhlAngSpd    = 46;    //nt3 @Service:VehlatCtrl @Interface:IfRwsInfo
+    optional bool RwsMaxAvlWhlAngSpdVld  = 47;    //nt3 @Service:VehlatCtrl @Interface:IfRwsInfo
+	// End Rws Interface
+
+	// Begin STF Interface
+	optional float StfTotMotorTq         = 48;
+	optional bool StfTotMotorTqVld       = 49;
+	optional uint32 EpsRole              = 50;
+	optional float StfAcirefTq           = 51;
+	optional bool StfAcirefTqVld         = 52;
+    optional bool StfHandsOffSts         = 53;
+
+	enum StfStfSts_e {
+		Eps1Sst_Init            = 0;
+        Eps1Sts_Normal          = 1;
+        Eps1Sts_Degraded        = 2;
+        Eps1Sts_Temporary_Error = 3;
+        Eps1Sts_Permanent_Error = 4;
+        Eps1Sts_Reserved_5      = 5;
+        Eps1Sts_Reserved_6      = 6;
+        Eps1Sts_Invalid         = 7;
+	}
+	optional StfStfSts_e StfStfSts       = 54;
+    
+	enum StfTemperature_e {
+		Eps1Temp_Temp_Min_TO_70_Dec  = 0;
+        Eps1Temp_Temp_70_TO_75_DEC   = 1;
+        Eps1Temp_Temp_75_TO_80_DEC   = 2;
+        Eps1Temp_Temp_80_TO_85_DEC   = 3;
+        Eps1Temp_Temp_85_TO_90_DEC   = 4;
+        Eps1Temp_Temp_90_TO_95_DEC   = 5;
+        Eps1Temp_Temp_95_TO_100_DEC  = 6;
+        Eps1Temp_Temp_100_TO_105_DEC = 7;
+        Eps1Temp_Temp_105_TO_MAX_DEC = 8;
+        Eps1Temp_Reserved            = 9;
+        Eps1Temp_Invalid             = 15;
+	}
+    optional StfTemperature_e StfTemperature  = 55;
+
+	enum LatCtrlSts_e {
+		LatCtrlSts_Not_Available    = 0;
+        LatCtrlSts_Performance_Lost = 1;
+        LatCtrlSts_Redundance_Lost  = 2;
+        LatCtrlSts_Full_Available   = 3;
+	}
+	optional LatCtrlSts_e LatCtrlSts  = 56;
+
+	enum ActvSts_e {
+		ActvSts_None       = 0;
+		ActvSts_Not_Active = 1;
+		ActvSts_Active     = 2;
+	}
+	optional ActvSts_e AdfPri_ActvSts = 57;
+	optional ActvSts_e AdfSec_ActvSts = 58;
+	optional ActvSts_e Bcu_ActvSts    = 59;
+    optional float PnnAgSpdSAE        = 60; //nt3 @Service:VehlatCtrl @Interface:SteerInfo
+	optional bool PnnAgSpdSAEVld      = 61; //nt3 @Service:VehlatCtrl @Interface:SteerInfo
+    //End STF Interface
+
+	optional float  EpsTargetAngSAE   = 62;
+	optional uint32 EpsTargetAngSts   = 63;
+	optional uint32	StfAssiMod        = 64;
+	optional uint32 EpsAssiMod        = 65;
+	optional float  VehSpdStr         = 66;
+	optional uint32	VehSpdStrSts      = 67;
+	optional float  EpsRackPos        = 68;
+	optional bool  EpsRackPosVld      = 69;
+	optional bool  Eps_adc_aci_cp_avl = 70;
+	optional bool  Stf_adc_aci_cp_avl = 71;
+
+    enum Aor_actv_extif_e {
+		Aor_actv_extif_e_Full_copy_active  = 0;
+		Aor_actv_extif_e_Small_copy_active = 1;
+		Aor_actv_extif_e_No_copy_active    = 2;
+		Aor_actv_extif_e_No_active         = 3;
+	}
+	optional Aor_actv_extif_e  Eps_aor_actv_extif = 72;
+	optional Aor_actv_extif_e  Stf_aor_actv_extif = 73;
+	optional uint32  Sbw_ctrl_mod = 74;
+	optional uint32  Steer_col_tilt_pos        = 75;                  //nt3 @Service:SteerColAdjMgr @Interface:SteerColPosnStatus
+	optional uint32  steer_col_telescope_pos   = 76;                  //nt3 @Service:SteerColAdjMgr @Interface:SteerColPosnStatus
+
+	enum SteerColAdjWorkStsType_e {
+	STEER_COL_ADJ_IDLE    = 0;
+        STEER_COL_ADJ_WORKING = 1;
+	}
+	optional SteerColAdjWorkStsType_e  Steer_col_adj_work_sts = 77;   //nt3 @Service:SteerColAdjMgr @Interface:SteerColPosnStatus
+	// @end segscope: NT3
+}

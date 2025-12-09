@@ -1,0 +1,42 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message PicDLBProperty
+{
+    optional int32 pre_window                  = 1;             // time in ms
+    optional int32 post_window                 = 2;             // time in ms
+    optional string camera                     = 3;             // commands for each camera
+    optional string datamask_conf              = 4;             // desensitization config datamask_conf.json
+    optional uint32 jpegEncodeWidth            = 5;             // width
+    optional uint32 jpegEncodeHeight           = 6;             // height
+    optional uint32 jpegEncodeQuality          = 7;             // quality
+    optional uint32 jpegEncodeFrequency        = 8;             // frequency
+    optional bool remap                        = 9;             // remap or not
+}
+
+message PicDlbEvent {
+    enum RecordType {
+        CONTINUOUS  = 0;
+        SINGLE      = 1;
+    }
+    
+    optional string uuid                     = 1;             // uuid of dlb task
+    optional string event                    = 2;             // event name
+    optional string storage_folder           = 3;             // storage_folder path
+    optional RecordType record_type          = 4;             // 0 Continuous frame record;1 one frame record;
+    repeated PicDLBProperty pic_prop         = 5;             // commands for each camera
+    optional uint64 timestamp_utc            = 6;             // time in ns
+    optional uint64 timestamp_ptp            = 7;             // time in ns
+    optional uint32 priority                 = 8;             // 0 ~ 100. 100 is highest
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin 
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts      = 536870907;     // publish ptp timestamp, uint in nanosec
+    optional string publisher_id        = 536870909;     // uuid of the publisher
+    optional uint64 counter             = 536870910;     // message counter
+    optional uint64 publish_ts          = 536870911;     // publish utc timestamp; unit : nanosecond
+}

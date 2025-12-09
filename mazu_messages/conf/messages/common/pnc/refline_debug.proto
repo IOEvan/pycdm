@@ -1,0 +1,47 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+import "common/pnc/road_map.proto";
+import "common/perception/manner_map.proto";
+
+// refline debug
+message ReferLinePt {
+  optional double x = 1;
+  optional double y = 2;
+  optional double heading = 3;
+  optional uint64 lane_id = 4;
+  optional double speed_limit = 5;
+  optional double left_width = 6;
+  optional double right_width = 7;
+
+  optional LaneBoundaryRoadMap.Crossable left_bnd_type = 8;
+  optional LaneBoundaryRoadMap.Crossable right_bnd_type = 9;
+  optional double kappa = 10;
+}
+
+message ReferLine {
+  repeated ReferLinePt refer_line_pts = 1;
+  optional double s_init = 2;
+
+  message AnchorPoint {
+    optional double x = 1;
+    optional double y = 2;
+    optional double heading = 3;
+    optional double longitudinal_bound = 4;
+    optional double left_lateral_bound = 5;
+    optional double right_lateral_bound = 6;
+    optional bool curb_shifted = 7;
+    optional uint64 lane_id = 8;
+  }
+  repeated AnchorPoint anchor_points = 3;
+
+  message StitchStatus {
+    optional uint64 lane_id = 1;
+    optional bool is_stitch = 2;
+  }
+
+  repeated StitchStatus stitch_status = 4;
+}

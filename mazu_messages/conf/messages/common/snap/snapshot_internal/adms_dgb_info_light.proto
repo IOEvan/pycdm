@@ -1,0 +1,106 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/dms/dms_base.proto";
+import "common/dms/dms_feature.proto";
+import "common/dms/adms.proto";
+import "common/dms/dms_drive_assist.proto";
+import "common/dms/dms_can.proto";
+import "common/dms/adms_risk_score.proto";
+
+message DMS_GazeAoiResult_light {
+    optional DMS_GazeAoiResult.DMS_GazeAoi gaze_aoi               = 1;
+}
+message DMS_HeadResult_light {
+    optional DMSPose head_pose           = 2;
+}
+message DMS_EyeStatusResult_light {
+    optional DMS_EyeStatusResult.DMS_EyeStatus left_eye           = 1;
+    optional float left_open_confidence       = 2;
+    optional float left_visible_percent       = 3;
+    optional DMSVector left_eye_gaze_vector   = 4;
+
+    optional DMS_EyeStatusResult.DMS_EyeStatus right_eye          = 6;
+    optional float right_open_confidence      = 7;
+    optional float right_visible_percent      = 8;
+    optional DMSVector right_eye_gaze_vector  = 9;
+
+    optional DMS_INVALID_TYPE left_eye_invalid_type     = 11;
+    optional DMS_INVALID_TYPE right_eye_invalid_type    = 12;
+}
+message DMS_Result_light {
+    optional DMS_DrowsinessResult drowsiness_result      = 1;
+    optional DMS_DistractionResult distraction_result    = 2;
+    optional DMS_EyeStatusResult_light eye_status_result       = 3; // 0:left 1:right
+
+    optional DMS_GazeAoiResult_light gaze_aoi_result           = 4;
+    optional DMS_HeadResult_light head_result                  = 5;
+    optional DMS_PhoneActionResult phone_result          = 6;
+    optional DMS_SmokeResult smoke_result                = 7;
+    optional DMS_YawnResult yawn_result                  = 8;
+    optional DMS_HeadMovementResult head_movement_result = 9;
+    optional DMS_AgeResult age_result                    = 10;
+    optional DMS_GenderResult gender_result              = 11;
+    optional DMS_EmotionResult emotion_result            = 12;
+
+    optional DMS_Status system_status                    = 15;
+    optional string uuid                                 = 16;
+
+    optional DMS_DistractionResult moment_distraction_result = 17;
+    optional DMS_DrowsinessResult fast_drowsiness_result     = 31;
+}
+message DMS_CAN_light {
+    optional DrowsinessLevel_ADC03 drowsiness_lvl               = 1;
+    optional DrowsinessSts_ADC03 drowsiness_sts                 = 2;
+    optional DistractionLevel_ADC03 distraction_lvl             = 3;
+    optional DistractionSts_ADC03 distraction_sts               = 4;
+    optional DMStelltaleLevel dms_telltale_level = 8;
+}
+
+message DMS_DA_light {
+    optional DMSDistractionSts_DA distraction_sts                 = 1;
+    optional DMSDistractionLevel_DA distraction_level             = 2;
+    optional DMSDrowsinessSts_DA drowsiness_sts                   = 3;
+    optional DMSDrowsinessLevel_DA drowsiness_level               = 4;
+    optional DMSDriverInLoopSt driver_in_loop_status              = 13;
+    optional uint64 dms_status                                    = 99;
+}
+message ADMS_light {
+    optional DMSMissTurnWarning miss_turn_warning                  = 1; 
+    optional DMSSteeringTorqueReq steering_torque_req              = 2;
+    optional DMSRiskSceneWarning static_obj_warning                = 6;
+    optional DMSRiskSceneWarning cutin_warning                     = 8;
+    optional DMSRiskSceneWarning contruction_redwarnsign_warning   = 9;
+    optional DMSOverlayWarning overlay_warning                     = 11;
+
+    optional DMSRiskLevel adms_risk_level                          = 12;
+
+    optional uint32 ADMS_WTIs                                      = 16;
+
+    optional uint32 driver_attn_alert                              = 18;
+    optional DMSRiskSceneWarning md_rolling_warning                = 19;
+}
+message ADMSRiskScore_light {
+    optional string uuid                                           = 1; 
+
+    optional uint64  high_risk_scene                               = 6;
+    optional uint32  risk_scene_ttc                                = 7;
+    optional uint64  adms_subfunction_mask                         = 8;
+    optional uint64  high_risk_scene_mask                          = 9;
+    optional uint64  risk_scene_warn_mask                          = 10;
+    optional uint64  driver_attn_status                            = 11;
+    
+    repeated DriverAttnObj  driver_attn_obj                        = 16;
+    repeated OMSHeadPoseMapElem oms_head_pose_map                  = 17;
+    optional uint64  adms_self_check                               = 98;
+    optional uint64  adms_status                                   = 99;
+}
+message ADMSDgbInfo_light {
+    optional DMS_Result_light dms_result = 1;
+    optional DMS_CAN_light dms_can = 2;
+    optional DMS_DA_light dms_drive_assist = 4;
+    optional ADMS_light adms = 5;
+    optional ADMSRiskScore_light adms_risk_score = 6;
+    optional uint64 publish_ptp_ts   = 536870907; 
+}

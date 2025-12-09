@@ -1,0 +1,545 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+import "common/pnc/car_state.proto";
+import "common/pnc/car_info.proto";
+import "common/pnc/path.proto";
+import "common/pnc/geometry.proto";
+import "common/pnc/config_car.proto";
+import "common/pnc/control_debug.proto";
+import "common/pnc/control_io_adapter.proto";
+import "common/perf/sensor_ts_header.proto";
+
+message ControlCommandNop {
+  // If front_wheel is not given, assume that driver is controlling steering
+  // wheel.
+  oneof front_wheel {  // positive for left and negative for right
+    double angle = 1;  // in rad
+
+    double torque = 2;  // in Nm
+  }
+  optional double front_wheel_angle_rate = 3;  // rad/s
+
+  // If longitudinal is not given, assume that driver is controlling throttle
+  // and brake. longitudinal acceleration command in m/s^2, positive for
+  // throttle and negative for brake
+  optional double acceleration = 4;
+
+  // 0 to 1: throttle percent; -1 to 0:  braking percent.
+  optional double throttle = 5;
+
+  optional CarState.TurnSignal turn_signal = 6;
+
+  optional bool warning_blinker_signal_on = 7;
+
+  optional CarState.GearStatus gear = 8;  // psp target_gear_request
+
+  optional CarState.DrivingMode driving_mode = 9;
+
+  // direct cruise control is applicable for Haval
+  // NOT recommended for speed over 60km/h
+  optional double speed = 10;
+
+  // Manual-Auto mode switch;
+  // All wire control will be disabled if set to 0.
+  // Applicable for Haval;
+  optional bool auto_mode = 11;
+
+  optional bool marker_lamp = 12;
+
+  optional bool brake_light = 13;
+
+  optional bool horn = 14;
+
+  optional Misc.Beam beam = 15;
+
+  optional uint32 lon_status = 16;  // longitudinal status, for debug use
+
+  optional double ego_front_to_lead_rear =
+      17;  // ego car front bumper to leading car rear bumper
+           // scale to -1..1
+  optional double longitudinal = 18;
+  message SimpleDebug {
+    optional double lateral_error = 1;
+    optional double ref_heading = 2;
+    optional double heading = 3;
+    optional double heading_error = 4;
+    optional double heading_error_rate = 5;
+    optional double lateral_error_rate = 6;
+    optional double curvature = 7;
+    optional double steer_angle = 8;  // rad
+    optional double steer_angle_feedforward = 9;
+    optional double steer_angle_lateral_contribution = 10;
+    optional double steer_angle_lateral_rate_contribution = 11;
+    optional double steer_angle_heading_contribution = 12;
+    optional double steer_angle_heading_rate_contribution = 13;
+    optional double steer_angle_feedback = 14;
+    optional double steering_position = 15;
+    optional double ref_speed = 16;
+    optional double steer_angle_limited = 17;
+    optional double station_reference = 18;
+    optional double station_error = 19;
+    optional double speed_reference = 20;
+    optional double speed_error = 21;
+    optional double acceleration_reference = 22;
+    optional bool is_full_stop = 23;
+    optional double station_feedback = 24;
+    optional double speed = 25;
+    optional double acceleration_cmd_closeloop = 26;
+    optional double acceleration_cmd = 27;
+    optional double acceleration_lookup = 28;
+    optional double speed_lookup = 29;
+    optional double calibration_value = 30;
+    optional double steer_unconstraint_control_diff = 31;
+    optional double steer_angle_feedforward_compensation = 32;
+    repeated double matrix_q_updated = 33;  // matrix_q_updated_ size = 6
+    repeated double matrix_r_updated = 34;  // matrix_r_updated_ size = 2
+
+    // time derivative of lateral error rate, in m/s^2
+    optional double lateral_acceleration = 35;
+    // second time derivative of lateral error rate, in m/s^3
+    optional double lateral_jerk = 36;
+
+    optional double ref_heading_rate = 37;
+    optional double heading_rate = 38;
+
+    // heading_acceleration, as known as yaw acceleration, is the time
+    // derivative of heading rate,  in rad/s^2
+    optional double ref_heading_acceleration = 39;
+    optional double heading_acceleration = 40;
+    optional double heading_error_acceleration = 41;
+
+    // heading_jerk, as known as yaw jerk, is the second time derivative of
+    // heading rate, in rad/s^3
+    optional double ref_heading_jerk = 42;
+    optional double heading_jerk = 43;
+    optional double heading_error_jerk = 44;
+
+    optional double acceleration_feedback = 45;
+    optional double acceleration_error = 46;
+    optional double jerk_reference = 47;
+    optional double jerk_feedback = 48;
+    optional double jerk_error = 49;
+
+    optional double lon_position_feedback = 50;
+    optional double cur_lon_position_reference = 51;
+    optional double cur_lon_position_error = 52;
+    optional double pre_lon_position_error = 53;
+    optional double pre_speed_error = 54;
+    optional double speed_cmd_limit = 55;
+    optional double pre_speed_reference = 56;
+    optional double pre_acceleration_reference = 57;
+    optional double pre_lon_position_reference = 58;
+    optional double lon_speed_feedforward = 59;
+    optional double pre_acceleration_error = 60;
+
+    optional double steer_torque_cmd = 61;  // unit nm
+    optional double steer_torque_fb = 62;   // unit nm
+    optional double steer_torque_ff = 63;   // unit nm
+    optional double wheel_angle_ref = 64;
+    optional double wheel_angle_fb = 65;
+    optional double wheel_angle_err = 66;
+
+    optional double cur_pos_x = 67;
+    optional double cur_pos_y = 68;
+    optional double ref_pos_x = 69;
+    optional double ref_pos_y = 70;
+
+    optional double yaw_rate = 71;      // yaw rate
+    optional double ref_yaw_rate = 72;  // reference yaw rate
+
+    // raw signal and not filtered
+    optional double raw_speed = 73;         // raw speed
+    optional double raw_yaw_rate = 74;      // raw yaw rate
+    optional double raw_ref_yaw_rate = 75;  // raw yaw rate
+    optional double raw_curvature = 76;     // raw data curvature
+    optional double raw_nearest_lateral_error =
+        77;                                  // raw data nearest lateral error
+    optional double raw_lateral_error = 78;  // raw data lateral error
+    optional double raw_lateral_error_rate = 79;  // raw data lateral error rate
+    optional double raw_heading_error = 80;       // raw data heading error
+    optional double raw_heading_error_rate = 81;  // raw data heading error rate
+    optional double raw_front_wheel_angle_cmd =
+        82;  // raw front wheel angle cmd
+    optional double lateral_error_contribution =
+        83;  // lateral error contribution to steering angle
+    optional double lateral_error_rate_contribution =
+        84;  // lateral error rate contribution to steering angle
+    optional double heading_error_contribution =
+        85;  // heading error contribution to steering angle
+    optional double heading_error_rate_contribution =
+        86;  // heading error rate contribution to steering angle
+    optional PathPointNop lon_time_preview_point =
+        87;                             // lon preview tracking point
+    optional double preview_dist = 88;  // preview distance
+    optional PathPointNop lat_dist_preview_point =
+        89;                            // lat preview tracking point
+    optional double yawrate_hat = 90;  // yaw rate estimation from observer
+    optional double yawrate_raw_chassis = 91;    // yaw rate chassis
+    optional double yawrate_imu = 92;            // yaw rate imu
+    optional double slip_angle_hat = 93;         // slip angle from observer
+    optional double slip_angle_simulation = 94;  // ratio*lateral_acc
+    optional double slip_angle_raw = 95;         // default 0
+    optional double front_wheel_angle = 96;      // default 0
+    optional double lateral_acceleration_imu = 97;
+    optional double steering_ratio = 98;
+    optional double ct1 = 99;
+    optional double ct2 = 100;
+    optional double ct3 = 101;
+    optional PathNop debug_path = 102;
+
+    optional bool enable_yawrate_integration_compensation = 103;
+    optional double yawrate_integration_ki = 104;
+    optional double yawrate_integration_contribution = 105;
+
+    optional PathPointNop nearest_target_point = 106;
+    optional double raw_nearest_heading_error = 107;
+    optional double position_err_filter = 108;
+    optional double position_err_smooth = 109;
+    optional double speed_err_filter = 110;
+    optional double speed_err_smooth = 111;
+
+    optional double hand_torque_filter = 112;
+    optional int32 yaw_rate_integration_hold = 113;
+
+    optional double offset_to_map = 114;  // offset to map centerline
+    optional Transformation3d reference_car_state = 115;
+    optional Vector3d original_x_y_z = 116;
+    optional Vector3d original_roll_pitch_yaw = 117;
+    optional Vector3d dx_dy_dz = 118;
+    optional Vector3d droll_dpitch_dyaw = 119;
+    optional double ego_offset_l =
+        120;  // dist from vehicle to reference line(from planning)
+    optional double left_refline_width = 121
+        [default = 1.75];  // half lane width based on refline
+    optional double right_refline_width = 122
+        [default = 1.75];  // half lane width based on refline
+    optional bool path_replan = 123;
+    optional double acc_cmd_raw_mps2 = 124 [default = 0.0];
+    optional double acc_cmd_cap_mps2 = 125 [default = 0.0];
+    optional double acc_cmd_filt_mps2 = 126 [default = 0.0];
+    optional double acc_cmd_drv_cap_mps2 = 127 [default = 10.0];
+    optional double acc_cmd_drg_cap_mps2 = 128 [default = -10.0];
+    optional double acc_cmd_inc_rate_lmt_mps3 = 129 [default = 10.0];
+    optional double acc_cmd_dec_rate_lmt_mps3 = 130 [default = -10.0];
+    repeated StatusPb err_info = 131;
+    // add lateral kdc controller debug info
+    // kinematic controller:
+    optional double ref_yawrate_fb_radps = 132 [default = 0.0];
+    optional double ref_yawrate_ff_radps = 133 [default = 0.0];
+    optional double ref_yawrate_raw_radps = 134 [default = 0.0];
+    // dynamic controller:
+    optional double ref_yawrate_radps = 135 [default = 0.0];
+    optional double curr_yawrate_radps = 136 [default = 0.0];
+    optional double yawrate_error_radps = 137 [default = 0.0];
+    optional double front_wheel_angle_cmd_ff_rad = 138 [default = 0.0];
+    optional double front_wheel_angle_cmd_i_rad = 139 [default = 0.0];
+    optional double front_wheel_angle_cmd_fb_rad = 140 [default = 0.0];
+    optional double front_wheel_angle_cmd_rad = 141 [default = 0.0];
+    optional double front_wheel_angle_cmd_raw_rad = 142 [default = 0.0];
+    optional double front_wheel_angle_cmd_filt_rad = 143 [default = 0.0];
+    optional double dynamic_ff_decay_coff = 144;
+    optional double lateral_err_smoothed = 145;
+    optional double heading_err_smoothed = 146;
+    optional double actual_yawrate_dynamic_used_radps = 147;
+    optional double ref_yawrate_dynamic_used_radps = 148;
+
+    // next available id: 151
+    optional PathNop.PathMode path_mode = 151 [default = NOP];  // 0->NOP  1->FS
+
+    optional ControlScenario path_scene_req = 160;
+    optional double comfort_kappa_filter_freq_hz = 161;
+    optional bool gear_shift_trigger_flg = 162 [default = false];
+    optional bool gear_shift_enable_flg = 163 [default = false];
+
+    repeated double reserved = 1000000;
+  }
+
+  optional SimpleDebug simple_debug = 19;
+  optional uint64 time_meas = 20;
+  optional uint64 time_pub = 21;
+  optional bool controller_status = 22;
+  optional double LON_parking_target_speed_ms = 23;   // PSP output
+  optional double LON_parking_stop_distance_cm = 24;  // PSP_output
+  enum LonControlMode {
+    VLC = 0;
+    LLC = 1;
+  }
+  optional LonControlMode LON_ctrl_mode = 25 [default = VLC];  // PSP output
+  enum PspControlModeReq {
+    PSP_CTRLMODE_NO_REQUEST = 0;
+    PSP_CTRLMODE_DISTANCE = 1;
+    PSP_CTRLMODE_SPEED = 2;
+  }
+  optional PspControlModeReq psp_control_mode_request = 26
+      [default = PSP_CTRLMODE_DISTANCE];  // PSP output
+  optional StopState stop_state = 27;
+  optional ControlOutputMsg output_msg = 28;
+  message MPCDebug {
+    message MPC_Traj {
+      repeated double s_m = 1;
+      repeated double v_mps = 2;
+      repeated double a_mps2 = 3;
+    }
+    message MPC_Predict_Error {
+      repeated double s_err = 1;
+      repeated double v_err = 2;
+      repeated double a_err = 3;
+    }
+    optional double current_s_m = 1;  // for lng mpc
+    optional MPC_Traj mpc_reference = 2;
+    optional double current_speed_filter_mps = 3;
+    optional double current_acc_filter_mps2 = 4;
+    optional bool mpc_fallback = 5;
+    optional double delta_u_cmd = 6;
+    optional double solver_run_time = 7;
+    optional int32 solver_status = 9;
+    optional int32 ctrl_horizon = 10;
+    optional int32 predict_horizon = 11;
+    repeated double mpc_delta_acc_cmd_series = 12;
+    repeated double mpc_predict_acc_cmd_series = 13;
+    optional MPC_Traj mpc_predict = 14;
+    optional MPC_Predict_Error mpc_predict_err = 15;
+    optional double mpc_station_err = 16;
+    repeated double mpc_acc_cmd_series = 17;
+    optional double estimate_current_acc = 18;
+    optional double mpc_ref_acc = 19;
+    optional double mpc_ref_speed = 20;
+    optional double mpc_speed_err = 21;
+    optional bool is_jump_to_startup = 22;
+
+    // creep info
+    optional bool enable_creep_mode_flg = 100;
+    optional double stop_s_m = 101;
+    optional double creep_tar_v_mps = 102;
+  }
+  optional MPCDebug mpc_debug = 29;
+  optional double mpc_acc_cmd = 30;
+  optional double mpc_acc_cmd_raw = 31;
+
+  // creep control debug info
+  message CreepDebug {
+    optional CreepStatus creep_status = 1;
+    optional double ego_speed_mps = 2;
+    optional double ego_s_m = 3;
+    optional double fcar_speed_mps = 4;
+    optional double fcar_ds_m = 5;
+    optional double vobj_speed_mps = 6;
+    optional double vobj_ds_m = 7;
+    optional double max_creep_speed_mps = 8;
+    optional double fcar_target_ds_m = 9;
+    optional double fcar_s_error_m = 10;
+    optional double fcar_target_speed_fb_mps = 11;
+    optional double fcar_target_speed_mps = 12;
+    optional double vobj_target_ds_m = 13;
+    optional double vobj_s_error_m = 14;
+    optional double vobj_target_speed_fb_mps = 15;
+    optional double vobj_target_speed_mps = 16;
+    optional double creep_target_speed_mps = 17;
+    optional double creep_acc_command_raw_mps2 = 18;
+    optional double creep_acc_command_mps2 = 19;
+    optional bool creep_acc_arb_jerk_limit_flg = 20;
+    optional double creep_acc_arb_filt_mps2 = 21;
+    optional double fcar_acc_mps2 = 22;
+    optional double vobj_acc_mps2 = 23;
+    optional double creep_acc_ff_mps2 = 24;
+    optional double ds_to_stop_point_m = 25;
+    optional double creep_target_speed_raw_mps = 26;
+    optional double creep_target_speed_inc_lmt_mps2 = 27;
+    optional double creep_target_speed_dec_lmt_mps2 = 28;
+    optional double creep_acc_command_start_stop_mps2 = 29;
+    optional double creep_drive_acc_bound_mps2 = 30;
+    optional double creep_brake_acc_bound_mps2 = 31;
+    optional double fcar_target_speed_raw_mps = 32;
+  }
+  optional CreepDebug creep_debug = 50;
+  message CreepQuality {
+    optional bool creep_acc_quality_follow_s_invalid_flg = 1 [default = false];
+    optional bool creep_acc_quality_unwanted_accel_flg = 2 [default = false];
+    optional bool creep_acc_quality_unwanted_decel_flg = 3 [default = false];
+  }
+  optional CreepQuality creep_quality = 51;
+
+  message LatLmpcDebug {
+    message Traj {
+      optional double t = 11;
+      optional double x = 1;
+      optional double y = 2;
+      optional double heading = 3;
+      optional double vx = 4;
+      optional double vy = 5;
+      optional double heading_rate = 6;
+      optional double acc = 7;
+      optional double jerk = 8;
+      optional double front_wheel_angle = 9;
+      optional double d_front_wheel_angle = 10;
+      optional double d_heading_rate = 12;
+      optional double s = 13;
+      optional double l = 14;
+      optional double lat_acc = 15;
+      optional double lat_jerk = 16;
+      optional double kappa = 17;
+    }
+    message Bound {
+      optional double t = 1;
+      optional double lb_soft = 2;
+      optional double ub_soft = 3;
+      optional double lb_hard = 4;
+      optional double ub_hard = 5;
+    }
+    repeated Traj reference_traj = 1;
+    repeated Traj nominal_traj = 2;
+    optional double vehicle_speed = 3;
+    optional double vehicle_acceleration = 4;
+    optional double station_err = 5;
+    optional double speed_err = 6;
+    optional double lateral_err = 7;
+    optional double acc_cmd = 8;
+    optional double front_wheel_angle_cmd = 9;
+    optional int32 horizon = 10;
+    optional double solver_run_time = 11;
+    optional int32 solver_status = 12;
+    optional double vehicle_x = 13;
+    optional double vehicle_y = 14;
+    optional double vehicle_heading = 15;
+    optional double vehicle_heading_rate = 16;
+    optional PathPointNop time_match_point = 17;
+    optional PathPointNop position_match_point = 18;
+    repeated Traj predict_traj = 19;
+    optional double heading_err = 20;
+    optional double vehicle_lateral_speed = 21;
+    optional double vehicle_front_wheel_angle = 22;
+    optional double vehicle_kappa = 23;
+    repeated double acc_cmd_series = 24;
+    repeated double front_wheel_angle_cmd_series = 25;
+    optional bool lmpc_solver_failed = 26;
+    optional double max_acc = 27;
+    optional double max_front_wheel_angle_rate = 28;
+    optional double lmpc_control_time = 29;
+    optional uint32 mpc_solve_mode = 30;
+    optional double lmpc_solver_time = 31;
+    optional double steering_cmd_percentage = 32;
+    optional double front_wheel_angle_cmd_raw = 33;
+    optional double vehicle_steering_percentage = 34;
+    optional double slip_angle_measurement = 35;
+    optional double slip_angle_estimate = 36;
+    optional double heading_rate_estimate = 37;
+    optional double front_wheel_angle_cmd_ff = 38;
+    optional double d_angle_raw = 39;
+    optional double d_angle_smooth = 40;
+    optional double front_wheel_angle_cmd_fb = 41;
+    optional double max_heading_rate = 42;
+    optional double max_heading_rate_increment = 43;
+    repeated double heading_rate_cmd_series = 44;
+    optional double heading_rate_cmd = 45;
+    optional double iou = 46;
+    optional bool lat_lmpc_failed = 47;
+    optional bool is_ill_path = 48;
+    repeated Bound lateral_bounds = 49;
+    repeated Bound heading_rate_bounds = 50;
+    repeated Bound lat_acc_bounds = 51;
+    repeated Bound lat_jerk_bounds = 52;
+    optional double max_lat_acc = 53;
+    optional double max_lat_jerk = 54;
+    repeated double slack = 55;
+    optional double lat_bound_coff = 56;
+    optional bool is_fill_last_ref_by_last_pathpoint = 57;
+    optional double path_left_time = 58;
+    optional double path_left_length = 59;
+  }
+  optional LatLmpcDebug lat_lmpc_debug = 55;
+  enum LatControlMode {
+    LatCtrlMd_KDC = 0;
+    LatCtrlMd_LMPC = 1;
+    LatCtrlMd_LMPC_FallBack_To_KDC = 2;
+  }
+  optional LatControlMode lat_ctrl_mode = 56;
+
+  // next available id: 60
+  message ObserverResult {
+    optional TireType tire_type_enum = 1;
+    optional VehicleType vehicle_type_enum = 2;
+    // acc observer
+    message AccObserver {
+      optional double is_valid_flg = 1;
+      optional double speed_chassis_mps = 2;
+      optional double acc_imu_mps2 = 3;
+      optional double acc_imu_lpf_mps2 = 4;
+      optional double acc_imu_hpf_mps2 = 5;
+      optional double speed_diff_filtered_mps2 = 6;
+      optional double acc_est_hat_mps2 = 7;
+    }
+    optional AccObserver acc_observer = 3;
+    message AccDobDebug {
+      optional double is_valid_flg = 1;
+      optional double u_mps2 = 2;
+      optional double y_mps = 3;
+      optional double acc_cmd_mps2 = 4;
+      optional double imu_acc_mps2 = 5;
+      optional double chassis_speed_mps = 6;
+      optional double chassis_speed_filtered_mps = 7;
+      optional double td_mps2 = 8;
+      optional double acc_rate_limiter_mps2 = 9;
+      optional double acc_lpf_mps2 = 10;
+      optional double acc_integral_speed_mps = 11;
+    }
+    optional AccDobDebug acc_dob_debug = 4;
+  }
+  optional ObserverResult observer_result = 60;
+
+  message BrakeModelResult {
+    optional double path_acc_raw_mps2 = 1;
+    optional double path_acc_limit_mps2 = 2;
+    optional double soft_brake_acc_limit_mps2 = 3;
+    optional double brake_model_acc_raw_mps2 = 4;
+    optional double brake_model_acc_hys_mps2 = 5;
+    optional double follow_acc_filt_mps2 = 6;
+    optional double path_brake_acc_limit_mps2 = 7;
+    optional bool brake_model_valid_flg = 8;
+  }
+  optional BrakeModelResult brake_model_result = 61;
+
+  enum LonFunctionState {
+    invalid = 0;
+    stopped = 1;
+    start_up = 2;
+    driving = 3;
+    decel_to_stop = 4;
+    reserved_state1 = 10000;
+  }
+  optional LonFunctionState lon_state_enum = 62;
+  optional double lon_target_speed_mps = 63;
+  optional double ego_speed_mps = 64;
+  optional bool is_creep_flg = 65;
+  optional double end_point_speed = 66;
+  optional double follow_v = 67;
+  optional double ds_to_stop = 68;
+  optional bool is_psp_status = 69;
+
+  // replan request
+  optional bool lon_replan_req_flg = 100;
+  optional bool lat_replan_req_flg = 101;
+
+  optional double control_total_run_time_sec = 200;
+
+  optional SensorTSHeader sensor_original_ts =
+      1001;  // sensor original ts, last field of msg
+  optional uint64 publish_ptp_ts =
+      536870907;  // publish ptp timestamp, uint in nanosec
+  optional uint64 timestamp = 536870908;  // ptp sensor time of perception result, unit: ns
+  optional string publisher_id = 536870909;  // uuid of the publisher
+  optional uint64 counter = 536870910;       // message counter
+  optional uint64 publish_ts =
+      536870911;  // publish utc timestamp; unit : nanosecond
+}
+
+enum CreepStatus {
+  ENUM_CREEPSTATUS_OFF = 0;    // is_creep == false
+  ENUM_CREEPSTATUS_FCAR = 1;   // tracking front car
+  ENUM_CREEPSTATUS_VOBJ = 2;   // tracking virtual object
+  ENUM_CREEPSTATUS_STOP = 3;   // ego stop
+  ENUM_CREEPSTATUS_START = 4;  // ego start
+}

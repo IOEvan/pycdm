@@ -1,0 +1,374 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+import "common/pnc/geometry.proto";
+import "common/pnc/perception_object.proto";
+import "np/apps/parking/par_pnc_point.proto";   // For SLPoint
+
+message OOLReverseObsInfo {
+  optional uint32 id = 1;
+  optional bool has_ego_stop_p = 10;
+  optional bool has_obs_stop_p = 11;
+  optional Vector2d ego_stop_point = 20;
+  optional Vector2d obs_stop_point = 21;
+  optional bool draft = 30;
+
+  optional double ego_ttc = 40;
+  optional double obs_ttc = 41;
+  optional double ego_vel = 50;
+  optional double obs_vel = 51;
+  enum YieldDecision {
+    NOT_YIELD = 0;
+    YIELD = 1;
+    IGNORE = 2;
+  }
+  optional YieldDecision decision = 100;
+}
+
+message OOLReverseInfo {
+  optional uint32 level = 1;
+  repeated OOLReverseObsInfo obs_info = 10;
+}
+
+message LatDecisionInfo {
+  optional uint32 id = 1;
+
+  enum LatDecision {
+    IGNORE = 0;
+    LEFT = 1;
+    RIGHT = 2;
+    YIELD = 3;
+  }
+  optional LatDecision lat_decision = 2;
+}
+
+message RoiObsInfo {
+  optional uint32 id = 1;
+  optional string info = 1000;
+}
+
+message GoalInfo {
+  optional Vector2d roi = 2;
+  optional Vector2d bound = 3;
+  repeated RoiObsInfo obs_info = 10;
+}
+
+message NudgePreDecObsInfo {
+  optional uint32 id = 1;
+  optional bool is_active_nudge = 2;
+  optional SLPoint sl = 20;
+  optional double velocity = 30;
+  optional double rel_theta = 40;
+  optional SLPoint range_max = 50;
+  optional SLPoint range_min = 60;
+  optional PerceptionObject.Type type = 70;
+  optional bool is_last_nudge = 80;
+  optional bool is_in_juction = 85;
+  optional bool is_stopping = 100;
+  optional bool is_static = 110;
+  optional bool is_lowspeed = 120;
+  optional double low_speed_threshold = 130;
+  optional double target_lane_left_width = 140;
+  optional double target_lane_right_width = 150;
+  optional SLPoint start_movement = 160;
+  optional SLPoint end_movement = 170;
+  optional string info = 1000;
+}
+
+message EgoInfo {
+  optional Vector2d xy = 1;
+  optional double angle = 2;
+  optional double delta_angle = 3;
+  optional double velocity = 4;
+  optional Vector3d ds = 5;
+  optional Vector3d dl_dt = 6;
+  optional Vector3d dl_ds = 7;
+  optional Vector2d shape = 8;
+  optional SLPoint range_max = 9;
+  optional SLPoint range_min = 10;
+  optional bool is_in_juction = 20;
+}
+
+message NudgePreDecDebugInfo {
+  optional bool is_narrow_road = 60;
+  optional bool is_red_trafficlight = 90;
+  optional double stop_line_s = 100;
+
+  repeated uint32 dead_obs_id = 1000;
+  repeated NudgePreDecObsInfo obs_info = 2000;
+}
+
+message RefPathGenerateInfo {
+  optional string label = 1;
+  optional bool is_keep = 2;
+  optional bool is_ool = 3;
+  optional bool is_lc = 4;
+  optional bool is_hold = 5;
+  optional uint32 lc_dir = 6;
+  optional uint32 forbidden_ool = 60;
+  optional double planning_horizon = 80;
+
+  optional EgoInfo ego_info = 100;
+  optional GoalInfo goal_info = 150;
+  optional NudgePreDecDebugInfo nudge_predecision_info = 200;
+  repeated LatDecisionInfo raw_lat_decision = 250;
+
+  /* TODO: need more detail */
+  optional bool is_block = 300;
+  optional bool is_necessary = 310;
+  optional bool is_large_slope = 320;
+  optional bool is_backup = 330;
+  optional bool is_lattice = 340;
+  optional bool is_ool_vru = 350;
+  optional bool is_lat_offset = 360;
+
+  optional double ego_l = 400;
+  optional double roi_l = 410;
+  optional double expect_l = 420;
+
+  repeated LatDecisionInfo final_lat_decision = 500;
+
+  optional Polyline xy_point = 600;
+  optional Polyline sl_point = 610;
+
+  optional string info = 1000;
+}
+
+message RefPathTriggerInfo {
+  optional double ego_velocity = 10;
+  optional bool is_hd_map = 20;
+  optional bool is_in_urban = 30;
+  optional bool is_in_juction = 40;
+  enum LaneChangeType {
+    SUCCEEDING = 0;
+    LEFT_FORWARD = 1;
+    RIGHT_FORWARD = 2;
+  }
+  optional LaneChangeType lane_change_type = 50;
+  optional bool is_lane_changing = 60;
+  optional bool disable_junction_lc = 70;
+
+  optional bool has_left_ref_lane = 80;
+  optional bool has_right_ref_lane = 81;
+
+  optional uint32 left_priority = 90;
+  optional uint32 right_priority = 91;
+
+  optional bool trigger_left = 100;
+  optional bool trigger_right = 200;
+  optional bool trigger_left_hold = 300;
+  optional bool trigger_right_hold = 400;
+  optional bool trigger_multi_middle = 500;
+  optional bool trigger_junction_lc = 600;
+}
+
+message RefPathCostInfo {
+  optional double total_cost = 1;
+}
+
+message RefPathDebugInfo {
+  optional bool is_urban = 1;
+  optional bool is_highway = 20;
+  optional bool is_psp = 30;
+  optional bool is_localmap = 50;
+
+  optional RefPathTriggerInfo trigger_info = 100;
+  repeated RefPathGenerateInfo generate_info = 200;
+  repeated RefPathCostInfo cost_info = 300;
+
+  repeated RefPathGenerateInfo refpath_info = 1000;
+  repeated RefPathAdvizInfo refpath_info_plus = 1100;
+
+  repeated OOLReverseInfo ool_reverse_info = 2000;
+
+  optional string info = 100000;
+}
+
+message RefPathTrigger {
+  optional bool is_hd_map = 1 [default = false];
+  optional bool is_in_urban = 2 [default = false];
+  optional bool is_lane_changing = 3 [default = false];
+  enum LaneChnageType {
+    SUCCEEDING = 0;
+    LEFT_FORWARD = 1;
+    RIGHT_FORWARD = 2;
+  }
+  optional LaneChnageType lane_change_type = 4;
+  optional bool has_left_ref_lane = 5 [default = false];
+  optional bool has_right_ref_lane = 6 [default = false];
+  optional bool gflags_disable_junction_lc = 7 [default = false];
+  optional double ego_distance_to_junction = 8;
+  enum JunctionType {
+    NONE = 0;
+    TURN_STRIGHT = 1;
+    TURN_LEFT = 2;
+    TURN_RIGHT = 3;
+  }
+  optional JunctionType junc_type = 9;
+  optional bool is_left_virtual_boundary = 10 [default = false];
+  optional bool is_right_virtual_boundary = 11 [default = false];
+  optional double left_route_dist = 12;
+  optional double mid_route_dist = 13;
+  optional double right_route_dist = 14;
+  optional bool is_lc_prepare = 15 [default = false];
+  enum LaneChangeRecommendation {
+    LOW = 0;
+    MIDDLE = 1;
+    HIGH = 2;
+  }
+  optional LaneChangeRecommendation left_lane_priority = 16;
+  optional LaneChangeRecommendation right_lane_priority = 17;
+  optional bool trigger_left = 18 [default = false];
+  optional bool trigger_right = 19 [default = false];
+  optional bool trigger_straight_junction_lc = 20 [default = false];
+  optional bool trigger_left_turn_junction_lc = 21 [default = false];
+  optional bool trigger_right_turn_junction_lc = 22 [default = false];
+  optional bool trigger_junction_lc = 23 [default = false];
+  optional bool trigger_left_hold = 24 [default = false];
+  optional bool trigger_right_hold = 25 [default = false];
+  optional bool trigger_left_prepare = 26 [default = false];
+  optional bool trigger_right_prepare = 27 [default = false];
+  optional double left_virtual_boundary_rate = 28;
+  optional double right_virtual_boundary_rate = 29;
+}
+
+message Roi {
+  enum Label {
+    K = 0;
+    L = 1;
+    R = 2;
+  }
+  optional Label label = 1;
+  optional double left_roi = 2;
+  optional double right_roi = 3;
+  message ObsInfo {
+    optional bool valid = 1 [default = false];
+    optional int32 key_obs_id = 2;
+    optional string reason = 3;
+  }
+  optional ObsInfo obs_0 = 4;
+  optional ObsInfo obs_1 = 5;
+  optional ObsInfo obs_2 = 6;
+  optional ObsInfo obs_3 = 7;
+  optional ObsInfo obs_4 = 8;
+  optional ObsInfo obs_5 = 9;
+  optional ObsInfo obs_6 = 10;
+  optional ObsInfo obs_7 = 11;
+  optional ObsInfo obs_8 = 12;
+  optional ObsInfo obs_9 = 13;
+}
+
+message RefPathCost {
+  enum Label {
+    K = 0;
+    L = 1;
+    R = 2;
+  }
+  optional Label label = 1;
+  optional bool is_ool = 2 [default = false];
+  optional bool is_backup = 3 [default = false];
+  optional bool is_lattice = 4 [default = false];
+  optional double total = 5;
+  optional double total_1 = 6;
+  optional double total_2 = 7;
+  optional double ego_l = 8;
+  optional double roi_l = 9;
+  optional double expect_l = 10;
+  optional double end_l = 11;
+  optional double end_v = 12;
+  optional double end_t = 13;
+
+  optional double bias = 14;
+
+  optional double efficiency_cost = 15;
+  optional double raw_end_s = 16;
+  optional double nor_end_s = 17;
+  optional double block_s = 18;
+
+  optional double comfort_cost = 19;
+  optional double diff_l = 20;
+  optional double max_l = 21;
+  optional double delta_l = 22;
+  optional double type = 23;
+
+  optional double navigation_cost = 24;
+
+  optional double safety_cost = 25;
+  message Safety_Info {
+    optional bool valid = 1 [default = false];
+    optional int32 id = 2;
+    optional bool use = 3 [default = false];
+    optional bool collision = 4 [default = false];
+    optional bool active = 5 [default = false];
+    optional double event_time = 6;
+    optional double event_min_distance = 7;
+    optional double event_min_lon_distance = 8;
+    optional double event_min_lat_distance = 9;
+    optional double event_rel_theta = 10;
+
+    optional double event_ego_diff_theta = 11;
+    optional double event_obs_diff_theta = 12;
+
+    optional double final_ego_diff_theta = 13;
+    optional double final_obs_diff_theta = 14;
+
+    optional double ori_distance = 15;
+    optional double ori_lon_distance = 16;
+    optional double ori_lat_distance = 17;
+    optional double ori_rel_theta = 18;
+
+    optional double ori_center_lon_distance = 19;
+    optional double ori_center_lat_distance = 20;
+
+    optional double weight_lat_trend = 21;
+
+    optional string info = 22;
+  }
+  optional Safety_Info safety_info_1 = 26;
+  optional Safety_Info safety_info_2 = 27;
+  optional Safety_Info safety_info_3 = 28;
+  optional Safety_Info safety_info_4 = 29;
+  optional Safety_Info safety_info_5 = 30;
+  optional Safety_Info safety_info_6 = 31;
+  optional Safety_Info safety_info_7 = 32;
+  optional Safety_Info safety_info_8 = 33;
+  optional Safety_Info safety_info_9 = 34;
+  optional Safety_Info safety_info_10 = 35;
+  optional Safety_Info safety_info_11 = 36;
+  optional Safety_Info safety_info_12 = 37;
+}
+
+message RefPathAdvizInfo {
+  optional string label = 1;
+  optional bool is_ool = 2;
+  optional bool is_backup = 3;
+  optional bool is_lattice = 4;
+  optional Vector2d xy_ego = 10;
+  optional Polyline xy_points = 100;
+}
+
+message DiagnoseRefPathDebug {
+  optional RefPathTrigger refpath_trigger = 1;
+  repeated Roi roi_info = 2;              // size = 3
+  repeated RefPathCost refpath_cost = 3;  // size = 10
+  optional RefPathAdvizInfo refpath = 1000;
+}
+
+// for ref path debug config
+message RefPathConfigPlus {
+  optional bool enable = 1 [default = false];
+  repeated bool flags = 2;
+  repeated double var = 3;
+  repeated double osqp = 4;
+  repeated double cost = 5;
+  repeated double mcts = 10;
+  message MMCostConfig {
+    optional string label = 1;
+    repeated double config = 100;
+  }
+  repeated MMCostConfig mm_cost_config = 20;
+  repeated int32 id = 10000;
+}

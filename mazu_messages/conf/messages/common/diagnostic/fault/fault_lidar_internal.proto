@@ -1,0 +1,81 @@
+syntax = "proto2"; 
+option cc_enable_arenas = true;
+       
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message LidarInternalFaultInfo{// Detected by FW
+        optional bool INNO_LIDAR_IN_FAULT_POWER_LOW = 1;
+        optional bool INNO_LIDAR_IN_FAULT_POWER_HIGH = 2;
+        optional bool INNO_LIDAR_IN_FAULT_WINDOW_BLOCKAGE1 = 3;
+        optional bool INNO_LIDAR_IN_FAULT_WINDOW_BLOCKAGE2 = 4;
+        optional bool INNO_LIDAR_IN_FAULT_WINDOW_BLOCKAGE3 = 5;
+        optional bool INNO_LIDAR_IN_FAULT_WINDOW_BLOCKAGE4 = 6;
+        optional bool INNO_LIDAR_IN_FAULT_LASER_INTERLOCK = 7;
+        optional bool INNO_LIDAR_IN_FAULT_COMM_LASER = 8;
+        optional bool INNO_LIDAR_IN_FAULT_LASER = 9;
+        optional bool INNO_LIDAR_IN_FAULT_COMM_DSP = 10;
+        optional bool INNO_LIDAR_IN_FAULT_CANFD_DSP = 11;
+        optional bool INNO_LIDAR_IN_FAULT_DSP = 12;
+        optional bool INNO_LIDAR_IN_FAULT_POLYGON_CONTROL = 13;
+        optional bool INNO_LIDAR_IN_FAULT_POLYGON_SENSOR = 14;
+        optional bool INNO_LIDAR_IN_FAULT_GALVO_CONTROL = 15;
+        optional bool INNO_LIDAR_IN_FAULT_GALVO_SENSOR = 16;
+        optional bool INNO_LIDAR_IN_FAULT_OPTIC1 = 17;
+        optional bool INNO_LIDAR_IN_FAULT_OPTIC2 = 18;
+        optional bool INNO_LIDAR_IN_FAULT_IIC_DSP = 19;
+        optional bool INNO_LIDAR_IN_FAULT_IIC_SOC = 20;
+        optional bool INNO_LIDAR_IN_FAULT_DSP_EXTWD = 21;
+        optional bool INNO_LIDAR_IN_FAULT_DBTEMP = 22;
+        optional bool INNO_LIDAR_IN_FAULT_CHIPTEMP = 23;
+        optional bool INNO_LIDAR_IN_FAULT_HUMIDITY = 24;
+        optional bool INNO_LIDAR_IN_FAULT_COMM_ADC = 25;
+        optional bool INNO_LIDAR_IN_FAULT_FPGACLOCK = 26;
+        optional bool INNO_LIDAR_IN_FAULT_SOC = 27;
+        optional bool INNO_LIDAR_IN_FAULT_SOC_EXTWD = 28;
+        optional bool INNO_LIDAR_IN_FAULT_RAWDATA_STREAM = 29;
+        optional bool INNO_LIDAR_IN_FAULT_POLYGON_TO = 30;
+        optional bool INNO_LIDAR_IN_FAULT_GALVO_TO = 31;
+        optional bool INNO_LIDAR_IN_FAULT_TRIGGER_TO = 32;
+        optional bool INNO_LIDAR_IN_FAULT_POWSUPL1 = 33;
+        optional bool INNO_LIDAR_IN_FAULT_POWSUPL2 = 34;
+        optional bool INNO_LIDAR_IN_FAULT_LPDDR4 = 35;
+        optional bool INNO_LIDAR_IN_FAULT_FLASH = 36;
+        optional bool INNO_LIDAR_IN_FAULT_NETWORK1 = 37;
+        optional bool INNO_LIDAR_IN_FAULT_NETWORK2 = 38;
+        optional bool INNO_LIDAR_IN_FAULT_OVERHEAT1 = 39;
+        optional bool INNO_LIDAR_IN_FAULT_OVERHEAT2 = 40;
+        optional bool INNO_LIDAR_IN_FAULT_OVERHEAT3 = 41;
+        optional bool INNO_LIDAR_IN_FAULT_CONFIG1 = 42;
+        optional bool INNO_LIDAR_IN_FAULT_CONFIG2 = 43;
+        optional bool INNO_LIDAR_IN_FAULT_ASSERT_FAILURE = 44;
+        optional bool INNO_LIDAR_IN_FAULT_CPULOAD_HIGH = 45;
+        optional bool INNO_LIDAR_IN_FAULT_LATENCY_LONG = 46;
+        optional bool INNO_LIDAR_IN_FAULT_RESERVED07 = 47;
+        optional bool INNO_LIDAR_IN_FAULT_RESERVED08 = 48;
+        optional bool INNO_LIDAR_IN_FAULT_EXCESSIVE_NOISE = 49;
+        optional bool INNO_LIDAR_IN_FAULT_DATA_DROP1 = 50;
+        optional bool INNO_LIDAR_IN_FAULT_DATA_DROP2 = 51;
+        optional bool INNO_LIDAR_IN_FAULT_DATA_DROP3 = 52;
+        optional bool INNO_LIDAR_TEMPHIGH_INHIBIT = 53;
+        optional bool INNO_LIDAR_IN_FAULT_RESERVED10 = 54;
+        optional bool INNO_LIDAR_IN_FAULT_REFINTENSITY = 55;
+        optional bool INNO_LIDAR_IN_FAULT_REPROGRAMMING = 56;
+        optional bool INNO_LIDAR_IN_FAULT_GALVO_MIRROR = 57;
+        optional bool INNO_LIDAR_IN_FAULT_MAX_DISTANCE = 58;
+        optional bool INNO_LIDAR_IN_FAULT_RESERVED14 = 59;
+        optional bool INNO_LIDAR_IN_FAULT_RESERVED15 = 60;
+        optional bool INNO_LIDAR_IN_FAULT_RESERVED16 = 61;
+        optional bool INNO_LIDAR_IN_FAULT_RESERVED17 = 62;
+        optional bool INNO_LIDAR_IN_FAULT_RESERVED18 = 63;
+        optional bool INNO_LIDAR_IN_FAULT_MAX = 64;
+        optional bool INNO_LIDAR_IN_FAULT_OTHER = 65;
+
+        optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+        optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+        optional uint64 publish_ptp_ts = 536870907;   // publish ptp timestamp, uint in nanosec
+        optional string publisher_id   = 536870909; // uuid of the publisher
+        optional uint64 counter        = 536870910;         // message counter
+        optional uint64 publish_ts     = 536870911;    // publish utc timestamp; unit : nanosecond
+}

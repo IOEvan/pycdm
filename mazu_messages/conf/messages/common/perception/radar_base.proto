@@ -1,0 +1,183 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+message ObjPos{
+  required float x = 1; // unit:m   in SAE coordinate, origin is at mid of rear axel, forward is positive 
+  required float y = 2; // unit:m   in SAE coordinate, right is positive
+  required float z = 3; // unit:m   in SAE coordinate, downwards is positive
+}
+
+message ObjPosStd{
+  required float x_std = 1; // unit:m
+  required float y_std = 2; // unit:m
+  required float z_std = 3; // unit:m
+}
+
+message ObjVel{
+  required float vx = 1; // unit:m/s  in SAE coordinate, origin is at mid of rear axel, forward is positive
+  required float vy = 2; // unit:m/s  in SAE coordinate, right is positive
+  required float vz = 3; // unit:m/s  in SAE coordinate, downwards is positive 
+}
+
+message ObjVelStd{
+  required float vx_std = 1; // unit:m/s
+  required float vy_std = 2; // unit:m/s
+  required float vz_std = 3; // unit:m/s
+}
+
+message ObjAcc{
+  required float ax = 1; // unit:m/s^2
+  required float ay = 2; // unit:m/s^2
+  required float az = 3; // unit:m/s^2
+}
+
+message ObjAccStd{
+  required float ax_std = 1; // unit:m/s^2
+  required float ay_std = 2; // unit:m/s^2
+  required float az_std = 3; // unit:m/s^2
+}
+
+message ObjSize{
+  required float length = 1; // unit:m
+  required float width = 2; // unit:m
+  required float height = 3; // unit:m
+}
+
+message ObjSizeStd{
+  required float length_std = 1; // unit:m
+  required float width_std = 2; // unit:m
+  required float height_std = 3; // unit:m
+}
+
+enum ReferPoint{
+  ReferPoint_Default = 0;
+  ReferPoint_RearCenter = 1;
+  ReferPoint_FrontCenter = 2;
+  ReferPoint_LeftCenter = 3;
+  ReferPoint_RightCenter= 4;
+  ReferPoint_RearLeft = 5;
+  ReferPoint_RearRight = 6;
+  ReferPoint_FrontLeft = 7;
+  ReferPoint_FrontRight = 8;
+  ReferPoint_Undetermined = 9;
+  ReferPoint_Center = 10;
+  }
+
+message ObjMotion{
+  required ObjPos pos = 1;
+  required ObjPosStd pos_std = 2;
+  required ObjVel vel = 3;
+  required ObjVelStd vel_std = 4;
+  required ObjAcc acc = 5;
+  required ObjAccStd acc_std = 6;
+  required ObjSize size = 7;
+  required ObjSizeStd size_std = 8;
+  required float heading = 9; // unit :rad
+  required ReferPoint ref_point = 10;
+  optional float heading_rate = 11;
+}
+
+message ObjMotionState{
+  required bool is_valid = 1;
+  required bool is_moving = 2;// 0: positive-moving ,1: negative-stationary
+  required bool is_movable = 3;
+  required bool direction = 4; // 0: positive-receding ,1: negative-oncoming
+  required bool was_moved = 5;
+  optional bool is_crossing = 6;
+}
+
+enum ObjClass{
+  ObjClass_Undefined = 0;
+  ObjClass_SmallVehicle = 1;
+  ObjClass_BigVehicle = 2;
+  ObjClass_Bike = 3;
+  ObjClass_Pedestrian = 4;
+  ObjClass_Animal = 5;
+  ObjClass_GeneralObject = 6;
+  ObjClass_SpecialObject = 7;
+  ObjClass_Tricycle = 8;
+}
+
+enum ClassSmallVehicle {
+  SubClass_SVUndefined = 0;
+  SubClass_SVCar = 1;
+  SubClass_SVSuv = 2;
+  SubClass_SVPickUp = 3;
+  SubClass_SVMpvVan = 4;
+}
+
+enum ClassBigVehicle {
+  SubClass_BVUndefined = 0;
+  SubClass_BVBus = 1;
+  SubClass_BVTruck = 2;
+  SubClass_BVSpecialTruck = 3;
+  SubClass_BVTrailer = 4;
+}
+
+enum ClassTricycle {
+  SubClass_TCUndefined = 0;
+}
+
+enum ClassBike{
+  SubClass_BkUndefined = 0;
+  SubClass_BkMotorbike = 1;
+  SubClass_BkBicycle = 2;
+  SubClass_BkEBike = 3;
+  SubClass_BkUndefinedP = 4;
+  SubClass_BkMotorbikeP = 5;
+  SubClass_BkBicycleP = 6;
+  SubClass_BkEBikeP = 7;
+}
+
+enum ClassPed{ 
+  SubClass_PdUndefined = 0;
+  SubClass_PdChild = 1;
+  SubClass_PdAdult = 2; 
+}
+
+enum ClassAnimal{ 
+  SubClass_AnmUndefined = 0;
+  SubClass_AnmCat = 1;
+  SubClass_AnmDog = 2; 
+}
+
+enum ClassSpecial{ 
+  SubClass_SpecUndefined = 0;
+  SubClass_SpecPram = 1;
+  SubClass_SpecShoppingCart = 2; 
+}
+
+enum ClassGeneral{
+  SubClass_GOUndefined = 0;
+  SubClass_GOGuardrail = 1;
+  SubClass_GOCone = 2;
+  SubClass_GOBillboard = 3; //ObsType_OverheadObject
+  SubClass_GOManholeCover = 4;
+  SubClass_GOBarrier = 5; //deprecated
+  SubClass_GOObstLeft = 6;//ObsType_ObstructionLeft
+  SubClass_GOObstRight = 7;//ObsType_ObstructionRight
+  SubClass_GOObstUP = 8;//ObsType_ObstructionUP
+  SubClass_GOObstDown = 9;//ObsType_ObstructionBW
+  SubClass_GOFishBoneLeft = 10;//ObsType_FishboneLeft
+  SubClass_GOFishBoneRight = 11;//ObsType_FishboneRight
+  SubClass_GOObstInvalid = 12;
+  SubClass_GOShortPole = 13;//short pole
+  SubClass_GOBarrel = 14;
+  SubClass_GORedWarningSign= 15;
+  SubClass_GOIndicatorArrowLeft= 16;
+  SubClass_GOIndicatorArrowRight= 17;
+  SubClass_GOIndicatorArrowBoth= 18;
+  SubClass_GOIndicatorArrowLeftUp= 19;
+  SubClass_GOIndicatorArrowLeftDown= 20;
+  SubClass_GOIndicatorArrowRightUp= 21;
+  SubClass_GOIndicatorArrowRightDown= 22;
+  SubClass_GOMetalFence= 23;
+  SubClass_GOWarningPole= 24;
+  SubClass_GOCircularColumn= 25;
+  SubClass_GOStoneColumn= 26;
+  SubClass_GOOtherImpermanentObject= 27;
+  SubClass_GOOtherPermanentObject= 28;
+}
+

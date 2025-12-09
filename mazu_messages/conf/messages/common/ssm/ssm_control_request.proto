@@ -1,0 +1,38 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+import "common/ssm/ssm_info.proto";
+//SSM: super system machine
+//该proto用于发送系统状态机切换指令
+//SSM在4个soc都进行部署,5Hz
+
+enum SsmSceneSwitchReq {
+    REQ_ENTER                   = 0;    //场景进入
+    REQ_CLEAR                   = 1;    //场景清空
+}
+
+message SsmModuleControl {
+    optional SsmControlModule module = 1;
+    optional SsmControlCmd cmd = 2;
+}
+
+message SsmSceneManage {
+    optional uint32 cmd_id                   = 1;  //cmd_id,  SSM针对特殊场景进行hardcode，cosine查表获取场景name
+    optional string uuid                     = 2;  //指令发送时，自动生成. 同一条指令用相同uuid
+    optional SsmSceneSwitchReq switch_req    = 3;
+    repeated string switch_applist           = 4;  //填充需要执行场景切换的applist, 不在list中，不需要回复ACK
+}
+
+message SsmControlRequestMessage{
+    repeated SsmModuleControl module_control = 1;
+    optional SsmSceneManage scene_control = 2;
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;   // publish ptp timestamp unit : nanosecond
+    optional string publisher_id = 536870909;    // uuid of the publisher
+    optional uint64 counter = 536870910;         // message counter
+    optional uint64 publish_ts = 536870911;     // publish utc timestamp; unit : nanosecond
+}

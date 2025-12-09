@@ -1,0 +1,213 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+import "common/pnc/conpre_debug.proto";
+import "common/pnc/planner_speed.proto";
+import "common/pnc/path.proto";
+import "common/pnc/refline_debug.proto";
+import "common/pnc/path_bound_debug.proto";
+import "common/pnc/planner_error_code.proto";
+import "common/pnc/perception_object.proto";
+import "common/pnc/geometry.proto";
+
+// Next id: 13
+message ParPlannerDebug {
+    optional ConpreDebug conpre_debug = 1;
+    optional MotionBoundList motion_bound_list = 2;
+    optional SpeedLimitRequestList speed_limit_list = 3;
+    optional ParSpeedDataDebug speed_data_debug = 4;
+    optional ParRawPathDebug raw_path_debug = 5;
+    optional ReferLine refer_line = 6;
+    optional ParSpeedConstraintDebug speed_constraint_debug = 7;
+    optional TrajectoryOptimizerDebug trajectory_optimizer_debug = 8;
+    repeated PlannerStatusPb err_codes = 9;
+    optional PerceptionObjects perception_objects = 10;
+    optional PathConstraintDebug path_constraint_debug = 11;
+    optional DrivableArea drivable_area = 12;
+}
+
+// qp speed result
+message ParSpeedDataDebug {
+  repeated SpeedPointNop speed_points = 1;
+  optional double current_map_speed_limit = 2 [default = 0.0];  // km/h
+  repeated ParSLTTrajectory obs_slt_trajectories = 3;
+  repeated double reference_speed = 4;
+  repeated double cruise_speed_limit = 5;
+  repeated double map_speed_limit = 6;
+}
+
+message ParSLTTrajectory {
+  optional string obs_id = 1;
+  repeated ParSLTPoint slt_points = 2;
+}
+
+message ParSLTPoint {
+  enum MotionDecisionTypeDebug {
+    LEFT_NUDGE = 1;
+    RIGHT_NUDGE = 2;
+
+    OOL_LEFT_NUDGE = 3;
+    OOL_RIGHT_NUDGE = 4;
+
+    YIELD = 5;
+    NOT_YIELD = 6;
+    SLOT_YIELD = 7;
+    SLOT_NOT_YIELD = 8;
+    MERGE_YIELD = 9;
+    MERGE_NOT_YIELD = 10;
+    ALIGN_YIELD = 11;
+    ALIGN_NOT_YIELD = 12;
+
+    CROSS_YIELD = 13;
+    VRU_YIELD = 14;
+    RISK = 15;
+
+    IGNORE = 16;
+
+    LANE_CHANGE_HOLD_YIELD = 17;
+    INTERFERENCE_YIELD = 18;
+    INTERFERENCE_RISK = 19;
+    CROSS_OVERTAKE = 20;
+    MP_YIELD = 21;
+
+    UNKNOWN = 30;
+  }
+  optional double t = 1;
+  optional double min_s = 2;
+  optional double max_s = 3;
+  optional double min_s_speed = 4;
+  optional double max_s_speed = 5;
+  optional double min_l = 6;
+  optional double max_l = 7;
+  optional double l_nearest = 8;
+  optional double l_speed = 9;
+  repeated MotionDecisionTypeDebug decision_vec = 10;
+  optional double speed = 11;
+  optional double path_s_lower = 12;
+  optional double path_s_upper = 13;
+  optional double path_l_nearest = 14;
+  optional double path_heading_diff = 15;
+  optional double path_ref_min_s = 16;
+  optional double path_ref_max_s = 17;
+  optional bool is_precise_path_projection = 18 [default = false];
+}
+
+message ParRawPathDebug {
+  optional PiecewiseCubicFunction s_to_speed_limit = 1;
+  optional ParSpeedProfile ref_s_debug= 2;
+  optional ParSpeedProfile obs_s_debug= 3;
+  optional ParSpeedProfile raw_ref_s_debug = 4;
+  optional bool is_user_set_speed = 5;
+  optional double user_set_speed = 6;
+  optional double tau_gap = 7;
+
+  message ParFollowingObstacleInfo {
+    optional string obs_id = 1;
+  }
+  optional ParFollowingObstacleInfo nearest_following_obs = 8;
+  optional ParFollowingObstacleInfo second_nearest_following_obs = 9;
+  optional ParFollowingObstacleInfo potential_cutin_obs = 10;
+}
+
+message ParSpeedProfile {
+  repeated SpeedPointNop speed_points = 1;
+}
+
+message ParSpeedConstraintDebug {
+  repeated ParSTConstraintPoint bound_constraint_points = 1;
+  repeated ParSpeedLimitPoint kappa_speed_limits = 2;
+  repeated ParSpeedLimitPoint origin_map_speed_limits = 3;
+  repeated ParSpeedLimitPoint comfort_speed_limits = 4;
+  repeated ParSpeedLimitPoint map_speed_limits = 5;
+  repeated ParSpeedLimitPoint risk_speed_limits = 6 [deprecated = true];
+  repeated ParSpeedLimitPoint ref_v_vec = 7;
+  repeated ParRiskSpeedLimitPoint risk_speed_limits_with_type = 8;
+  optional ParMergedMotionUpperBound merged_motion_upper_bound = 9;
+}
+
+message ParSTConstraintPoint {
+  optional double x = 1 [default = 0.0];
+  optional uint64 index = 2;
+  optional HardBndDebug hard_bound = 3;
+  repeated ParSTSoftBndDebug upper_bound = 4;
+  repeated ParSTSoftBndDebug lower_bound = 5;
+  repeated HardBndDebug hard_bound_vec = 6;
+}
+
+message ParSTSoftBndDebug {
+  enum STBoundaryType {
+    NUDGE = 1;
+    YIELD = 2;
+    NOT_YIELD = 3;
+    SLOT_YIELD = 4;
+    SLOT_NOT_YIELD = 5;
+    MERGE_YIELD = 6;
+    MERGE_NOT_YIELD = 7;
+    ALIGN_YIELD = 8;
+    ALIGN_NOT_YIELD = 9;
+    CROSS_OVERTAKE = 10;
+    RISK = 11;
+    CROSS_YIELD = 12;
+    LANE_CHANGE_HOLD_YIELD = 13
+        [deprecated =
+             true];  // deprecated lc hold type, using slot alignment instead
+    VRU_YIELD = 14;
+    UNKNOWN = 16;
+    INTERFERENCE_YIELD = 17;
+    INTERFERENCE_RISK = 18;
+    MULTIMODAL_YIELD = 19;
+    MP_YIELD = 20;
+  }
+  optional double bnd_position = 1;
+  optional double bnd_velocity = 2;
+  optional string obs_id = 4;
+  optional double bnd_ttc = 5;
+  optional double bnd_thw = 6;
+  optional STBoundaryType bnd_source_type = 7;
+  optional double epsilon = 8 [default = 0.0];
+  optional double weight = 9;
+  optional double cl_thw = 10;
+  optional double cl_ttc = 11;
+  optional double obs_projection_ds = 12;
+  optional double raw_lane_uncertainty = 13;
+  optional double expect_buffer = 14 [default = 0.0];
+  optional double cl_ref_s = 15;
+  optional double ref_s = 16;
+  optional STConstarintSourceType constraint_source_type = 17;
+}
+
+message ParSpeedLimitPoint {
+  optional double s = 1;
+  optional double v = 2;
+  optional double t = 3;
+}
+
+message ParRiskSpeedLimitPoint {
+  enum RiskType {
+    NO_TYPE = 0;
+    BP_LANE_KEEP_RISK = 1;
+    BP_CROSS_RISK = 2;
+    MP_RISK = 3;
+    BP_INTERFERENCE_RISK = 4;
+    BP_VRU_RISK = 5;
+    MP_ROADEDGE_RISK = 6;
+    BP_MERGE_YIELD_RISK = 7;
+    BP_MERGE_PROCESS_RISK = 8;
+    BP_MERGE_OVERTAKE_RISK = 9;
+    BP_RISK = 10;
+  }
+  optional ParSpeedLimitPoint speed_limit = 1;
+  optional RiskType type = 2;
+}
+
+message ParMergedMotionUpperBound {
+  repeated SpeedPointNop merged_motion_upper_bound = 1;
+}
+
+message DrivableArea {
+  optional Polyline left_boundary = 1;
+  optional Polyline right_boundary = 2;
+};

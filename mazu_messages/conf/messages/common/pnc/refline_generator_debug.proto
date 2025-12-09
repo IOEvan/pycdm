@@ -1,0 +1,31 @@
+
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+import "common/pnc/geometry.proto";
+
+message SmootherDebug {
+  optional Polyline left_road_boundary = 1;
+  optional Polyline right_road_boundary = 2;
+  optional Polyline local_route = 3;
+
+  message InitState {
+    optional double x = 1;
+    optional double y = 2;
+    optional double theta = 3;
+    optional double kappa = 4;
+    optional double steer = 5;
+    optional double velocity = 6;
+    optional double acceleration = 7;
+  };
+  optional InitState init_state = 4;
+
+  optional string debug_string = 5;
+}
+
+message RefLineGeneratorDebug {
+  optional SmootherDebug smoother_debug = 1;
+}

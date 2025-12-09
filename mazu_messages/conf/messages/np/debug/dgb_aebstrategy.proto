@@ -1,0 +1,2264 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages.debug;
+// import "common/perf/sensor_ts_header.proto";
+
+message RefPoint{
+   optional uint32   ref_character  = 1;
+   optional double   pos_x          = 2;
+   optional double   pos_y          = 3;
+   optional double   range          = 4;
+   optional double   heading        = 5;
+};
+
+message action_threshold{
+   optional double warn_threshold = 1;
+   optional double prefill_threshold = 2;
+   optional double lowbrake_threshold = 3;
+   optional double highbrake_threshold = 4;
+   optional double mai_threshold = 5;
+   optional double iba_threshold = 6;
+};
+
+message VRUCandiOut{
+   optional uint32 ID     = 1;
+   optional uint32 VID    = 2;
+   optional float longpos = 3;
+   optional float latpos  = 4;
+   optional float longspd = 5;
+   optional float latspd  = 6;
+   optional float longacc = 7;
+   optional float latacc  = 8;
+   optional float range   = 9;
+   optional float rangerear = 10;
+   optional float rangerate = 11;
+   optional float TTC     = 12;
+   optional float TTCrear = 13;
+   optional float XOLC    = 14;
+   optional float latest  = 15;
+   optional bool oncoming = 16;
+   optional bool preceding = 17;
+   optional bool crossing = 18;
+   optional bool stationary = 19;
+   optional uint32 AEBconf = 20;
+   optional bool inpath   = 21;
+   optional bool vfcheck  = 22;
+   optional bool lfcheck  = 23;
+   optional uint32 age    = 24;
+   optional bool agecheck = 25;
+   optional uint32 inpathage = 26;
+   optional bool inpathcheck = 27;
+   optional bool TOI      = 28;
+   optional bool TOIrear  = 29;
+   optional bool warn     = 30;
+   optional bool prefill  = 31;
+   optional bool lowbrake = 32;
+   optional bool highbrake = 33;
+   optional bool isvision = 34;
+   optional bool isfusion = 35;
+   optional bool isradar = 36;
+   optional float timetoturn = 37;
+   optional float timetobrake  = 38;
+   optional bool steerflag = 39;
+   optional RefPoint ref_pos = 40;
+   optional float xpos_cir = 41;
+   optional float ypos_cir = 42;
+   optional float roc_tar = 43;
+   optional float mindist = 44;
+   optional float xpos_col = 45;
+   optional float ypos_col = 46;
+   optional float range_col = 47;
+   optional float range_col_tar = 48;
+   optional float yawrate = 49;
+   optional float heading = 50;
+   optional bool colposs = 51;
+   optional uint32 col_num = 52;
+   optional float TTC_cir = 53;
+   optional float TTL_cir = 54;
+   optional float TTC_tar = 55;
+   optional float TTL_tar = 56;
+   optional uint32 inpathage_warn = 57;
+   optional bool inpath_warn = 58;
+   optional bool inpathagecheck_warn = 59;
+   optional float TTC_virtual = 60;
+   optional float latest_virtual = 61;
+   optional bool inpath_mai = 62;
+   optional uint32 inpathage_mai = 63;
+   optional bool inpathcheck_mai = 64;
+   optional bool maiengage = 65;
+   optional action_threshold vru_threshold = 66;
+}
+
+message CCRCandiOut{
+   optional uint32 ID     = 1;
+   optional uint32 VID    = 2;
+   optional float longpos = 3;
+   optional float latpos  = 4;
+   optional float longspd = 5;
+   optional float latspd  = 6;
+   optional float longacc = 7;
+   optional float latacc  = 8;
+   optional float range   = 9;
+   optional float rangerate = 10;
+   optional float TTC     = 11;
+   optional float XOLC    = 12;
+   optional uint32 movestate = 13;
+   optional bool moveout  = 14;
+   optional bool inpath_before = 15;
+   optional bool inpath_after = 16;
+   optional uint32 AEBconf = 17;
+   optional bool inpath   = 18;
+   optional bool vfcheck  = 19;
+   optional bool lfcheck  = 20;
+   optional uint32 age    = 21;
+   optional bool agecheck = 22;
+   optional uint32 inpathage = 23;
+   optional bool inpathcheck = 24;
+   optional bool TOI      = 25;
+   optional bool warn     = 26;
+   optional bool prefill  = 27;
+   optional bool lowbrake = 28;
+   optional bool highbrake = 29;
+   optional bool isvision = 30;
+   optional bool isfusion = 31;
+   optional bool isradar = 32;
+   optional float timetoturn = 33;
+   optional float timetobrake  = 34;
+   optional bool steerflag = 35;
+   optional RefPoint ref_pos = 36;
+   optional bool  iba_flag   = 37;
+   optional float hitdist    = 38;
+   optional float yawdist    = 39;
+   optional bool driverovertake = 40;
+   optional bool driverovertake_warn = 41;
+   optional uint32 movingleftcount = 42;
+   optional uint32 movingrightcount = 43;
+   optional float taracc = 44;
+   optional float TTC_virtual = 45;
+   optional bool maiengage = 46;
+   optional action_threshold ccr_threshold = 47;
+}
+
+message AESCCRCandiOut{
+   optional uint32 ID     = 1;
+   optional uint32 VID    = 2;
+   optional float range = 3;
+   optional float rangerate  = 4;
+   optional float TTC = 5;
+   optional float TTB_tt  = 6;
+   optional float TTB_valid = 7;
+   optional float TTT_left_tt  = 8;
+   optional uint32 TTT_left_valid   = 9;
+   optional float TTT_right_tt = 10;
+   optional uint32 TTT_right_valid = 11;
+   optional float closeleft_posx = 12;
+   optional float closeleft_posy = 13;
+   optional float closeleft_curx = 14;
+   optional float closeleft_cury = 15;
+   optional float closeleft_latest = 16;
+   optional float closeright_posx = 17;
+   optional float closeright_posy = 18;
+   optional float closeright_curx = 19;
+   optional float closeright_cury = 20;
+   optional float closeright_latest = 21;
+   optional float remoteleft_posx = 22;
+   optional float remoteleft_posy = 23;
+   optional float remoteleft_curx = 24;
+   optional float remoteleft_cury = 25;
+   optional float remoteleft_latest = 26;
+   optional float remoteright_posx = 27;
+   optional float remoteright_posy = 28;
+   optional float remoteright_curx = 29;
+   optional float remoteright_cury = 30;
+   optional float remoteright_latest = 31;
+   optional float center_posx = 32;
+   optional float center_posy = 33;
+   optional float center_curx = 34;
+   optional float center_cury = 35;
+   optional float center_latest = 36;
+   optional float longpos = 37;
+   optional float latpos  = 38;
+   optional float XOLC = 39;
+   optional float latest = 40;
+   optional uint32 closest_corner = 41;
+   optional uint32 close_corner_est = 42;
+   optional uint32 inpath = 43;
+   optional uint32 inpathcur = 44;
+   optional uint32 inpathpre = 45;
+   optional uint32 inpathage = 46;
+   optional uint32 inpathcheck = 47;
+   optional uint32 isfusion = 48;
+   optional uint32 isvision = 49;
+   optional uint32 isradar = 50;
+   optional uint32 toi = 51;
+   optional uint32 isoncoming = 52;
+   optional uint32 AEBconf = 53;
+   optional uint32 steerflag = 54;
+   optional float steerdirection = 55;
+   optional RefPoint ref_pos = 56;
+}
+
+message lanepolinomial{
+   optional float path_c0 = 1;
+   optional float path_c1 = 2;
+   optional float path_c2 = 3;
+   optional float path_c3 = 4;
+   optional bool isvalid = 5;
+   optional uint32 path_type = 6;
+   optional uint32 path_color = 7;
+   optional uint32 character = 8;
+}
+
+message lpppolinomial{
+   optional float path_c0 = 1;
+   optional float path_c1 = 2;
+   optional float path_c2 = 3;
+   optional float path_c3 = 4;
+   optional bool isvalid = 5;
+   optional float width = 6;
+}
+
+message AESPathVerify{
+   optional uint32 plan_valid     = 1;
+   optional uint32 target_valid    = 2;
+   optional uint32 rout_valid = 3;
+   optional uint32 reservetime  = 4;
+   optional float pnc_c0 = 5;
+   optional float pnc_c1  = 6;
+   optional float pnc_c2 = 7;
+   optional float pnc_c3  = 8;
+   optional float pnc_c4   = 9;
+   optional float pnc_c5 = 10;
+   optional uint32 crash_id = 11;
+   optional uint32 crash_lane = 12;
+   optional float aessteerangle = 13;
+   optional float aespncst = 14;
+   optional lanepolinomial host_left_lane = 15;
+   optional lanepolinomial host_right_lane = 16;
+   optional lanepolinomial left_edge = 17;
+   optional lanepolinomial right_edge = 18;
+   optional lpppolinomial host_lpp = 19;
+}
+
+message PathPlaned{
+   optional float path_c0 = 1;
+   optional float path_c1 = 2;
+   optional float path_c2 = 3;
+   optional float path_c3 = 4;
+   optional float path_c4 = 5;
+   optional float path_c5 = 6;
+   optional float curvature = 7;
+   optional float dcurv = 8;
+   optional float expect_lat = 9;
+   optional float expect_long = 10;
+   optional uint32 isvalid = 11;
+   optional float rout_cost = 12;
+   optional float max_ay = 13;
+}
+
+message AESPlanOut{
+   optional PathPlaned root_path = 1;
+   optional uint32 aesplanactv = 2;
+   optional float ltrldstlacntr = 3;
+   optional float egolawdth  = 4;
+   optional float agvehlanecntr = 5;
+   optional float lacurv  = 6;
+   optional float ladcurv = 7;
+   optional float vehspdkph  = 8;
+   optional float dispvehspdkph   = 9;
+   repeated PathPlaned better_path = 10;
+}
+
+message FTAPCandiOut{
+   optional uint32      ID                   = 1;
+   optional uint32      VID                  = 2;
+   optional float       longpos              = 3;
+   optional float       latpos               = 4;
+   optional float       longspd              = 5;
+   optional float       latspd               = 6;
+   optional float       longacc              = 7;
+   optional float       latacc               = 8;
+   optional float       range                = 9;
+   optional float       rangerate            = 10;
+   optional float       TTC                  = 11;
+   optional float       TTL                  = 12;
+   optional uint32      colnum               = 13;
+   optional float       colx                 = 14;
+   optional float       coly                 = 15;
+   optional float       colr                 = 16;
+   optional float       heading              = 17;
+   optional float       currange             = 18;
+   optional float       estrange             = 19;
+   optional float       TTC_tar              = 20;
+   optional float       TTL_tar              = 21;
+   optional uint32      TOI_before           = 22;
+   optional uint32      TOI_after            = 23;
+   optional bool        inpathcur            = 24;
+   optional bool        inpathpre            = 25;
+   optional bool        inpathcur_warn       = 26; 
+   optional bool        inpathpre_warn       = 27;
+   optional bool        inpath               = 28;
+   optional bool        inpath_tar           = 29;
+   optional bool        inpath_warn          = 30;
+   optional uint32      inpathage            = 31;
+   optional uint32      inpathage_warn       = 32;
+   optional bool        inpathagecheck       = 33;
+   optional bool        inpathagecheck_warn  = 34;
+   optional uint32      AEBconf              = 35;
+   optional bool        oncoming             = 36;
+   optional uint32      movingstate          = 37;
+   optional double      turnangle            = 38;
+   optional bool        warn                 = 39;
+   optional bool        prefill              = 40;
+   optional bool        lowbrake             = 41;
+   optional bool        highbrake            = 42;
+   optional bool        isvision             = 43;
+   optional bool        isfusion             = 44;
+   optional bool        isradar              = 45;
+   optional float       timetoturn           = 46;
+   optional float       timetobrake          = 47;
+   optional bool        steerflag            = 48;
+   optional RefPoint    ref_pos              = 49;
+   optional uint32      iba_flag             = 50;
+   optional float       colx2                = 51;
+   optional float       coly2                = 52;
+   optional float       colr2                = 53;
+   optional uint32      cornum               = 54;
+   optional float       corx                 = 55;
+   optional float       cory                 = 56;
+   optional float       corr                 = 57;
+   optional float       headangle            = 58;
+   optional bool        headplaucheck        = 59;
+   optional bool        ageplaucheck         = 60;
+   optional bool        movingcross          = 61;
+   optional bool        notmovingout         = 62;
+   optional float       minttc               = 63;
+   optional float       minrange             = 64;
+   optional float       targetspd            = 65;
+   optional float       predrange_tar        = 66;
+   optional action_threshold ftap_threshold  = 67;
+}
+
+message CCCCandiOut{
+   optional uint32      ID                   = 1;
+   optional uint32      VID                  = 2;
+   optional float       longpos              = 3;
+   optional float       latpos               = 4;
+   optional float       longspd              = 5;
+   optional float       latspd               = 6;
+   optional float       longacc              = 7;
+   optional float       latacc               = 8;
+   optional float       range                = 9;
+   optional float       rangerate            = 10;
+   optional float       TTC                  = 11;
+   optional float       TTL                  = 12;
+   optional uint32      colnum               = 13;
+   optional float       colx                 = 14;
+   optional float       coly                 = 15;
+   optional float       colr                 = 16;
+   optional float       heading              = 17;
+   optional float       currange             = 18;
+   optional float       estrange             = 19;
+   optional float       TTC_tar              = 20;
+   optional float       TTL_tar              = 21;
+   optional uint32      TOI_before           = 22;
+   optional uint32      TOI_after            = 23;
+   optional bool        inpathcur            = 24;
+   optional bool        inpathpre            = 25; 
+   optional bool        inpath               = 26;
+   optional uint32      AEBconf              = 27;
+   optional bool        warn                 = 28;
+   optional bool        prefill              = 29;
+   optional bool        lowbrake             = 30;
+   optional bool        highbrake            = 31;
+   optional bool        isvision             = 32;
+   optional bool        isfusion             = 33;
+   optional bool        isradar              = 34;
+   optional float       timetoturn           = 35;
+   optional float       timetobrake          = 36;
+   optional bool        steerflag            = 37;
+   optional RefPoint    ref_pos              = 38;
+   optional uint32      iba_flag             = 39;
+   optional bool        ageplaucheck         = 40;
+   optional uint32      inpathage            = 41;
+   optional bool        inpathagecheck       = 42;
+   optional uint32      inpathage_warn       = 43;
+   optional uint32      inpathagecheck_warn  = 44;
+   optional bool        inpath_tar           = 45;
+   optional uint32      movingstate          = 46;
+   optional float       headangle            = 47;
+   optional float       angle_tar            = 48;
+   optional bool        inpath_warn          = 49;
+   optional bool        inpathcur_warn       = 50;
+   optional bool        inpathpre_warn       = 51;
+   optional bool        oncoming             = 52;
+   optional float       minttc               = 53;
+   optional float       minrange             = 54;
+   optional float       targetspd            = 55;
+   optional float       predrange_tar        = 56;
+   optional action_threshold ccc_threshold   = 57;
+}
+
+message EgoState{
+   optional float vehspd   = 1;
+   optional float yawrate  = 2;
+   optional float steerangle = 3;
+   optional bool hostreverse = 4;
+   optional float brakepos = 5;
+   optional float brakeposrate = 6;
+   optional uint32 driverpressed = 7;
+   optional float maincypress = 8;
+   optional float maincyprsrate = 9;
+   optional bool driverintention = 10;
+   optional bool driverEBA = 11;
+   optional float ROC = 12;
+   optional float steerrate = 13;
+   optional float accpos = 14;
+   optional float accposrate = 15;
+   optional float accel_virtual = 16;
+   optional uint32 veh_accel_state = 17;
+
+}
+
+message DriverMonitorOut{
+   optional float    gaspedpos      = 1;
+   optional float    gaspedgrad     = 2;
+   optional bool     driverbrake    = 3;
+   optional float    brkpedpos      = 4;
+   optional float    steerwhlang    = 5;
+   optional float    steerwhlgrad   = 6;
+   optional float    egospd         = 7;
+   optional float    egoaccel       = 8;
+   optional float    egoyawrate     = 9;
+   optional float    turnlighton    = 10;
+   optional uint32   egogear        = 11;
+   optional uint32   feedbackstate  = 12;
+   optional uint32   activitystate  = 13;
+   optional uint32   focusstate     = 14;
+   optional uint32   suppressbit    = 15;
+   optional uint32   abortbit       = 16;
+   repeated float    dampfactor     = 17;
+   optional float    vel_std_dev    = 18;
+   optional float    sdytimer       = 19;
+   optional float    ramptimer      = 20;
+   optional bool     dampsuppress   = 21;
+   optional uint32   drive_mode     = 22;
+}
+
+message FuncInZoneOut{
+   optional bool     inzone         = 1;
+   optional uint32   inzone_cnt     = 2;
+}
+
+message Vector2fOut{
+   optional float    vector_x       = 1;
+   optional float    vector_y       = 2;
+}
+
+message PolygonEdgeOut{
+   optional Vector2fOut point_a     = 1;
+   optional Vector2fOut point_b     = 2;   
+   optional Vector2fOut direction   = 3;  
+}
+
+message ObjectPolygonOut{
+   repeated Vector2fOut corner_point = 1;
+   repeated PolygonEdgeOut object_edge = 2;
+   repeated Vector2fOut object_vertice = 3;
+   optional uint32      corner_size    = 4;
+}
+
+message CartStateOut{
+   optional float s = 1;
+   optional float x = 2;
+   optional float y = 3;
+   optional float v = 4;
+   optional float a = 5;
+   optional float theta = 6;
+   optional float kappa = 7;
+   optional float dkappa = 8;
+}
+
+message CartStateTimeOut{
+   optional CartStateOut cartstate = 1;
+   optional float time = 2;
+}
+
+message FrenetStateOut{
+   optional float s = 1;
+   optional float ds = 2;
+   optional float dds = 3;
+   optional float l = 4;
+   optional float dl = 5;
+   optional float ddl = 6;
+}
+
+message FrenetStateTimeOut{
+   optional FrenetStateOut frenetstate = 1;
+   optional float time = 2;
+}
+
+enum ObjectLaneAssignmentType{
+   ObjectLaneAssignmentType_Notrelevant = 0;
+   ObjectLaneAssignmentType_Hostlane = 1;
+   ObjectLaneAssignmentType_Leftlane = 2;
+   ObjectLaneAssignmentType_Rightlane = 3;
+   ObjectLaneAssignmentType_Leftleftlane = 4;
+   ObjectLaneAssignmentType_Rightrightlane = 5;
+}
+
+enum ObjectMotionStateType{
+   ObjectMotionStateType_Stationary = 0;
+   ObjectMotionStateType_Preceding = 1;
+   ObjectMotionStateType_Oncoming = 2;
+   ObjectMotionStateType_CrossLeft = 3;
+   ObjectMotionStateType_CrossRight = 4;
+}
+
+enum ObjectCrossStateSupType{
+   ObjectCrossStateSupType_Nomotion = 0;
+   ObjectCrossStateSupType_Cross = 1;
+   ObjectCrossStateSupType_Precedcutin = 2;
+   ObjectCrossStateSupType_Oncomecutin = 3;
+   ObjectCrossStateSupType_Precedthrough = 4;
+   ObjectCrossStateSupType_Oncomethrough = 5;
+}
+
+enum ObjectMotionRelationType{
+   ObjectMotionRelationType_Neutral = 0;
+   ObjectMotionRelationType_Movingin = 1;
+   ObjectMotionRelationType_Movingout = 2;
+}
+
+message ObjectPolygonStateOut{
+   optional CartStateOut center_dic = 1;
+   optional FrenetStateOut center_fre = 2;
+   optional CartStateOut refpoint_dic = 3;
+   optional FrenetStateOut refpoint_fre = 4;
+   repeated CartStateOut polygon_dic = 5;
+   repeated FrenetStateOut polygon_fre = 6;
+   optional CartStateOut refpointcomp_dic = 7;
+   optional FrenetStateOut refpointcomp_fre = 8;
+}
+
+message ObjectRouteCollisionOut{
+   optional float route_ttc = 1;
+   optional float route_ttl = 2;
+   optional bool route_collision = 3;
+}
+
+message LaneAssignmentOut{
+   optional ObjectPolygonStateOut object_polygon_state = 1;
+   optional ObjectPolygonOut object_polygon_frenet = 2;
+   optional ObjectLaneAssignmentType object_lane_assignment = 3;
+   optional ObjectLaneAssignmentType object_lane_assignment_last = 4;
+   optional ObjectMotionStateType object_motion_state = 5;
+   optional ObjectMotionRelationType object_motion_relation = 6;
+}
+
+message VseAssignmentOut{
+   optional ObjectPolygonStateOut object_polygon_state = 1;
+   optional ObjectPolygonOut object_polygon_frenet = 2;
+   optional ObjectMotionStateType object_motion_state = 3;
+   optional ObjectCrossStateSupType object_motion_state_sup = 4;
+   optional ObjectMotionRelationType object_motion_relation = 5;
+   repeated CartStateTimeOut object_state_time = 6;
+   repeated FrenetStateTimeOut object_frenetstate_time = 7;
+   optional float fre_heading       = 8;
+   optional float fre_headingrate   = 9;
+}
+
+message FunctionCheckOut{
+   optional float    corner1x       = 1;
+   optional float    corner1y       = 2;
+   optional float    corner2x       = 3;
+   optional float    corner2y       = 4;
+   optional float    corner3x       = 5;
+   optional float    corner3y       = 6;
+   optional float    corner4x       = 7;
+   optional float    corner4y       = 8;
+   optional float    centerx        = 9;
+   optional float    centery        = 10;
+   optional FuncInZoneOut toi_front = 11;
+   optional FuncInZoneOut toi_rear  = 12;
+   optional FuncInZoneOut bsdfunc   = 13;
+   optional FuncInZoneOut lcafunc   = 14;
+   optional FuncInZoneOut dowfunc   = 15;
+   optional ObjectPolygonOut polygon_dic = 16;
+   optional ObjectPolygonOut polygon_cur = 17;
+   optional FuncInZoneOut threelane_front = 18;
+   optional FuncInZoneOut threelane_rear = 19;
+   optional FuncInZoneOut lanekey = 20;   
+}
+
+message ReferencePoint{
+   optional float   referencex      = 1;
+   optional float   referencey      = 2;
+   optional float   range           = 3;
+   optional uint32  character       = 4;
+}
+
+enum ObjectClassificationType{
+   ObjectClassificationType_Dynamic = 1;
+   ObjectClassificationType_Static = 2;
+}
+
+enum DecelMotionType{
+   DecelMotionType_Normal = 0;
+   DecelMotionType_Coasting = 1;
+   DecelMotionType_Decel = 2;
+}
+
+message DecelState{
+   optional DecelMotionType currentstate = 1;
+   optional DecelMotionType laststate = 2;
+   optional float delta_speed = 3;
+   optional float decel_count = 4;
+}
+
+message ObjInfoOut {
+   optional float pos_x = 1;
+   optional float pos_y = 2;
+   optional float vel_x = 3;
+   optional float vel_y = 4;
+   optional float accel_x = 5;
+   optional float accel_y = 6;
+   optional float heading = 7;
+}
+
+message GOFOut{
+   optional uint32   checkID         = 1;
+   optional bool     checkvalid      = 2;
+   optional bool     classcheck      = 3;
+   optional bool     fustcheck       = 4;
+   optional bool     agecheck        = 5;
+   optional bool     predcheck       = 6;
+   optional bool     frespacheck     = 7; 
+   optional FunctionCheckOut funccheck = 8;
+   optional uint32   last_frame_index = 9;
+   optional bool     isblock_free    = 10;
+   optional ReferencePoint refpoint  = 11;
+   optional bool     iskeyobject     = 12;
+   optional LaneAssignmentOut lane_assignment = 13;
+   optional VseAssignmentOut vse_assignment = 14;
+   optional ObjectClassificationType object_class = 15;
+   optional uint32   key_last_frame_index = 16;
+   optional uint32   object_confidence = 17;
+   optional bool     age_plausibility = 18;
+   optional bool     age_plausibility_brake = 19;
+   optional ObjectRouteCollisionOut object_route_collision = 20;
+   optional bool     isroutecollision = 21;
+   optional DecelState decelstate = 22;
+   optional bool     isinroadedge = 23;
+   optional bool     is_in_left_re  = 24;
+   optional bool     is_in_right_re = 25;
+   optional bool     was_moved      = 26;
+   optional ReferencePoint refpointcomp  = 27;
+   optional ObjInfoOut raw_info = 28;
+   optional ObjInfoOut processed_info = 29;
+   optional float    risk_level       = 30;
+   optional float    decision_score   = 31;
+}
+
+message AebActuFlgOut{
+   optional bool     prewarn           = 1;
+   optional bool     latentwarn        = 2;
+   optional bool     prefill           = 3;
+   optional bool     warnbrk           = 4;
+   optional bool     softbrk           = 5;
+   optional bool     hardbrk           = 6;
+   optional bool     iba_req           = 7;
+   optional uint32   warntype          = 8;
+   optional bool     hold_req          = 9;
+}
+
+message FusionAEBFlagOut{
+   optional uint32 warning_flag       = 1;
+   optional uint32 prefill_flage      = 2;
+   optional uint32 lowbrake_flag      = 3;
+   optional uint32 highbrake_flag     = 4;
+   optional uint32 unconfirmed_flag   = 5;
+   optional uint32 hold_flag          = 6;
+   optional uint32 lowbrake_age       = 7;
+   optional uint32 highbrake_hold_age = 8;
+   optional uint32 warnbrake_flag     = 9;
+   optional bool   readyforIBA        = 10;
+}
+
+message ReservedOut{
+   optional double aeb_reserved_1    = 1;
+   optional double aeb_reserved_2    = 2;
+   optional double aeb_reserved_3    = 3;
+   optional double aeb_reserved_4    = 4;
+   optional double aeb_reserved_5    = 5;
+   optional double aeb_reserved_6    = 6;
+   optional double aeb_reserved_7    = 7;
+   optional double aeb_reserved_8    = 8;
+   optional double aeb_reserved_9    = 9;
+   optional double aeb_reserved_10   = 10;
+   optional double aeb_reserved_11   = 11;
+   optional double aeb_reserved_12   = 12;
+   optional double aeb_reserved_13   = 13;
+   optional double aeb_reserved_14   = 14;
+   optional double aeb_reserved_15   = 15;
+   optional double aeb_reserved_16   = 16;
+   optional double aeb_reserved_17   = 17;
+   optional double aeb_reserved_18   = 18;
+   optional double aeb_reserved_19   = 19;
+   optional double aeb_reserved_20   = 20;
+   optional double aeb_reserved_21   = 21;
+   optional double aeb_reserved_22   = 22;
+   optional double aeb_reserved_23   = 23;
+   optional double aeb_reserved_24   = 24;
+   optional double aeb_reserved_25   = 25;
+   optional double aeb_reserved_26   = 26;
+   optional double aeb_reserved_27   = 27;
+   optional double aeb_reserved_28   = 28;
+   optional double aeb_reserved_29   = 29;
+   optional double aeb_reserved_30   = 30;
+   optional double aeb_reserved_31   = 31;
+   optional double aeb_reserved_32   = 32;
+   optional double aeb_reserved_33   = 33;
+   optional double aeb_reserved_34   = 34;
+   optional double aeb_reserved_35   = 35;
+   optional double aeb_reserved_36   = 36;
+   optional double aeb_reserved_37   = 37;
+   optional double aeb_reserved_38   = 38;
+   optional double aeb_reserved_39   = 39;
+   optional double aeb_reserved_40   = 40;
+   optional double aeb_reserved_41   = 41;
+   optional double aeb_reserved_42   = 42;
+   optional double aeb_reserved_43   = 43;
+   optional double aeb_reserved_44   = 44;
+   optional double aeb_reserved_45   = 45;
+   optional double aeb_reserved_46   = 46;
+   optional double aeb_reserved_47   = 47;
+   optional double aeb_reserved_48   = 48;
+   optional double aeb_reserved_49   = 49;
+   optional double aeb_reserved_50   = 50;
+   optional double aeb_reserved_51   = 51;
+   optional double aeb_reserved_52   = 52;
+   optional double aeb_reserved_53   = 53;
+   optional double aeb_reserved_54   = 54;
+   optional double aeb_reserved_55   = 55;
+   optional double aeb_reserved_56   = 56;
+   optional double aeb_reserved_57   = 57;
+   optional double aeb_reserved_58   = 58;
+   optional double aeb_reserved_59   = 59;
+   optional double aeb_reserved_60   = 60;
+   optional double aeb_reserved_61   = 61;
+   optional double aeb_reserved_62   = 62;
+   optional double aeb_reserved_63   = 63;
+   optional double aeb_reserved_64   = 64;
+   optional double aeb_reserved_65   = 65;
+   optional double aeb_reserved_66   = 66;
+   optional double aeb_reserved_67   = 67;
+   optional double aeb_reserved_68   = 68;
+   optional double aeb_reserved_69   = 69;
+   optional double aeb_reserved_70   = 70;
+   optional double aeb_reserved_71   = 71;
+   optional double aeb_reserved_72   = 72;
+   optional double aeb_reserved_73   = 73;
+   optional double aeb_reserved_74   = 74;
+   optional double aeb_reserved_75   = 75;
+   optional double aeb_reserved_76   = 76;
+   optional double aeb_reserved_77   = 77;
+   optional double aeb_reserved_78   = 78;
+   optional double aeb_reserved_79   = 79;
+   optional double aeb_reserved_80   = 80;
+   optional double aeb_reserved_81   = 81;
+   optional double aeb_reserved_82   = 82;
+   optional double aeb_reserved_83   = 83;
+   optional double aeb_reserved_84   = 84;
+   optional double aeb_reserved_85   = 85;
+   optional double aeb_reserved_86   = 86;
+   optional double aeb_reserved_87   = 87;
+   optional double aeb_reserved_88   = 88;
+   optional double aeb_reserved_89   = 89;
+   optional double aeb_reserved_90   = 90;
+   optional double aeb_reserved_91   = 91;
+   optional double aeb_reserved_92   = 92;
+   optional double aeb_reserved_93   = 93;
+   optional double aeb_reserved_94   = 94;
+   optional double aeb_reserved_95   = 95;
+   optional double aeb_reserved_96   = 96;
+   optional double aeb_reserved_97   = 97;
+   optional double aeb_reserved_98   = 98;
+   optional double aeb_reserved_99   = 99;
+   optional double aeb_reserved_100  = 100;
+
+}
+
+message AEBSMOut{
+   optional bool     snsrblk_cdn       = 1;
+   optional bool     tmpfail_cdn       = 2;
+   optional bool     permfail_cdn      = 3;
+   optional bool     psv_cdn           = 4;
+   optional bool     aebonff_cdn       = 5;
+   optional bool     factive_cdn       = 6;
+   optional bool     bactive_cdn       = 7;
+   optional bool     stdby_cdn         = 8;
+   optional uint32   st                = 9;
+   optional uint32   sys_st            = 10;
+}
+
+message AEBRearSMOut{
+   optional bool     off_cdn           = 1;
+   optional bool     stdby_cdn         = 2;
+   optional bool     psv_cdn           = 3;
+   optional uint32   psv_cdn_bit       = 4;
+   optional bool     fail_cdn          = 5;
+   optional bool     active_cdn        = 6;
+   optional uint32   sm_state          = 7;
+}
+
+message FuncSuppressOut{
+   optional bool              Aeb_Suppress         = 1;
+   optional bool              Fcw_Suppress         = 2;
+   optional bool              Aebrear_Suppress     = 3;
+   optional bool              Fcwrear_Suppress     = 4;
+}
+
+message AebDiagOut{
+   optional uint32            FCTsTopicState       = 1;
+   optional uint32            AebTopicState        = 2;
+   optional uint32            FcwTopicState        = 3;
+   optional uint32            TopicLoss            = 4;
+   optional uint32            TopicNoInit          = 5;
+   optional uint32            AebFaultSt           = 6;
+   optional uint32            FcwFaultSt           = 7;
+   optional uint32            AebFimIndex          = 8;
+   optional uint32            FcwFimIndex          = 9;
+   optional uint32            AebRearFaultSt       = 10;
+   optional uint32            AebRearFimIndex      = 11;
+
+   repeated uint32            AebFault             = 12;
+   repeated uint32            FcwFault             = 13;
+   repeated uint32            AebRearFault         = 14;
+   repeated uint32            FcwRearFault         = 15;
+
+   optional uint32            FWfailsafe           = 16;
+   optional uint32            FNfailsafe           = 17;
+   optional uint32            Lidarfailsafe        = 18; 
+   optional uint32            Rearfailsafe         = 19;
+   optional uint32            AebFaultAge          = 20;
+   optional uint32            AebRearFaultAge      = 21;
+   repeated uint32            TopicLossCnt         = 22;
+
+   optional uint32            FLfailsafe           = 23;
+   optional uint32            FRfailsafe           = 24;
+   optional uint32            RRfailsafe           = 25;
+   optional uint32            RLfailsafe           = 26;
+   optional uint32            SvcRfailsafe         = 27;
+   optional uint32            SvcLfailsafe         = 28;
+
+   optional uint32            ElkTopicState        = 29;
+   optional uint32            LkaTopicState        = 30;
+   optional uint32            LdwTopicState        = 31;
+   optional uint32            OaaTopicState        = 32;
+   optional uint32            MaiTopicState        = 33;
+   optional uint32            AhcTopicState        = 34;
+   optional uint32            ElkFaultSt           = 35;
+   optional uint32            LkaFaultSt           = 36;
+   optional uint32            LdwFaultSt           = 37;
+   optional uint32            OaaFaultSt           = 38;
+   optional uint32            MaiFaultSt           = 39;
+   optional uint32            AhcFaultSt           = 40;
+   repeated uint32            ElkFault             = 41;
+   repeated uint32            LkaFault             = 42;
+   repeated uint32            LdwFault             = 43;
+   repeated uint32            OaaFault             = 44;
+   repeated uint32            MaiFault             = 45;
+   repeated uint32            AhcFault             = 46;
+}
+
+message AebModeOut{
+   optional bool              RearEnable           = 1;
+   optional bool              ShadowMode           = 2;
+   optional bool              ShadowModeSoft       = 3;
+   optional bool              HilMode              = 4;
+}
+message tt_calc{
+   optional float             lead_time            = 1;
+   optional bool              isvalid              = 2;
+   optional float             deltar               = 3;
+   optional float             dtst                 = 4;
+}
+message CornerInfo_oaa{
+   optional float             pos_x                = 1;
+   optional float             pos_y                = 2;
+   optional float             range                = 3;
+   optional float             xolc                 = 4;
+   optional float             tpp_xolc             = 5;
+   optional tt_calc           ttt_left             = 6;
+   optional tt_calc           ttt_right            = 7;
+   optional float             ttc                  = 8;
+   optional float             ttb                  = 9;
+   optional float             f4_leRExolc          = 10;
+   optional float             f4_riRExolc          = 11;
+   optional float             f4_leHLxolc          = 12;
+   optional float             f4_riHLxolc          = 13;
+   optional bool              withinRoadedge       = 14;
+   optional bool              withinLane           = 15;
+   optional bool              withinYaw            = 16;
+   optional bool              withinTPP            = 17;
+   optional bool              withinEgoLnCntr      = 18;
+   optional float             f4_mrl_xolc          = 19;
+   optional float             f4_mll_xolc          = 20;
+   optional float             f4_leRE_roc          = 21;
+   optional float             f4_riRE_roc          = 22;
+   optional float             f4_mrl_roc           = 23;
+   optional float             f4_mll_roc           = 24;
+   optional float             f4_hll_roc           = 25;
+   optional float             f4_hrl_roc           = 26;
+   optional float             pos_x_comp           = 27;
+   optional float             pos_y_comp           = 28;
+   optional float             range_comp           = 29;
+}
+message CornerPoint_oaa {
+   optional CornerInfo_oaa    close_left           = 1;
+   optional CornerInfo_oaa    close_right          = 2;
+   optional CornerInfo_oaa    remote_left          = 3;
+   optional CornerInfo_oaa    remote_right         = 4;
+}
+message OAATargetOut{
+   optional uint32            id                   = 1;
+   optional uint32            age                  = 2;
+   optional bool              agecheck             = 3;
+   optional bool              agecheck_highlight   = 4;
+   optional bool              isvalid              = 5;
+   optional float             confidence           = 6;
+   optional uint32            sowconf              = 7;
+   optional float             longpos              = 8;
+   optional float             latpos               = 9;
+   optional float             length               = 10;
+   optional float             width                = 11;
+   optional float             height               = 12;
+   optional uint32            source               = 13;
+   optional uint32            type                 = 14;
+   optional float             range                = 15;
+   optional float             xolc                 = 16;
+   optional float             tpp_xolc             = 17;
+   optional float             ttb                  = 18;
+   optional bool              ttb_valid            = 19;
+   optional float             ttt_left             = 20;
+   optional bool              ttt_left_valid       = 21;
+   optional float             ttt_right            = 22;
+   optional bool              ttt_right_valid      = 23;
+   optional float             turn_direction       = 24;
+   optional bool              istoi                = 25;
+   optional float             tte                  = 26;
+   optional float             ttc                  = 27;
+   optional bool              inpath_yaw           = 28;
+   optional bool              inpath_tpp           = 29;
+   optional uint32            inpathage_yaw        = 30;
+   optional uint32            inpathage_tpp        = 31;
+   optional bool              isstationary         = 32;
+   optional bool              inpathcheck_yaw      = 33;
+   optional bool              inpathcheck_tpp      = 34;
+   optional bool              highlight            = 35;
+   optional bool              warning              = 36;
+   optional bool              jerk                 = 37;
+   optional bool              brake                = 38;
+   optional bool              steer                = 39;
+   optional RefPoint          refpos               = 40;
+   optional uint32            OBF_id               = 41;
+   optional float             heading              = 42;
+   optional CornerPoint_oaa   CornerPoint          = 43;
+   optional uint32            lidar_cluster_class  = 44;
+   optional uint32            lidar_obj_source     = 45;
+   optional float             heightMax            = 46;
+   repeated CornerInfo_oaa    polygonPoint         = 47;
+   optional bool              inpath_hlc           = 48;
+   optional bool              inpath_re            = 49;
+   optional bool              inpath_oml           = 50;
+   optional float             le_re_xolc           = 51;
+   optional float             ri_re_xolc           = 52;
+   optional float             mll_xolc             = 53;
+   optional float             mrl_xolc             = 54;
+   optional uint32            dampfactor_lv        = 55;
+   optional float             longpos_comp         = 56;
+   optional float             latpos_comp          = 57;
+   optional float             range_comp           = 58;
+   optional float             ttc_comp             = 59;
+   optional bool              god_is_tracked       = 60;
+}
+
+message AebTarAccelOut{
+   optional float             TarAccel             = 1;
+   optional bool              AccelRamped          = 2;
+}
+
+message MaiDebugOut{
+   optional bool              mai_driverhardaccel    = 1;
+   optional bool              mai_driverhardaccel_lf = 2;
+   optional uint32            mai_satelite_number    = 3;
+   optional bool              mai_thereissat         = 4;
+   optional uint32            mai_roadclass          = 5;
+   optional uint32            mai_slotnumber         = 6;
+   optional float             mai_accelpos           = 7;
+   optional float             mai_accelpos_1         = 8;
+   optional float             mai_accelpos_2         = 9;
+   optional float             mai_accelpos_3         = 10;
+   optional float             mai_accelpos_4         = 11;
+   optional float             mai_accelpos_5         = 12;
+   optional bool              mai_scenario_1         = 13;
+   optional bool              mai_scenario_2         = 14;
+   optional bool              mai_scenario_3         = 15;
+   optional bool              mai_shutdownaccel      = 16;
+   optional bool              mai_scenario_4         = 17;
+   optional bool              mai_scenario_5         = 18;
+}
+
+message LineInfOut{
+   optional double c0 = 1;
+   optional double c1 = 2;
+   optional double c2 = 3;
+   optional double c3 = 4;
+}
+
+message ElkLineOut{
+   optional LineInfOut  liinf       = 1;
+   optional uint32      litype      = 2;
+   optional bool        sdval       = 3;
+   optional bool        dhval       = 4;
+   optional bool        lival       = 5;
+   optional uint32      id          = 6;
+   optional uint32      type        = 7;
+   optional double      start       = 8;
+   optional double      end         = 9;
+}
+
+message ElkReOut{
+   optional LineInfOut  reinf       = 1;
+   optional bool        reval       = 2;
+   optional uint32      id          = 3;
+   optional uint32      type        = 4;
+   optional double      start       = 5;
+   optional double      end         = 6;
+   optional bool        inva_li     = 7;
+}
+
+message ElkLvOut{
+   optional uint32 disablebit_le    = 1;
+   optional uint32 disablebit_ri    = 2;
+   optional double left2right       = 3;
+   optional bool   lnisconsist      = 4;
+   optional double lanediff         = 5;
+   optional double disttocross_le   = 6;
+   optional double disttocross_ri   = 7;
+   optional double latv_le          = 8;
+   optional double latv_ri          = 9;
+   optional double whloffst_le      = 10;
+   optional double whloffst_ri      = 11;
+   optional double ttlc_le          = 12;
+   optional double ttlc_ri          = 13;
+   optional double minv_x           = 14;
+   optional double minv_y           = 15;
+}
+
+message ElkLaneOut{
+   optional ElkLineOut  LeLi        = 1;
+   optional ElkLineOut  RiLi        = 2;
+   optional ElkReOut    LeRe        = 3;
+   optional ElkReOut    RiRe        = 4;
+   optional ElkLvOut    Validator   = 5;
+   optional double      lanewidth   = 6;
+   optional uint32      scene_quality = 7;
+}
+
+message ElkObjInfOut{
+   optional uint32      index       = 1;
+   optional double      lovel       = 2;
+   optional double      range       = 3;
+   optional double      rangerate   = 4;
+   optional double      relavel     = 5;
+   optional double      ttc         = 6;
+   optional double      culadi      = 7;
+   optional double      prladi      = 8;
+   optional bool        inpath      = 9;
+   optional bool        ttcval      = 10;
+   optional bool        rgval       = 11;
+   optional bool        lovelval    = 12;
+   optional bool        trsby       = 13;
+   optional double      probjladi   = 14;
+   optional double      pregoladi   = 15;
+   optional uint32      objval      = 16;
+   optional double      pr_range_front = 17;
+   optional double      pr_range_back  = 18;
+   optional bool        inpathcheck = 19;
+   optional bool        in_re       = 20;
+}
+
+message ElkInvaObjInfoOut{
+   optional double ttc        = 1;
+   optional double la_offset  = 2;
+   optional bool   inva       = 3;
+}
+
+message ElkInvaObjOut{
+   optional ElkInvaObjInfoOut le_oncoming = 1;
+   optional ElkInvaObjInfoOut le_front    = 2;
+   optional ElkInvaObjInfoOut le_side     = 3;
+   optional uint32 le_inva_source         = 4;
+   optional ElkInvaObjInfoOut ri_oncoming = 5;
+   optional ElkInvaObjInfoOut ri_front    = 6;
+   optional ElkInvaObjInfoOut ri_side     = 7;
+   optional uint32 ri_inva_source         = 8;
+}
+
+message ElkObjOut{
+   optional ElkObjInfOut   LeOc  = 1;
+   optional ElkObjInfOut   LeOt  = 2;
+   optional ElkObjInfOut   RiOc  = 3;
+   optional ElkObjInfOut   RiOt  = 4;
+   optional ElkInvaObjOut  Inva  = 5;
+}
+
+message ElkIntvInfOut{
+   optional double      lavel       = 1;
+   optional double      culadi      = 2;
+   optional double      prladi      = 3;
+   optional double      lattc       = 4;
+   optional bool        inpath      = 5;
+   optional bool        intvflag    = 6;
+   optional bool        intvflagpr  = 7;
+   optional bool        intvflaglka = 8;
+   optional uint32      line_id     = 9;
+   optional double      ttc_trs     = 10;
+   optional double      ttc_trs_pre = 11;
+   optional double      ttc_trs_lka = 12;
+
+}
+
+message ElkIntvOut{
+   optional ElkIntvInfOut LeLi      = 1;
+   optional ElkIntvInfOut RiLi      = 2;
+   optional ElkIntvInfOut LeRe      = 3;
+   optional ElkIntvInfOut RiRe      = 4;
+}
+
+message ElkExInf{
+   optional bool     ex_flag     = 1;
+   repeated bool     ex_cond     = 2;
+   repeated double   ex_param    = 3;
+}
+
+message ElkTrOut{
+   optional bool        trflagin    = 1;
+   optional bool        trflag      = 2;
+   optional uint32      trage       = 3;
+   optional bool        trsprs      = 4;
+   optional ElkExInf    exinf       = 5;
+   optional uint32      trtype      = 6;
+   optional uint32      trside      = 7;
+   optional LineInfOut  refli       = 8;
+   optional LineInfOut  intvli      = 9;
+   optional bool        tralready   = 10;
+   optional uint32      tr_line_id  = 11;
+   optional uint32      tr_obj_id   = 12;
+}
+
+message LdwTriggerRes{
+   optional bool lesidetrigger = 1;
+   optional bool risidetrigger = 2;
+}
+
+message LdwTrOut{
+   optional bool     lelaneok             = 1;
+   optional bool     rilaneok             = 2;
+   optional double   latvelle             = 3;
+   optional double   latvelri             = 4;
+   optional double   latOffsetle          = 5;
+   optional double   latOffsetri          = 6;
+   optional bool     flgleadingle         = 7;
+   optional bool     flgleadingri         = 8;
+   optional bool     flgwillcrossle       = 9;
+   optional bool     flgwillCrossri       = 10;
+   optional bool     flgontriggerzonele   = 11;
+   optional bool     flgontriggerzoneri   = 12;
+   optional LdwTriggerRes TriggerRes      = 13;
+   optional LdwTriggerRes TriggerResRaw   = 14;
+   optional bool     maxwarningtim        = 15;
+   optional bool     exitholdsprs         = 16;
+   optional bool     minwarningtim        = 17;
+   optional bool     flg_riseedge         = 18;
+   optional bool     flg_falledge         = 19;
+   optional double   ldw_ttlc_le          = 20;
+   optional double   ldw_ttlc_ri          = 21;
+   optional bool     exitholdsprs2        = 22;
+   optional uint32   tr_line_id           = 23;
+}
+
+message ElkSprsOut{
+   optional uint32      dm_sprsbit     = 1;
+   optional bool        elk_prev       = 2;
+   optional uint32      elksd_sprsbit  = 3;
+   optional uint32      elk_sprsbit    = 4;
+   optional uint32      lkaldwsd_sprsbit = 5;
+}
+
+message ElkDiagOut{
+   optional uint32      ElkFaultSt     = 1;
+   optional uint32      LkaFaultSt     = 2;
+   optional uint32      LdwFaultSt     = 3;
+   optional uint32      ElkFimIndex    = 4;
+   optional uint32      LkaFimIndex    = 5;
+   optional uint32      LdwFimIndex    = 6;
+   repeated uint32      ElkFault       = 7;
+   repeated uint32      LkaFault       = 8;
+   repeated uint32      LdwFault       = 9;
+   optional uint32      LatTopicState  = 10;
+   optional uint32      LatTopicLoss   = 11;
+   optional uint32      LatTopicNoInit = 12;
+   optional uint32      ElkTopicState  = 13;
+   optional uint32      LkaTopicState  = 14;
+   optional uint32      LdwTopicState  = 15;
+}
+
+message ElkSmOut{
+   optional bool        off_cdn     = 1;
+   optional bool        prev_cdn    = 2;
+   optional bool        sprs_cdn    = 3;
+   optional bool        fault_cdn   = 4;
+   optional bool        act_cdn     = 5;
+   optional bool        park_cdn    = 7;
+   optional uint32      elk_sts_in  = 8;
+   optional uint32      elk_sts     = 9;
+}
+
+message LkaSmOut{
+   optional bool        off_cdn     = 1;
+   optional bool        prev_cdn    = 2;
+   optional bool        sprs_cdn    = 3;
+   optional bool        fault_cdn   = 4;
+   optional bool        act_cdn     = 5;
+   optional bool        park_cdn    = 6;
+   optional uint32      lka_sts_in  = 7;
+   optional uint32      lka_sts     = 8;
+}
+
+message LdwSmOut{
+   optional bool        off_cdn     = 1;
+   optional bool        sprs_cdn    = 2;
+   optional bool        fault_cdn   = 3;
+   optional bool        act_cdn     = 4;
+   optional bool        abort_cdn   = 5;
+   optional uint32      ldw_sts_in  = 6;
+   optional uint32      ldw_sts     = 7;
+}
+
+message LatArbOut{
+   optional uint32   latmode  = 1;
+   optional ElkTrOut TrInfArb = 2;
+}
+
+message ElkObsrCurSt{
+   optional double         x             = 1;
+   optional double         y             = 2;
+   optional double         theta         = 3;
+   optional double         ego_vel       = 4;
+   optional double         yawrate       = 5;
+   optional uint32         match_index   = 6;
+   optional double         FF_weight     = 7;
+   optional double         FF_curv       = 8;
+   optional double         FF_front_ang  = 9;
+   optional uint32         curr_phase    = 10;
+   optional uint32         AccuTermAge   = 11;
+   optional double         acc           = 12;
+   optional double         kappa         = 13;
+   optional double         dkappa        = 14;
+   optional double         s             = 15;
+   optional double         s_dot         = 16;
+}
+
+message ElkPlanResOut{
+   optional double       total_t           = 1;
+   repeated double       plan_init_point   = 2;
+   repeated double       plan_term_point   = 3;
+   repeated double       path_coeffi       = 4;
+   optional uint32       curr_phase        = 5;
+   optional ElkObsrCurSt init_match_point  = 6;
+   optional ElkObsrCurSt term_match_point  = 7;
+   repeated ElkObsrCurSt reflinepoint      = 8;
+   repeated ElkObsrCurSt ELKPlanTraj       = 9;    
+}
+
+message ElkPlanOut{
+   optional uint32         Counter     = 1;
+   optional ElkPlanResOut  ElkPlanRes  = 2;
+}
+
+message ElkMatchPnt{
+   optional double         x           = 1;
+   optional double         y           = 2;
+   optional double         theta       = 3;
+   optional double         kappa       = 4;
+}
+
+message ElkObsrOut{
+   optional ElkObsrCurSt   cur_state           = 1;
+   repeated double         prev_point          = 2;
+   optional double         err_l               = 3;
+   optional double         err_dl              = 4;
+   optional double         err_l_intgr         = 5;
+   optional double         err_dl_intgr        = 6;
+   optional double         delta_err_l         = 7;
+   optional double         delta_err_dl        = 8;
+   optional double         feedforward         = 9;
+   optional double         l_angle             = 10;
+   optional double         dl_angle            = 11;
+   optional double         strang              = 12;
+   optional double         max_ang_rate        = 13;
+   repeated double         currlane_coeffi     = 14;
+   optional ElkMatchPnt    matchpoint_currlane = 15;
+   optional ElkMatchPnt    matchpoint_initlane = 16;
+   repeated double         curr_l_info         = 17;
+   optional double         curr_s              = 18;
+   optional double         pnnag               = 19;
+   optional double         l_angle_p           = 20;
+   optional double         l_angle_i           = 21;
+   optional double         l_angle_d           = 22;
+   optional double         dl_angle_p          = 23;
+   optional double         dl_angle_i          = 24;
+   optional double         dl_angle_d          = 25;
+   optional double         kp0                 = 26;
+   optional double         ki0                 = 27;
+   optional double         kd0                 = 28;
+   optional double         kp1                 = 29;
+   optional double         ki1                 = 30;
+   optional double         kd1                 = 31;
+   optional double         ctrl_Accu_T         = 32;
+   optional uint32         match_index         = 33;
+   optional double         FF_weight           = 34;
+   optional double         FF_curv             = 35;
+   optional double         FF_front_ang        = 36;
+   optional uint32         curr_phase          = 37;
+   optional uint32         AccuTermAge         = 38;
+}
+
+message ElkCtrlOut{
+   optional double         Counter  = 1;
+   optional ElkObsrOut     ElkObsr  = 2;
+}
+
+message ElkWarnOut{
+   optional bool     handsoff          = 1;
+   optional uint32   handsoff_counter  = 2;
+   optional uint32   disengage_counter = 3;
+   optional uint32   elk_tr_counter    = 4;
+   optional uint32   lka_tr_counter    = 5;
+}
+
+message ElkDebugOut{
+   optional ElkLaneOut     ElkLane  = 1;
+   optional ElkObjOut      ElkObj   = 2;
+   optional ElkIntvOut     ElkIntv  = 3;
+   optional ElkTrOut       ElkTr    = 4;
+   optional ElkTrOut       LkaTr    = 5;
+   optional LdwTrOut       LdwTr    = 6;
+   optional ElkSprsOut     ElkSprs  = 7;
+   optional ElkDiagOut     ElkDiag  = 8;
+   optional ElkSmOut       ElkSm    = 9;
+   optional LkaSmOut       LkaSm    = 10;
+   optional LdwSmOut       LdwSm    = 11;
+   optional LatArbOut      LatArb   = 12;
+   optional ElkPlanOut     ElkPlan  = 13;
+   optional ElkCtrlOut     ElkCtrl  = 14;
+   optional ElkWarnOut     ElkWarn  = 15;
+   repeated double         ElkReserved = 16;
+}
+
+message OAACandiDbgInfo{
+   optional float         IsInzone         = 1;
+   optional uint32        deriction        = 2;
+   optional float         primSowTP_xolc   = 3;
+   optional float         DistPrimToOther  = 4;
+   optional bool          noPassableGap    = 5;
+   optional uint32        sowObj           = 6;
+   optional uint32        PrimsowObj       = 7;
+   optional uint32        currentObj_index = 8;
+   optional float         TP_xolcForSort   = 9;
+   optional float         clSowTP_xolc     = 10;
+   optional float         crSowTP_xolc     = 11;
+   optional float         rlSowTP_xolc     = 12;
+   optional float         rrSowTP_xolc     = 13;
+}
+
+message RCAInfoOut{
+   optional uint32        rca_roadClass    = 1;
+   optional uint32        sdmap_roadClass  = 2;
+   optional bool          isJunction       = 3;
+   optional uint32        isParkinglot     = 4;
+   optional bool          isHighwayDet     = 5;
+   optional bool          isFastwayDet     = 6;
+   optional bool          isTightUrbanDet  = 7;
+   optional bool          isCountryRoadDet = 8;
+}
+
+message DriverInfoOut{
+   optional double ego_velocity        = 1;
+   optional double ego_velocity_disp   = 2;
+   optional double ego_lon_accel       = 3;
+   optional double ego_lat_accel       = 4;
+   optional double yaw_rate            = 5;
+   optional double accel_ped_pos       = 6;
+   optional double accel_ped_grad      = 7;
+   optional double brake_ped_pos       = 8;
+   optional double brake_ped_grad      = 9;
+   optional double steer_whl_ang       = 10;
+   optional double steer_whl_grad      = 11;
+   optional double torsbar_tq          = 12;
+   optional double ego_roc             = 13;
+   optional uint32 ego_gear            = 14;
+   optional uint32 ego_vehstate        = 15;
+   optional uint32 turn_light          = 16;
+   optional uint32 drive_mode          = 17;
+   optional uint32 environment         = 18;
+   optional bool   strong_turn         = 19;
+   optional bool   slight_turn         = 20;
+   optional uint32 lateral_behavior    = 21;
+}
+
+message GenDMInfoOut{
+   optional uint32 sprs_source      = 1;
+   optional uint32 abort_source     = 2;
+   optional uint32 damping_level    = 3;
+}
+
+message GenDMOut{
+   optional DriverInfoOut  Driver      = 1;
+   optional GenDMInfoOut   DmMai       = 2;
+   optional GenDMInfoOut   DmOaaWarn   = 3;
+   optional GenDMInfoOut   DmOaaJerk   = 4;
+   optional GenDMInfoOut   DmElk       = 5;
+   optional GenDMInfoOut   DmLka       = 6;
+   optional GenDMInfoOut   DmLdw       = 7;
+   optional GenDMInfoOut   DmFrVruWarn = 8;
+   optional GenDMInfoOut   DmFrVruAeb  = 9;
+   optional GenDMInfoOut   DmFrCcrWarn = 10;
+   optional GenDMInfoOut   DmFrCcrAeb  = 11;
+   optional GenDMInfoOut   DmRrWarn    = 12;
+   optional GenDMInfoOut   DmRrAeb     = 13;
+   optional GenDMInfoOut   DmTurnWarn  = 14;
+   optional GenDMInfoOut   DmTurnAeb   = 15;
+   optional GenDMInfoOut   DmEba       = 16;
+}
+
+message VehStateFilterOut{
+   optional double yawrate_bias        = 1;
+   optional double yawrate_raw         = 2;
+   optional double yawrate_kine        = 3;
+   optional double yawrate_compensated = 4;
+   optional double yawrate_filtered    = 5;
+   optional double velocity            = 6;
+   optional double curvature           = 7;
+   optional bool   is_curv             = 8;
+   optional double steer2front         = 9;
+}
+
+message MaiRearSmOut{
+   optional uint32 mai_rear_sts = 1;
+}
+
+message UssGeneralObjInfoOut{
+   optional uint32 ussobjtype          = 1;
+   optional uint32 raw_index           = 2;
+   optional uint32 age                 = 3;
+   optional bool   have_matched        = 4;
+   optional uint32 matched_num         = 5;
+   optional uint32 matched_index       = 6;
+   optional double max_overlap_ratio   = 7;
+}
+
+message UssGeneralObjOut{
+   repeated UssGeneralObjInfoOut Obj = 1;
+}
+
+message MaiRearFinalInfoOut{
+   optional double ttc      = 1;
+}
+
+message MaiRearOut{
+   optional MaiRearSmOut         MaiRearSm         = 1;
+   optional UssGeneralObjOut     MaiRearToiObj     = 2;
+   optional UssGeneralObjOut     MaiRearTrackedObj = 3;
+   optional UssGeneralObjOut     MaiRearRoiObj     = 4;
+   optional MaiRearFinalInfoOut  MaiRearFinalInfo  = 5;
+}
+
+message TrajPointInfoOut{
+   optional double t          = 1;
+   optional double s          = 2;
+   optional double x          = 3;
+   optional double y          = 4;
+   optional double theta      = 5;
+   optional double kappa      = 6;
+   optional double dkappa     = 7;
+   optional double vel        = 8;
+   optional double yawrate    = 9;
+   optional double accel      = 10;
+   optional double pnnag      = 11;
+   optional double pnnagrate  = 12;
+}
+
+message TrajPointOut{
+   repeated TrajPointInfoOut Point = 1;
+}
+
+message TrajPredOut{
+   optional uint32            trajswitch  = 1;
+   repeated TrajPointOut      TrajSource  = 2;
+}
+
+message MapObjBaseType{
+   optional uint32 MapObjTyp = 1;
+   optional double MapObjP1X = 2;
+   optional double MapObjP1Y = 3;
+   optional double MapObjP2X = 4;
+   optional double MapObjP2Y = 5;
+   optional double MapObjProblty = 6;
+   optional uint32 MapObjHeiWarn = 7;
+   optional double MapObjHeiProblty = 8;
+   optional uint32 MapObjHeiBrake = 9;
+}
+
+message ASPoint{
+   optional double x_ = 1;
+   optional double y_ = 2;
+}
+
+message VehicleState{
+   optional double x_         = 1;
+   optional double y_         = 2;
+   optional double vel_       = 3;
+   optional double yawrate_   = 4;
+   optional double pnnAg_     = 5;
+   optional double theta_     = 6;
+   optional double accPedal_  = 7;
+}
+
+message PostureTrans{
+   optional double delta_x    = 1;
+   optional double delta_y    = 2;
+   optional double delta_yaw  = 3;
+}
+
+message ROC{
+   optional double center_x    = 1;
+   optional double center_y    = 2;
+   optional double Radius      = 3;
+   optional double valid_min_x = 4;
+   optional double valid_max_x = 5;
+   optional double valid_min_y = 6;
+   optional double valid_max_y = 7;
+}
+
+message LinearCoeffi{
+   optional double k = 1;
+   optional double b = 2;
+}
+
+message LineSegment2d{
+   optional uint32       type              = 1;
+   optional ASPoint      p_start           = 2;
+   optional ASPoint      p_end             = 3;
+   optional ASPoint      p_middle          = 4;
+   optional double       length            = 5;
+   optional ROC          expandingcircle   = 6;
+   optional LinearCoeffi coeffi            = 7;
+}
+
+message UssGeneralObj{
+   optional LineSegment2d  Segment            = 1;
+   optional uint32         Type               = 2;
+   optional MapObjBaseType RawObj             = 3;
+   optional uint32         RawIndex           = 4;
+   optional uint32         age                = 5;
+   optional bool           HaveMatched        = 6;
+   optional uint32         matched_num        = 7;
+   optional uint32         matched_index      = 8;
+   optional double         MaxOverlapRatio    = 9;
+}
+
+message MaiRearDebugOut{
+   repeated MapObjBaseType    RawUssObj          = 1;
+   optional VehicleState      MaiCurrVehInfo     = 2;
+   optional double            Front2Steer        = 3;
+   optional uint32            MaiRearStatus      = 4;
+   optional PostureTrans      basediff           = 5;
+   optional ROC               CurrRoc            = 6;
+   optional ROC               ToiRoc             = 7;
+   repeated UssGeneralObj     ToiFilteredObj     = 8;
+   repeated UssGeneralObj     UssObjTrackList    = 9;
+   repeated UssGeneralObj     FinalFilteredObj   = 10;
+   optional double            TTCthreshold       = 11;
+   optional double            FinalTTC           = 12;
+   optional bool              RearScenarioMeet   = 13;
+}
+
+message ContinuoutLaneOut{
+   optional float             lane_c0            = 1;
+   optional float             lane_c1            = 2;
+   optional float             lane_c2            = 3;
+   optional float             lane_c3            = 4;
+   optional float             lane_c4            = 5;
+   optional float             lane_c5            = 6;
+   optional float             start_range        = 7;
+   optional float             end_range          = 8;
+}
+
+message PathInformationOut{
+   optional ContinuoutLaneOut front_lane         = 1;
+   optional ContinuoutLaneOut ego_lane           = 2;
+   optional ContinuoutLaneOut rear_lane          = 3;
+   optional ContinuoutLaneOut rear_ego_lane      = 4;
+   optional float             lane_width         = 5;
+   optional bool              left_lane_change   = 6;
+   optional bool              right_lane_change  = 7;
+}
+
+message ColPointOut{
+   optional bool              isfunction         = 1;
+   optional float             collision_x        = 2;
+   optional float             collision_y        = 3;
+   optional float             ttc                = 4;
+   optional float             ttc_tar            = 5;
+   optional float             ttl_tar            = 6;
+}
+
+message SideInpathOut{
+   optional uint32            inpathage          = 1;
+   optional bool              inpathcheck        = 2;
+}
+
+message SideObjectOut{
+   optional uint32            id                 = 1;
+   optional uint32            age                = 2;
+   optional bool              agecheck           = 3;
+   optional bool              objectcheck        = 4;
+   optional uint32            sideconf           = 5;
+   optional float             longpos_lane       = 6;
+   optional float             longpos            = 7;
+   optional float             latpos_lane        = 8;
+   optional float             latpos             = 9;
+   optional float             longspd_lane       = 10;
+   optional float             longspd            = 11;
+   optional float             latspd_lane        = 12;
+   optional float             latspd             = 13;
+   optional float             longacc            = 14;
+   optional float             latacc             = 15;
+   optional float             targetspd          = 16;
+   optional float             heading_lane       = 17;
+   optional float             heading            = 18;
+   optional float             headrate           = 19;
+   optional uint32            source             = 20;
+   optional float             range_forward      = 21;
+   optional float             range_door         = 22;
+   optional float             range_rear         = 23;
+   optional float             rangerate          = 24;
+   optional float             xolc               = 25;
+   optional float             ttc_base           = 26;
+   optional bool              isstationary       = 27;
+   optional bool              ispreceding        = 28;
+   optional bool              isoncoming         = 29;
+   optional bool              iscrossing         = 30;
+   optional ColPointOut       dowcol             = 31;
+   optional ColPointOut       fctacol            = 32;
+   optional ColPointOut       rctacol            = 33;
+   optional float             side_frenet        = 34;
+   optional float             side_dicar         = 35;
+   optional SideInpathOut     lca_inpath         = 36;
+   optional SideInpathOut     dow_inpath         = 37;
+   optional SideInpathOut     fcta_inpath        = 38;
+   optional SideInpathOut     rcta_inpath        = 39;
+   optional bool              bsd_warn           = 40;
+   optional bool              dow_warn           = 41;
+   optional bool              dow_action         = 42;
+   optional bool              fcta_warn          = 43;
+   optional bool              fcta_action        = 44;
+   optional bool              rcta_warn          = 45;
+   optional bool              rcta_action        = 46;
+   optional double            sf_reserved_1      = 47;
+   optional double            sf_reserved_2      = 48;
+   optional double            sf_reserved_3      = 49;
+   optional double            sf_reserved_4      = 50;
+   optional double            sf_reserved_5      = 51;
+   optional double            sf_reserved_6      = 52;
+   optional double            sf_reserved_7      = 53;
+   optional double            sf_reserved_8      = 54;
+   optional double            sf_reserved_9      = 55;
+   optional double            sf_reserved_10     = 56;
+}
+
+message State {
+   optional double x              = 1;
+   optional double y              = 2;
+   optional double theta          = 3;
+   optional double kappa          = 4;
+   optional double dkappa         = 5;
+   optional double velocity       = 6;
+   optional double yawrate        = 7;
+   optional double acceleration   = 8;
+   optional double pnnangle       = 9;
+   optional double pnnanglerate   = 10;
+   optional double frontangle     = 11;
+   optional double frontanglerate = 12;
+   optional ObjectPolygonOut ego_polygon = 13;
+}
+
+message CollisionTimeOut{
+   optional bool iscollision = 1;
+   optional float shift_left = 2;
+   optional float shift_right = 3;
+   optional float collision_lead_time = 4;
+   optional ObjectPolygonOut collision_polygon = 5;
+   optional State ego_state = 6;
+   optional bool iscollision_extend = 7;
+   optional bool iscollision_head = 8;
+}
+
+message GeneralObject {
+   optional uint32 id              = 1;
+   optional uint32 type            = 2;
+   optional uint32 lateralbehavior = 3;
+   optional double confidence      = 4;
+   optional State state            = 5;
+}
+
+message PredictInfo {
+   optional GeneralObject rawobject  = 1;
+   optional uint32 predictor         = 2;
+   optional double possibility       = 3;
+   repeated State predict_trajectory = 4;
+}
+
+message PolyLine {
+   optional double c0 = 1;
+   optional double c1 = 2;
+   optional double c2 = 3;
+   optional double c3 = 4;
+   optional double c4 = 5;
+   optional double c5 = 6;
+}
+
+message LineInfo {
+   optional PolyLine coefficient = 1;
+   optional uint32 type          = 2;
+   optional bool isvalid         = 3;
+   optional double start_x       = 4;
+   optional double end_x         = 5;
+}
+
+message FrenetState {
+   optional double s      = 1;
+   optional double ds_dt  = 2;
+   optional double ds_dt2 = 3;
+   optional double l      = 4;
+   optional double dl_ds  = 5;
+   optional double dl_ds2 = 6;
+   optional double dl_dt  = 7;
+   optional double dl_dt2 = 8;
+}
+
+message HostLaneLineInfo {
+   optional bool have_curr_lane         = 1;
+   optional bool have_left_lane         = 2;
+   optional bool have_right_lane        = 3;
+   optional LineInfo host_left          = 4;
+   optional LineInfo host_left_left     = 5;
+   optional LineInfo host_right         = 6;
+   optional LineInfo host_right_right   = 7;
+   optional LineInfo host_center        = 8;
+   optional LineInfo host_left_center   = 9;
+   optional LineInfo host_right_center = 10;
+}
+
+message HostLaneZoneInfo {
+   optional uint32      matched_zone = 1;
+   optional FrenetState left         = 2;
+   optional FrenetState leftleft     = 3;
+   optional FrenetState right        = 4;
+   optional FrenetState rightright   = 5;
+}
+
+message VseDebugOut{
+   optional VehStateFilterOut VehStateFilter = 1;
+   optional uint32 environment               = 2;
+   optional HostLaneLineInfo hostlane        = 3;
+   optional HostLaneZoneInfo hostzone        = 4;
+   optional bool is_reverse                  = 5;
+   optional bool is_lowspd                   = 6;
+   optional bool is_break                    = 7;
+   optional bool is_lowspd_turn              = 8;
+   optional uint32 ego_behavior              = 9;
+   optional PolyLine target_line             = 10;
+   repeated double init_s_info               = 11;
+   repeated double init_l_info               = 12;
+   repeated double end_s_info                = 13;
+   repeated double end_l_info                = 14;
+   optional double long_time                 = 15;
+   optional double lat_time                  = 16;
+   optional PolyLine long_coefficient        = 17;
+   optional PolyLine lat_coefficient         = 18;
+   optional bool trajcheck                   = 19;
+   optional bool uselanebase                 = 20;
+   repeated State ego_rearshaft_traj         = 21;
+}
+
+message LaneCandidateOut{
+   optional uint32 candi_id = 1;
+   optional float candi_range = 2;
+   optional float candi_ttc = 3;
+   optional float candi_speed = 4;
+   optional float candi_valid = 5;
+}
+
+message LaneCandiGroupOut{
+   optional LaneCandidateOut candidate1 = 1;
+   optional LaneCandidateOut candidate2 = 2;
+}
+
+message TseCandiOut{
+   optional LaneCandiGroupOut host_preceding = 1;
+   optional LaneCandiGroupOut host_oncoming = 2;
+   optional LaneCandiGroupOut left_preceding_front = 3;
+   optional LaneCandiGroupOut left_preceding_rear = 4;
+   optional LaneCandiGroupOut left_oncoming = 5;
+   optional LaneCandiGroupOut right_preceding_front = 6;
+   optional LaneCandiGroupOut right_preceding_rear = 7;
+   optional LaneCandiGroupOut right_oncoming = 8;
+}
+
+message CollisionInfoOut{
+   optional bool polygon_collision = 1;
+   optional uint32 collision_age = 2;
+   optional float collision_ttc = 3;
+   optional float collision_ttl = 4;
+   optional bool readyforselection = 5;
+   optional bool readyforbrake = 6;
+   optional bool polygon_collision_extend = 7;
+   optional bool polygon_collision_head = 8;
+}
+
+message PathHoldOut{
+   optional float currentpos = 1;
+   optional float predictpos = 2;
+   optional float current_threshold = 3;
+   optional float predict_threshold = 4;
+   optional bool ispassthrough = 5;
+   optional bool islowerspeed = 6;
+   optional bool inpath = 7;
+}
+
+message CollisionObjectOut{
+   optional uint32 collision_id = 1;
+   optional uint32 collision_last_frame_index = 2;
+   repeated CollisionTimeOut collision_time = 3;
+   optional CollisionInfoOut collision_info = 4;
+   optional float key_left_overlap = 5;
+   optional float key_left_time = 6;
+   optional float key_right_overlap = 7;
+   optional float key_right_time = 8;
+   optional float collision_ttc_raw = 9;
+   optional float collision_ttc_accel = 10;
+   optional float collision_ttc_based = 11;
+   optional float collison_ttb = 12;
+   optional float collison_ttt_left = 13;
+   optional float collison_ttt_right = 14;
+   optional PathHoldOut path_hold = 15;
+   optional float collision_ttc_accel_comp = 16;
+   optional float collision_ttc_based_comp = 17;
+
+}
+
+message DecisionOut{
+   optional bool trigger_warn = 1;
+   optional bool trigger_prefill = 2;
+   optional bool trigger_startplan = 3;
+   optional bool trigger_lowbrake = 4;
+   optional bool trigger_highbrake = 5;
+   optional bool trigger_steer = 6;
+   optional bool trigger_mai = 7;
+}
+
+message ThreatCandidateOut{
+   optional float ttb_process = 1;
+   optional float ttt_process = 2;
+   optional float ttc_process = 3;
+   optional float threshold_warn = 4;
+   optional float threshold_prefill = 5;
+   optional float threshold_startplan = 6;
+   optional float threshold_lowbrake = 7;
+   optional float threshold_highbrake = 8;
+   optional float threshold_steer = 9;
+   optional bool trigger_warn = 10;
+   optional bool trigger_prefill = 11;
+   optional bool trigger_startplan = 12;
+   optional bool trigger_lowbrake = 13;
+   optional bool trigger_highbrake = 14;
+   optional bool trigger_iba = 15;
+   optional bool trigger_steer = 16;
+   optional uint32 candi_id = 17; 
+   optional bool action_suppress_clear = 18;
+   optional bool action_abort_clear = 19;
+   optional bool warn_suppress_clear = 20;
+   optional bool warn_abort_clear = 21;
+   optional bool iba_suppress_clear = 22;
+   optional bool iba_abort_clear = 23;
+   repeated bool cancel_action_reason = 24;
+   optional DecisionOut action_result_raw = 25;
+   optional DecisionOut action_result_process = 26;
+   repeated string cancel_warn_reason = 27;
+   repeated string cancel_prefill_reason = 28;
+   repeated string cancel_lowbrake_reason = 29;
+   repeated string cancel_highbrake_reason = 30;
+   repeated string cancel_steering_reason = 31;
+   optional float warning_damping = 32;
+   optional float brake_damping = 33;
+   optional float mai_damping = 34;
+   optional float threshold_mai = 35;
+   optional float trigger_mai = 36;
+   repeated string cancel_mai_reason = 37;
+   optional float overlap_rate = 38;   
+   optional float ttc_action = 39;
+   optional float overlap_rate_vru = 40;
+   repeated uint32 group_obj_list = 41;
+   optional float grpobj_ttt_left = 42;
+   optional float grpobj_ttt_right = 43;
+}
+
+message ThreatAssessmentCandiOut{
+   optional ThreatCandidateOut preceding_candi_1 = 1;
+   optional ThreatCandidateOut preceding_candi_2 = 2;
+   optional ThreatCandidateOut crossing_candi_1 = 3;
+   optional ThreatCandidateOut crossing_candi_2 = 4;
+   optional ThreatCandidateOut oncoming_candi_1 = 5;
+   optional ThreatCandidateOut oncoming_candi_2 = 6;
+   optional ThreatCandidateOut static_candi_1 = 7;
+   optional ThreatCandidateOut static_candi_2 = 8;
+   optional ThreatCandidateOut preceding_rear_candi_1 = 9;
+   optional ThreatCandidateOut preceding_rear_candi_2 = 10;
+}
+
+message AesPointOut {
+   optional double x = 1;
+   optional double y = 2;
+}
+
+message AesPointProperty {
+   optional uint32            type                 = 1;//both line and road edge
+   optional uint32            color                = 2;//only line
+   optional uint32            re_class             = 3;//only road edge
+}
+
+message  LaneOut {
+   optional uint32            id                   = 1;
+   optional bool              is_valid             = 2;
+   optional uint32            type                 = 3;
+   optional double            start                = 4;
+   optional double            end                  = 5;
+   optional double            marker_width         = 6;
+   optional PolyLine          poly_line            = 7;
+   repeated AesPointOut      point                = 8;
+   repeated AesPointProperty point_property       = 9;
+}
+
+message LaneInfo {
+   optional LaneOut           left_line            = 1;
+   optional LaneOut           right_line           = 2;
+   optional LaneOut           left_left_line       = 3;
+   optional LaneOut           right_right_line     = 4;
+   optional LaneOut           left_roadedge        = 5;
+   optional LaneOut           right_roadedge       = 6;
+}
+
+message RefLineOut {
+   optional bool              is_valid             = 1;
+   optional double            width                = 2;
+   optional double            start                = 3;
+   optional double            end                  = 4;
+   optional PolyLine          new_poly_line        = 5;
+   optional PolyLine          poly_line            = 6;
+   optional CartStateOut      path_point           = 7;
+}
+
+message MapperOut {
+   optional uint32            lane_interface       = 1;
+   optional LaneInfo          lane                 = 2;
+   optional RefLineOut        refline              = 3;
+   optional RefLineOut        traj_refline         = 4;
+}
+
+message StampCandiOut {
+   optional uint32            candi_id             = 1;
+   optional uint32            lastframeindex       = 2;
+   optional float             risk_level           = 3;
+   optional float             decision_score       = 4;
+   optional float             heading              = 5;
+   optional float             warning_rt           = 6;
+   optional float             warning_dt           = 7;
+   optional float             lowbrake_rt          = 8;
+   optional float             lowbrake_dt          = 9;
+   optional float             highbrake_rt         = 10;
+   optional float             highbrake_dt         = 11;
+   optional bool              warn_trigger         = 12;
+   optional bool              lowb_trigger         = 13;
+   optional bool              highb_trigger        = 14;
+   optional uint32            warn_counter         = 15;
+   optional uint32            lowb_counter         = 16;
+   optional uint32            highb_counter        = 17;
+   optional bool              inpath               = 18;
+   optional float             currentpos           = 19;
+   optional float             predictpos           = 20;
+   optional float             cp_threshold         = 21;
+   optional float             pp_threshold         = 22;
+   optional bool              ispassthrough        = 23;
+   optional bool              targetspeedlow       = 24;
+   repeated string            cancelwarnreason     = 25;
+   repeated string            cancelbrakereason    = 26;
+}
+
+message PosTransfer {
+   optional uint32            inputts              = 1;
+   optional uint32            outputts             = 2;
+   optional float             deltatime            = 3;
+   repeated float             transfermatrix       = 4;
+}
+
+message AesPoint {
+  optional uint32 t_idx        = 1;
+  optional double t            = 2;
+  optional double x            = 3;
+  optional double y            = 4;
+  optional double theta        = 5;
+  optional double kappa        = 6;
+  optional double v            = 7;
+  optional double frontang     = 8;
+  optional double steerang     = 9;
+  optional double yawrate      = 10;
+  optional double a            = 11;
+  optional double jerk         = 12;
+  optional double frontangrate = 13;
+  optional double s            = 14;
+}
+
+message FrenetPoint {
+  repeated double s_info = 1;
+  repeated double l_info = 2;  
+}
+
+message CubicPolyline {
+ optional double c0 = 1;
+ optional double c1 = 2;
+ optional double c2 = 3;
+ optional double c3 = 4; 
+}
+
+message ObstacleInfo {
+   repeated AesPoint raw_pred_seq = 1;
+   repeated AesPoint delay_pred_seq = 2;
+   optional double length = 3;
+   optional double width = 4;
+   optional bool move_status = 5;
+}
+
+message Location {
+   optional uint32 lanebasedlocator_state = 1;
+   optional uint32 integralbasedlocator_state = 2;
+   optional double delta_s = 3;
+   optional FrenetPoint ego_frenet_location_on_currlane = 4;
+   repeated double transform_matrix = 5;
+}
+
+message SteerFrame {
+    optional bool first_trigger_action = 1;
+    optional uint32 trigger_side = 2;
+    optional uint32 steer_stage = 3;
+    optional uint32 counter = 4;
+    optional AesPoint curr_ego_state = 5;
+    optional uint32 track_id = 6;
+    optional bool have_left_lane = 7;
+    optional bool have_right_lane = 8;
+    optional bool have_lane = 9;
+    optional bool benchmark_lane_valid = 10;
+    optional CubicPolyline benchmark_lane = 11;
+    optional bool ref_lane_valid = 12;
+    optional CubicPolyline ref_lane = 13;
+    optional CubicPolyline left_bound = 14;
+    optional CubicPolyline right_bound = 15;
+    optional double left_to_ref = 16;
+    optional double right_to_ref = 17;    
+    repeated ObstacleInfo obstacle_list = 18;
+    optional Location locator_manager = 19;
+    optional bool search_success = 20;
+    optional bool optimize_success = 21;
+    repeated AesPoint Traj_cart = 22;
+    optional double accel_cmd = 23;
+    optional double steerangle_cmd = 24; 
+}
+
+message Searcher {
+  message Node {
+   optional string s_index = 1;
+   optional AesPoint state = 2;
+   repeated AesPoint middle_state = 3;
+   optional double g_cost = 4;
+   optional double o_cost = 5;
+   optional double h_cost = 6;
+   optional double total_cost = 7;
+   optional bool kinematiccheck = 8;
+   optional bool laneboundcheck = 9;
+   optional bool collisioncheck = 10;
+  }
+  message Iteration_step {
+   repeated double accel_list = 1;
+   repeated double frontang_list = 2;
+   optional Node current_node = 3;
+   repeated Node expand_node = 4;
+  }
+  optional double min_long_accel  = 1;
+  optional double max_long_accel  = 2;
+  optional double max_lat_accel   = 3;
+  optional double max_total_accel = 4;
+
+  optional uint32 search_counter = 5;
+  optional Node start_node = 6;
+  optional Node term_node = 7;
+  repeated Iteration_step iteration = 8;
+  optional uint32 search_result = 9;
+}
+
+message Optimizer {
+  message CilqrIter {
+   repeated AesPoint nominal_traj = 1;
+   optional double pre_obs_cost = 2;
+   optional double pre_lanebound_cost = 3;
+   optional double pre_track_cost = 4;
+   optional double pre_constraint_cost = 5;
+   optional double pre_cost = 6;
+   optional double curr_obs_cost = 7;
+   optional double curr_lanebound_cost = 8;
+   optional double curr_track_cost = 9;
+   optional double curr_constraint_cost = 10;
+   optional double curr_cost = 11;
+  }
+  optional uint32 control_horizon = 1;
+  optional uint32 Nx = 2;
+  optional uint32 Nu = 3;
+  optional uint32 total_iter = 4;
+  optional uint32 total_linesearch_num = 5;
+  repeated CilqrIter iter = 6;
+}
+
+message Planner {
+  optional uint32 stitch_idx = 1;
+  optional double stitch_gap = 2;
+  optional bool can_stitch = 3;
+  optional bool must_search = 4;
+  optional Searcher searcher = 5;
+  optional Optimizer optimizer = 6; 
+  optional bool search_success = 7;
+  optional bool optimize_success = 8;
+}
+
+message Controller {
+  optional bool first_trigger = 1;
+  optional double pre_strang = 2;
+  optional double lat_pos_error = 3;
+  optional double lat_heading_error = 4;
+  optional double ff_strang = 5;
+  optional double heading_compensation = 6;
+  optional double fb_strang = 7;
+  optional double strang_limit = 8;
+  optional double strangrate_limit = 9;
+  optional double str_cmd = 10;
+}
+
+message AESDebugOut {
+  optional ThreatCandidateOut steercandi = 1;
+  optional SteerFrame steerframe = 2;
+  optional Planner planner = 3;
+  optional Controller controller = 4;
+}
+
+message AEBDebugOut{
+   optional VRUCandiOut       pedcross             = 1;
+   optional VRUCandiOut       pedoncom             = 2;
+   optional VRUCandiOut       bikcross             = 3;
+   optional VRUCandiOut       bikoncom             = 4;
+   optional CCRCandiOut       CCRScandi            = 5;
+   optional CCRCandiOut       CCRMcandi            = 6;
+   optional FTAPCandiOut      FTAPcandi            = 7;
+   optional VRUCandiOut       PedRear              = 8;
+   optional VRUCandiOut       BikRear              = 9;
+   optional EgoState          HostState            = 10;
+   repeated VRUCandiOut       Pedestrians          = 11;
+   optional CCRCandiOut       CloseTarget          = 12;
+   optional DriverMonitorOut  DriverMonitor        = 13;
+   repeated GOFOut            GenObjFilter         = 14;
+   optional CCRCandiOut       CCFOcandi            = 15;
+   optional CCCCandiOut       CCCcandi             = 16;
+   optional FusionAEBFlagOut  FusionCCRFlag        = 17;
+   optional FusionAEBFlagOut  FusionVRUFlag        = 18;
+   optional FusionAEBFlagOut  FusionVRURearFlag    = 19;
+   optional AebActuFlgOut     AebActuFlg           = 20;
+   optional ReservedOut       AebReserved          = 21;
+   optional AEBSMOut          AEBSm                = 22;
+   optional AEBSMOut          FCWSm                = 23;
+   optional AEBRearSMOut      AebRearSm            = 24;
+   optional AEBRearSMOut      FcwRearSm            = 25;
+   optional FuncSuppressOut   FuncSuppress         = 26;
+   optional AebDiagOut        AebDiag              = 27;
+   optional AebModeOut        AebMode              = 28;
+   optional AESCCRCandiOut    AESCCRcandi          = 29;
+   optional AESCCRCandiOut    CloseAESTarget       = 30;
+   optional AESPathVerify     AESPathCheck         = 31;
+   optional AESPlanOut        AESPlanPath          = 32;
+   optional OAATargetOut      Oaa_Candi            = 33;
+   repeated OAATargetOut      StaticObj_List       = 34;
+   optional AebTarAccelOut    AebTarAccel          = 35;
+   optional CCRCandiOut       CCFcandi             = 36;
+   optional MaiDebugOut       MaiInform            = 37;
+   optional CCCCandiOut       CloseCCCObj          = 38;
+   repeated double            Reserved             = 39;
+   optional ElkDebugOut       ElkIn                = 40;
+   optional VRUCandiOut       vrucandi_mai         = 41;
+   optional CCRCandiOut       ccrcandi_mai         = 42;
+   repeated OAACandiDbgInfo   OAACandiDbgList      = 43;
+   repeated OAATargetOut      Oaa_Candi_list       = 44;
+   optional RCAInfoOut        RCAInfo              = 45;
+   optional GenDMOut          GenDriverMonitor     = 46;
+   optional VseDebugOut       VseDebug             = 47;
+   optional MaiRearOut        MaiRear              = 48;
+   optional TrajPredOut       TrajPred             = 49;
+   optional MaiRearDebugOut   MaiRearDebug         = 50;
+   optional PathInformationOut PathInfo            = 51;
+   repeated SideObjectOut     side_object_list     = 52;
+   optional SideObjectOut     bsd_left_candi       = 53;
+   optional SideObjectOut     bsd_right_candi      = 54;
+   optional SideObjectOut     dow_left_candi       = 55;
+   optional SideObjectOut     dow_right_candi      = 56;
+   optional SideObjectOut     fcta_candi           = 57;
+   optional SideObjectOut     rcta_candi           = 58;
+   repeated uint64            OAAWarnCandiIdList   = 59;
+   repeated uint64            OAAHighlightIdList   = 60; 
+   repeated PredictInfo       predict_info         = 61;
+   optional TseCandiOut       tse_info             = 62;
+   repeated CollisionObjectOut collision_object_info = 63;
+   optional ThreatAssessmentCandiOut threatassessmentcandi = 64;
+   repeated GOFOut            keyobj               = 65;
+   optional MapperOut         mapper               = 66;
+   optional ReservedOut       SFReserved           = 67;
+   repeated StampCandiOut     stamp_candi          = 68;
+   optional PosTransfer       pos_trans            = 69;
+   optional AESDebugOut       aes_debug            = 70;
+
+   // optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+   optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+   optional string publisher_id = 536870909; // uuid of the publisher
+   optional uint64 counter = 536870910;         // message counter
+   optional uint64 publish_ts = 536870911;    // publish utc timestamp; unit : nanosecond
+}

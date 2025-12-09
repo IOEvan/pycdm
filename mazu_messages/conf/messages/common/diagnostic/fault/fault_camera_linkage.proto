@@ -1,0 +1,109 @@
+syntax = "proto2"; 
+option cc_enable_arenas = true;
+       
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message CameraLinkageFaultInfo{ // Detected by FW
+        reserved 6,7,8,9;
+        optional F120AdcFaultInfo f120_adc_fault_info = 1;
+        optional OMSAdcFaultInfo oms_adc_fault_info = 2;
+        optional DMSAdcFaultInfo dms_adc_fault_info = 3;
+        optional F30AdcFaultInfo f30_adc_fault_info = 4;
+        optional RearAdcFaultInfo rear_adc_fault_info = 5;
+        optional SideFLAdcFaultInfo sidefl_adc_fault_info = 10;
+        optional SideFRAdcFaultInfo sidefr_adc_fault_info = 11;
+        optional SideRLAdcFaultInfo siderl_adc_fault_info = 12;
+        optional SideRRAdcFaultInfo siderr_adc_fault_info = 13;
+        optional SVCFrontAdcFaultInfo svcfront_adc_fault_info = 14;
+        optional SVCLeftAdcFaultInfo svcleft_adc_fault_info = 15;
+        optional SVCRearAdcFaultInfo svcrear_adc_fault_info = 16;
+        optional SVCRightAdcFaultInfo svcright_adc_fault_info = 17;       
+        
+        optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+        optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+        optional uint64 publish_ptp_ts = 536870907;   // publish ptp timestamp, uint in nanosec
+        optional string publisher_id   = 536870909; // uuid of the publisher
+        optional uint64 counter        = 536870910;         // message counter
+        optional uint64 publish_ts     = 536870911;    // publish utc timestamp; unit : nanosecond
+
+} 
+
+message F120AdcFaultInfo{
+        optional bool F120_DES1_LinkNotLocked = 1;
+        optional bool F120_DES1_VideoNotLocked = 2;
+        // 0: no fault, 1: has fault;
+}
+
+message OMSAdcFaultInfo{
+        optional bool OMS_DES2_LinkNotLocked = 1;
+        optional bool OMS_DES2_VideoNotLocked = 2;
+        // 0: no fault, 1: has fault;
+}
+
+message DMSAdcFaultInfo{
+        optional bool DMS_DES3_LinkNotLocked = 1;
+        optional bool DMS_DES3_VideoNotLocked = 2;
+        // 0: no fault, 1: has fault;
+}
+
+message F30AdcFaultInfo{
+        optional bool F30_DES3_LinkNotLocked = 1;
+        optional bool F30_DES3_VideoNotLocked = 2;
+        // 0: no fault, 1: has fault;
+}
+
+message RearAdcFaultInfo{
+        optional bool Rear_DES3_LinkNotLocked = 1;
+        optional bool Rear_DES3_VideoNotLocked = 2;
+        // 0: no fault, 1: has fault;
+}
+
+message SVCFrontAdcFaultInfo{
+        optional bool SVCFront_DES4_LinkNotLocked = 1;
+        optional bool SVCFront_DES4_VideoNotLocked = 2;
+        // 0: no fault, 1: has fault;
+}
+
+message SVCLeftAdcFaultInfo{
+        optional bool SVCLeft_DES4_LinkNotLocked = 1;
+        optional bool SVCLeft_DES4_VideoNotLocked = 2;
+        // 0: no fault, 1: has fault;
+}
+
+message SVCRearAdcFaultInfo{
+        optional bool SVCRear_DES5_LinkNotLocked = 1;
+        optional bool SVCRear_DES5_VideoNotLocked = 2;
+        // 0: no fault, 1: has fault;
+}
+
+message SVCRightAdcFaultInfo{
+        optional bool SVCRight_DES5_LinkNotLocked = 1;
+        optional bool SVCRight_DES5_VideoNotLocked = 2;
+        // 0: no fault, 1: has fault;
+}
+
+message SideFLAdcFaultInfo{
+        optional bool SideFL_DES6_LinkNotLocked = 1;
+        optional bool SideFL_DES6_VideoNotLocked = 2;
+        // 0: no fault, 1: has fault;
+}
+
+message SideFRAdcFaultInfo{
+        optional bool SideFR_DES6_LinkNotLocked = 1;
+        optional bool SideFR_DES6_VideoNotLocked = 2;
+        // 0: no fault, 1: has fault;
+}
+
+message SideRLAdcFaultInfo{
+        optional bool SideRL_DES6_LinkNotLocked = 1;
+        optional bool SideRL_DES6_VideoNotLocked = 2;
+        // 0: no fault, 1: has fault;
+}
+
+message SideRRAdcFaultInfo{
+        optional bool SideRR_DES6_LinkNotLocked = 1;
+        optional bool SideRR_DES6_VideoNotLocked = 2;
+        // 0: no fault, 1: has fault;
+}

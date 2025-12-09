@@ -1,0 +1,219 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+message Nt2LaneSegEvents {
+  repeated Nt2LaneSegEvent events = 1;
+}
+
+message Nt2LaneSegEvent {
+    optional EventBase event_base            = 1;
+    optional EventCondition event_condition  = 2;
+    optional EventAction event_action        = 3;
+}
+
+message EventBase {
+    optional string  event_id                = 1;  // 事件id
+    /* event_type 事件类型
+       Driving,Parking,DMS
+    */
+    optional int32   OBSOLETE_event_type              = 2;  // 事件类型
+    optional LaneSegMessageType message_type        = 3;  // 消息类型 静态or动态
+    optional string event_base_type                 = 4; // 事件类型
+}
+
+message EventCondition {
+    optional string  vehicle_model           = 1;  // 车型 ALL/ET7
+    optional string  software_version        = 2;  // 软件版本 software version: "" for All/Xxxx
+    optional string  hardware_version        = 3;  // 硬件版本 haredware version: "" for All/Xxxx
+    optional string  map_version             = 4;  // "  map_supplier. e.g.: "Driving_BAIDU_10120" or "Parking" + station_version e.g.: "Parking_01"
+    optional Point2D event_gps               = 5;
+    optional string  event_start_time        = 6;  // 事件起始周期  lifecycle
+    optional string  event_end_time          = 7;  // 事件终止周期  lifecycle
+    optional ScenarioType  scenario_type     = 8;  // 环境信息
+    optional DriverFilter  driver_filter     = 9;  // 驾驶人行为类型
+    optional string range_start_time         = 10; // 每天的生效开始时间  hhmmss
+    optional string range_end_time           = 11; // 每天的生效结束时间  hhmmss
+}
+
+message EventAction {
+    enum AdModeType {
+        MANUAL    = 0;
+        NAD       = 1;
+        NOP_PLUS  = 2;
+        NP        = 3;
+        PSAP      = 4;
+        AVP       = 5;
+        Driving_Common     = 6;
+        Parking_Common     = 7;
+        PSP       = 8;
+    }
+    optional AdModeType ad_mode_type        = 1;  // 动作类型
+    // Action概念 详细的动作(动作条件+动作内容)
+    optional DrivingAction driving_action   = 2;  // driving
+    optional ParkingAction parking_action   = 3;  // parking
+    optional DMSAction dms_action           = 4;  // dms
+}
+
+message ScenarioType{
+    enum LightingType{
+        Lighting_ALL       = 0;
+        DARK      = 1;            //lux <xxx?
+        BRIGHT    = 2;            //lux >xxx?
+    }
+    enum WeatherType{
+        Weather_ALL       = 0;
+        SUNNY     = 1;
+        RAIN      = 2;
+        FOG       = 3;
+        SNOW      = 4;
+        CLOUD     = 5;
+        FORST     = 6;
+    }
+    optional WeatherType        weather_type         = 1;
+    optional LightingType       lighting_type        = 2;
+    // other scenario layer....
+}
+
+enum LaneSegMessageType {
+    STATIC   = 0;
+    DYNAMIC  = 1;
+}
+
+message Point2D {
+  optional double x = 1;
+  optional double y = 2;
+}
+
+enum DriverFilter {   // 驾驶人行为类型
+    ALL              = 0;
+    AGGRESSIVE       = 1;
+    CONSERVED        = 2;
+    HIGH_ENGAGEMENT  = 3;
+    LOW_ENGAGEMENT   = 4;
+}
+
+message DrivingAction {
+    reserved 2;
+    reserved 3;
+    optional DrivingActionRule action_rule = 1;
+    optional DrivingActionContext action_context = 4;
+}
+
+message DrivingActionRule {
+    reserved 1;
+    repeated LaneSegLink lane_seg_link = 2; // '' for all links linkid list
+}
+
+message DrivingActionContext {
+    reserved 4;
+    repeated InfoConfig    info_config    = 3;  // driving动作内容
+}
+
+message LaneSegLink {
+    reserved 1;
+    optional int32             offset_start        = 2; // unit ：m
+    optional int32             offset_end          = 3; // unit ：m
+    optional string            lane_id             = 4;
+}
+
+message ParkingAction {
+    optional PackingActionRule action_rule = 1;
+    optional PackingActionContext action_context = 2;
+}
+
+message PackingActionRule {
+    optional string park_station_id                         = 1; // "station id" for "psap"
+    optional ParkLaneId  park_lane_id                       = 2; // reserved for parking map
+}
+
+message PackingActionContext {
+    repeated InfoConfig    info_config    = 3;  // driving动作内容
+}
+
+message ParkLaneId {
+    optional string                 lane_id                 = 1; // '' for all lanes 第几根车道 车道id （1-6 ex）
+    repeated LaneSegLink   lane_seg_link           = 2; // '' for all links linkid list
+}
+
+message InfoConfig {
+    reserved 1;
+    optional int32      info_value    = 2;
+    optional int32      static_info         = 3;
+    optional int32      dynamic_info        = 4;
+    optional int32      road_scenario_type  = 5;
+}
+
+message DMSAction {
+    reserved 3;
+    optional DrowsinessConfig    drowsiness_config      =1;
+    optional DistractionConfig    distraction_config    =2;
+    optional bool    DMSDistractionSwitch_cloud         =4;    //1:打开 0:关闭
+    optional bool    DMSDrowsinessSwitch_cloud_light    =5;    //轻度 1:打开 0:关闭
+    optional bool    DMSDrowsinessSwitch_cloud_medium   =6;    //中度 1:打开 0:关闭
+    optional bool    DMSDrowsinessSwitch_cloud_heavy    =7;    //重度 1:打开 0:关闭
+    optional uint64  adms_subfunc_mask                  =8;
+    optional uint64  high_risk_scene_mask               =9;
+    optional uint64  risk_scene_warn_mask               =10;
+}
+
+message DrowsinessConfig {
+    optional EyeConfig    eye_config        =1;     //10s滚动窗口闭眼百分比判断
+    optional MouthConfig    mouth_config    =2;     //60s滚动窗口打哈欠个数判断
+    optional Customized    customized       =3;     //连续闭眼判断重度疲劳
+}
+
+message EyeConfig {
+    optional double perclos_light          =1;
+    optional double perclos_medium         =2;
+    optional double perclos_window_time    =3;
+}
+message MouthConfig {
+    optional int32 yawn_light              =1;
+    optional int32 yawn_medium             =2;
+    optional double yawn_windown_time      =3;
+}
+message Customized {
+    optional double eye_close_thr    =1;
+    optional double eye_open_thr     =2;
+}
+
+message DistractionConfig {
+    optional DistractionScoreThr    distraction_score_thr    =1; //分心时长区分轻度中度重度分心
+    optional DistractionRectangle    distraction_rectangle   =2; //分心区域配置
+    optional double distraction_fast_fade_time               =3; //分心消退时间
+}
+
+message DistractionScoreThr {
+    optional double distraction_light_thr    =1;
+    optional double distraction_medium_thr   =2;
+    optional double distraction_heavy_thr    =3;
+}
+
+message DistractionRectangle {
+    optional Gaze3DPoint    gaze_3D_point    =1;    //eyegaze区域
+    optional HeadPose    head_pose           =2;    //头姿角度
+}
+
+message Gaze3DPoint {
+    optional Zones X    =1;
+    optional Zones Y    =2;
+    optional Anchors anchors_front = 3;
+    optional Anchors anchors_ic = 4;
+}
+
+message HeadPose {
+    optional Zones yaw      =1;
+    optional Zones pitch    =2;
+    optional Zones roll     =3;
+}
+message Zones {
+    optional double min    =1;
+    optional double max    =2;
+}
+
+message Anchors {
+    repeated int32 anchor_list = 1;
+    optional double ratio = 2;
+}

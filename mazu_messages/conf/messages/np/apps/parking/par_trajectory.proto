@@ -1,0 +1,119 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+import "np/apps/parking/par_pnc_point.proto";
+
+import "np/apps/parking/par_objmap.proto";
+
+message EStop {
+  // is_estop == true when emergency stop is required
+  optional bool is_estop = 1;
+  optional string reason = 2;
+  optional float collision_dst = 3;
+  optional double estop_coeffi = 4;
+}
+
+message FinishPoint{
+  optional PathPoint slot_and_bumper_target_point = 1; // target point calculated according to slot and bumper
+  
+  optional PathPoint obstacle_target_point = 2; // target point calculated according to obstacles
+  
+  optional PathPoint final_target_point = 3; // final target point 
+
+  optional float target_x_bias = 4; // pos:right neg:left
+
+  optional bool target_x_bias_trigger = 5;
+}
+
+message BoundingBox{
+  optional double front_bounding_box = 1;
+  optional double rear_bounding_box = 2;
+  optional double left_bounding_box = 3;
+  optional double right_bounding_box = 4;
+}
+
+message ADCTrajectory {
+  optional double total_path_length = 1;  // in meters
+
+  optional double total_path_time = 2;    // in seconds
+
+  optional EStop estop = 3;
+
+  // is_replan == true mean replan triggered
+  optional bool is_replan = 4 [default = false];
+  optional string replan_reason = 5;
+
+  // path data + speed data
+  repeated TrajectoryPoint trajectory_point = 6;
+
+  enum TrajectoryType {
+    Unknown = 0;
+    UnSmoothed = 1;
+    PathFallback = 2;
+    SpeedFallback = 3;
+    PathReused = 4;
+  }
+  optional TrajectoryType trajectory_type = 7 [default = Unknown];
+
+  optional bool is_finished = 8 [default = false]; // goal arrived
+
+  optional string stage = 9;
+
+  optional string info = 10;
+
+  enum StageInfo {
+    Default = 0;
+    NormalForward = 1;
+    NormalBackward = 2;
+    AdjustForward = 3;
+    AdjustBackward = 4;
+    Reserved1 = 5;
+    Reserved2 = 6;
+    Reserved3 = 7;
+    Reserved4 = 8;
+  }
+  optional StageInfo stage_info = 11 [default = Default];
+
+  optional FinishPoint finish_point = 12;
+
+  optional BoundingBox bounding_box = 13;
+  
+  optional double planning_consumption_time = 14;
+
+  optional uint32 total_path_cnt_num = 15;
+
+  optional bool is_traj_complete = 16;
+
+  enum RPAOutTrajectoryType {
+    RPAOutTrajectoryType_Standstill    = 0; //Standstill
+    RPAOutTrajectoryType_ParallelOutLeft = 1; //Parallel Parking Out in Left Orientation
+    RPAOutTrajectoryType_ParallelOutRight = 2; //Parallel Parking Out in Right Orientation
+    RPAOutTrajectoryType_VerticalOutStraightLine = 3; //Vertical parking out straight linescope
+    RPAOutTrajectoryType_VerticalOutLeft = 4; //Vertical parking out in left orientation
+    RPAOutTrajectoryType_VerticalOutRight = 5; //Vertical parking out in right orientation
+  }
+  optional RPAOutTrajectoryType RPAOut_trajectory_type = 17 [default = RPAOutTrajectoryType_Standstill];
+
+  enum MirrFoldUnfoldExtReq_e{
+        MirrFoldUnfoldExtReq_None = 0;//No request
+        MirrFoldUnfoldExtReq_Fold = 1;//Request to fold
+        MirrFoldUnfoldExtReq_Unfold = 2;//Request to unfold
+        MirrFoldUnfoldExtReq_Invld = 3;//Invalid
+  }  
+  optional MirrFoldUnfoldExtReq_e MirrFoldUnfoldExtReq = 18;
+
+  repeated ParSingleObject virtual_objs = 19;
+  
+  optional string debug_info = 20;
+
+  enum ReverseAssistTrajectoryType {
+    TrajectoryType_ParkingIn  = 0; //ReverseAssist ParkingIn
+    TrajectoryType_Cruising   = 1; //ReverseAssist Cruising
+  }
+  optional ReverseAssistTrajectoryType reverse_assist_trajectory_type = 21 [default = TrajectoryType_ParkingIn];
+
+  repeated ParDynamicObject dyn_objs = 22;
+}

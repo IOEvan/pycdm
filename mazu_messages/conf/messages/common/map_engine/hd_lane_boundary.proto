@@ -1,0 +1,113 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+import "common/map_engine/map_geometry.proto";
+import "common/map_engine/hd_common.proto";
+
+message HdLaneBoundary {
+  optional uint64 id = 1;
+
+  // The central line of lane boundary marking.
+  optional MapPolyline central_line = 2;
+
+  enum Color {
+    WHITE = 0;
+    YELLOW = 6;
+    GREEN = 7;
+    BLUE = 9;
+    ORANGE = 10;
+    UNKNOWN_COLOR = 15;
+    OTHER_COLOR = 98;
+    NOT_USED = 99;    
+  }
+  // Fromt right to left.
+  // I.e. if this boundary is a double-line boundary, the first value describes
+  // the right line, and the second value describes the left line.
+  repeated Color colors = 3;
+
+  enum Type {
+    NO_MARKING = 0 [deprecated = true];
+    LONG_DASHED_LINE = 1;
+    SINGLE_SOLID_LINE = 3;
+    DASHED_BLOCKS = 8;
+    GUARDRAIL = 17 [deprecated = true];
+    FENCE = 18 [deprecated = true];
+    GORE = 23;
+    OTHER_BARRIER = 30 [deprecated = true];
+    UNKNOWN_TYPE = 31 [deprecated = true];
+    UNCLASSIFIED = 41 [deprecated = true];
+    OTHER = 42;
+    SICK_SOLID_LINE = 43;
+    PARKING_LOT_LINE = 44;
+    VIRTUAL_LINE = 45;
+    INTERSECTION_VIRTUAL_LINE = 46;
+    ROAD_EDGE = 47;
+    CONSTRUCTION_FENCE = 48;
+    NATURAL_BOUNDARY = 49 [deprecated = true];
+    VIRTUAL_AUXILIARY_LINE = 50;
+    ACCESSORY_LINE = 53;
+    LON_DECELERATION_LM = 54 [deprecated = true];
+    FLEX_GUIDE_LM = 55 [deprecated = true];
+    TAILGATING_ZONE_LM = 56;
+    BUS_SPECIAL_LM = 57 [deprecated = true];
+    HOV_LANE_MARKING = 58 [deprecated = true];
+    LANE_SIDELINE = 59 [deprecated = true];
+    UNGROUP = 98 [deprecated = true];
+    OTHERS = 99 [deprecated = true];
+    UNKNOWN = 100;
+    SINGLE_SOLID_OR_SICK_LINE = 101;
+    LON_DECELERATION_MARKING = 102;
+    VIRTUAL_BORDER = 103;
+    LANE_BOUNDARY_CURB = 104;
+    UNMARKED_EDGE = 105; 
+    VARIABLE_GUIDE_LINE = 106;       
+  }
+  // Refer to the definition of color.
+  repeated Type types = 4;
+
+  // The lane id which contains this lane boundary.
+  optional uint64 left_lane_id = 5;
+  optional uint64 right_lane_id = 6;
+
+  // The sequence id in lane group, the lane boundaries are ordered from right
+  // to left. e.g. the sequence_id in a 3-lane lane group.
+  //   3   2   1   0
+  //   │   │   │   │
+  //   │   │   │   │  ▲
+  //   │   │   │   │  |
+  //   │   │   │   │  |
+  //   │   │   │   │  │
+  //   │   │   │   │
+  //
+  optional int32 sequence_id = 7;
+
+  // The geometric predecessor/successor of this lane boundary.
+  repeated uint64 predecessor_lane_boundary_ids = 8;
+  repeated uint64 successor_lane_boundary_ids = 9;
+
+  // 0: unknown
+  // 1: 不应用
+  // 2：物理隔离
+  // 4：路缘石
+  // 5：换电仓
+  optional uint32 lane_separate = 10;
+
+  message FeaturePoint {
+    enum FeaturePointType {
+      ROAD_SPLIT = 0;
+      ROAD_MERGE = 1;
+    };
+    optional FeaturePointType type = 1;
+    // The index on central line.
+    optional int32 point_index = 2;
+  }
+  repeated FeaturePoint feature_points = 11;
+
+  repeated GeometryConfidenceRangeScore geometry_confidence = 12;
+}
+
+message HdLaneBoundaryList {
+  repeated HdLaneBoundary lane_boundary_list = 1;
+}

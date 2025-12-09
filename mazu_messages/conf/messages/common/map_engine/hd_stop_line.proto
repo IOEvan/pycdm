@@ -1,0 +1,39 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+import "common/map_engine/map_geometry.proto";
+import "common/map_engine/hd_common.proto";
+
+
+message HdStopLine {
+  optional uint64 id = 1;
+
+  // The surface of junction.
+  optional MapPolyline polyline = 2;
+
+  repeated uint64 traffic_light_id = 3;
+  repeated uint64 traffic_sign_id = 4;
+  repeated uint64 lane_id = 5;
+  repeated uint64 junction_id = 6;
+  enum StopLineType {
+    SL_UNCLASSIFIED = 20000;
+    SL_STOPLINE = 20001;
+    SL_PARKING = 20002;
+    SL_DECELERATE = 20003;
+    SL_VIRTUAL = 20004;
+    SL_SLOW = 20005;
+    SL_LEFT_TURN_WAIT = 20006;
+    SL_STRAIGHT_WAIT = 20007;
+    SL_OTHERS = 20099;
+  };
+  optional StopLineType stop_line_type = 7; 
+
+  optional GeometryConfidenceScore geometry_confidence = 8;
+  optional uint64 group_id = 9;
+}
+
+message HdStopLineList {
+  repeated HdStopLine stop_line_list = 1;
+}

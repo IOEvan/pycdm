@@ -1,0 +1,35 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+
+
+message EgoTrajectory {
+    // Num of predicted waypoints in the trajectory.
+    optional int32 Ego_Waypoint_Count = 1;
+    // The predicted waypoints of the trajectory.
+    repeated Waypoint Ego_Waypoints = 2;
+    // The predicted probability of the trajectory.
+    optional float Ego_Trajectory_Probability = 3;
+
+    // ptp time of perception result, unit: ns.
+    optional uint64 timestamp = 4;
+
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909; // uuid of the publisher
+    optional uint64 counter = 536870910;         // message counter
+    optional uint64 publish_ts = 536870911;    // publish utc timestamp; unit : nanosecond
+}
+
+message Waypoint {
+    // Absolute x in vhicle coordinate (unit: m, forward is positive). 
+    optional float Ego_Long_Position = 1; 
+    // Absolute y in vehicle coordinate (unit: m, left is positive). 
+    optional float Ego_Lat_Position = 2;
+    // Absolute z in vehicle coordinate (unit: m, up is positive). 
+    optional float Ego_Vertical_Position = 3;
+}

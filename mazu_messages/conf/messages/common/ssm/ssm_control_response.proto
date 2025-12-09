@@ -1,0 +1,43 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+import "common/ssm/ssm_info.proto";
+//SSM: super system machine
+//该proto用于回复系统状态机切换指令的响应结果
+//SSM在4个soc都进行部署
+
+message SsmModuleResponse {
+    optional SsmControlModule module = 1;
+    optional SsmControlCmd cmd = 2;
+    optional SsmControlResult result = 3;
+}
+
+message SsmModuleHearbeat {
+    optional SsmControlModule module = 1;
+    optional uint64 heart_beat = 2;
+}
+
+message SsmSceneManageResponse {
+    optional uint32 cmd_id           = 1;
+    optional string uuid             = 2;
+    optional SsmControlResult result = 3;
+    optional string productor        = 4;   //填充回复ACK的app name, 在applist当中app都要回复
+    optional uint64 fault_code       = 5;
+    optional string fault_msg        = 6;
+}
+
+
+message SsmControlResponseMessage{
+    optional SsmModuleResponse module_response = 1;
+    optional SsmModuleHearbeat module_hb = 2;
+    optional SsmSceneManageResponse scene_control_response = 3;
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;   // publish ptp timestamp unit : nanosecond
+    optional string publisher_id = 536870909;    // uuid of the publisher
+    optional uint64 counter = 536870910;         // message counter
+    optional uint64 publish_ts = 536870911;     // publish utc timestamp; unit : nanosecond
+}

@@ -1,0 +1,37 @@
+
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+message ControlParams {
+  optional double k1 = 1 [default = 0.0];
+  optional double k2 = 2 [default = 0.0];
+  optional double k3 = 3 [default = 0.0];
+  optional double k4 = 4 [default = 0.0];
+  optional double k5 = 5 [default = 0.0];
+  optional double k6 = 6 [default = 0.0];
+  optional double k7 = 7 [default = 0.0];
+  optional double k8 = 8 [default = 0.0];
+  optional double k9 = 9 [default = 0.0];
+  optional double k10 = 10 [default = 0.0];
+}
+
+message PlanningParams {
+  optional double k1 = 1 [default = 0.0];
+  optional double k2 = 2 [default = 0.0];
+  optional double k3 = 3 [default = 0.0];
+  optional double k4 = 4 [default = 0.0];
+  optional double k5 = 5 [default = 0.0];
+  optional double k6 = 6 [default = 0.0];
+  optional double k7 = 7 [default = 0.0];
+  optional double k8 = 8 [default = 0.0];
+  optional double k9 = 9 [default = 0.0];
+  optional double k10 = 10 [default = 0.0];
+}
+
+message OnlineParams {
+  optional ControlParams control_params = 1;
+  optional PlanningParams planning_params = 2;
+}

@@ -1,0 +1,30 @@
+
+
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+import "common/pnc/geometry.proto";
+
+message Prediction {
+  message Waypoint {
+    optional int64 time_delta = 1; // in ns, relative to time_meas.
+    optional Vector3f position = 2;
+    optional double speed = 3;   // 2D speed in m/s
+    optional double heading = 4; // heading of object (east = 0, north = pi/2)
+    optional bool is_virtual = 5 [default = false];
+  }
+
+  repeated Waypoint trajectory = 1;
+  optional double probability = 2;
+}
+message ObstaclePriority {
+  enum Priority {
+    CAUTION = 1;
+    NORMAL = 2;
+    IGNORE = 3;
+  }
+  optional Priority priority = 25 [ default = NORMAL ];
+}

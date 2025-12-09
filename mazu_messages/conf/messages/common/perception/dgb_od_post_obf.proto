@@ -1,0 +1,115 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages.debug;
+import "common/perf/sensor_ts_header.proto";
+import "common/perception/perception_objects.proto";
+import "common/perception/radar_object.proto";
+import "common/perception/radar_object_side.proto";
+import "common/perception/vision_road_detection.proto";
+import "common/perception/vision_failsafe.proto";
+import "common/perception/vision_feature_flag.proto";
+import "common/perception/free_space.proto";
+import "common/perception/vision_traffic_light.proto";
+import "common/perception/vision_traffic_sign.proto";
+import "common/perception/vision_vehicle_light.proto";
+import "common/vehicle_in/vehicle_10ms.proto";
+import "common/vehicle_in/vehicle_50ms.proto";
+import "common/map_engine/sd_map.proto";
+import "np/apps/fct_out.proto";
+import "common/platform/mcu_proxy/vehicle/vehicle_info.proto";
+import "common/perception/od_output.proto";
+import "common/perception/road_perception_2d.proto";
+import "np/apps/ehy_target_base.proto";
+import "np/apps/ehy_tsi_outputs.proto";
+
+import "common/perception/lidar_cluster_output.proto";
+import "common/perception/lidar_prediction_output.proto";
+import "common/perception/vision_bev_dynamic_object.proto";
+import "common/localization/relative_localization.proto";
+
+import "common/platform/mcu_proxy/vehicle/vehicle_variant_code.proto";
+import "common/diagnostic/fim/fim_perception.proto";
+import "common/diagnostic/fim/fim_mcuwithsoc_can.proto";
+import "common/diagnostic/fim/fim_software.proto";
+import "common/diagnostic/fim/fim_mcu_system.proto";
+import "common/diagnostic/fim/fim_lidar.proto";
+import "common/diagnostic/fim/fim_cameras.proto";
+import "common/sensors/gnss_result.proto";
+import "common/diagnostic/fim/fim_can.proto";
+import "common/perception/imaging_radar_perception.proto";
+import "common/perception/imaging_radar_system.proto";
+
+
+message OdPostObfTopicTime {
+  optional uint64 received_topic_publish_ts = 1;
+  optional uint64 received_topic_counter = 2;
+}
+
+message OdPostObfDebugOut {
+  optional OdPostObfTopicTime radar_info_topic = 1;
+  optional OdPostObfTopicTime od_adp_topic = 2;
+  optional OdPostObfTopicTime od_adb_topic = 3;
+  optional OdPostObfTopicTime od_lidar_topic = 4;
+  optional OdPostObfTopicTime relative_localization_topic = 5;
+  optional OdPostObfTopicTime vision_road_topic = 6;
+  optional OdPostObfTopicTime vision_failsafe_topic = 7;
+  optional OdPostObfTopicTime vision_feature_topic = 8;
+  optional OdPostObfTopicTime vision_fsp_topic = 9;
+  optional OdPostObfTopicTime vision_traffic_light_topic = 10;
+  optional OdPostObfTopicTime vision_traffic_sign_topic = 11;
+  optional OdPostObfTopicTime vision_vehicle_light_topic = 12;
+  optional OdPostObfTopicTime vehicle_10ms_topic = 13;
+  optional OdPostObfTopicTime vehicle_50ms_topic = 14;
+  optional OdPostObfTopicTime vehicle_fctout_topic = 15;
+  optional OdPostObfTopicTime lidar_read_ts = 16;
+  optional OdPostObfTopicTime vehicle_config_topic = 17;
+  optional OdPostObfTopicTime dead_reckoning_latest_ts = 18;
+  optional OdPostObfTopicTime ehy_tsi_topic = 19;//tsi info is needed
+  optional OdPostObfTopicTime od_output_topic = 20;
+  optional OdPostObfTopicTime lanelist_topic = 21;
+  optional OdPostObfTopicTime radar_side_feature_topic = 22;
+  optional OdPostObfTopicTime nop_functionstatus_topic = 23;
+  optional OdPostObfTopicTime radar_side_info_topic = 24;
+  optional OdPostObfTopicTime side_feature_topic = 25;
+
+  optional uint64 ehy_input_timestamp = 26;//uint in nanosec
+  optional uint64 od_input_timestamp = 27;//uint in nanosec
+
+  repeated OdPostObfTopicTime logged_ts = 28;
+
+  optional OdPostObfTopicTime veh_variant_code_topic = 29;
+  optional OdPostObfTopicTime perception_fim_topic = 30;
+  optional OdPostObfTopicTime mcu_with_soc_fim_topic = 31;
+  optional OdPostObfTopicTime fim_software_topic = 32;
+  optional OdPostObfTopicTime mcu_system_fim_topic = 33;
+  optional OdPostObfTopicTime lidar_fim_topic = 34;
+  optional OdPostObfTopicTime camera_fim_topic = 35;
+  optional OdPostObfTopicTime gnss_result_topic = 36;
+  optional OdPostObfTopicTime fim_can_topic = 37;
+
+  optional ObjectsDetection vision_objects = 38;
+  optional RadarSensor radar_info = 39;
+  optional RoadDetection vision_road = 40;
+  optional VEH10ms vehicle_10ms = 41;
+  optional VEH50ms vehicle_50ms = 42;
+  optional FreeSpaceDetection vision_fsp = 43;
+  optional VehicleInfo vehicle_config = 44;
+  optional VehVariantCode variant_code = 45;
+  optional ODOutputPb od_adp_stamp = 46;
+  optional ODOutputPb od_lidar_stamp = 47;
+  optional ODOutputPb od_adb = 48;
+  optional RelativeLocalization relative_location = 49;
+  optional uint64 timestamp = 50;
+
+  optional OdPostObfTopicTime image_radar_perception_topic = 60;
+  optional OdPostObfTopicTime image_radar_system_topic = 61;
+  optional ImagingRadarPerception img_rdr_od = 62;
+  optional ImagingRadarSystem img_rdr_sys = 63;
+
+  optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+  optional uint64 publish_ptp_ts = 536870907; // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909;   // uuid of the publisher
+  optional uint64 counter = 536870910;        // message counter
+  optional uint64 publish_ts = 536870911;     // publish utc timestamp; unit : nanosecond
+}

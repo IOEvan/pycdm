@@ -1,0 +1,2034 @@
+{
+	"topics":[
+		{
+			"name": "common/snap/co_snapshot",
+			"history": 1000,
+			"message": "nio.ad.messages.CoSceneSnapshotList"
+		},
+		{
+			"name": "common/snap/scene_snapshot",
+			"history": 1000,
+			"message": "nio.ad.messages.SceneSnapshotList"
+		},
+		{
+			"name": "common/snap/dssadv2",
+			"history": 1000,
+			"message": "nio.ad.messages.DssadElementV2"
+		},
+		{
+			"name": "common/snap/veh_snapshot",
+			"history": 1000,
+			"message": "nio.ad.messages.VehIn_Info"
+		},
+		{
+			"name": "common/snap/veh_snapshot",
+			"history": 1000,
+			"message": "nio.ad.messages.VehIn_Info"
+		},
+		{
+			"name": "common/snap/veh_snapshot",
+			"history": 1000,
+			"message": "nio.ad.messages.VehIn_Info"
+		},
+		{
+			"name": "common/snap/dssad",
+			"history": 1000,
+			"message": "nio.ad.messages.DssadElement"
+		},
+		{
+			"name": "common/ouread/service_id_response",
+			"history": 1000,
+			"message": "nio.ad.messages.ServiceIdInfoResponse"
+		},
+		{
+			"name": "common/ouread/service_id_request",
+			"history": 1000,
+			"message": "nio.ad.messages.ServiceIdInfoRequest"
+		},
+		{
+			"name": "common/diagnostic/sys/sys_status",
+			"history": 1000,
+			"message": "nio.ad.messages.SysInfo"
+		},
+		{
+			"name": "common/diagnostic/fim/fim_mcu_system",
+			"history": 1000,
+			"message": "nio.ad.messages.McuSystemFimInfo"
+		},
+		{
+			"name": "common/diagnostic/fim/fim_power_rail",
+			"history": 1000,
+			"message": "nio.ad.messages.PowerFimInfo"
+		},
+		{
+			"name": "common/diagnostic/fim/fim_cameras",
+			"history": 1000,
+			"message": "nio.ad.messages.CameraFimInfo"
+		},
+		{
+			"name": "common/diagnostic/fim/fim_can_feature",
+			"history": 1000,
+			"message": "nio.ad.messages.CanFeatureFimInfo"
+		},
+		{
+			"name": "common/diagnostic/fim/fim_mcuwithsoc_can",
+			"history": 1000,
+			"message": "nio.ad.messages.MCUWithSOCFimInfo"
+		},
+		{
+			"name": "common/diagnostic/fim/fim_can",
+			"history": 1000,
+			"message": "nio.ad.messages.FimCanInfo"
+		},
+		{
+			"name": "common/diagnostic/fim/fim_software",
+			"history": 1000,
+			"message": "nio.ad.messages.FimSoftwareInfo"
+		},
+		{
+			"name": "common/diagnostic/fim/fim_lidar",
+			"history": 1000,
+			"message": "nio.ad.messages.LidarFimInfo"
+		},
+		{
+			"name": "common/diagnostic/fim/fim_perception",
+			"history": 1000,
+			"message": "nio.ad.messages.PerceptionFimInfo"
+		},
+		{
+			"name": "common/diagnostic/fim/fault_function",
+			"history": 1000,
+			"message": "nio.ad.messages.FunctionInfo"
+		},
+		{
+			"name": "common/diagnostic/fault/fault_mcu_system",
+			"history": 1000,
+			"message": "nio.ad.messages.McuSystemFaultInfo"
+		},
+		{
+			"name": "common/diagnostic/fault/fault_software",
+			"history": 1000,
+			"message": "nio.ad.messages.SWFaultInfo"
+		},
+		{
+			"name": "common/diagnostic/fault/fault_fw_calibration",
+			"history": 1000,
+			"message": "nio.ad.messages.FWCalibrationFaultInfo"
+		},
+		{
+			"name": "common/diagnostic/fault/fault_code",
+			"history": 1000,
+			"message": "nio.ad.messages.FaultCodes"
+		},
+		{
+			"name": "common/diagnostic/fault/fault_dds",
+			"history": 1000,
+			"message": "nio.ad.messages.DDSFaultInfo"
+		},
+		{
+			"name": "common/diagnostic/fault/fault_mcuwithsoc_can",
+			"history": 1000,
+			"message": "nio.ad.messages.MCUWithSOCFaultInfo"
+		},
+		{
+			"name": "common/diagnostic/fault/fault_mcu_can",
+			"history": 1000,
+			"message": "nio.ad.messages.McuCanFaultInfo"
+		},
+		{
+			"name": "common/diagnostic/fault/fault_pe",
+			"history": 1000,
+			"message": "nio.ad.messages.PEFaultInfo"
+		},
+		{
+			"name": "common/diagnostic/fault/dms_fault_info",
+			"history": 1000,
+			"message": "nio.ad.messages.DMS_FaultInfo"
+		},
+		{
+			"name": "common/diagnostic/fault/fault_soc_camera",
+			"history": 1000,
+			"message": "nio.ad.messages.CameraFaultInfoFromSOC"
+		},
+		{
+			"name": "common/diagnostic/fault/fault_code_cdm",
+			"history": 1000,
+			"message": "nio.ad.messages.FaultCodes_cdm"
+		},
+		{
+			"name": "common/diagnostic/fault/fault_lidar_internal",
+			"history": 1000,
+			"message": "nio.ad.messages.LidarInternalFaultInfo"
+		},
+		{
+			"name": "common/diagnostic/fault/fault_camera_linkage",
+			"history": 1000,
+			"message": "nio.ad.messages.CameraLinkageFaultInfo"
+		},
+		{
+			"name": "common/diagnostic/fault/fault_can_feature",
+			"history": 1000,
+			"message": "nio.ad.messages.CanFeatureFaultInfo"
+		},
+		{
+			"name": "common/diagnostic/fault/fault_mcu_camera",
+			"history": 1000,
+			"message": "nio.ad.messages.CameraFaultInfoFromMCU"
+		},
+		{
+			"name": "common/diagnostic/fault/fault_lidar_data",
+			"history": 1000,
+			"message": "nio.ad.messages.LidarDataFaultInfo"
+		},
+		{
+			"name": "common/diagnostic/fault/fault_perception",
+			"history": 1000,
+			"message": "nio.ad.messages.PerceptionFaultInfo"
+		},
+		{
+			"name": "common/diagnostic/fault/fault_failsafe",
+			"history": 1000,
+			"message": "nio.ad.messages.FailsafeFaultInfo"
+		},
+		{
+			"name": "common/diagnostic/fault/fault_soc",
+			"history": 1000,
+			"message": "nio.ad.messages.SOCsFaultInfo"
+		},
+		{
+			"name": "common/cpu_multiplex/function_parking_process_out",
+			"history": 1000,
+			"message": "nio.ad.messages.APPStateBookParkingProcess"
+		},
+		{
+			"name": "common/cpu_multiplex/function_da_main_out",
+			"history": 1000,
+			"message": "nio.ad.messages.APPStateBookDAMain"
+		},
+		{
+			"name": "common/cpu_multiplex/app_state_out",
+			"history": 1000,
+			"message": "nio.ad.messages.AppStateOut"
+		},
+		{
+			"name": "common/perception/perception_objects",
+			"history": 1000,
+			"message": "nio.ad.messages.ObjectsDetection"
+		},
+		{
+			"name": "common/perception/vision_vehicle_light",
+			"history": 1000,
+			"message": "nio.ad.messages.VehicleLightDetection"
+		},
+		{
+			"name": "common/perception/perception_fusion_atlas",
+			"history": 1000,
+			"message": "nio.ad.messages.FusionAtlas"
+		},
+		{
+			"name": "common/perception/mlm_prompt_info",
+			"history": 1000,
+			"message": "nio.ad.messages.MlmPromptInfo"
+		},
+		{
+			"name": "common/perception/vision_feature_flag",
+			"history": 1000,
+			"message": "nio.ad.messages.Features"
+		},
+		{
+			"name": "common/perception/freespace_euclidean_space",
+			"history": 1000,
+			"message": "nio.ad.messages.FreeSpaceDetectionEuclidean"
+		},
+		{
+			"name": "common/perception/dgb_map_visualize_output",
+			"history": 1000,
+			"message": "nio.ad.messages.DbgMapVisualizeOutputPb"
+		},
+		{
+			"name": "common/perception/svc_perception",
+			"history": 1000,
+			"message": "nio.ad.messages.SVCPerception"
+		},
+		{
+			"name": "common/perception/vision_failsafe",
+			"history": 1000,
+			"message": "nio.ad.messages.FailSafeDetection"
+		},
+		{
+			"name": "common/perception/nav_input",
+			"history": 1000,
+			"message": "nio.ad.messages.NaviPathInputDebug"
+		},
+		{
+			"name": "common/perception/vision_traffic_sign",
+			"history": 1000,
+			"message": "nio.ad.messages.TrafficSignDetection"
+		},
+		{
+			"name": "common/perception/road_perception_2d",
+			"history": 1000,
+			"message": "nio.ad.messages.BEVLane"
+		},
+		{
+			"name": "common/perception/road_perception_2d",
+			"history": 1000,
+			"message": "nio.ad.messages.BEVLane"
+		},
+		{
+			"name": "common/perception/vlm_infer_preprocess_output",
+			"history": 1000,
+			"message": "nio.ad.messages.VLMInferPreProcessOutput"
+		},
+		{
+			"name": "common/perception/astra_sim_dbg",
+			"history": 1000,
+			"message": "nio.ad.messages.AstraSimDebug"
+		},
+		{
+			"name": "common/perception/astra_planner_trajectories",
+			"history": 1000,
+			"message": "nio.ad.messages.AstraPlannerAgents"
+		},
+		{
+			"name": "common/perception/vlm_infer_input_promt",
+			"history": 1000,
+			"message": "nio.ad.messages.VLMInferInputPrompt"
+		},
+		{
+			"name": "common/perception/vision_road_detection",
+			"history": 1000,
+			"message": "nio.ad.messages.RoadDetection"
+		},
+		{
+			"name": "common/perception/e2e_waypoint",
+			"history": 1000,
+			"message": "nio.ad.messages.EgoTrajectory"
+		},
+		{
+			"name": "common/perception/nwm_nav_input",
+			"history": 1000,
+			"message": "nio.ad.messages.NwmNaviPathInputDebug"
+		},
+		{
+			"name": "common/perception/imaging_radar_detection",
+			"history": 1000,
+			"message": "nio.ad.messages.ImagingRadarPointCloud"
+		},
+		{
+			"name": "common/perception/free_space",
+			"history": 1000,
+			"message": "nio.ad.messages.FreeSpaceDetection"
+		},
+		{
+			"name": "common/perception/vision_RoadSign",
+			"history": 1000,
+			"message": "nio.ad.messages.RoadSignDetection"
+		},
+		{
+			"name": "common/perception/vision_illumnance_flag",
+			"history": 1000,
+			"message": "nio.ad.messages.IlluminanceFeatures"
+		},
+		{
+			"name": "common/perception/multisource_object",
+			"history": 1000,
+			"message": "nio.ad.messages.MultisourceObjects"
+		},
+		{
+			"name": "common/perception/side_feature_objects",
+			"history": 1000,
+			"message": "nio.ad.messages.SideFeatObj"
+		},
+		{
+			"name": "common/perception/dgb_od_post_obf",
+			"history": 1000,
+			"message": "nio.ad.messages.debug.OdPostObfDebugOut"
+		},
+		{
+			"name": "common/perception/svc_nn_output",
+			"history": 1000,
+			"message": "nio.ad.messages.SVCNNOutput"
+		},
+		{
+			"name": "common/perception/side_feature",
+			"history": 1000,
+			"message": "nio.ad.messages.ForceSideFeatures"
+		},
+		{
+			"name": "common/perception/manner_map",
+			"history": 1000,
+			"message": "nio.ad.messages.PerceptionOneMap"
+		},
+		{
+			"name": "common/perception/vlm_infer_outputs",
+			"history": 1000,
+			"message": "nio.ad.messages.VLMInferOutputs"
+		},
+		{
+			"name": "common/perception/radar_object_side",
+			"history": 1000,
+			"message": "nio.ad.messages.RadarSensorSide"
+		},
+		{
+			"name": "common/perception/vision_traffic_light",
+			"history": 1000,
+			"message": "nio.ad.messages.TrafficLightDetection"
+		},
+		{
+			"name": "common/perception/radar_object",
+			"history": 1000,
+			"message": "nio.ad.messages.RadarSensor"
+		},
+		{
+			"name": "common/perception/lidar_occupancy_grid",
+			"history": 1000,
+			"message": "nio.ad.messages.LidarOccupancyGrids"
+		},
+		{
+			"name": "common/perception/lidar_cluster_output",
+			"history": 1000,
+			"message": "nio.ad.messages.LidarClusterObjects"
+		},
+		{
+			"name": "common/perception/scene_info",
+			"history": 1000,
+			"message": "nio.ad.messages.MlmSceneInfo"
+		},
+		{
+			"name": "common/perception/vision_road_scene",
+			"history": 1000,
+			"message": "nio.ad.messages.RoadScene"
+		},
+		{
+			"name": "common/perception/imaging_radar_perception",
+			"history": 1000,
+			"message": "nio.ad.messages.ImagingRadarPerception"
+		},
+		{
+			"name": "common/perception/lidar_failsafe",
+			"history": 1000,
+			"message": "nio.ad.messages.Lidar_FailSafeDetection"
+		},
+		{
+			"name": "common/perception/imaging_radar_system",
+			"history": 1000,
+			"message": "nio.ad.messages.ImagingRadarSystem"
+		},
+		{
+			"name": "common/perception/vision_occ_freespace",
+			"history": 1000,
+			"message": "nio.ad.messages.VOccFreeSpace"
+		},
+		{
+			"name": "common/perception/vision_road_sign",
+			"history": 1000,
+			"message": "nio.ad.messages.VisionRoadSignDetection"
+		},
+		{
+			"name": "common/perception/roadsign_2d",
+			"history": 1000,
+			"message": "nio.ad.messages.RoadmarkerList"
+		},
+		{
+			"name": "common/perception/vision_raindrop",
+			"history": 1000,
+			"message": "nio.ad.messages.RainDropDetection"
+		},
+		{
+			"name": "common/perception/od_output",
+			"history": 1000,
+			"message": "nio.ad.messages.AssociationMatrix"
+		},
+		{
+			"name": "common/perception/ehy_input_bundle",
+			"history": 1000,
+			"message": "nio.ad.messages.EHYInputBundle"
+		},
+		{
+			"name": "common/perception/traffic_light_2d",
+			"history": 1000,
+			"message": "nio.ad.messages.TrafficLight_Detection"
+		},
+		{
+			"name": "common/vehicle_in/vehicle_50ms",
+			"history": 1000,
+			"message": "nio.ad.messages.VEH50ms"
+		},
+		{
+			"name": "common/vehicle_in/fourd_chs3_info",
+			"history": 1000,
+			"message": "nio.ad.messages.FourdInfo"
+		},
+		{
+			"name": "common/vehicle_in/veh_start",
+			"history": 1000,
+			"message": "nio.ad.messages.VehStart"
+		},
+		{
+			"name": "common/vehicle_in/vehicle_10ms",
+			"history": 10000,
+			"message": "nio.ad.messages.VEH10ms"
+		},
+		{
+			"name": "common/vehicle_in/adb_chs3_status_if",
+			"history": 1000,
+			"message": "nio.ad.messages.AdbStatus"
+		},
+		{
+			"name": "common/vehicle_in/pwrswapstn_info",
+			"history": 1000,
+			"message": "nio.ad.messages.PsapStationInfo"
+		},
+		{
+			"name": "common/vehicle_in/fourd_pd_info",
+			"history": 1000,
+			"message": "nio.ad.messages.FourdPdInfo"
+		},
+		{
+			"name": "common/avp/avp_map",
+			"history": 1000,
+			"message": "nio.ad.messages.AvpMap"
+		},
+		{
+			"name": "common/avp/map_task_request",
+			"history": 1000,
+			"message": "nio.ad.messages.MapTaskRequest"
+		},
+		{
+			"name": "common/avp/location_info",
+			"history": 1000,
+			"message": "nio.ad.messages.LocationInfo"
+		},
+		{
+			"name": "common/avp/map_task_response",
+			"history": 1000,
+			"message": "nio.ad.messages.MapTaskResponse"
+		},
+		{
+			"name": "common/avp/semantic_occupancy_grid",
+			"history": 1000,
+			"message": "nio.ad.messages.OccupancyGridMap"
+		},
+		{
+			"name": "common/cfgmgr/cfg_task_action",
+			"history": 1000,
+			"message": "nio.ad.messages.CfgTaskAction"
+		},
+		{
+			"name": "common/cfgmgr/cfg_task_switch",
+			"history": 1000,
+			"message": "nio.ad.messages.CfgTaskSwitch"
+		},
+		{
+			"name": "common/cfgmgr/cfg_reminder_resp",
+			"history": 1000,
+			"message": "nio.ad.messages.ReminderRespList"
+		},
+		{
+			"name": "common/cfgmgr/cfg_task_action_resp",
+			"history": 1000,
+			"message": "nio.ad.messages.CfgTaskActionResp"
+		},
+		{
+			"name": "common/cfgmgr/cfg_reminder_request",
+			"history": 1000,
+			"message": "nio.ad.messages.ReminderList"
+		},
+		{
+			"name": "common/someip_proxy/vehicle_privacy_switch",
+			"history": 1000,
+			"message": "nio.ad.messages.VehPrivacySwt"
+		},
+		{
+			"name": "common/someip_proxy/user_info",
+			"history": 1000,
+			"message": "nio.ad.messages.UserInfo"
+		},
+		{
+			"name": "common/someip_proxy/gnss_switch_request",
+			"history": 1000,
+			"message": "nio.ad.messages.GNSSSwitchRequest"
+		},
+		{
+			"name": "common/someip_proxy/gnss_switch_response",
+			"history": 1000,
+			"message": "nio.ad.messages.GNSSSwitchResponse"
+		},
+		{
+			"name": "common/coapp/coapp_info_req",
+			"history": 1000,
+			"message": "nio.ad.messages.CoAppInfoReq"
+		},
+		{
+			"name": "common/coapp/coapp_info_resp",
+			"history": 1000,
+			"message": "nio.ad.messages.CoAppInfoResp"
+		},
+		{
+			"name": "common/coapp/cdm_model",
+			"history": 1000,
+			"message": "nio.ad.messages.CdmModelResult"
+		},
+		{
+			"name": "common/sensors/bosch_conti_radar_status",
+			"history": 1000,
+			"message": "nio.ad.messages.BoschContiRadarFaultStatus"
+		},
+		{
+			"name": "common/sensors/pvat",
+			"history": 10000,
+			"message": "nio.ad.messages.PVATResult"
+		},
+		{
+			"name": "common/sensors/gps",
+			"history": 1000,
+			"message": "nio.ad.messages.GPSFrame"
+		},
+		{
+			"name": "common/sensors/camera_status",
+			"history": 1000,
+			"message": "nio.ad.messages.CameraStatus"
+		},
+		{
+			"name": "common/sensors/imu",
+			"history": 1000,
+			"message": "nio.ad.messages.IMUFrame"
+		},
+		{
+			"name": "common/sensors/camera_signal_data",
+			"history": 1000,
+			"message": "nio.ad.messages.CameraSigData"
+		},
+		{
+			"name": "common/sensors/pvat_for_cdc",
+			"history": 1000,
+			"message": "nio.ad.messages.PvatForCdc"
+		},
+		{
+			"name": "common/sensors/camera_tsync",
+			"history": 1000,
+			"message": "nio.ad.messages.CameraTsync"
+		},
+		{
+			"name": "common/sensors/gnss_time_request",
+			"history": 1000,
+			"message": "nio.ad.messages.TimeTransferRequest"
+		},
+		{
+			"name": "common/sensors/CameraReq",
+			"history": 1000,
+			"message": "nio.ad.messages.CameraReq"
+		},
+		{
+			"name": "common/sensors/gnss_time_response",
+			"history": 1000,
+			"message": "nio.ad.messages.TimeTransferResponse"
+		},
+		{
+			"name": "common/sensors/camera_data",
+			"history": 1000,
+			"message": "nio.ad.messages.CameraData"
+		},
+		{
+			"name": "common/sensors/camera_schedule_resp",
+			"history": 1000,
+			"message": "nio.ad.messages.CameraScheduleResp"
+		},
+		{
+			"name": "common/sensors/camerasal_to_ECOplus_resp",
+			"history": 1000,
+			"message": "nio.ad.messages.CamSALtoGoECOplusFdbk"
+		},
+		{
+			"name": "common/sensors/dead_reckoning",
+			"history": 1000,
+			"message": "nio.ad.messages.DRResult"
+		},
+		{
+			"name": "common/sensors/camera_schedule_req",
+			"history": 1000,
+			"message": "nio.ad.messages.CameraScheduleReq"
+		},
+		{
+			"name": "common/sensors/vehicle_info",
+			"history": 1000,
+			"message": "nio.ad.messages.VehInfo2Pe"
+		},
+		{
+			"name": "common/sensors/radar_status",
+			"history": 1000,
+			"message": "nio.ad.messages.RadarFaultStatus"
+		},
+		{
+			"name": "common/sensors/mcu_camera_status",
+			"history": 1000,
+			"message": "nio.ad.messages.MCUCameraStatus"
+		},
+		{
+			"name": "common/sensors/camera_compress_data",
+			"history": 1000,
+			"message": "nio.ad.messages.CameraCompressData"
+		},
+		{
+			"name": "common/sensors/gnss_result",
+			"history": 1000,
+			"message": "nio.ad.messages.GnssResult"
+		},
+		{
+			"name": "common/sensors/radar_alignment_status",
+			"history": 1000,
+			"message": "nio.ad.messages.RadarAlignmentMessages"
+		},
+		{
+			"name": "common/sensors/uss_info",
+			"history": 1000,
+			"message": "nio.ad.messages.UssInfo"
+		},
+		{
+			"name": "common/nop/nop_scenemgmt",
+			"history": 1000,
+			"message": "nio.ad.messages.NopSceneMgmt"
+		},
+		{
+			"name": "common/nop/nop_vehicleout",
+			"history": 1000,
+			"message": "nio.ad.messages.NopVehicleOut"
+		},
+		{
+			"name": "common/nop/nop_speed",
+			"history": 1000,
+			"message": "nio.ad.messages.NopSpeed"
+		},
+		{
+			"name": "common/nop/task_scheduler/power_swap_pilot_state_compress",
+			"history": 1000,
+			"message": "nio.ad.messages.PowerSwapPilotStateCompress"
+		},
+		{
+			"name": "common/nop/task_scheduler/service_area_point_cloud_map_response",
+			"history": 1000,
+			"message": "nio.ad.messages.ServiceAreaPointCloudMapResponse"
+		},
+		{
+			"name": "common/nop/task_scheduler/service_area_point_cloud_map_request",
+			"history": 1000,
+			"message": "nio.ad.messages.ServiceAreaPointCloudMapRequest"
+		},
+		{
+			"name": "common/nop/task_scheduler/power_swap_pilot_event_compress",
+			"history": 1000,
+			"message": "nio.ad.messages.PowerSwapPilotEventCompress"
+		},
+		{
+			"name": "common/nop/task_scheduler/power_swap_pilot_event",
+			"history": 1000,
+			"message": "nio.ad.messages.PowerSwapPilotEvent"
+		},
+		{
+			"name": "common/nop/task_scheduler/power_swap_pilot_state",
+			"history": 1000,
+			"message": "nio.ad.messages.PowerSwapPilotState"
+		},
+		{
+			"name": "common/nop/nop_functionstatus",
+			"history": 1000,
+			"message": "nio.ad.messages.NopFunctionStatus"
+		},
+		{
+			"name": "common/nop/nop_chassis_control",
+			"history": 1000,
+			"message": "nio.ad.messages.NopChassisControl"
+		},
+		{
+			"name": "common/nop/nop_speedlimitvalue",
+			"history": 1000,
+			"message": "nio.ad.messages.NopSpeedLimitValue"
+		},
+		{
+			"name": "common/esd/esd_perception_objects",
+			"history": 1000,
+			"message": "nio.ad.messages.esd_ObjectsDetection"
+		},
+		{
+			"name": "common/esd/esd_environment",
+			"history": 1000,
+			"message": "nio.ad.messages.EsdEnvironment"
+		},
+		{
+			"name": "common/esd/esd_status",
+			"history": 1000,
+			"message": "nio.ad.messages.esd_status"
+		},
+		{
+			"name": "common/esd/esd_vision_road_detection",
+			"history": 1000,
+			"message": "nio.ad.messages.esd_RoadDetection"
+		},
+		{
+			"name": "common/esd/esd_np_feature",
+			"history": 1000,
+			"message": "nio.ad.messages.esd_np_feature"
+		},
+		{
+			"name": "common/platform/hw_manager/shutdown_broadcast",
+			"history": 1000,
+			"message": "nio.ad.messages.ShutdownBroadcast"
+		},
+		{
+			"name": "common/platform/hw_manager/shutdown_acknowledge",
+			"history": 1000,
+			"message": "nio.ad.messages.ShutdownAcknowledge"
+		},
+		{
+			"name": "common/platform/hw_manager/power_consumption",
+			"history": 1000,
+			"message": "nio.ad.messages.PowerConsumption"
+		},
+		{
+			"name": "common/platform/hw_manager/hardware_mode_broadcast",
+			"history": 1000,
+			"message": "nio.ad.messages.HardwareModeBroadcast"
+		},
+		{
+			"name": "common/platform/mcu_proxy/mcu_sshprivacy_response",
+			"history": 1000,
+			"message": "nio.ad.messages.SSHEnabledDeletePrivacyDataResp"
+		},
+		{
+			"name": "common/platform/mcu_proxy/mcu_frame_sync_ts",
+			"history": 1000,
+			"message": "nio.ad.messages.McuFrameSyncTs"
+		},
+		{
+			"name": "common/platform/mcu_proxy/mcu_sshprivacy_request",
+			"history": 1000,
+			"message": "nio.ad.messages.SSHEnabledDeletePrivacyDataReq"
+		},
+		{
+			"name": "common/platform/mcu_proxy/vehicle/vehicle_identifier_response",
+			"history": 1000,
+			"message": "nio.ad.messages.VehicleIdentifierResp"
+		},
+		{
+			"name": "common/platform/mcu_proxy/vehicle/vehicle_info",
+			"history": 1000,
+			"message": "nio.ad.messages.VehicleInfo"
+		},
+		{
+			"name": "common/platform/mcu_proxy/vehicle/vehicle_uuid",
+			"history": 1000,
+			"message": "nio.ad.messages.Vehicle_UUID"
+		},
+		{
+			"name": "common/platform/mcu_proxy/vehicle/vehicle_identifier_request",
+			"history": 1000,
+			"message": "nio.ad.messages.VehicleIdentifierReq"
+		},
+		{
+			"name": "common/platform/mcu_proxy/vehicle/vehicle_area_info",
+			"history": 1000,
+			"message": "nio.ad.messages.VehicleAreaInfoDetail"
+		},
+		{
+			"name": "common/platform/mcu_proxy/vehicle/vehicle_adf_fod",
+			"history": 1000,
+			"message": "nio.ad.messages.VehicleAdfFod"
+		},
+		{
+			"name": "common/platform/mcu_proxy/vehicle/vehicle_variant_code",
+			"history": 1000,
+			"message": "nio.ad.messages.VehVariantCode"
+		},
+		{
+			"name": "common/cloud_config/parking_param_config",
+			"history": 1000,
+			"message": "nio.ad.messages.ParkingParamConfig"
+		},
+		{
+			"name": "common/cloud_config/aeb_param_config",
+			"history": 1000,
+			"message": "nio.ad.messages.AebParamConfig"
+		},
+		{
+			"name": "common/cloud_config/adms_param_config",
+			"history": 1000,
+			"message": "nio.ad.messages.ADMSConfig"
+		},
+		{
+			"name": "common/cloud_config/nop_param_config",
+			"history": 1000,
+			"message": "nio.ad.messages.NopParamConfig"
+		},
+		{
+			"name": "common/cloud_config/pcie_param_config",
+			"history": 1000,
+			"message": "nio.ad.messages.PcieParamConfig"
+		},
+		{
+			"name": "common/cloud_config/station_env_param_config",
+			"history": 1000,
+			"message": "nio.ad.messages.StationEnvParamConfig"
+		},
+		{
+			"name": "common/parking/umanned_psap_adc_info_to_dc",
+			"history": 1000,
+			"message": "nio.ad.messages.AdcUmannedPsapStatusToDc"
+		},
+		{
+			"name": "common/parking/map_engine_to_cruise_parking",
+			"history": 1000,
+			"message": "nio.ad.messages.MapEngineToCruiseParking"
+		},
+		{
+			"name": "common/parking/umanned_psap_station_slots",
+			"history": 1000,
+			"message": "nio.ad.messages.UnmannedPsapStationSlotData"
+		},
+		{
+			"name": "common/parking/umanned_psap_opertaion_command",
+			"history": 1000,
+			"message": "nio.ad.messages.UmannedPsapOpertaionCommand"
+		},
+		{
+			"name": "common/parking/cruise_parking_to_hmi_sim",
+			"history": 1000,
+			"message": "nio.ad.messages.CruiseParkingToHmiSim"
+		},
+		{
+			"name": "common/parking/pn_dc_info_to_adc",
+			"history": 1000,
+			"message": "nio.ad.messages.DcPnReqToAdc"
+		},
+		{
+			"name": "common/parking/cruise_parking_to_routing",
+			"history": 1000,
+			"message": "nio.ad.messages.CruiseParkingToRouting"
+		},
+		{
+			"name": "common/parking/pn_adc_info_to_dc",
+			"history": 1000,
+			"message": "nio.ad.messages.AdcPnStatusToDc"
+		},
+		{
+			"name": "common/parking/umanned_psap_dc_info_to_adc",
+			"history": 1000,
+			"message": "nio.ad.messages.DcUmannedPsapReqToAdc"
+		},
+		{
+			"name": "common/parking/hmi_sim_to_cruise_parking",
+			"history": 1000,
+			"message": "nio.ad.messages.HmiSimToPilotParking"
+		},
+		{
+			"name": "common/parking/cruise_parking_to_map_engine",
+			"history": 1000,
+			"message": "nio.ad.messages.CruiseParkingToMapEngine"
+		},
+		{
+			"name": "common/calibration/eol_imu_request",
+			"history": 1000,
+			"message": "nio.ad.messages.EolImuReq"
+		},
+		{
+			"name": "common/calibration/online_calibration",
+			"history": 1000,
+			"message": "nio.ad.messages.OnlineCalibrationNotification"
+		},
+		{
+			"name": "common/calibration/eol_imu_response",
+			"history": 1000,
+			"message": "nio.ad.messages.EolImuResp"
+		},
+		{
+			"name": "common/vehicle_out/fourd_hmi_results",
+			"history": 1000,
+			"message": "nio.ad.messages.FourdHmiDisplay"
+		},
+		{
+			"name": "common/vehicle_out/ads",
+			"history": 1000,
+			"message": "nio.ad.messages.ADS"
+		},
+		{
+			"name": "common/vehicle_out/fourd_swamIntelligence",
+			"history": 1000,
+			"message": "nio.ad.messages.SwamIntelligence"
+		},
+		{
+			"name": "common/vehicle_out/psap_sync",
+			"history": 1000,
+			"message": "nio.ad.messages.PsapSyncInfo"
+		},
+		{
+			"name": "common/vehicle_out/fourd_pred_events",
+			"history": 1000,
+			"message": "nio.ad.messages.FourdPredictEvents"
+		},
+		{
+			"name": "common/vehicle_out/adb_chs3_opt",
+			"history": 1000,
+			"message": "nio.ad.messages.GFAMsg"
+		},
+		{
+			"name": "common/vehicle_out/fourd_setting_fdk",
+			"history": 1000,
+			"message": "nio.ad.messages.FourdSettingFdk"
+		},
+		{
+			"name": "common/vehicle_out/fourd_chs3_opt",
+			"history": 1000,
+			"message": "nio.ad.messages.FourdCtrlCmd"
+		},
+		{
+			"name": "common/vehicle_out/sapa_ui_results_eth",
+			"history": 1000,
+			"message": "nio.ad.messages.sapaUiInfo"
+		},
+		{
+			"name": "common/vehicle_out/psap_ui_results_eth",
+			"history": 1000,
+			"message": "nio.ad.messages.psapObjectInfo"
+		},
+		{
+			"name": "common/dlb/data_postprocess_resp",
+			"history": 1000,
+			"message": "nio.ad.messages.DataPostprocessResp"
+		},
+		{
+			"name": "common/dlb/data_desensitization_resp",
+			"history": 1000,
+			"message": "nio.ad.messages.DataDesensitizationResp"
+		},
+		{
+			"name": "common/dlb/cloud_https_ack",
+			"history": 1000,
+			"message": "nio.ad.messages.CloudHttpsAck"
+		},
+		{
+			"name": "common/dlb/dlb_message_download",
+			"history": 1000,
+			"message": "nio.ad.messages.DLBMessageDownload"
+		},
+		{
+			"name": "common/dlb/record_picture_event",
+			"history": 1000,
+			"message": "nio.ad.messages.PicDlbEvent"
+		},
+		{
+			"name": "common/dlb/event_triggered_report",
+			"history": 1000,
+			"message": "nio.ad.messages.EventTriggeredReq"
+		},
+		{
+			"name": "common/dlb/dlb_file_upload_response",
+			"history": 1000,
+			"message": "nio.ad.messages.DLBFileUploadResponse"
+		},
+		{
+			"name": "common/dlb/cloud_https_response",
+			"history": 1000,
+			"message": "nio.ad.messages.CloudHttpsResponse"
+		},
+		{
+			"name": "common/dlb/dlb_message_download_response",
+			"history": 1000,
+			"message": "nio.ad.messages.DLBMessageDownloadResponse"
+		},
+		{
+			"name": "common/dlb/data_desensitization_resp_ack",
+			"history": 1000,
+			"message": "nio.ad.messages.DataDesensitizationRespAck"
+		},
+		{
+			"name": "common/dlb/data_desensitization_request",
+			"history": 1000,
+			"message": "nio.ad.messages.DataDesensitizationReq"
+		},
+		{
+			"name": "common/dlb/datafilter_response",
+			"history": 1000,
+			"message": "nio.ad.messages.DataFilterEventResponse"
+		},
+		{
+			"name": "common/dlb/app_action_resp",
+			"history": 1000,
+			"message": "nio.ad.messages.AppActionResp"
+		},
+		{
+			"name": "common/dlb/record_camera_event",
+			"history": 1000,
+			"message": "nio.ad.messages.CamDlbEvent"
+		},
+		{
+			"name": "common/dlb/hdmap_version_response",
+			"history": 1000,
+			"message": "nio.ad.messages.HDMapVersionResponse"
+		},
+		{
+			"name": "common/dlb/record_packet_event",
+			"history": 1000,
+			"message": "nio.ad.messages.PacketDlbEvent"
+		},
+		{
+			"name": "common/dlb/record_log_event",
+			"history": 1000,
+			"message": "nio.ad.messages.LogDlbEvent"
+		},
+		{
+			"name": "common/dlb/record_calibration_event",
+			"history": 1000,
+			"message": "nio.ad.messages.CalibrationDlbEvent"
+		},
+		{
+			"name": "common/dlb/dlb_event_update_req",
+			"history": 1000,
+			"message": "nio.ad.messages.DLBEventUpdateReq"
+		},
+		{
+			"name": "common/dlb/dlb_event_update_resp",
+			"history": 1000,
+			"message": "nio.ad.messages.DLBEventUpdateResp"
+		},
+		{
+			"name": "common/dlb/record_can_event",
+			"history": 1000,
+			"message": "nio.ad.messages.CanDlbEvent"
+		},
+		{
+			"name": "common/dlb/dlb_file_download",
+			"history": 1000,
+			"message": "nio.ad.messages.DLBFileDownload"
+		},
+		{
+			"name": "common/dlb/data_postprocess_request_ack",
+			"history": 1000,
+			"message": "nio.ad.messages.DataPostprocessReqAck"
+		},
+		{
+			"name": "common/dlb/datafilter_event",
+			"history": 1000,
+			"message": "nio.ad.messages.DataFilterEvent"
+		},
+		{
+			"name": "common/dlb/record_soa_event",
+			"history": 1000,
+			"message": "nio.ad.messages.SoaDlbEvent"
+		},
+		{
+			"name": "common/dlb/dlb_file_upload",
+			"history": 1000,
+			"message": "nio.ad.messages.DLBFileUpload"
+		},
+		{
+			"name": "common/dlb/data_triggered_req",
+			"history": 1000,
+			"message": "nio.ad.messages.DataTriggeredReq"
+		},
+		{
+			"name": "common/dlb/dlb_message_upload_response",
+			"history": 1000,
+			"message": "nio.ad.messages.DLBMessageUploadResponse"
+		},
+		{
+			"name": "common/dlb/record_response",
+			"history": 1000,
+			"message": "nio.ad.messages.DlbResponse"
+		},
+		{
+			"name": "common/dlb/map_info_request",
+			"history": 1000,
+			"message": "nio.ad.messages.MapInfoReq"
+		},
+		{
+			"name": "common/dlb/data_postprocess_request",
+			"history": 1000,
+			"message": "nio.ad.messages.DataPostprocessReq"
+		},
+		{
+			"name": "common/dlb/dlb_file_upload_result",
+			"history": 1000,
+			"message": "nio.ad.messages.DLBFileUploadResult"
+		},
+		{
+			"name": "common/dlb/dlb_message_upload",
+			"history": 1000,
+			"message": "nio.ad.messages.DLBMessageUpload"
+		},
+		{
+			"name": "common/dlb/record_position_event",
+			"history": 1000,
+			"message": "nio.ad.messages.PositionDlbEvent"
+		},
+		{
+			"name": "common/dlb/app_action",
+			"history": 1000,
+			"message": "nio.ad.messages.AppAction"
+		},
+		{
+			"name": "common/dlb/hdmap_update_request",
+			"history": 1000,
+			"message": "nio.ad.messages.HDMapUpdateRequest"
+		},
+		{
+			"name": "common/dlb/record_lidar_event",
+			"history": 1000,
+			"message": "nio.ad.messages.LidarDlbEvent"
+		},
+		{
+			"name": "common/dlb/dlb_file_download_response",
+			"history": 1000,
+			"message": "nio.ad.messages.DLBFileDownloadResponse"
+		},
+		{
+			"name": "common/dlb/hdmap_download_file",
+			"history": 1000,
+			"message": "nio.ad.messages.HDMapDownloadFile"
+		},
+		{
+			"name": "common/dlb/hdmap_update_response",
+			"history": 1000,
+			"message": "nio.ad.messages.HDMapUpdateResponse"
+		},
+		{
+			"name": "common/dlb/record_dds_event",
+			"history": 1000,
+			"message": "nio.ad.messages.DdsDlbEvent"
+		},
+		{
+			"name": "common/dlb/record_perform_diag_event",
+			"history": 1000,
+			"message": "nio.ad.messages.PerformDiagEvent"
+		},
+		{
+			"name": "common/dlb/hdmap_download_file_response",
+			"history": 1000,
+			"message": "nio.ad.messages.HDMapDownloadFileResponse"
+		},
+		{
+			"name": "common/dlb/hdmap_version_request",
+			"history": 1000,
+			"message": "nio.ad.messages.HDMapVersionRequest"
+		},
+		{
+			"name": "common/dlb/data_desensitization_request_ack",
+			"history": 1000,
+			"message": "nio.ad.messages.DataDesensitizationReqAck"
+		},
+		{
+			"name": "common/dlb/cloud_https_request",
+			"history": 1000,
+			"message": "nio.ad.messages.CloudHttpsRequest"
+		},
+		{
+			"name": "common/planner/fs_task_info",
+			"history": 1000,
+			"message": "nio.ad.messages.FSTaskInfo"
+		},
+		{
+			"name": "common/planner/state_machine_to_wm",
+			"history": 1000,
+			"message": "nio.ad.messages.StateMachinetoWM"
+		},
+		{
+			"name": "common/ssip/ssiw",
+			"history": 1000,
+			"message": "nio.ad.messages.SSIW"
+		},
+		{
+			"name": "common/oms/oms_request",
+			"history": 1000,
+			"message": "nio.ad.messages.OmsRequest"
+		},
+		{
+			"name": "common/oms/oms_response",
+			"history": 1000,
+			"message": "nio.ad.messages.OmsResponse"
+		},
+		{
+			"name": "common/cfgclient/wti_client_request",
+			"history": 1000,
+			"message": "nio.ad.messages.WtiClientRequest"
+		},
+		{
+			"name": "common/cfgclient/wti_client_response",
+			"history": 1000,
+			"message": "nio.ad.messages.WtiClientResponse"
+		},
+		{
+			"name": "common/cfgclient/cfg_file_request",
+			"history": 1000,
+			"message": "nio.ad.messages.CfgFileRequest"
+		},
+		{
+			"name": "common/cfgclient/cfg_file_notify",
+			"history": 1000,
+			"message": "nio.ad.messages.CfgFileNotify"
+		},
+		{
+			"name": "common/ssm/fsm_driving_output",
+			"history": 1000,
+			"message": "nio.ad.messages.FsmDrivingOutput"
+		},
+		{
+			"name": "common/ssm/ssm_control_response",
+			"history": 1000,
+			"message": "nio.ad.messages.SsmControlResponseMessage"
+		},
+		{
+			"name": "common/ssm/ssm_control_request",
+			"history": 1000,
+			"message": "nio.ad.messages.SsmControlRequestMessage"
+		},
+		{
+			"name": "common/ssm/ssm_status",
+			"history": 1000,
+			"message": "nio.ad.messages.SsmStatusMessage"
+		},
+		{
+			"name": "common/ssm/fsm_driving_diagnosis",
+			"history": 1000,
+			"message": "nio.ad.messages.FsmDrivingDiagnosis"
+		},
+		{
+			"name": "common/debug/dgb_function_arb",
+			"history": 1000,
+			"message": "nio.ad.messages.debug.FuncArbDebugOut"
+		},
+		{
+			"name": "common/cdm/cdm_tag",
+			"history": 1000,
+			"message": "nio.ad.messages.CdmTagResult"
+		},
+		{
+			"name": "common/cdm/cdm_report_info",
+			"history": 1000,
+			"message": "nio.ad.messages.CdmReportInfo"
+		},
+		{
+			"name": "common/cdm/cdm_task_info",
+			"history": 1000,
+			"message": "nio.ad.messages.CdmTaskInfo"
+		},
+		{
+			"name": "common/localization/relative_localization",
+			"history": 1000,
+			"message": "nio.ad.messages.RelativeLocalization"
+		},
+		{
+			"name": "common/localization/vln_info",
+			"history": 1000,
+			"message": "nio.ad.messages.VlnInfo"
+		},
+		{
+			"name": "common/localization/odometry_pose",
+			"history": 1000,
+			"message": "nio.ad.messages.OdometryPose"
+		},
+		{
+			"name": "common/localization/se3_pose",
+			"history": 1000,
+			"message": "nio.ad.messages.SE3Pose"
+		},
+		{
+			"name": "common/localization/lmm_local_map",
+			"history": 1000,
+			"message": "nio.ad.messages.LocalMap"
+		},
+		{
+			"name": "common/localization/global_localization",
+			"history": 1000,
+			"message": "nio.ad.messages.GlobalLocalization"
+		},
+		{
+			"name": "common/localization/localization_status",
+			"history": 1000,
+			"message": "nio.ad.messages.LocalizationStatus"
+		},
+		{
+			"name": "common/function_arb/function_arb_out",
+			"history": 1000,
+			"message": "nio.ad.messages.FunctionRequestBook"
+		},
+		{
+			"name": "common/simulation/state_sync",
+			"history": 1000,
+			"message": "nio.ad.messages.SimulationStateSync"
+		},
+		{
+			"name": "common/simulation/sim_app_messages",
+			"history": 1000,
+			"message": "nio.sim.messages.SimAppSignal"
+		},
+		{
+			"name": "common/dms/dms_facedet_uuid_out",
+			"history": 1000,
+			"message": "nio.ad.messages.FaceDetnUUIDOut"
+		},
+		{
+			"name": "common/dms/adms_risk_score",
+			"history": 1000,
+			"message": "nio.ad.messages.ADMSRiskScore"
+		},
+		{
+			"name": "common/dms/dms_eas",
+			"history": 1000,
+			"message": "nio.ad.messages.DMS_EAS"
+		},
+		{
+			"name": "common/dms/dms_da_dlb",
+			"history": 1000,
+			"message": "nio.ad.messages.DMS_DA_DLB"
+		},
+		{
+			"name": "common/dms/dms_can",
+			"history": 1000,
+			"message": "nio.ad.messages.DMS_CAN"
+		},
+		{
+			"name": "common/dms/dms_facedet_out",
+			"history": 1000,
+			"message": "nio.ad.messages.FaceDetn_out"
+		},
+		{
+			"name": "common/dms/dms_ae_status",
+			"history": 1000,
+			"message": "nio.ad.messages.DMS_AE_Status"
+		},
+		{
+			"name": "common/dms/adms_transfer",
+			"history": 1000,
+			"message": "nio.ad.messages.ADMSTransfer"
+		},
+		{
+			"name": "common/dms/dms_ae_ctrl",
+			"history": 1000,
+			"message": "nio.ad.messages.DMS_AE"
+		},
+		{
+			"name": "common/dms/adms_nn",
+			"history": 1000,
+			"message": "nio.ad.messages.ADMSNN"
+		},
+		{
+			"name": "common/dms/dms_led_ctrl",
+			"history": 1000,
+			"message": "nio.ad.messages.DMS_LED"
+		},
+		{
+			"name": "common/dms/adms",
+			"history": 1000,
+			"message": "nio.ad.messages.ADMS"
+		},
+		{
+			"name": "common/dms/dms_dlb",
+			"history": 1000,
+			"message": "nio.ad.messages.DMS_DLB"
+		},
+		{
+			"name": "common/dms/dms_facedet_in",
+			"history": 1000,
+			"message": "nio.ad.messages.FaceDetn_in"
+		},
+		{
+			"name": "common/dms/dms_led_status",
+			"history": 1000,
+			"message": "nio.ad.messages.DMS_LED_Status"
+		},
+		{
+			"name": "common/dms/dms_drive_assist",
+			"history": 1000,
+			"message": "nio.ad.messages.DMS_DA"
+		},
+		{
+			"name": "common/dms/dms_result",
+			"history": 1000,
+			"message": "nio.ad.messages.DMS_Result"
+		},
+		{
+			"name": "common/time_cam/time_cam_response",
+			"history": 1000,
+			"message": "nio.ad.messages.TimeCamResponse"
+		},
+		{
+			"name": "common/time_cam/time_cam_request",
+			"history": 1000,
+			"message": "nio.ad.messages.TimeCamRequest"
+		},
+		{
+			"name": "common/aa_state/aa_base_algorithms_status",
+			"history": 1000,
+			"message": "nio.ad.messages.AABaseAlgorithmsStatus"
+		},
+		{
+			"name": "common/aa_state/aa_state_report",
+			"history": 1000,
+			"message": "nio.ad.messages.AaStateReport"
+		},
+		{
+			"name": "common/aa_state/aa_state_broadcast",
+			"history": 1000,
+			"message": "nio.ad.messages.AaStateBroadcast"
+		},
+		{
+			"name": "common/v2s/time_offset",
+			"history": 1000,
+			"message": "nio.ad.messages.TimeOffsetMsg"
+		},
+		{
+			"name": "common/v2s/time_offst_ack",
+			"history": 1000,
+			"message": "nio.ad.messages.TimeOffsetMsgAck"
+		},
+		{
+			"name": "common/pnc/driving_safety_request",
+			"history": 1000,
+			"message": "nio.ad.messages.DrivingSafetyRequest"
+		},
+		{
+			"name": "common/pnc/env_evaluator",
+			"history": 1000,
+			"message": "nio.ad.messages.wm.EnvEvaluator"
+		},
+		{
+			"name": "common/pnc/driving_safety_debug",
+			"history": 1000,
+			"message": "nio.ad.messages.VehicleStateNop"
+		},
+		{
+			"name": "common/pnc/par_state_machine",
+			"history": 1000,
+			"message": "nio.ad.messages.ParkStateMachine"
+		},
+		{
+			"name": "common/pnc/state_restore",
+			"history": 1000,
+			"message": "nio.ad.messages.StateRestore"
+		},
+		{
+			"name": "common/pnc/das_agent_request",
+			"history": 1000,
+			"message": "nio.ad.messages.DasAgentRequest"
+		},
+		{
+			"name": "common/pnc/pose",
+			"history": 1000,
+			"message": "nio.ad.messages.Pose"
+		},
+		{
+			"name": "common/pnc/car_info",
+			"history": 1000,
+			"message": "nio.ad.messages.CarInfo"
+		},
+		{
+			"name": "common/pnc/planner_checker",
+			"history": 1000,
+			"message": "nio.ad.messages.PlannerChecker"
+		},
+		{
+			"name": "common/map_engine/hd_parking_area",
+			"history": 1000,
+			"message": "nio.ad.messages.HdParkingAreaList"
+		},
+		{
+			"name": "common/map_engine/hd_map_meta_info",
+			"history": 1000,
+			"message": "nio.ad.messages.HdMapMetaInfo"
+		},
+		{
+			"name": "common/map_engine/hd_route_map",
+			"history": 1000,
+			"message": "nio.ad.messages.HdRouteMap"
+		},
+		{
+			"name": "common/map_engine/hd_road_geo_line",
+			"history": 1000,
+			"message": "nio.ad.messages.HdRoadGeoLineList"
+		},
+		{
+			"name": "common/map_engine/route_match_request_package",
+			"history": 1000,
+			"message": "nio.ad.messages.RouteMatchRequestPackage"
+		},
+		{
+			"name": "common/map_engine/hd_routes_guide_info",
+			"history": 1000,
+			"message": "nio.ad.messages.HdRoutesGuideInfo"
+		},
+		{
+			"name": "common/map_engine/ramp_dlb_mission_result",
+			"history": 1000,
+			"message": "nio.ad.messages.RampDlbMissionResult"
+		},
+		{
+			"name": "common/map_engine/hd_link_map",
+			"history": 1000,
+			"message": "nio.ad.messages.HdLinkMap"
+		},
+		{
+			"name": "common/map_engine/global_sd_routes",
+			"history": 1000,
+			"message": "nio.ad.messages.GlobalSdRoutes"
+		},
+		{
+			"name": "common/map_engine/someip_navi_position",
+			"history": 1000,
+			"message": "nio.ad.messages.SomeipNaviPosition"
+		},
+		{
+			"name": "common/map_engine/global_hd_routes",
+			"history": 1000,
+			"message": "nio.ad.messages.GlobalRouting"
+		},
+		{
+			"name": "common/map_engine/map_engine_log",
+			"history": 1000,
+			"message": "nio.ad.messages.MapEngineLog"
+		},
+		{
+			"name": "common/map_engine/ramp_dlb_mission_request",
+			"history": 1000,
+			"message": "nio.ad.messages.RampDlbMissionRequest"
+		},
+		{
+			"name": "common/map_engine/sd_map",
+			"history": 1000,
+			"message": "nio.ad.messages.SdMap"
+		},
+		{
+			"name": "common/map_engine/sd_map_inquiry_result",
+			"history": 1000,
+			"message": "nio.ad.messages.SdMapInquiryResult"
+		},
+		{
+			"name": "common/map_engine/hd_lane",
+			"history": 1000,
+			"message": "nio.ad.messages.HdLaneList"
+		},
+		{
+			"name": "common/map_engine/sd_map_package",
+			"history": 1000,
+			"message": "nio.ad.messages.SdMapPackage"
+		},
+		{
+			"name": "common/map_engine/map_engine_to_dlb_response",
+			"history": 1000,
+			"message": "nio.ad.messages.MapInfoResp"
+		},
+		{
+			"name": "common/map_engine/hd_map",
+			"history": 1000,
+			"message": "nio.ad.messages.HdMap"
+		},
+		{
+			"name": "common/map_engine/map_engine_dlb_trigger",
+			"history": 1000,
+			"message": "nio.ad.messages.MapEngineDlbTrigger"
+		},
+		{
+			"name": "common/map_engine/fence_odd_list",
+			"history": 1000,
+			"message": "nio.ad.messages.FenceODDList"
+		},
+		{
+			"name": "common/map_engine/map_scenario_info",
+			"history": 1000,
+			"message": "nio.ad.messages.MapScenarioInfo"
+		},
+		{
+			"name": "common/worldmodel/map_data_exception",
+			"history": 1000,
+			"message": "nio.ad.messages.MapDataException"
+		},
+		{
+			"name": "common/hdmap/hdmap_issue_notification",
+			"history": 1000,
+			"message": "nio.ad.messages.HDMapIssueNotification"
+		},
+		{
+			"name": "common/adhmi/adhmi_mlm_to_dc",
+			"history": 1000,
+			"message": "nio.ad.messages.Hmi_Mlm"
+		},
+		{
+			"name": "common/adhmi/adhmi_function_to_dc",
+			"history": 1000,
+			"message": "nio.ad.messages.Hmi_AdFunction"
+		},
+		{
+			"name": "common/adhmi/adhmi_function_from_dc",
+			"history": 1000,
+			"message": "nio.ad.messages.Hmi_AdFunction_from_dc"
+		},
+		{
+			"name": "common/adhmi/dct_request2dc",
+			"history": 1000,
+			"message": "nio.ad.messages.DctRequest2Dc"
+		},
+		{
+			"name": "common/adhmi/dct_respfromdc",
+			"history": 1000,
+			"message": "nio.ad.messages.DctRespFromDc"
+		},
+		{
+			"name": "common/adhmi/adhmi_function_to_algorithm",
+			"history": 1000,
+			"message": "nio.ad.messages.Hmi_FuncToAlgorithm"
+		},
+		{
+			"name": "common/adhmi/adhmi_debug",
+			"history": 1000,
+			"message": "nio.ad.messages.Hmi_Debug"
+		},
+		{
+			"name": "common/adhmi/adhmi_environment",
+			"history": 1000,
+			"message": "nio.ad.messages.Hmi_AdHmi"
+		},
+		{
+			"name": "common/adhmi/planner_adapter_to_adhmi",
+			"history": 1000,
+			"message": "nio.ad.messages.PlannerAdhmi"
+		},
+		{
+			"name": "common/adhmi/hmi_remap_out",
+			"history": 1000,
+			"message": "nio.ad.messages.HmiRemapOut"
+		},
+		{
+			"name": "np/debug/dgb_par_env",
+			"history": 1000,
+			"message": "nio.ad.messages.debug.ParEnvDebug"
+		},
+		{
+			"name": "np/debug/adviz/marker_array",
+			"history": 1000,
+			"message": "ros.visualization_msgs.MarkerArray"
+		},
+		{
+			"name": "np/debug/adviz/polygon",
+			"history": 1000,
+			"message": "ros.geometry_msgs.PolygonStamped"
+		},
+		{
+			"name": "np/debug/adviz/tf",
+			"history": 1000,
+			"message": "ros.tf2_msgs.TFMessage"
+		},
+		{
+			"name": "np/debug/adviz/path",
+			"history": 1000,
+			"message": "ros.nav_msgs.Path"
+		},
+		{
+			"name": "np/debug/adviz/point_cloud",
+			"history": 1000,
+			"message": "ros.sensor_msgs.PointCloud2"
+		},
+		{
+			"name": "np/debug/adviz/image",
+			"history": 1000,
+			"message": "ros.sensor_msgs.CompressedImage"
+		},
+		{
+			"name": "np/debug/adviz/log",
+			"history": 1000,
+			"message": "ros.rosgraph_msgs.Log"
+		},
+		{
+			"name": "np/debug/adviz/image_marker_array",
+			"history": 1000,
+			"message": "ros.foxglove_msgs.ImageMarkerArray"
+		},
+		{
+			"name": "np/debug/adviz/nav",
+			"history": 1000,
+			"message": "ros.sensor_msgs.NavSatFix"
+		},
+		{
+			"name": "np/debug/dgb_par_loc",
+			"history": 1000,
+			"message": "nio.ad.messages.debug.ParLocDebugOut"
+		},
+		{
+			"name": "np/debug/dgb_par_planning",
+			"history": 1000,
+			"message": "nio.ad.messages.debug.PlanningDebugOut"
+		},
+		{
+			"name": "np/debug/dgb_ehy_meas",
+			"history": 1000,
+			"message": "nio.ad.messages.debug.EHYDebugMeas"
+		},
+		{
+			"name": "np/debug/dgb_aebstrategy",
+			"history": 1000,
+			"message": "nio.ad.messages.debug.AEBDebugOut"
+		},
+		{
+			"name": "np/debug/dgb_road_model",
+			"history": 1000,
+			"message": "nio.ad.messages.debug.RoadModelDebugOut"
+		},
+		{
+			"name": "np/debug/dgb_par_control",
+			"history": 1000,
+			"message": "nio.ad.messages.ControlCommand"
+		},
+		{
+			"name": "np/debug/dgb_ehy",
+			"history": 1000,
+			"message": "nio.ad.messages.debug.EHYDebugOut"
+		},
+		{
+			"name": "np/debug/dgb_fct",
+			"history": 1000,
+			"message": "nio.ad.messages.debug.FCTDebugOut"
+		},
+		{
+			"name": "np/debug/dgb_par_bind",
+			"history": 1000,
+			"message": "nio.ad.messages.debug.ParBindDebugOut"
+		},
+		{
+			"name": "np/apps/arb_out",
+			"history": 1000,
+			"message": "nio.ad.messages.ARBOut"
+		},
+		{
+			"name": "np/apps/ehy_ego_outputs",
+			"history": 1000,
+			"message": "nio.ad.messages.EHYEgoOutputs"
+		},
+		{
+			"name": "np/apps/ehy_rme_road_outputs",
+			"history": 1000,
+			"message": "nio.ad.messages.EHYRmeOutputs"
+		},
+		{
+			"name": "np/apps/parking_perception_command",
+			"history": 1000,
+			"message": "nio.ad.messages.ParkingPerceptionCommand"
+		},
+		{
+			"name": "np/apps/mapapi_outputs",
+			"history": 1000,
+			"message": "hdmap.service.MapApiInfo"
+		},
+		{
+			"name": "np/apps/dlb_hmi_msmt",
+			"history": 1000,
+			"message": "nio.ad.messages.debug.DLBHMIDebugMeas"
+		},
+		{
+			"name": "np/apps/ehy_tpp_outputs",
+			"history": 1000,
+			"message": "nio.ad.messages.EHYTppOutputs"
+		},
+		{
+			"name": "np/apps/dlb_rme_msmt",
+			"history": 1000,
+			"message": "nio.ad.messages.debug.DLBRMEDebugMeas"
+		},
+		{
+			"name": "np/apps/ehy_tsi_outputs",
+			"history": 1000,
+			"message": "nio.ad.messages.EHYTsiOutputs"
+		},
+		{
+			"name": "np/apps/fct_out",
+			"history": 1000,
+			"message": "nio.ad.messages.FctOut"
+		},
+		{
+			"name": "np/apps/parking/par_cruise_state",
+			"history": 1000,
+			"message": "nio.ad.messages.CruiseStateMachine"
+		},
+		{
+			"name": "np/apps/parking/par_vehicle_state",
+			"history": 1000,
+			"message": "nio.ad.messages.ParVehicleState"
+		},
+		{
+			"name": "np/apps/parking/par_navi_traj",
+			"history": 1000,
+			"message": "nio.ad.messages.FamiliarRoadNaviTrajectory"
+		},
+		{
+			"name": "np/apps/parking/par_apa_input",
+			"history": 1000,
+			"message": "nio.ad.parking.InternalStatus"
+		},
+		{
+			"name": "np/apps/parking/par_gridmap",
+			"history": 1000,
+			"message": "nio.ad.messages.ParGridMap"
+		},
+		{
+			"name": "np/apps/parking/par_planning",
+			"history": 1000,
+			"message": "nio.ad.messages.ParkingTrajectory"
+		},
+		{
+			"name": "np/apps/parking/par_state_machine",
+			"history": 1000,
+			"message": "nio.ad.messages.StateMachine"
+		},
+		{
+			"name": "np/apps/parking/par_lidar_occ_grid",
+			"history": 1000,
+			"message": "nio.ad.messages.LidarOccupancyGridOutput"
+		},
+		{
+			"name": "np/apps/parking/par_semantic_map",
+			"history": 1000,
+			"message": "nio.ad.messages.ParSemanticMap"
+		},
+		{
+			"name": "np/apps/parking/par_location",
+			"history": 10000,
+			"message": "nio.ad.messages.ParFusedLocation"
+		},
+		{
+			"name": "np/apps/parking/par_objmap",
+			"history": 1000,
+			"message": "nio.ad.messages.ParObjMap"
+		},
+		{
+			"name": "np/apps/parking/par_control_out",
+			"history": 1000,
+			"message": "nio.ad.messages.ParkingControlSts"
+		},
+		{
+			"name": "np/apps/parking/par_collision_dst",
+			"history": 1000,
+			"message": "nio.ad.messages.ParCollisionDst"
+		},
+		{
+			"name": "np/apps/parking/par_vehicle_map",
+			"history": 1000,
+			"message": "nio.ad.messages.ParVehicleMap"
+		},
+		{
+			"name": "np/apps/parking/par_lowspeed_gridmap",
+			"history": 1000,
+			"message": "nio.ad.messages.LowSpeedGridMap"
+		},
+		{
+			"name": "np/apps/ehy_recovery",
+			"history": 1000,
+			"message": "nio.ad.messages.EHYRecovery"
+		},
+		{
+			"name": "np/apps/ehy_tsr_outputs",
+			"history": 1000,
+			"message": "nio.ad.messages.EHYTsrOutputs"
+		},
+		{
+			"name": "np/apps/dlb_tsi_msmt",
+			"history": 1000,
+			"message": "nio.ad.messages.debug.DLBTSIDebugMeas"
+		},
+		{
+			"name": "np/apps/fct_dlb",
+			"history": 1000,
+			"message": "nio.ad.messages.FCTDlbOut"
+		},
+		{
+			"name": "np/apps/ehy_operation_outputs",
+			"history": 1000,
+			"message": "nio.ad.messages.FeatureOperationInfo"
+		},
+		{
+			"name": "np/apps/road_model_adasmap",
+			"history": 1000,
+			"message": "nio.ad.messages.AdasMap"
+		},
+		{
+			"name": "np/apps/ehy_tse_outputs",
+			"history": 1000,
+			"message": "nio.ad.messages.EHYTseOutputs"
+		},
+		{
+			"name": "np/apps/dlb_evd_msmt",
+			"history": 1000,
+			"message": "nio.ad.messages.debug.DLBEVDDebugMeas"
+		},
+		{
+			"name": "np/apps/ehy_lpp_outputs",
+			"history": 1000,
+			"message": "nio.ad.messages.EHYLppOutputs"
+		},
+		{
+			"name": "np/apps/ehy_evd_outputs",
+			"history": 1000,
+			"message": "nio.ad.messages.EHYEvdOutputs"
+		},
+		{
+			"name": "np/apps/dlb_obf_msmt",
+			"history": 1000,
+			"message": "nio.ad.messages.debug.DLBOBFDebugMeas"
+		},
+		{
+			"name": "np/apps/localization_outputs",
+			"history": 10000,
+			"message": "nio.ad.messages.Localization"
+		},
+		{
+			"name": "np/apps/ehy_ha_outputs",
+			"history": 1000,
+			"message": "nio.ad.messages.EHYHaOutputs"
+		},
+		{
+			"name": "np/apps/road_model_outputs",
+			"history": 1000,
+			"message": "nio.ad.messages.RoadModelOutputs"
+		},
+		{
+			"name": "np/apps/fcts_out",
+			"history": 1000,
+			"message": "nio.ad.messages.FctsOut"
+		},
+		{
+			"name": "np/apps/parking_outputs",
+			"history": 1000,
+			"message": "nio.ad.messages.ParkingOut"
+		},
+		{
+			"name": "np/apps/fct_da_inhibit",
+			"history": 1000,
+			"message": "nio.ad.messages.FctDaInhibit"
+		},
+		{
+			"name": "np/apps/ehy_sin_outputs",
+			"history": 1000,
+			"message": "nio.ad.messages.EHYSINOutputs"
+		},
+		{
+			"name": "np/apps/ehy_obf_outputs",
+			"history": 1000,
+			"message": "nio.ad.messages.EHYObfOutputs"
+		},
+		{
+			"name": "common/vehicle_in/pwrswapstn_info_park",
+			"history": 10000,
+			"message": "nio.ad.messages.PsapStationInfo"
+		},
+		{
+			"name": "common/vehicle_out/hmi_sapa_ui_results_eth",
+			"history": 10000,
+			"message": "nio.ad.messages.sapaUiInfo"
+		},
+		{
+			"name": "/common/perception/road_post_output",
+			"history": 10000,
+			"message": "nio.ad.messages.PerceptionOneMap"
+		},
+		{
+			"name": "common/perception/astra_planner_preproc_data",
+			"history": 10000,
+			"message": "nio.ad.messages.PerceptionOneMap"
+		}
+	]
+}

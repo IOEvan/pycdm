@@ -1,0 +1,23 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+
+message GeometryConfidenceScore {
+  // [lon, lat, height]
+  repeated double score = 1;
+  // 空间距离偏差
+  optional double distance_error = 2;
+}
+
+message GeometryConfidenceRangeScore {
+  optional double start_offset = 1;
+  optional double end_offset = 2;
+  // [lon, lat, height]
+  repeated double score = 3;
+
+  optional int32 start_idx = 4;
+  optional int32 end_idx = 5;
+  optional double lateral_error = 6;
+}

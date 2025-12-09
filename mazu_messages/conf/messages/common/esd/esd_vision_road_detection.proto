@@ -1,0 +1,391 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+
+message esd_PolyLine{
+    optional float esd_line_C0 = 1;
+    optional float esd_line_C1 = 2;
+    optional float esd_line_C2 = 3;
+    optional float esd_line_C3 = 4; 
+}
+
+message esd_LineProperty {
+    optional esd_LDType esd_LD_Type = 1;
+    optional esd_LDColor esd_LD_Color = 2;
+    optional esd_PolyLine esd_LD_Line = 3; 
+    optional float esd_LD_Start = 4;
+    optional float esd_LD_End = 5;
+    optional esd_LDEndReason esd_LD_End_Reason = 6;
+    optional float esd_LD_TypeConfidence = 7;
+    optional float esd_LD_ColorConfidence = 8;
+    optional bool esd_Line_Is_Virtual = 9;
+
+
+    enum esd_LDType{
+        esd_LDType_Unknown = 0;
+        esd_LDType_Solid = 1;
+        esd_LDType_Dash = 2;
+        esd_LDType_Solid_Dash = 3; //double line, from ego to outside
+        esd_LDType_Dash_Solid = 4; //double line, from ego to outside
+        esd_LDType_Solid_Solid = 5; //double line, from ego to outside
+        esd_LDType_Deceleration_Dash = 6; // deceleration line, inner line is dash line
+        esd_LDType_Deceleration_Solid = 7; // deceleration line, inner line is solid line
+        esd_LDType_Guide = 8;
+        esd_LDType_Dash_Dash = 9;
+        esd_LDType_Direct = 10;
+        esd_LDType_Solid_Four = 11;
+    }
+
+    enum esd_LDColor{
+        esd_LDColor_Unknown = 0;
+        esd_LDColor_White = 1;
+        esd_LDColor_Yellow = 2;
+        esd_LDColor_Orange = 3;
+        esd_LDColor_Blue = 4;
+        esd_LDColor_Others = 5;
+        esd_LDColor_Green = 6;
+        esd_LDColor_Yellow_White = 7;
+        esd_LDColor_White_Yellow = 8;
+    }
+
+    enum esd_LDEndReason{
+        esd_LDEndReason_Unknown = 0;
+        esd_LDEndReason_Loss = 1; //The lane line disapprears in the view
+        esd_LDEndReason_Occluded = 2; // The lane line is occluded 
+        esd_LDEndReason_Intersection = 3; //The lane line is ended when approaching a intersection
+    }
+}
+
+message esd_Point {
+    optional float esd_LD_Point_Lat = 1; // Lateral distance of the point in the world. maximum 300 point
+    optional float esd_LD_Point_Long = 2;//Longitudinal distance of the point in the world. maximum 300 point
+    optional float esd_LD_Point_Alti = 3; //Altitude distance of the point in the world
+}
+
+message esd_LaneLine{    
+    optional esd_LDRole esd_LD_Role = 1;//本车道左/本车道右/左左/左右/右右/右左, maximum 5 lanes and 8 lane lines
+    optional esd_LineProperty esd_LD_First_Line = 2;
+    optional bool esd_LD_Is_Multi_Clothoid = 3; // Whether it is multi-polynomials
+    optional esd_LineProperty esd_LD_Second_Line = 4;
+    optional bool esd_LD_Special_Point_Is_Detected = 5; //Whether the special point is detected
+    optional esd_LDSpecialPointType esd_LD_Special_Point_Type = 6; // 0:Type 1:Color 2:Merge 3:Split
+    optional esd_Point esd_LD_Special_Point = 7;	
+    repeated esd_Point esd_LD_Point = 8; //maximum 300 point    
+    optional float esd_LD_Dash_Average_Gap = 9;
+    optional float esd_LD_Dash_Average_Length = 10;
+    optional bool esd_LD_Crossing = 11; 
+    optional uint32 esd_LD_Crossing_ID = 12;
+    optional esd_LDMeasuringStatus esd_LD_Measuring_Status = 13; 
+    optional esd_LDPredictionReason esd_LD_Prediction_Reason = 14;
+    optional uint32 esd_LD_Track_ID = 15;
+    optional uint32 esd_LD_Track_Age = 16;
+    optional esd_LDQuality esd_LD_Quality = 17;
+    optional float esd_LD_Confidence = 18;
+    optional float esd_LD_Marker_Width = 19; 
+    repeated esd_Point esd_LD_SpecialPoint_xyz = 20; 
+    repeated esd_LDSpecialPointType esd_LD_SpecialPoint_Type = 21;
+
+    enum esd_LDRole{
+        esd_LDRole_Unknown = 0;
+        esd_LDRole_Host_Left = 1;
+        esd_LDRole_Host_Right = 2;
+        esd_LDRole_Adjacent_Left_Left = 3;
+        esd_LDRole_Adjacent_Left_Right = 4;
+        esd_LDRole_Adjacent_Right_Left = 5;
+        esd_LDRole_Adjacent_Right_Right = 6;
+        esd_LDRole_LeftLeft_Left = 7;
+        esd_LDRole_LeftLeft_Right =8;
+        esd_LDRole_RightRight_Left = 9;
+        esd_LDRole_RightRight_Right = 10;
+    }
+
+    enum esd_LDSpecialPointType{
+        esd_LDSpecialPointType_Unknown = 0;
+        esd_LDSpecialPointType_Type = 1;
+        esd_LDSpecialPointType_Color = 2;
+        esd_LDSpecialPointType_Merge = 3;
+        esd_LDSpecialPointType_Split = 4;
+    }
+
+    enum esd_LDMeasuringStatus{
+        esd_LDMeasuringStatus_Unknown = 0;
+        esd_LDMeasuringStatus_Predict = 1;
+        esd_LDMeasuringStatus_Measure = 2;
+    }
+
+    enum esd_LDPredictionReason{
+        esd_LDPredictionReason_Unknown = 0;
+        esd_LDPredictionReason_Loss = 1;
+        esd_LDPredictionReason_Merge = 2;
+        esd_LDPredictionReason_Shadow = 3;
+        esd_LDPredictionReason_Diverging = 4;
+        esd_LDPredictionReason_Occluded = 5;
+        esd_LDPredictionReason_Headway = 6;
+    }
+
+    enum esd_LDQuality{
+        esd_LDQuality_Invalid = 0;
+        esd_LDQuality_Low = 1;
+        esd_LDQuality_Middle = 2;
+        esd_LDQuality_High = 3;
+    }
+}
+
+
+message esd_LaneDetection {
+    optional float esd_LD_Lane_Width = 1;//Width of the host lane
+    optional bool esd_LD_Crossing_Flag = 2; // The flag of  ego vehicle crosses the lane line
+    repeated esd_LaneLine esd_line = 3; //maximum 8 lane lines
+}
+
+
+message esd_RoadSlop{
+    optional bool esd_LD_Road_Vertical_Surface_Available = 1;
+    optional float esd_LD_Road_Vertical_Surface_Start = 2;
+    optional float esd_LD_Road_Vertical_Surface_End = 3;
+    optional esd_PolyLine esd_LD_Road_Vertical_Surface = 4;
+}
+
+message esd_LaneLPP{
+    optional bool esd_LPP_Available = 1;
+    optional esd_LPPSource esd_LPP_Source = 2;
+    optional float esd_LPP_Ctrl_Point_Lat = 3;
+    optional float esd_LPP_Ctrl_Point_Long = 4;
+    optional float esd_LPP_Confidence = 5;
+    optional bool esd_LPP_First_Valid = 6;
+    optional float esd_LPP_First_VR_End = 7;
+    optional esd_PolyLine esd_LPP_First = 8;
+    optional bool esd_LPP_Second_Valid = 9;
+    optional float esd_LPP_Second_VR_End = 10;
+    optional esd_PolyLine esd_LPP_Second = 11;
+
+    enum esd_LPPSource{
+        esd_LPPSource_Unknown = 0;
+        esd_LPPSource_LeftLine = 1;
+        esd_LPPSource_RightLine = 2;
+        esd_LPPSource_BothLine = 3;
+        esd_LPPSource_FrontVehicle_Path = 4;
+        esd_LPPSource_EgoVehicle_Path = 5;
+    }
+}
+
+
+message esd_Roadedge{
+    optional esd_LDREType esd_LD_RE_Type = 1;
+    optional esd_LDRESide esd_LD_RE_Side = 2;
+    optional esd_LDREFromHostIndex esd_LD_RE_From_Host_Index = 3;
+    optional uint32 esd_LD_RE_ID = 4;
+    optional uint32 esd_LD_RE_Age = 5;
+    optional float esd_LD_RE_Height = 6;
+    optional float esd_LD_RE_VR_Start = 7;
+    optional float esd_LD_RE_VR_End = 8;
+    optional esd_PolyLine esd_LD_RE_Line = 9;
+    optional float esd_LD_RE_Confidence = 10;
+    optional esd_LDREClass esd_LDRE_Class = 11;
+    repeated esd_Point esd_LD_RE_Point = 12; //maximum 300 point
+
+
+    enum esd_LDREType{
+        esd_LDREType_Unknown = 0;
+        esd_LDREType_Crossable = 1;
+        esd_LDREType_Uncrossable = 2;
+        esd_LDREType_RoadEdge = 3;
+        esd_LDREType_Road_Fence = 4;
+        esd_LDREType_Cone = 5;
+        esd_LDREType_Barrier = 6;
+        esd_LDREType_Parked_Vehicle = 7;
+        esd_LDREType_Grass = 8;
+
+    }
+
+    enum esd_LDREClass{
+        esd_LDREClass_Unknown = 0;
+        esd_LDREClass_Cement_Block = 1;
+        esd_LDREClass_Fence = 2;
+        esd_LDREClass_Cone=3;
+        esd_LDREClass_Barrel=4;
+        esd_LDREClass_Barrier=5;
+        esd_LDREClass_Parked_Vehicle=6;
+        esd_LDREClass_Parked_Cycle=7;
+        esd_LDREClass_Grass=8;
+        esd_LDREClass_gravel=9;
+        esd_LDREClass_ShortPole=10;
+        esd_LDREClass_WallFlat=11;
+    }
+
+    enum esd_LDRESide{
+        esd_LDRESide_Unknown = 0;
+        esd_LDRESide_Left = 1;
+        esd_LDRESide_Right = 2;
+    }
+
+    enum esd_LDREFromHostIndex{
+        esd_LDREFromHostIndex_Unknown = 0;
+        esd_LDREFromHostIndex_First = 1;
+        esd_LDREFromHostIndex_Second = 2;
+    }
+}
+
+
+message esd_StopLine{
+    optional bool esd_SL_Zebra_Is_Detected = 1;
+    optional float esd_SL_Zebra_Lat_0 = 2;
+    optional float esd_SL_Zebra_Long_0 = 3;
+    optional float esd_SL_Zebra_Lat_1 = 4;
+    optional float esd_SL_Zebra_Long_1 = 5;
+    optional float esd_SL_Zebra_Lat_2 = 6;
+    optional float esd_SL_Zebra_Long_2 = 7;
+    optional float esd_SL_Zebra_Lat_3 = 8;
+    optional float esd_SL_Zebra_Long_3 = 9;
+    optional bool esd_SL_Is_Detected = 10;
+    optional uint32 esd_SL_ID = 11;
+    optional esd_SLType esd_SL_Type = 12;
+    optional esd_SLMeasureStatus esd_SL_Measure_Status = 13;
+    optional float esd_SL_Probability = 14;
+    optional float esd_SL_Long_Dist_L = 15;
+    optional float esd_SL_Long_Dist_R = 16;
+    optional float esd_SL_Lat_Dist_L = 17;
+    optional float esd_SL_Lat_Dist_R = 18;
+    optional esd_SLLaneAssessment SL_Lane_Assessment = 19;
+
+    enum esd_SLType{
+        esd_SLType_Unknown = 0;
+        esd_SLType_Normal_StopLine = 1;
+        esd_SLType_Intersection_StopLine = 2;
+        esd_SLType_Turning_StopLine = 3;
+        esd_SLType_Zebra_StopLine = 4;
+    }
+
+    enum esd_SLMeasureStatus{
+        esd_SLMeasureStatus_Unknown = 0;
+        esd_SLMeasureStatus_View = 1;
+        esd_SLMeasureStatus_Predict = 2;
+    }
+
+    enum esd_SLLaneAssessment{
+        esd_SLLaneAssessment_Unknown = 0;
+        esd_SLLaneAssessment_Ego_Lane = 1;
+        esd_SLLaneAssessment_Left_Lane = 2;
+        esd_SLLaneAssessment_Right_Lane = 3;
+        esd_SLLaneAssessment_Left_Left_Lane = 4;
+        esd_SLLaneAssessment_Right_Right_Lane = 5;
+    }
+}
+
+message esd_InterestPoint{
+    optional esd_INTPType esd_INTP_Type = 1;
+    optional uint32 esd_INTP_ID = 2;
+    optional uint32 esd_INTP_Age = 3;
+    optional esd_INTPLineRole esd_INTP_Line_Role = 4;
+    optional float esd_INTP_Long_Distance = 5;
+    optional float esd_INTP_Lat_Distance = 6;
+    optional float esd_INTP_Exist_Probability = 7;
+
+    enum esd_INTPType{
+        esd_INTPType_Unknown = 0;
+        esd_INTPType_Split = 1;
+        esd_INTPType_Merge = 2;
+    }
+
+    enum esd_INTPLineRole{
+        esd_INTPLineRole_Unknown = 0;
+        esd_INTPLineRole_Host_Left = 1;
+        esd_INTPLineRole_Host_Right = 2;
+        esd_INTPLineRole_Adjacent_Left_Left = 3;
+        esd_INTPLineRole_Adjacent_Left_Right = 4;
+        esd_INTPLineRole_Adjacent_Right_Left = 5;
+        esd_INTPLineRole_Adjacent_Right_Right = 6;
+    }
+}
+
+message esd_GuidePoint{
+    optional bool esd_INTP_Is_Highway_Merge_Left = 1;
+    optional bool esd_INTP_Is_Highway_Merge_Right = 2;
+    optional bool esd_INTP_Is_Highway_Exit_Left = 3;
+    optional bool esd_INTP_Is_Highway_Exit_Right = 4;
+    repeated esd_InterestPoint esd_INTP_Point = 5; // maximum 10 points are supported
+}
+
+
+
+message esd_LaneSemantic{
+    optional esd_SLDDirection esd_SLD_Direction = 1;
+    optional uint32 esd_SLD_ID = 2;
+    optional uint32 esd_SLD_Count = 3;
+    optional float esd_SLD_Lat = 4;
+    optional float esd_SLD_Long = 5;
+    optional esd_SLDOrientation esd_SLD_Orientation = 6;
+    optional float esd_SLD_Orientation_Probability = 7;
+    optional float esd_SLD_Direction_Probability = 8;
+    optional esd_SLDRole esd_SLD_Role = 9;
+    optional esd_SLDType esd_SLD_Type = 10;
+
+    optional float esd_SLD_No_Park_Zone_Lat_0 = 11;
+    optional float esd_SLD_No_Park_Zone_Long_0 = 12;
+    optional float esd_SLD_No_Park_Zone_Lat_1 = 13;
+    optional float esd_SLD_No_Park_Zone_Long_1 = 14;
+    optional float esd_SLD_No_Park_Zone_Lat_2 = 15;
+    optional float esd_SLD_No_Park_Zone_Long_2 = 16;
+    optional float esd_SLD_No_Park_Zone_Lat_3 = 17;
+    optional float esd_SLD_No_Park_Zone_Long_3 = 18;
+    optional esd_SLDRoadStatus esd_SLD_Road_Status = 19;
+
+    enum esd_SLDDirection{
+        esd_SLDDirection_Unknown = 0;
+    }
+
+    enum esd_SLDOrientation{
+        esd_SLDOrientation_Unknown = 0;
+        esd_SLDOrientation_Same = 1;
+        esd_SLDOrientation_Opposite = 2;
+    }
+
+    enum esd_SLDRole{
+        esd_SLDRole_Unknown = 0;
+        esd_SLDRole_Left = 1;
+        esd_SLDRole_Ego = 2;
+        esd_SLDRole_Right = 3;
+        esd_SLDRole_Left_Left = 4;
+        esd_SLDRole_Right_Right = 5;
+    }
+
+    enum esd_SLDType{
+        esd_SLDType_Unknown = 0;
+        esd_SLDType_Normal = 1;
+        esd_SLDType_RoadShoulder = 2;
+        esd_SLDType_Bus = 3;
+        esd_SLDType_Bike = 4;
+        esd_SLDType_Others = 5;
+    }
+
+    enum esd_SLDRoadStatus{
+        esd_SLDRoadStatus_Unknown = 0;
+        esd_SLDRoadStatus_Dry = 1;
+        esd_SLDRoadStatus_Wet = 2;
+        esd_SLDRoadStatus_Water = 3;
+        esd_SLDRoadStatus_Snow = 4;
+    }
+}
+
+message esd_RoadDetection{
+    optional uint64 esd_timestamp = 1;//Timestamp_Receive_Image
+    optional esd_LaneDetection esd_laneline = 2;
+    optional esd_RoadSlop esd_slop = 3;
+    optional esd_LaneLPP esd_lpp = 4;
+    repeated esd_Roadedge esd_roadedge = 5; //maximum 4 roadedges are supported
+    repeated esd_StopLine esd_stopline = 6; //maximum 4 zebra areas and 4 stop lines are supported
+    optional esd_GuidePoint esd_guidepoint = 7;//maximum 10 guidepoints are supported
+    repeated esd_LaneSemantic esd_lanesemantic = 8; //maximum 10 lanes are supported
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin 
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional string publisher_id = 536870909; // uuid of the publisher
+    optional uint64 publish_ptp_ts = 536870907; // publish ptp timestamp, uint in nanosec
+    optional uint64 counter = 536870910;         // message counter
+    optional uint64 publish_ts = 536870911;    // publish timestamp; unit : nanosecond
+
+}

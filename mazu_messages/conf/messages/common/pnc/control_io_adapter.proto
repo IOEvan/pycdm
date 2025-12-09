@@ -1,0 +1,204 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+import "common/pnc/car_state.proto";
+import "common/pnc/control_debug.proto";
+import "common/pnc/control_observer.proto";
+import "common/pnc/state_machine.proto";
+import "common/pnc/path.proto";
+import "common/pnc/car_info.proto";
+import "common/pnc/config_car.proto";
+import "common/ssm/fsm_driving_output.proto";
+
+// control enumeration definition
+enum LonControllerMode {
+  LonCtrlMd_Invalid = 0;
+  LonCtrlMd_Trajectory = 1;
+  LonCtrlMd_Creep = 2;
+  LonCtrlMd_Parking = 3;
+  LonCtrlMd_MPC = 4;
+}
+enum LonFunctionState {
+  LonFuncSt_Invalid = 0;
+  LonFuncSt_Stopped = 1;
+  LonFuncSt_StartUp = 2;
+  LonFuncSt_Driving = 3;
+  LonFuncSt_DecelToStop = 4;
+  LonFuncSt_Reserved = 10000;
+}
+
+// control interface definition
+message ControlInputMsg {
+  optional CarState car_state = 1;
+  optional PathNop path = 2;
+  optional StateMachineNop state_machine = 3;
+  optional CarInfo car_info = 4;
+  optional FsmDrivingOutput fsm_driving_output = 5;
+}
+
+message ControlOutputMsg {
+  optional double LON_VOUTP_acc_cmd_mps2 = 1;
+  optional double LON_VOUTP_target_speed_mps = 2;
+  optional double LAT_VOUTP_front_angle_rad = 3;
+  optional CarState.GearStatus LON_VOUTP_gear_enum = 4;
+  optional LonControllerMode LON_VOUTP_controller_enum = 5;
+  optional VehicleType vehicle_type_enum = 6;
+  optional TireType tire_type_enum = 7;
+
+  // debug info start from 40
+  // lon creep station loop debug info
+  optional ControlCreepInfo LON_VOUTP_creep_info = 40;
+  // lon trajectory station loop debug info
+  optional ControlTrajectoryInfo LON_VOUTP_trajectory_info = 41;
+  // lon target speed selection debug info
+  optional ControlTargetVAdaptorInfo LON_VOUTP_target_speed_info = 42;
+  // lon state machine debug info
+  optional ControlLonStateMachineInfo LON_VOUTP_state_machine_info = 43;
+  // lon speed loop debug info
+  optional ControlSpeedLoopInfo LON_VOUTP_target_acc_info = 44;
+  // lon start stop process debug info
+  optional ControlStartStopProcessInfo LON_VOUTP_start_stop_process_info = 45;
+  // lon post process debug info
+  optional ControlPostProcessInfo LON_VOUTP_post_process_info = 46;
+}
+
+message ControlIntermediateMsg {
+  optional ObserverOutput VOBS_output = 1;
+  optional ControlOutputMsg former_out = 2;
+
+  // longitudinal control
+  // lon control following object states output interface
+  optional ControlObjInfo follow_obj_info = 4;
+  // lon control creep station loop output interface
+  optional ControlCreepInfo lon_creep_info = 5;
+  // lon control trajectory station loop output interface
+  optional ControlTrajectoryInfo lon_trajectory_info = 6;
+  // lon control target speed selection output interface
+  optional ControlTargetVAdaptorInfo target_v_adaptor_info = 7;
+  // lon control lon start stop state machine output interface
+  optional ControlLonStateMachineInfo lon_state_machine_info = 8;
+  // lon control speed loop output interface
+  optional ControlSpeedLoopInfo speed_loop_info = 9;
+  // lon control start stop process output interface
+  optional ControlStartStopProcessInfo start_stop_process_info = 10;
+  // lon control acc limit and jerk limit output interface
+  optional ControlPostProcessInfo post_process_info = 11;
+
+  repeated double reserved_float_var = 536870907;
+  repeated int64 reserved_int_var = 536870908;
+}
+
+message ControlObjInfo {
+  optional bool is_creep_state_flg = 1 [deprecated = false];
+  optional bool is_follow_state_flg = 2 [deprecated = false];
+  optional double follow_s_m = 3;
+  optional double s_buffer_m = 4;
+  optional double follow_v_mps = 5;
+  optional double follow_a_mps2 = 6;
+  optional int32 follow_obs_id = 7;
+  optional double s_to_stopline_m = 8;
+  optional double s_to_stoppoint_m = 9;
+  optional double ego_v_raw_mps = 10;
+  optional double ego_v_filt_mps = 11;
+}
+
+message ControlCreepInfo {
+  optional bool creep_first_run_flg = 1;
+  optional double s_buffer_m = 2;
+  optional double follow_s_raw_m = 3;
+  optional double follow_v_raw_mps = 4;
+  optional double follow_a_raw_mps2 = 5;
+  optional double follow_s_filt_m = 6;
+  optional double follow_v_filt_mps = 7;
+  optional double follow_a_filt_mps2 = 8;
+  optional double max_creep_speed_mps = 9;
+  optional double creep_target_s_m = 10;
+  optional double creep_s_error_m = 11;
+  optional double creep_target_v_fb_mps = 12;
+  optional double creep_target_v_ff_mps = 13;
+  optional double creep_target_v_raw_mps = 14;
+  optional double enter_creep_speed_mps = 15;
+  optional double ds_to_stop_point_m = 16;
+  optional double creep_acc_ref_mps2 = 17;
+  optional double ego_v_filt_mps = 18;
+  optional double creep_target_v_lmt_mps = 19;
+  optional double creep_target_v_filt_mps = 20;
+  optional bool buffer_invasion_flg = 21;
+  optional bool creep_force_stop_flg = 22;
+  optional double target_spd_lower_thresh_mps = 23;
+  optional bool controller_status_flg = 1000;
+}
+
+message ControlTrajectoryInfo {
+  optional double path_s_error_raw_m = 1;
+  optional double path_s_error_smooth_m = 2;
+  optional double path_s_loop_kp_gain = 3;
+  optional double path_target_spd_fb_mps = 4;
+  optional double path_target_spd_ff_mps = 5;
+  optional double path_target_spd_raw_mps = 6;
+  optional double path_acc_ref_mps2 = 7;
+  optional int32 path_lon_target_point_index = 8;
+  optional bool controller_status_flg = 1000;
+}
+
+message ControlTargetVAdaptorInfo {
+  // transition state variables
+  optional bool is_creep_flg = 1;
+  optional double creep_target_v_mps = 2;
+  optional double creep_ref_a_mps2 = 3;
+  optional double path_target_v_mps = 4;
+  optional double path_ref_a_mps2 = 5;
+  optional bool target_v_transit_state_flg = 6;
+  optional double target_v_transit_inc_rate_mps2 = 7;
+  optional double target_v_transit_dec_rate_mps2 = 8;
+  optional bool ref_a_transit_state_flg = 9;
+  optional double ref_a_transit_inc_rate_mps3 = 10;
+  optional double ref_a_transit_dec_rate_mps3 = 11;
+  // for speed controller
+  optional double final_target_v_mps = 12;
+  optional double final_ref_a_mps2 = 13;
+}
+
+message ControlLonStateMachineInfo {
+  optional LonFunctionState lon_state_enum = 1;
+  optional double lon_target_speed_mps = 2;
+  optional double end_point_speed_mps = 3;
+  optional bool is_creep_flg = 4;
+  optional double follow_v_mps = 5;
+  optional double ds_to_stop_m = 6;
+  optional double ego_speed_mps = 7;
+}
+
+message ControlSpeedLoopInfo {
+  optional double speed_error_raw_mps = 1;
+  optional double speed_error_smooth_mps = 2;
+  optional double speed_loop_kp_gain = 3;
+  optional double speed_loop_p_item_mps2 = 4;
+  optional double speed_error_grad_mps2 = 5;
+  optional double speed_loop_kd_gain = 6;
+  optional double speed_loop_d_item_mps2 = 7;
+  optional double speed_loop_ref_a_raw_mps2 = 8;
+  optional double speed_loop_ref_a_derate_gain = 9;
+  optional double speed_loop_ref_a_final_mps2 = 10;
+  optional double speed_loop_acc_cmd_raw_mps2 = 11;
+}
+
+message ControlStartStopProcessInfo {
+  optional bool drv_off_req_flg = 1;
+  optional bool decel_to_stop_req_flg = 2;
+  optional bool psp_v_slot_start_up_flg = 3;
+  optional double start_up_acc_cmpsn_mps2 = 4;
+  optional double acc_cmd_start_stop_mps2 = 5;
+}
+
+message ControlPostProcessInfo {
+  optional double drive_acc_capacity_mps2 = 1;
+  optional double brake_acc_capacity_mps2 = 2;
+  optional double acc_cmd_limit_mps2 = 3;
+  optional double acc_cmd_inc_rate_limit_mps3 = 4;
+  optional double acc_cmd_dec_rate_limit_mps3 = 5;
+  optional double acc_cmd_limit_filt_mps2 = 6;
+}

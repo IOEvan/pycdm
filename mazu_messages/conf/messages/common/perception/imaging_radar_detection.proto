@@ -1,0 +1,57 @@
+// @filescope: NT3
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+import "common/perception/imaging_radar_base.proto";
+
+message ImgRadPoint {
+  optional float range                = 1;  // unit:m , at sensor coordinate
+  optional float range_rate           = 2;  // unit:m/s  unambiguous velocity
+  optional float range_rate_raw       = 3;
+  optional float azimuth              = 4;  // unit:deg
+  optional float elevation_angle      = 5;  // unit:deg
+  optional uint32 move_status         = 6;  // 0 is stationary, 1 is moving ,2 is unsure
+  optional uint32 matched_obj_id      = 7;  // detection cluster matched object id (only points matched moving object)
+  optional float snr                  = 8;  // unit:dB
+  optional float radar_cross_section  = 9;  // radar cross section estimation
+  optional uint32 bandwidth_mode      = 10;  // the waveform which generate of the point
+  optional uint32 peak_order          = 11;
+  optional bool is_ghost              = 12;
+  optional uint32 azimuth_order       = 13;  // azimuth peak order of the same range and speed bin
+}
+
+message ImgRadChPow {
+   repeated uint32 ch_pow_tx = 1;
+   repeated uint32 ch_pow_rx = 2;
+}
+
+message ImagingRadarPointCloud {
+  reserved 8;
+  optional uint32 pointcloud_num                = 1;
+  optional float short_dpl_unambi_scale         = 2;  // unambiguous velocity of short mode
+  optional float long_dpl_unambi_scale          = 3;  // unambiguous velocity of long mode
+  repeated ImgRadPoint pointcloud               = 4;  // detection points struct
+  optional ImgRadVehInputInfo veh_input_info    = 5;
+  optional ImgRadHeader head                    = 6;
+  optional int32 interference_class             = 7;
+  //optional uint64 local_time_us                 = 8;  // system time of A core
+  optional uint32 isvalid                       = 9;
+  optional ImgRadAppendInfo append_info         = 10;
+  optional ImgRadSuspensionInfo suspension_info = 11;
+  optional ImgRadImInfo interference            = 12;
+  optional ImgRadInvalidReason invalid_reason   = 13;
+  optional ImgRadVehTypeInfo veh_type_info      = 14;
+  optional ImgRadCaliInfo calibration_info      = 15;
+  optional ImgRadChPow ch_pow                   = 16;
+
+  optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin   
+  optional SensorTSHeader sensor_original_ts  = 536870906;  // sensor original ts
+  optional uint64 publish_ptp_ts              = 536870907;  // publish ptp timestamp, uint in nanosec
+  optional string publisher_id                = 536870909;  // uuid of the publisher
+  optional uint64 counter                     = 536870910;  // message counter
+  optional uint64 publish_ts                  = 536870911;  // publish utc timestamp; unit : nanosecond
+}

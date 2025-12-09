@@ -1,0 +1,36 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message NopVehicleOut {		// broadcast cycle time: 100ms
+    optional uint32 nop_alc_sts = 1;
+    optional uint32 nop_colllision_risk = 2;
+    optional bool nop_freeSpace_intrusion_at_standstill = 3;
+    optional bool nop_freeSpace_intrusion_go_notifier = 4;
+    optional uint32 nop_lat_ctrl_tarLe = 5;
+    optional uint32 nop_lat_ctrl_tarRi = 6;
+    optional uint32 nop_long_ctrl_tar = 7;
+    optional uint32 nop_turn_indicator_req =8;
+    optional uint32 nop_wti = 9;
+    optional uint32 set_high_beam = 10;
+    optional uint32 nop_rain_mode = 11;
+    optional uint32 nop_lane_change_result = 12;
+    optional uint32 nop_lane_change_type = 13;
+    optional uint32 nop_lane_change_failure_reason = 14;
+
+    optional uint32 NAD_PSP_WTI2 = 15;
+    optional uint32 NAD_PSP_WTI3 = 16;
+    optional uint32 NAD_PSP_WTI4 = 17;
+    optional uint32 P2P_ADInteractiveArea = 18;
+    optional bool auto_cancel_turn_cmd =19;
+    repeated float reserved             = 99;
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin   
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts   = 536870907;   //publish ptp timestamp, uint in nanosec
+    optional string publisher_id	= 536870909;	// uuid of the publisher
+    optional uint64 counter 	= 536870910;	// message counter
+    optional uint64 publish_ts 	= 536870911;	// publish timestamp; unit : nanosecond
+}

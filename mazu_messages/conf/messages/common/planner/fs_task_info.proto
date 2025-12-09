@@ -1,0 +1,71 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "np/apps/parking/par_planning.proto";
+import "np/apps/parking/par_base.proto";
+import "np/apps/parking/par_state_machine.proto";
+import "np/apps/parking/par_lowspeed_map.proto";
+import "common/perf/sensor_ts_header.proto";
+
+// task status for lowspeed environment modeling
+message FSTaskStatus {
+  optional NodeInfo node_info = 1;  // lowspeed node status, ref to par_base.proto
+  optional FeatureStatus feature_status = 2;  //lowspeed feature status, ref to par_state_machine
+}
+
+// lowspeed planning info for lowspeed environment modeling
+message FSPlanning {
+  optional ParkingTrajectory parking_planning = 1; // BL310 for sapa in、rpa out
+}
+
+// lowspeed goal info, including accurate goal for private/fixed slot, fuzzy goal for several slots and area goal for road side parking.
+message FSGoalInfo {
+  enum GoalType {
+    INVALID = 0;
+    ACCURATE_GOAL = 1;
+    FUZZY_GOAL = 2;
+    AREA_GOAL = 3;
+  }
+  message Vector3d {
+    optional double x = 1;
+    optional double y = 2;
+    optional double z = 3;
+  }
+  message GoalPoint {
+    optional Vector3d pose = 1;
+    optional double theta = 2;  // heading
+  }
+  // several goal points
+  message FuzzyGoal {
+    repeated GoalPoint points = 1;
+  }
+
+  message Polygon {
+    repeated Vector3d points = 1;
+  }
+
+  optional GoalType type = 1[default = INVALID];
+  repeated FuzzyGoal fuzzy_goal = 2;
+  optional GoalPoint accurate_goal = 3;
+  optional Polygon area_goal = 4;
+
+  // sapa in target
+  optional uint64 target_slot_index = 5;
+  // p2p stored slots
+  repeated uint64 stored_slot_indexes = 6;
+}
+
+message FSTaskInfo {
+  optional FSTaskStatus fs_task_status = 1;
+  optional FSPlanning fs_planning = 2; 
+  optional FSGoalInfo fs_goal_info = 3;
+
+  optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin   
+  optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+  optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909; // uuid of the publisher
+  optional uint64 counter = 536870910; // message counter
+  optional uint64 publish_ts = 536870911; // publish utc timestamp; unit : nanosecond
+}

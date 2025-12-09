@@ -1,0 +1,59 @@
+syntax = "proto2"; 
+option cc_enable_arenas = true;
+       
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message LidarFim{// Detected by MW
+    optional bool FIM_Lidar_Com_Error = 1;
+    optional bool FIM_Lidar_Internal_Fault1 = 2;
+    optional bool FIM_Lidar_Window_Blockage1 = 3;
+    optional bool FIM_Lidar_Window_Blockage2 = 4;
+    optional bool FIM_Lidar_Window_Blockage3 = 5;
+    optional bool FIM_Lidar_Window_Blockage4 = 6;
+    optional bool FIM_Lidar_Internal_Fault2 = 7;
+    optional bool FIM_Lidar_Internal_Fault3 = 8;   
+    optional bool FIM_Lidar_Overheat1 = 9; 
+    optional bool FIM_Lidar_Overheat2 = 10; 
+    optional bool FIM_Lidar_Overheat3 = 11; 
+    optional bool FIM_Lidar_Failsafe_3 = 12;
+    optional bool FIM_Lidar_Cal_Error = 13;
+    optional bool FIM_Lidar_Temphigh_Inhibit = 14;
+    optional bool FIM_Lidar_Abnormal_Status = 15;
+    optional bool FIM_Lidar_Excessive_Noise = 16;
+
+} 
+
+message LidarFimInfo{
+    optional bool FIM_Lidar_Com_Error = 1;
+    optional bool FIM_Lidar_Internal_Fault1 = 2;
+    optional bool FIM_Lidar_Window_Blockage1 = 3;
+    optional bool FIM_Lidar_Window_Blockage2 = 4;
+    optional bool FIM_Lidar_Window_Blockage3 = 5;
+    optional bool FIM_Lidar_Window_Blockage4 = 6;
+    optional bool FIM_Lidar_Internal_Fault2 = 7;
+    optional bool FIM_Lidar_Internal_Fault3 = 8;   
+    optional bool FIM_Lidar_Overheat1 = 9; 
+    optional bool FIM_Lidar_Overheat2 = 10; 
+    optional bool FIM_Lidar_Overheat3 = 11; 
+    optional bool FIM_Lidar_Failsafe_3 = 12;
+    optional bool FIM_Lidar_Cal_Error = 13;
+    optional bool FIM_Lidar_Temphigh_Inhibit = 14;
+    optional bool FIM_Lidar_Abnormal_Status = 15;
+    optional bool FIM_Lidar_Excessive_Noise = 16;
+
+    optional LidarFim front_lidar_fim_info = 17;    // @linescope: NT3
+    optional LidarFim right_lidar_fim_info = 18;    // @linescope: NT3
+    optional LidarFim left_lidar_fim_info = 19; // @linescope: NT3
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;   // publish ptp timestamp, uint in nanosec
+    optional string publisher_id   = 536870909; // uuid of the publisher
+    optional uint64 counter        = 536870910;         // message counter
+    optional uint64 publish_ts     = 536870911;    // publish utc timestamp; unit : nanosecond
+
+
+
+}

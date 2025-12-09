@@ -1,0 +1,24 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+import "common/perf/sensor_ts_header.proto";
+import "common/perception/vision_failsafe.proto";
+
+
+message StationFailSafeDetection{
+    optional uint64 timestamp = 1; //Timestamp_Receive_Image
+    optional FailSafe failsafe_PSAP_Outside_Left1 = 2;   //Station PSAP, outside left1
+    optional FailSafe failsafe_PSAP_Outside_Left2 = 3;   //Station PSAP, outside left2
+    optional FailSafe failsafe_PSAP_Outside_Middle = 4;  //Station PSAP, outside middle
+    optional FailSafe failsafe_PSAP_Outside_Right1 = 5;  //Station PSAP, outside right1
+    optional FailSafe failsafe_PSAP_Outside_Right2 = 6;  //Station PSAP, outside right2
+
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;   // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909;     // uuid of the publisher
+    optional uint64 counter = 536870910;          // message counter
+    optional uint64 publish_ts = 536870911;       // publish utc timestamp; unit : nanosecond
+
+}

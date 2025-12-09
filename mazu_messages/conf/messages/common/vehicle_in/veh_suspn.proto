@@ -1,0 +1,94 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+message SuspensionInfo{
+	repeated int32 Lvl = 1;                                //@Channel:CHASSIS @Message:0xCC @Signal:FrntLeLvl 
+                                                            //@Channel:CHASSIS @Message:0xCC @Signal:FrntRiLvl 
+                                                            //@Channel:CHASSIS @Message:0xCC @Signal:ReLeLvl 
+                                                            //@Channel:CHASSIS @Message:0xCC @Signal:ReRiLvl
+	repeated bool LvlAdjm = 2;                              //@Channel:CHASSIS @Message:0xCC @Signal:RearRiLvlAdjm 
+                                                            //@Channel:CHASSIS @Message:0xCC @Signal:RearLeLvlAdjm 
+                                                            //@Channel:CHASSIS @Message:0xCC @Signal:FrntRiLvlAdjm 
+                                                            //@Channel:CHASSIS @Message:0xCC @Signal:FrntLeLvlAdjm
+	required bool LvlCalCmptl = 3;                          //@Channel:CHASSIS @Message:0xCC @Signal:LvlCalCmptl
+	required bool CargoActv = 4;                            //@Channel:CHASSIS @Message:0x28E @Signal:CargoActv
+
+    enum SuspLvlType_e{
+        SuspLvl_Low5 = 0;     //Low Level 5
+        SuspLvl_Low4 = 1;     //Low Level 4
+        SuspLvl_Low3 = 2;     //Low Level 3
+        SuspLvl_Low2 = 3;     //Low Level 2
+        SuspLvl_Low1 = 4;     //Low Level 1
+        SuspLvl_Nrml = 5;     //Normal Level
+        SuspLvl_Hgh1 = 6;     //High Level 1
+        SuspLvl_Hgh2 = 7;     //High Level 2
+        SuspLvl_Hgh3 = 8;     //High Level 3
+        SuspLvl_Hgh4 = 9;     //High Level 4
+        SuspLvl_Hgh5 = 10;    //High Level 5
+        SuspLvl_Rsrvd11 = 11; //(not defined)
+        SuspLvl_Rsrvd12 = 12; //(not defined)
+        SuspLvl_Rsrvd13 = 13; //(not defined)
+        SuspLvl_Init = 14;    //Init / unknown
+        SuspLvl_Invld= 15;    //Invalid
+    }
+	required SuspLvlType_e CrrntLvl = 5;                    //@Channel:CHASSIS @Message:0x28E @Signal:Current_Lvl
+	required SuspLvlType_e TarLvl   = 6;                    //@Channel:CHASSIS @Message:0x28E @Signal:TarLvl
+    required bool ExtraHiPosn       = 7;                    //@Channel:CHASSIS @Message:0x28E @Signal:ExtraHiPosn
+	required bool ExtraLoPosn       = 8;                    //@Channel:CHASSIS @Message:0x28E @Signal:ExtraLoPosn
+	required bool EasyEntryEnaSts   = 9;                    //@Channel:CHASSIS @Message:0x28E @Signal:LC_EasyEntryEnaSts
+
+    enum SuspDrvModType_e{
+        SuspDrv_Stndrd = 0; //Standard (Default)
+        SuspDrv_Cmfrt  = 1; //Comfort
+        SuspDrv_Sport  = 2; //Sport
+        SuspDrv_Boost  = 3; // @linescope: NT3  //Boost mode
+        SuspDrv_Rsrvd4 = 4; //Reserved
+        SuspDrv_Rsrvd5 = 5; //Reserved
+        SuspDrv_Rsrvd6 = 6; //Reserved
+        SuspDrv_Rsrvd7 = 7; //Reserved
+    }
+	required SuspDrvModType_e LvlAdjDrvgMod = 10;           //@Channel:CHASSIS @Message:0x28E @Signal:LvlAdjDrvgMod
+
+    enum SuspAdjModType_e{
+        SuspAdj_Init   = 0; //Init / Not available
+        SuspAdj_Normal = 1; //Normal mode
+        SuspAdj_Srvc   = 2; //Service mode
+        SuspAdj_Trnsprt= 3; //Transport mode
+        SuspAdj_Rsrvd4 = 4; //Reserved
+        SuspAdj_Rsrvd5 = 5; //Reserved
+        SuspAdj_Rsrvd6 = 6; //Reserved
+        SuspAdj_Rsrvd7 = 7; //Reserved
+    }   
+	required SuspAdjModType_e LvlAdjMod = 11;               //@Channel:CHASSIS @Message:0x28E @Signal:LvlAdjMod
+
+    enum DampgCtrlMod_e{
+        DampgCtrl_Init   = 0; //Init / Not available
+        DampgCtrl_Normal = 1; //Normal mode
+        DampgCtrl_Srvc   = 2; //Service mode
+        DampgCtrl_Trnsprt= 3; //Transport mode
+        DampgCtrl_Rsrvd4 = 4; //Reserved
+        DampgCtrl_Rsrvd5 = 5; //Reserved
+        DampgCtrl_Rsrvd6 = 6; //Reserved
+        DampgCtrl_Rsrvd7 = 7; //Reserved
+    }   
+    optional DampgCtrlMod_e DampgCtrlMod= 12;               //@Channel:CHASSIS @Message:0x28F @Signal:DampgCtrlMod
+
+    enum DampgDrvgMod_e{
+        DampgDrvg_Stndrd = 0; //Standard (Default)
+        DampgDrvg_Cmfrt  = 1; //Comfort
+        DampgDrvg_Sport  = 2; //Sport
+        DampgDrvg_Rsrvd3 = 3; //Reserved
+        DampgDrvg_Rsrvd4 = 4; //Reserved
+        DampgDrvg_Rsrvd5 = 5; //Reserved
+        DampgDrvg_Rsrvd6 = 6; //Reserved
+        DampgDrvg_Rsrvd7 = 7; //Reserved
+    }   
+    optional DampgDrvgMod_e DampgDrvgMod= 13;               //@Channel:CHASSIS @Message:0x28F @Signal:DampgDrvgMod 
+
+    optional int32 LvlAdj_Restriction = 14;                 //@Channel:CHASSIS @Message:0x28E @Signal:LvlAdj_Restriction 
+    
+    optional bool FasPreCrashAvl = 15;                      // @linescope: NT3  //Service:FasCtrlSrv @Interface:IfFasInfo
+}

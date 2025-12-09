@@ -1,0 +1,52 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message FunctionXrequest {
+    optional string FunctionName = 1;	// name	of Function	// redundant to IC
+    optional int32 FunctionID    = 2;	// ID 	of Function	// redundant to name
+    enum FunctionRequest {		        // requested Function status
+          ReqOff	    = 0;	        // request to unload function app // not in BL07X
+          ReqLoaded 	= 1;	        // request to load function app into RAM, but do not execute it
+          ReqChecking 	= 2;	        // request to execution of app
+          ReqSandby	    = 3;	        // request function to go standby
+          ReqRunning	= 4;	        // request function to run
+    }
+    optional FunctionRequest FuncReq = 3;
+}
+
+message AABaseAlgorithmsRequest{
+
+    enum AABaseAlgorithmsModeType {
+        SHUTDOWN	= 0;
+        MANUAL	    = 1;	// AABaseAlgorithms for forward looking NCAP Functions
+        ADAS		= 2;	// AABaseAlgorithms for Drive Assist
+        NAD		    = 3;	// all redundancies for NAD // reserved for later
+    }
+  optional AABaseAlgorithmsModeType AABaseAlgorithms_mode_request = 1;
+  optional bool is_control_request = 2;
+}
+
+message SideCameraRequest{
+
+    optional bool SideCamsUpRequest	= 1;	// if 0 false, then requested to be off
+                                            // if 1 true, then requested to be on
+    optional bool CamSALtoGoECOplusRequest = 2; // 0 = do not request Camera SAL to prepare for ECO+
+                                                // 1 = request Camera SAL to prepare for ECO+
+}
+
+message FunctionRequestBook {
+    repeated FunctionXrequest Function = 1;             //0:DA_Main 1:ELK 2:AHB 3:EAS 4:DA_SDC 5:DA_LCC 6:DA_NBC 7:SAPA_Main 8:PSAP_Main 9:DA_Resume 10:DA_ALCS
+    optional AABaseAlgorithmsRequest AABaseALGOReq = 2;
+    optional SideCameraRequest SideCAMRReq = 3;
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin 
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts     = 536870907;     // publish ptp timestamp; unit : nanosecond
+    optional string publisher_id       = 536870909;     // uuid of the publisher
+    optional uint64 counter            = 536870910;     // message counter
+    optional uint64 publish_ts         = 536870911;     // publish timestamp; unit : nanosecond
+}

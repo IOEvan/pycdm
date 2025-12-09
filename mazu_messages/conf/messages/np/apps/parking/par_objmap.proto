@@ -1,0 +1,166 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+import "np/apps/parking/par_base.proto";
+import "np/apps/parking/par_pnc_point.proto";
+import "np/apps/parking/par_navi_traj.proto";
+import "common/pnc/decision.proto";
+
+message ParSingleObject{
+    enum ObjectType
+    {
+        reserved 3;
+        TYPE_UNKNOWN = 0;
+        TYPE_CURB = 1;        //路沿
+        TYPE_PARK_STOP = 2;    //限位器
+        
+        TYPE_BUSH = 4;        //灌木丛
+        TYPE_HUMAN = 5;       //行人
+        TYPE_CONE = 6;        //锥桶
+        TYPE_CAR_OR_TRUCK = 7;  //汽车或者卡车 //从bl320开始，不再表示卡车类型
+        TYPE_SPEED_BUMP = 8;   //减速带
+        TYPE_FLOOR_SIGN = 9;   //指示牌
+        TYPE_NONE_MOTOR_VEHICLE = 10; //非机动车
+        TYPE_PILLAR = 11;     //停车场方形结构立柱
+        TYPE_RESERVED1 = 12;
+        TYPE_RESERVED2 = 13;
+        TYPE_RESERVED3 = 14;
+        TYPE_RESERVED4 = 15;
+        TYPE_GENERAL_HIGH = 16;
+        TYPE_GENERAL_LOW = 17;
+        TYPE_VIRTUAL_CHANNEL = 18;
+        TYPE_FREESPACE = 19;
+        TYPE_PARK_LOCK_CLOSE = 20; //关地锁
+        TYPE_SHORT_POLE = 21; //细杆
+        TYPE_FENCE = 22; //栅栏
+        TYPE_PARK_LOCK_OPEN = 23; //开地锁
+        TYPE_TRUCK = 24; //TRUCK
+    }
+    optional ObjectType type = 1 [default = TYPE_UNKNOWN];
+    repeated ParPoint points = 2;
+    enum ObjectSource
+    {
+        SOURCE_NONE = 0;
+        SOURCE_USS = 1;
+        SOURCE_VISION_FS = 2;
+        SOURCE_OD = 3;
+        SOURCE_LIDAR = 4;
+        SOURCE_FUSION = 5;
+        SOURCE_OTHERS = 6;
+        SOURCE_RESERVED1 = 7;
+        SOURCE_RESERVED2 = 8;
+        SOURCE_RESERVED3 = 9;
+        SOURCE_VIRTUAL = 10;
+        SOURCE_APRIORI = 11;
+        SOURCE_MAP = 12;
+    }
+    optional ObjectSource source = 3 [default = SOURCE_NONE];
+    enum ObjectMotionStatus
+    {
+        STATUS_UNDEFINED = 0;
+        STATUS_STATIC = 1;
+        STATUS_STOPPED = 2;
+        STATUS_MOVING = 3;
+    }
+    optional ObjectMotionStatus motion_status = 4 [default = STATUS_UNDEFINED];
+    // confidence of the object
+    // only has two confidence levels
+    // 0.3(TBD): low confidence, 0.65: high confidence
+    optional float confidence = 5;
+    optional float height = 6;
+    optional float height_confidence =7;
+}
+
+message ParDynamicObject{
+    enum ParDynObjClass{
+        ParDynObjClass_Unknown = 0;
+        ParDynObjClass_SmallVehicle = 100;
+        ParDynObjClass_Car = 101; // 七座以下家用小车
+        ParDynObjClass_SUV = 102; // SUV+MPV
+        ParDynObjClass_PickUp = 103; // 皮卡
+        ParDynObjClass_MPV_VAN = 104; // 此处仅指代VAN厢式货车,MPV归类到SUV
+        ParDynObjClass_BigVehicle = 200;
+        ParDynObjClass_Truck = 201; // 卡车，清扫车，洒水车
+        ParDynObjClass_BUS = 202; // 公交车，包含各种有轨电车和无轨电车，以及双层公交车、载客大巴车
+        ParDynObjClass_Special_Truck = 203; // 工程车，异型车
+        ParDynObjClass_Trailer = 204;
+        ParDynObjClass_Tricycle = 300; // 三轮车，三轮的老年代步车，四轮的老年代步车归属于car
+        ParDynObjClass_Two_wheels_vehicle = 400; // without Pedestrian
+        ParDynObjClass_Motorbike = 401; // without Pedestrian
+        ParDynObjClass_Ebike = 402; // without Pedestrian
+        ParDynObjClass_Bicycle = 403; // without Pedestrian
+        ParDynObjClass_Two_wheels_vehicle_P = 410; // with Pedestrian
+        ParDynObjClass_Motorbike_P = 411; // with Pedestrian
+        ParDynObjClass_Ebike_P = 412; // with Pedestrian
+        ParDynObjClass_Bicycle_P = 413; // with Pedestrian
+        ParDynObjClass_Pedestrian = 500;
+        ParDynObjClass_Adult = 501;
+        ParDynObjClass_Child = 502;
+        ParDynObjClass_Animal = 600;
+        ParDynObjClass_Cat = 601;
+        ParDynObjClass_Dog = 602;
+        ParDynObjClass_Special = 700;
+        ParDynObjClass_Pram = 701; // 婴儿车
+        ParDynObjClass_ShoppingCart = 702; // 购物车
+    }
+    optional ParDynObjClass type = 1 [default = ParDynObjClass_Unknown];
+    optional uint32 id = 2;
+    optional float pos_x = 3;
+    optional float pos_y = 4;
+    optional float yaw = 5;
+    optional float vel_x = 6;
+    optional float vel_y = 7;
+    optional float yaw_rate = 8;
+    optional float length = 9;
+    optional float width = 10;
+    repeated ParPoint points = 11;
+    enum MotionStatus
+    {
+        STATUS_UNDEFINED = 0;
+        STATUS_STATIC = 1;
+        STATUS_STOPPED = 2;
+        STATUS_MOVING = 3;
+    }
+    optional MotionStatus motion_status = 12; 
+    optional float exist_conf = 13;
+    optional float pose_conf = 14;
+    repeated ParSingleObject objs = 15;
+    optional Path hist_path = 16 [deprecated=true]; // need to add time and velocity, so use trajectory instead
+    optional Path pred_path = 17 [deprecated=true]; // need to add time and velocity, so use trajectory instead
+    optional float acc_x = 18;
+    optional float acc_y = 19;
+    optional float curvature = 20;
+    optional Trajectory hist_traj = 21;
+    optional Trajectory pred_traj = 22;
+
+    enum PredPathType
+    {
+        TYPE_INVALID = 0;
+        TYPE_REFLINE = 1;
+        TYPE_MOVING_DIRECTION = 2;
+        TYPE_UNCERTAIN = 3;
+    }
+    optional PredPathType pred_path_type = 23; 
+
+    repeated FamiliarRoadNaviTrajectory.WayPoint matched_waypoints = 24; // matched waypoints on refline
+                                                                         // [0]: nearest to object
+                                                                         // [1]: nearest to ego
+                                                                         // [2]: furthest to ego
+    optional ObjectDecisionType decision_type = 25;
+}
+
+message ParObjMap{
+    repeated ParSingleObject objs = 1;
+    optional NodeInfo node_info=2;
+    repeated ParDynamicObject dyn_objs = 3;
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909; // uuid of the publisher
+    optional uint64 counter = 536870910; // message counter
+    optional uint64 publish_ts = 536870911; // publish utc timestamp; unit : nanosecond
+}

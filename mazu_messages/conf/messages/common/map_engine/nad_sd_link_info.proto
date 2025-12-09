@@ -1,0 +1,158 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+import "common/map_engine/map_geometry.proto";
+
+message NadSdLinkTrafficlightOverlap {
+  //sd link上受交通灯控制的车道序号。当sd link上所有车道均受交通灯控制时，输出空数组
+  repeated uint32 lane_seq_number = 1;
+  //sd link上绑定的交通灯信息
+  optional string sd_trafficlight_id = 2;
+  enum Direction
+  {
+    IN_POSITIVE_DIRECTION = 1;
+    IN_NEGATIVE_DIRECTION = 2;
+  }
+  //交通灯控制的sd link方向（与sd link的数字化方向相比）
+  optional Direction control_direction = 3;
+}
+
+message NadSdLinkInfo {
+  // https://nio.feishu.cn/docx/LUQvdcZPhoucfaxXMU1c0Q4snB6
+  optional uint64 id = 1;
+
+  // Length of the link in meter
+  optional double length = 2;
+
+  enum TravelDirection
+  {
+    IN_NO_DIRECTION = 0;
+    IN_POSITIVE_DIRECTION = 1;
+    IN_NEGATIVE_DIRECTION = 2;
+    IN_BOTH_DIRECTIONS = 3;
+  }
+  optional TravelDirection travel_direction = 3;
+
+  repeated uint64 pre_link_ids = 4;
+  repeated uint64 succ_link_ids = 5;
+
+  repeated uint64 reverse_pre_link_ids = 6;
+  repeated uint64 reverse_succ_link_ids = 7;
+
+  enum FormWayCs
+  {
+    FORM_WAY_CS_UNKNOWN = 0;
+    FORM_WAY_CS_RAMP = 1;
+    FORM_WAY_CS_SAPA = 2;
+    FORM_WAY_CS_TUNNEL = 3;
+    FORM_WAY_CS_BRIDGE = 4;
+    FORM_WAY_CS_WITHIN_INTERSECTION = 5;
+    FORM_WAY_CS_ROUNDABOUT = 6;
+    FORM_WAY_CS_UTURN = 7;
+    FORM_WAY_CS_BUILD_UP_AREA_ROAD = 8;
+    FORM_WAY_CS_URBAN_ROAD = 9;
+    FORM_WAY_CS_MOVABLE_BRIDGE = 10;
+    FORM_WAY_CS_TOLL_PLAZA = 12;
+    FORM_WAY_CS_CHECKPOINT = 13;
+    FORM_WAY_CS_PARKING = 14;
+    FORM_WAY_CS_SEPARATE_DIRECTION = 15;
+    FORM_WAY_CS_IC = 16;
+    FORM_WAY_CS_JCT = 17;
+    FORM_WAY_CS_RELIEF_ROAD = 18;
+    FORM_WAY_CS_MAIN_ROAD = 19;
+    FORM_WAY_CS_RELIEF_ENTRANCE_OR_EXIT = 20;
+    FORM_WAY_CS_LEFT_TURN = 21;
+    FORM_WAY_CS_RIGHT_TURN = 22;
+    FORM_WAY_CS_BUS = 23;
+    FORM_WAY_CS_CROSS_LINK = 24;
+  };
+  repeated FormWayCs form_way_cs = 8;
+
+  enum PriorityRoadClassCs
+  {
+    UNKNOWN_CLASS_CS = 0;
+    MOTORWAY_CLASS_CS = 1;
+    URBAN_EXPRESSWAY_CS = 2;
+    URBAN_ROUTE_CS = 3;
+    SERVICE_AREA_INNER_ROAD_CS = 4;
+  }
+  optional PriorityRoadClassCs priority_road_class_cs = 9;
+
+  reserved 10;
+
+  message Point2d {
+    optional double lon = 1;
+    optional double lat = 2;
+  }
+  // The shape point information of the sd link.
+  repeated Point2d shape_point = 11;
+
+  // 挖掘经验限速，单位m/s
+  optional double dig_advisory_max_speed = 12;
+  // 挖掘经验限速可靠度，值域(0,1]
+  optional float dig_confidence = 13;
+  //总车道数
+  optional int32 lane_num_sum = 14;
+  //起点到终点方向车道数
+  optional int32 lane_num_sum_s2e = 15;
+  //终点到起点方向车道数
+  optional int32 lane_num_sum_e2s = 16;
+  /*
+   1：中文名称
+   2：中文名称拼音
+   3：英文名称
+   4：葡文名称
+   5：道路编号名称
+   6：别名
+   7：曾用名
+  */
+  repeated int32 road_name_type = 17;
+  repeated string road_name = 18;
+  /*
+   0：unknown
+   1：高速
+   2：城市快速路
+   3：国道
+   4：省道
+   5：县道
+   6：乡镇村道
+   7：其他道路
+   8：非机动车道辅路
+   13：服务区内部路
+   */
+  optional int32 extra_info_road_class = 19;
+  /*
+  十进制表达（取有效值）从右向左表达
+   0：不应用
+   Bit0：unknown
+   Bit1:  匝道
+   Bit2：服务区
+   Bit3：隧道
+   Bit4：桥
+   Bit5：交叉口内道路
+   Bit6：环岛
+   Bit7：掉头口
+   Bit8#：Built-up Area Road
+   Bit9#：Urban Road
+   Bit10#: 可移动桥
+   Bit11：上下线分离
+   Bit12：IC
+   Bit13：JCT
+   Bit14：辅路
+   Bit15: 收费站道路
+   Bit16: 检查站道路
+   Bit17: 停车场
+  */
+  optional int32 extra_info_form_way = 20;
+
+  //左侧行政区划
+  optional int32 admin_code_l = 21;
+  //右侧行政区划
+  optional int32 admin_code_r = 22;
+  // 城市道路等级
+  optional int32 city_kind = 23;
+
+  repeated NadSdLinkTrafficlightOverlap sd_link_trafficlight_overlap = 24;
+}

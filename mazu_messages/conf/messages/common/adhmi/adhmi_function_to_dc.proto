@@ -1,0 +1,489 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+import "common/adhmi/adhmi_environment.proto";
+import "common/perception/perception_fusion_atlas.proto";
+
+
+// 10 Hz信号，AD传输到DC
+
+    //描述光环的详细类别，状态存储优先级 psp>nad>nop>np>iacc
+    enum Hmi_HaloType {
+        Halo_None = 0;
+        Halo_Standby = 1;                // NT2对应自车灰色光环
+        Halo_NP_NOP_PSP_Active = 2;      // NT2对应自车蓝色光环
+        Halo_ACC_Active = 3;             // NT2对应自车白色光环
+        Halo_NP_Long_Only = 4;           // 横丢状态，NT2对应自车白灰光环
+    }
+    
+    //描述AD功能的ICON状态
+    enum Hmi_ADFuncIconType{
+        Icon_None = 0;
+        Icon_iACC_Standby = 1;
+        Icon_iACC_Active = 2;
+        Icon_iACC_Failure = 3;
+        Icon_NP_Standby = 4;
+        Icon_NP_Active = 5;
+        Icon_NP_Failure = 6;
+        Icon_NOP_Standby = 7;
+        Icon_NOP_Active = 8;
+        Icon_NOP_Failure = 9;
+    }
+    
+    //描述set speed 功能的状态
+    enum Hmi_SetSpeedIconType{
+        Set_Speed_None = 0;
+        Set_Speed_Transparent = 1;      // reserved for BL300
+        Set_Speed_Grey = 2;
+        Set_Speed_OuterTeal_InnerBlack = 3;
+        Set_Speed_OuterTeal_InnerTeal = 4;
+        Set_Speed_OuterNone_InnerTeal = 5;
+    }
+
+    enum Hmi_SapaPsapStsType{
+        SapaPsap_status_None = 0;
+        SapaPsap_status_standby = 1;      
+        SapaPsap_status_engaged = 2;
+        SapaPsap_status_failure = 3;
+    }
+    
+    // 一把泊入的枚举
+    enum  Hmi_EsdPspPsapTarget{
+        HMI_NONE = 0;
+        HMI_PSAP_LOC_BOX = 1;    // include navi_to_loc_box and in_loc_box
+        HMI_CONNECTION_AREA = 2; // include navi_to_connection_area and in_connection_area
+    }
+    
+      // 表示HMI层表示的数据来源
+    enum Hmi_HmiSource {
+        Hmi_Unknown = 0;                    // 默认状态
+        Hmi_Perception = 1;                 // 纯感知，默认是该状态
+        Hmi_HDMap = 2;                      // 高精地图绘制，主要是用于PSP功能下
+        Hmi_WM = 3;                         // 从world model过来的数据，一般指融合感知和高精地图的数据
+    }
+	
+    enum Hmi_NopUturnMode{
+        HMI_NOP_UTURN_NONE =0;
+        HMI_NOP_UTURN_NORMAL =1;
+        HMI_NOP_UTURN_COMPLEX = 2;
+    }
+
+    enum Hmi_NopPathMode{
+        HMI_NOP_PATH_NONE =0;
+        HMI_NOP_PATH_NOP =1;
+        HMI_NOP_PATH_ARHUD = 2;
+        HMI_NOP_PATH_NP = 3;
+        HMI_NOP_PATH_SHADOW = 4;
+    }
+
+    enum Hmi_TBTTakeOver{
+        HMI_TO_NONE =0;
+        HMI_TO_REMINDER =1;
+    }
+
+    // ETC 类别
+    enum Hmi_EtcType{
+        HMI_ETC_UNKNOWN = 0;
+        HMI_ETC_ONLY = 1;
+        HMI_ETC_MANUAL = 2;
+        HMI_ETC_ETC_AND_MANUAL = 3;
+        HMI_ETC_CLOSED = 4;
+    }
+
+    // 变道状态枚举
+    // 该枚举应该收口NP+/NOP+/NAD等各种不同状态下的变道接口
+    enum Hmi_AlcStatus {
+        Alc_Normal = 0;                     // 起始状态
+        Alc_Ready_To_Left = 1;              // 准备向左变道
+        Alc_Ready_To_Right = 2;             // 准备向右变道
+        Alc_Is_To_Left = 3;                 // 正在向左变道
+        Alc_Is_To_Right = 4;                // 正在向右变道
+        Alc_Fail_To_Left = 5;               // 向左变道失败
+        Alc_Fail_To_Right = 6;              // 向右变道失败
+        Alc_Finish_Change = 7;              // 完成变道
+        Lcs_Ready_To_Change = 8;            // LCS准备变道
+        Lcs_Is_To_Left = 9;                 // LCS向左变道
+        Lcs_Is_To_Right = 10;               // LCS向右变道
+        Lcs_Fail_To_Left = 11;              // LCS变道失败，车子在左侧车道
+        Lcs_Fail_To_Right = 12;             // LCS变道失败，车子在右侧车道
+        Lcs_Fail_To_Center = 13;            // LCS变道失败，车子在中间车道
+    }
+
+    // 变道状态枚举（EU）
+    enum Hmi_LcsStatus {
+        Lcs_Normal = 0;                         // 起始状态
+        Alc_Static_Gray = 1;                    // 2个灰色固定箭头
+        Alc_Animation_Static = 2;               // 2个蓝色箭头，闪一下，静止
+        Alc_Animation_Left = 3;                 // 1个蓝色箭头左闪烁
+        Alc_Animation_Right = 4;                // 1个蓝色箭头右闪烁
+    }
+
+    // 功能状态灯枚举
+    enum Hmi_FunciontStatus {  
+        HMI_DAAvl_Not_available       = 0;      // 功能不可用
+        HMI_DAAvl_Available           = 1;      // 功能可用
+        HMI_DAAvl_Engaged             = 2;      // 功能激活
+        HMI_DAAvl_Activation_failed   = 3;      // 功能激活失败
+    }
+    
+    //点到点路边启停功能状态枚举
+    enum Hmi_PtpRoadsideStatus {
+        Ptp_Roadside_Unknown = 0;             // 非预期状态
+        Ptp_Roadside_Unavailable = 1;         // 功能不可用
+        Ptp_Roadside_ParkOut_Available = 2;   // 路边启动可用
+        Ptp_Roadside_ParkOut = 3;             // 路边泊出
+        Ptp_Roadside_Nad = 4;                 // 常规NAD行车
+        Ptp_Roadside_ParkIn = 5;              // 路边停靠泊入
+        Ptp_Roadside_Finish = 6;              // 路边停靠完成
+        Ptp_Roadside_Nad_Available = 7;       // 人驾行车中NAD可用
+        Ptp_Roadside_Activate_Failed = 8;     // 路边启动激活失败，人驾行车激活NAD失败
+    }
+
+    //点到点领航到家功能状态枚举
+    enum Hmi_PtpNaviParkStatus {
+        
+        Ptp_NaviPark_None = 0;                // 非预期状态
+        Ptp_NaviPark_Ready = 1;               // 泊车领航可用
+        Ptp_NaviPark_Drive = 2;               // 泊车领航行驶
+        Ptp_NaviPark_ParkIn = 3;              // 泊车领航泊入车位
+        Ptp_NaviPark_ParkOut = 4;             // 泊车领航泊出车位
+        Ptp_NaviPark_DriveIn = 5;             // 泊车领航驶入
+        Ptp_NaviPark_DriveOut = 6;            // 泊车领航驶出
+        Ptp_NaviPark_Finish = 7;              // 泊车领航驶入完成
+    }
+
+    //NOP+运行场景枚举
+    enum Hmi_NOPModeType {
+        HMI_NOP_Reserved = 0;                 // 预留
+        HMI_NOP_Highway = 1;                  // NOP高速场景
+        HMI_NOP_Urban_Public = 2;             // NOP城区开放道路场景
+        HMI_NOP_PSP = 3;                      // NOP领航换电场景
+        HMI_NOP_Urban_Private = 4;            // NOP园区或室内停车场场景
+    }
+
+    enum GoNotifyType_LeadingVeh_e {
+        GoNotifier_NoReq  = 0;       //No Request
+        GoNotifier_Req    = 1;       //Request
+        GoNotifier_Rsrvd2 = 2;       //Reserved
+        GoNotifier_InVld  = 3;       //Invalid
+    }
+
+    enum GoNotifyType_TrafficLight_enum {
+        GoNotifierType2_NoReq = 0;    // No Request
+        GoNotifierType2_Req1  = 1;    // Request 1
+        GoNotifierType2_Req2  = 2;    // Request 2
+        GoNotifierType2_Req3  = 3;    // Request 3
+        GoNotifierType2_Req4  = 4;    // Request 4
+        GoNotifierType2_Req5  = 5;    // Request 5
+        GoNotifierType2_Req6  = 6;    // Request 6
+        GoNotifierType2_Req7  = 7;    // Request 7
+    }
+
+    enum Hmi_NR_WHVType {
+        HMI_NR_WHV_NORMAL = 0;
+        HMI_NR_WHV_TOP_VIEW = 1;            // 「俯视图」
+        HMI_NR_WHV_FRONT_VIEW = 2;          // 「前视轮毂视图」
+        HMI_NR_WHV_REAR_VIEW = 3;           // 「后视轮毂视图」
+        HMI_NR_WHV_FULL_WHEEL_VIEW = 4;     // 「全轮毂视图」
+    }
+    
+    enum Hmi_UserIntentionType {
+        HMI_INTENTION_TYPE_UNKNOWN = 0;     // 无意图
+        HMI_DRIVE_OUT_TO_TRANS_PT = 1;      // 意图驶出至衔接点
+        HMI_DRIVE_OUT_TO_NAVI_DEST = 2;     // 意图驶出至导航目的地
+        HMI_DRIVE_IN_TO_TRANS_PT = 3;       // 意图驶入至衔接点
+        HMI_DRIVE_IN_TO_LS_DEST = 4;        // 意图驶入至车位
+    }
+
+    enum Hmi_VlnFuncStatus {
+        HMI_Vln_None = 0;                  // 功能未激活
+        HMI_Vln_Engaged = 1;               // 功能已激活
+    }
+
+// 分割线以上为枚举类型
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// 分割线以下为具体数据结构
+
+
+    message Hmi_VirtualWall{
+        optional Hmi_Vector3f esd_vw_position = 1; //虚拟墙的中心点
+        optional uint32 esd_vw_width = 2;          //虚拟墙的长度
+        optional float esd_vw_angle = 3;           //虚拟墙中心点的切线方向角度
+    }
+
+    message Hmi_Path {
+        optional Hmi_Color              path_color = 1;              // 牵引下状态，需要根据CAN信号提前抽象处理，给到座舱域最终结果
+        repeated Hmi_Vector3f           path_points = 2;             // 构成牵引线的点，复用车道线点链的点结构，一般为1m一个点，最多不超过100个点，需要对比ESD和Aquila对于牵引线的诉求是否一致
+        optional float                  path_length = 3;             // 路径长度，单位m
+        optional Hmi_Vector3f           near_intersection_point = 4; // 近端点
+        optional Hmi_Vector3f           far_intersection_point = 5;  // 远端点
+    }
+    
+    // 双层牵引线需求
+    // FDS：https://nio.feishu.cn/docx/JVZadhkjDoGQw5xiG8lcaHEQnig
+    message Hmi_NopPath {
+        optional Hmi_Path             nop_first_path = 1;          // 下层牵引线
+        optional Hmi_Path             nop_second_path = 2;         // 上层牵引线
+        optional Hmi_NopPathMode      nop_path_mode = 3;           // 表明牵引线类别，arhud，nop等
+    }
+
+    message Hmi_NopUturnPath{
+        repeated Hmi_Path nop_uturn_first_path = 1;           //NOP+ Uturn模式下层牵引线
+        optional Hmi_Path nop_uturn_second_path = 2;          //NOP+ Uturn模式上层牵引线
+    }
+
+    message Hmi_AlcOvertake {
+        optional bool is_overtake_flag = 1;                   //ALC是否因为超车发起
+        repeated Hmi_Vector3f left_marker = 2;                //左侧超车标识的位置点链
+        repeated Hmi_Vector3f right_marker = 3;               //右侧超车标识的位置点链
+    }
+    
+    //NOP+激活静态检查项
+    message Hmi_NopStaticInfo {
+        optional bool ProperGear = 1;                        // 档位条件
+        optional bool NopSubscriptionValidForScenario = 2;   // 订阅权限
+        optional bool NopSettingOnForSenario = 3;            // NOP使能开关状态
+        optional bool NopTrainingComplete = 4;               // 用户学习状态
+        optional bool PilotLinkedToNavi = 5;                 // Polit状态
+    }
+
+    //NOP+激活动态检查项
+    message Hmi_NopDynamicInfo {
+        optional bool AnyOtherConditionPreventingNopStart = 1;  // 功能抑制
+        optional bool BrakePedalReleased = 2;                   // 制动踏板状态
+        optional bool ClosedDoors = 3;                          // 车门状态
+        optional bool ClosedHood = 4;                           // 引擎盖状态
+        optional bool ClosedTrunk = 5;                          // 后备箱状态
+        optional bool DriverBuckledUp = 6;                      // 驾驶员安全带状态
+        optional bool DriverHandsOn = 7;                        // 驾驶员手扶方向盘状态
+        optional bool HazardLightsOff = 8;                      // 双闪状态
+        optional bool NavigationStatusOk = 9;                   // 导航状态
+        optional bool VehiclePositioningOnRoadOk = 10;          // 启动范围
+    }
+	
+    //NOP+激活条件检查
+    message Hmi_NopAvailability {
+        optional Hmi_NopStaticInfo StaticInfo = 1;                  // NOP+静态运行条件
+        optional Hmi_NopDynamicInfo DynamicInfo = 2;                // NOP+动态运行条件
+    }
+
+    // ETC 显示
+    message Hmi_ETCInfo{
+        optional Hmi_EtcType EtcType = 1;           // ETC类别
+        optional Hmi_Vector3f EtcPosition = 2;      // ETC标牌位置
+        optional float EtcHeading = 3;              // ETC标牌角度
+    }
+
+    message Hmi_NpNopInfo {
+        optional Hmi_AlcStatus alc_status = 1;                      // 需要考虑以下10Hz的频率够不够，有没有问题
+        optional float nop_distance_to_odd_boundary_smooth = 2;     // reserved
+        optional float nop_distance_to_odd_boundary_step = 3;       // reserved        
+        optional Hmi_NopPath nop_path = 4;                          // 双层牵引线数据 
+        optional Hmi_Path np_plus_path = 5;                         // NP+牵引线数据
+        optional bool junction_camera_up = 6;                       // 路口视角抬升状态，后续可能不止两个状态。      
+        optional Hmi_NopUturnMode nop_uturn_mode  =7;               // NOP+ Uturn 模式
+        optional Hmi_NopUturnPath nop_uturn_path = 8;               // NOP+ Uturn模式牵引线
+        optional Hmi_VirtualWall virtual_wall = 9;                  // 虚拟墙
+        optional double Hmi_distance_to_intersection_entry = 10;    // 自车到路口停止线的距离
+        optional float nop_distance_to_odd_boundary_max = 11;       // reserved
+        optional Hmi_TBTTakeOver Hmi_TBT_takeover = 12;             // 在IC上提示接管图标信号
+        optional Hmi_AlcOvertake alc_overtake = 13;                 // 超车标识ESD显示信号
+        optional Hmi_LcsStatus lcs_arrows_status = 14;              // 欧洲变道箭头状态信号
+        optional Hmi_NOPModeType nop_mode = 15;                     // NOP+运行场景指示信号 
+        optional Hmi_NopAvailability nop_precondition = 16;         // NOP+运行条件检查信号
+        repeated Hmi_ETCInfo etc_info = 17;                         // ETC相关信息显示
+    }
+    
+    message Hmi_PspInfo {
+        optional Hmi_HmiSource hmi_source = 1;                // 该开关是用于告知DC绘制HDMap的内容还是感知的内容
+        optional uint32 is_in_power_station = 2;              // 自车是否在换电站内, 也需要考虑是否可以使用OnChange类型
+        optional bool psp_out_popup = 3;                      // 是否激活PSP out的弹窗，给导航用
+        optional bool is_in_area = 4;                         // 表示是否位于PSP地理围栏内
+    }
+    
+    message Hmi_PsapSapaInfo {
+        optional bool psp_psap_interface = 1;                 // PSP和PSAP之间的切换接口 
+        optional float sapa_odometer = 2;                     // 用于判断SAPA下的视角，后续可以考虑是否抽象整体的视角，而不传这个距离，但是设计改动太大，暂且用原来方案。
+        optional Hmi_EsdPspPsapTarget psp_psap_target = 3;    // 判断是否为一把泊入
+        optional bool pasp_final_turn = 4;                    // PSAP泊入即将完成信号，距离泊车结束约0.5米的时候信号发出
+        optional bool psap_is_approach_power_station = 5;     // 自车接近换电站直线距离30m的时候，发出该信号
+        optional bool parking_feature_entry = 6;              // 用于控制泊车专项功能入口显示与否
+        optional bool reverse_assist_entry = 7;               // 用于控制一键返回交互入口显示与否
+        optional bool custom_park_entry = 8;                  // 用于控制随心停交互入口显示与否
+        optional bool rpa_in_avl = 9;                         // 用于控制端到端泊车超视距车位的RPA-In入口显示与否
+        optional bool traj_animation_avl = 10;                // 用于控制泊入轨迹线动效的播放与否
+    }
+  
+    message Hmi_PscInfo{
+        optional bool psc_active = 1;            // PSC是否激活，当前只是bool，后面可以继续细化
+    }
+    
+    message Hmi_NaviInfo {
+        optional bool is_right_lane = 1;         // 是否在右车道，给到导航判断路口。可以讨论是否用onChange类型
+    }
+
+    message Hmi_ArhudInfo {
+        optional Hmi_Path    arhud_path = 1;     // ARHUD 牵引线
+    } 
+
+    //表达自车光环和AD功能渲染状态
+    message Hmi_ADFunctionDisplay {
+        optional Hmi_HaloType halo_type  = 1;                  // 描述自车光环是否显示
+        optional uint32   halo_blink = 2;                      // 该标志位用于描述自车光波，在MD/Standby等状态跳转到AD功能激活态的时候播放光波动效，详见FDS
+        optional Hmi_ADFuncIconType ad_icon_type = 3;          // 用于表示AD功能的状态icon 
+        optional Hmi_SetSpeedIconType set_speed_icon_type = 4; // 用于set speed icon显示
+        optional Hmi_SapaPsapStsType Sapa_sts_icon = 5;        // 用于SAPA状态显示
+        optional Hmi_SapaPsapStsType Psap_sts_icon = 6;        // 用于PSAP状态显示
+        optional Hmi_FunciontStatus da_tjp_Avl  = 7;           // 用于TJP状态显示
+        optional uint32   halo_blink_cycle = 8;                // 该标志位用于描述自车光波的特殊显示需求，如点到点路边启动激活时的特殊NOP光波动效
+    }
+    
+    // FDS: https://nio.feishu.cn/docx/UuS0dfZHPo8LCyxyYkFcJb2Rn5f
+    message Hmi_TrafficLight2D {
+        optional uint32 tl_type = 1;                // 红绿灯类型，对应不同的贴图和样式，0：Unknown, 1：Left, 2：Right, 3：Straight, 5：U_Turn
+        optional uint32 tl_color = 2;               // 红绿灯颜色， 0：Unknown, 1：Red, 2：Yellow, 3：Green
+        optional uint32 tl_status = 3;              // 红绿灯状态， 0：常亮，1：闪烁
+        optional uint32 tl_Timer = 4;               // 红绿灯倒计时数字，需要保证值是有效的。曾经有65535无效值的情况
+    }
+
+    //矩形区域描述
+    message Hmi_RectangleArea {
+        optional Hmi_Vector3f area_center = 1;      // 矩形区域中心点位置
+        optional uint32 area_length = 2;            // 矩形区域长度
+        optional uint32 area_width = 3;             // 矩形区域宽度
+        optional float heading = 4;                 // 矩形中心点垂直于远端短边的方向，与X轴的夹角即为heading，deg
+    }
+
+    // 点到点车位管理数据
+    message Hmi_PtpSlotInfo {
+        optional string route_id = 1;                // 路线ID
+        optional string slot_id = 2;                 // 常用车位ID
+        optional string user_id = 3;                 // 用户账户ID
+        optional Hmi_Vector3f entry_postion = 4;     // 路线入口位置
+        optional Hmi_Vector3f slot_postion = 5;      // 常用车位位置
+    }
+
+    // 点到点记忆路线管理
+    message Hmi_PtpRouteMgt {
+        repeated Hmi_PtpSlotInfo slot_info = 1;      // 记忆路线的车位信息
+        optional bool record_req = 2;                // TRUE-AD触发记忆路线保存，FALSE-AD未触发记忆路线保存
+        optional uint32 record_resp = 3;             // 用户是否接受路线保存，0-未知，1-接受，2-等待，3-取消 
+        optional bool sync_req = 4;                  // TRUE-DC触发记忆路线同步，FALSE-DC未触发记忆路线同步
+        optional bool sync_resp = 5;                 // TRUE-AD回复记忆路线同步信息，FALSE-AD未回复记忆路线同步信息
+        optional bool delete_req = 6;                // TRUE-DC触发记忆路线删除操作，FALSE-DC无记忆路线删除操作
+        optional bool delete_resp = 7;               // TRUE-AD回复路线删除成功，FALSE-AD回复路线删除失败
+    }
+    
+    //点到点功能
+    message Hmi_PtpInfo {
+        optional Hmi_PtpRoadsideStatus ptp_roadside_status = 1;             // 路边启停功能状态
+        optional Hmi_RectangleArea ptp_roadside_parkin_slot = 2;            // 路边停靠泊入区域高亮显示
+        optional uint32 ptp_navi_odd_ending = 3;                            // 点到点场景即将结束领航标志，0-非点到点，1-点到点
+        optional Hmi_PtpNaviParkStatus ptp_navipark_status = 4;             // 领航到家功能状态
+        optional bool slot_search_highlight = 5;                            // 领航到家搜车位动效开关
+        optional bool ptp_navi_dest_match_park_entrance = 6;                // 导航目的地驶入能力指示信号
+        optional bool ptp_exist_drive_out_route = 7;                        // 出发区域驶出能力指示信号
+        optional float ptp_dist_to_trans_point = 8;                         // 自车距离匹配点的距离
+        optional Hmi_UserIntentionType ptp_user_intention_drive_in = 9;     // 点到点驶入意图指示信号
+        optional Hmi_UserIntentionType ptp_user_intention_drive_out = 10;   // 点到点驶出意图指示信号
+        optional Hmi_PtpSlotInfo ptp_slot_with_intention_drive_in = 11;     // 点到点驶入意图匹配的驶入路线信息
+        optional Hmi_PtpRouteMgt ptp_route_record_req = 12;                 // 点到点记忆路线保存提示发起
+        optional Hmi_PtpRouteMgt ptp_route_sync_resp = 13;                  // 点到点记忆路线信息同步应答
+        optional Hmi_PtpRouteMgt ptp_route_delete_resp = 14;                // 点到点记忆路线删除应答
+        optional uint32 ptp_dist_to_drive_finish = 15;                      // 点到点驶入驶出剩余行驶距离
+    }
+
+    message HmiFunctionOut {
+        optional GoNotifyType_LeadingVeh_e GoNotifierReq_LeadingVeh         = 1;  //通过交互区发送前车起步提醒信号 0x1代表提醒，0x0代表不提醒
+        optional GoNotifyType_TrafficLight_enum GoNotifierReq_TrafficLight  = 2;  //通过交互区发送绿灯起步提醒信号 0x6代表提醒，0x0代表不提醒
+        optional bool TrafficLightWarning                                   = 3;  //通过交互区发送给DC显示闯红灯提醒的warning 0x1代表warning on，0x0代表warning off
+    }
+
+    message Hmi_ActiveFuncInfo{
+        optional bool rcm_active = 1;    // RCM功能激活标志，1：激活，0：没激活
+        optional int32 rcm_distance = 2; // RCM激活时，目标车道距离自车尾部的垂直距离 单位：米
+    }
+
+    message Hmi_OtherFuncInfo{
+        optional Hmi_NR_WHVType nr_whv_output = 1;   // 窄路轮毂视角切换信号
+    }
+
+    
+    message Hmi_VlnTrajPoint {
+        optional Hmi_Quaternion4d quaternion = 1;    // 位姿信息
+        optional Hmi_Vector3d position = 2;          // 位置信息
+    }
+
+    message Hmi_VlnGoalPoint {
+        optional uint32 gp_direction = 1;            // GoalPoint行驶方向，0-unknown, 1-left, 2-right, 3-uturn, 4-straight
+        optional uint32 gp_status = 2;               // GoalPoint运动状态，0-unknown; 1-起始点; 2-单层通行; 3-跨层通行; 4-出口点
+    }
+
+    //VLN功能可用基础检查项
+    message Hmi_VlnConditionInfo {
+        optional bool IndoorParkArea = 1;                       // 停车场ODD
+        optional bool VehicleSpeed = 2;                         // 车速状态
+        optional bool NotInCharging = 3;                        // 充电状态
+        optional bool DriverSeatOccupied = 4;                   // 驾驶员在位状态
+        optional bool DriverBuckledUp = 5;                      // 驾驶员安全带状态
+        optional bool ClosedDoors = 6;                          // 车门状态
+        optional bool ClosedHood = 7;                           // 引擎盖状态
+        optional bool ClosedTrunk = 8;                          // 后备箱状态
+        optional bool NotInEPMode = 9;                          // EP模式状态
+        optional bool NotInPwrSwap = 10;                        // 换电状态
+        optional bool MirrorUnfolded = 11;                      // 后视镜折叠状态
+        optional bool NotInCampMode = 12;                       // 露营模式状态
+        optional bool UserTrainingComplete = 13;                // 用户智驾功能学习状态
+        optional bool NotInOtherLowSpeedFeature = 14;           // 低速状态机状态
+        optional bool NotInNpPlus = 15;                         // NP+状态 
+        optional bool VlnFuncEnabledByAD = 16;                  // VLN CRU管控状态
+    }
+
+    //VLN信号接口
+    message Hmi_VlnInfo {
+        optional Hmi_VlnFuncStatus vln_func_status = 1;             // VLN功能状态
+        optional Hmi_VlnTrajPoint traj_point = 2;                   // VLN轨迹点位姿信息
+        optional Hmi_VlnGoalPoint goal_point = 3;                   // VLN目标点信息
+        optional uint32 vln_interaction = 4;                        // 预留，字段未启用
+        optional bool vehicle_condition_check = 5;                  // 车辆条件是否符合VLN基础条件
+        optional Hmi_VlnConditionInfo condition_detail = 6;         // 车辆条件检查细节
+        optional uint64 nomi_handshake = 7;                         // Nomi指令握手，填充收到指令的ID
+    }
+
+// 控制信号
+message Hmi_AdFunction {
+    reserved 8,999;                                             // 删除的字段
+
+    optional Hmi_NpNopInfo       np_nop_info = 1;
+    optional Hmi_PspInfo         psp_info = 2;
+    optional Hmi_PsapSapaInfo    psapsapa_info = 3; 
+    optional Hmi_PscInfo         psc_info = 4;  
+    optional Hmi_NaviInfo        navi_info = 5;
+    optional Hmi_TrafficLight2D  traffic_light_2d = 6;          // 2D红绿灯，一般来说只有一个，用于表征与AD功能相关的红绿灯表现
+    
+    optional Hmi_ADFunctionDisplay ad_function_display = 7;
+    
+    
+    optional Hmi_ArhudInfo       arhud_info = 9;                // ARHUD牵引线输出
+    optional Hmi_PtpInfo         ptp_info = 10;                 // 点到点功能相关信号
+    
+    optional HmiFunctionOut function_out = 11;                  // adhmi输出的WTI，给到交互区
+    
+    optional Hmi_ActiveFuncInfo  active_func_info = 12;         // 主动安全相关功能
+    optional Hmi_OtherFuncInfo   other_func_info = 13;          // 未分类功能
+    optional Hmi_VlnInfo         vln_info = 14;                 // VLN功能相关信号
+    
+    
+    optional string hmi_version = 1000 [default = "1.0.29"] ;         // proto version 
+    optional string hmi_update_date = 1001 [default = "20250323"] ;   // proto updated date
+    
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    optional SensorTSHeader sensor_original_ts = 536870906;     // sensor original ts
+    optional string publisher_id = 536870909;                   // uuid of the publisher
+    optional uint64 publish_ptp_ts = 536870907;                 // publish ptp timestamp, uint in nanosec
+    optional uint64 counter = 536870910;                        // message counter
+    optional uint64 publish_ts = 536870911;                     // publish timestamp; unit : nanosecond
+}

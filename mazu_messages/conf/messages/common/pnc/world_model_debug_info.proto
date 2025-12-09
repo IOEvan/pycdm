@@ -1,0 +1,466 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+import "common/pnc/geometry.proto";
+import "common/pnc/dynamic_map.proto";
+import "common/pnc/road_map.proto";
+import "common/esd/esd_np_feature.proto";
+import "common/perf/sensor_ts_header.proto";
+
+// fusion model debug
+message FusionModelPoint {
+  optional float x = 1;
+  optional float y = 2;
+}
+
+message FusionModelSubSegmentType {
+  optional FusionModelPoint start_point = 1;
+  optional FusionModelPoint end_point = 2;
+
+  enum FusionModelLineType {
+    UNKNOWN = 0;
+    SOLID = 1;
+    DASH = 2;
+    SOLID_DASH = 3;
+    DASH_SOLID = 4;
+    SOLID_SOLID = 5;
+    DECELERATION_DASH = 6;
+    DECELERATION_SOLID = 7;
+    GUIDE = 8;
+    DASH_DASH = 9;
+    DIRECT = 10;
+    SOLID_FOUR = 11;
+    ROAD_EDGE = 12;
+    VIRTUAL_LINE = 13;
+    VIRTUAL_AUXILIARY_LINE = 14;
+  }
+  optional FusionModelLineType type = 3;
+
+  enum FusionModelCrossable {
+    NOT_AVAILABLE = -1;
+    PHYSICALLY_NOT = 0;
+    LEGALLY_NOT = 1;
+    RIGHT_TO_LEFT = 2;
+    LEFT_TO_RIGHT = 3;
+    BOTH = 4;
+    UNKOWN = 5;
+  }
+  optional FusionModelCrossable crossable = 4;
+}
+
+message FusionModelBoundary {
+  optional uint64 id = 1;
+  repeated FusionModelSubSegmentType types = 2;
+  optional Polyline boundary = 3;  // = baseframe.boundary.curve
+
+  enum FusionModelColor {
+    UNKNOWN = 0;
+    WHITE = 1;
+    YELLOW = 2;
+    ORANGE = 3;
+    BLUE = 4;
+    OTHERS = 5;
+    GREEN = 6;
+    YELLOW_WHITE = 7;
+    WHITE_YELLOW = 8;
+  }
+  optional FusionModelColor color = 4;
+}
+
+message FusionModelLane {
+  optional uint64 id = 1;
+  optional uint64 left_boundary_id = 2;
+  optional uint64 right_boundary_id = 3;
+  repeated uint64 left_lane_ids = 5;
+  repeated uint64 right_lane_ids = 6;
+  optional Polyline centerline = 7;
+}
+
+message FusionModelBaseFrame {
+  optional uint64 ego_lane_id = 1;
+  repeated FusionModelLane lanes = 2;
+  repeated FusionModelBoundary lane_boundaries = 3;
+  repeated string localmap_fusion_dbg_info = 4;
+}
+
+message FusionModelDebug {
+  optional uint64 time_pub = 1;
+  enum FusionStatus {
+    PERCEPTION_ONLY = 0;
+    HDMAP_ONLY = 1;
+    FUSION = 2;
+    NONE = 3;
+  }
+  optional FusionStatus fusion_status = 2;
+  optional FusionModelBaseFrame fusion_model_frame = 3;
+}
+
+//* traffic light processor debug
+message PerceptionJunctionDebug {  // 稳定后的感知红绿灯路口位置， base_link
+  optional double radius = 1;
+  optional Vector3d position = 2;
+}
+
+message MapJunctionDebug {  // 地图上找到的红绿灯路口位置， base_link
+  optional LocalMapSource source = 1;
+  optional Junction junction = 2;  // polygon
+}
+
+message TrafficLightProcessorDebug {
+  repeated PerceptionJunctionDebug perc_tlj = 1;
+  repeated MapJunctionDebug map_tlj = 2;
+  repeated string extra_infos = 3;
+}
+
+message LaneDiffCheckerDebug {  // 当ldc为poor的时候，记录当时场景
+
+  enum LaneDiffCheckResult {
+    LDR_UNABLE_CHECK = 0;
+    LDR_MATCH_PERFECT = 1;
+    LDR_MATCH_AVERAGE = 2;
+    LDR_MATCH_POOR = 3;
+  }
+
+  enum UnableCheckReason {
+    UCR_UNKNOW = 0;
+    UCR_SPECIAL_POINT = 1;
+    UCR_IN_BEND = 2;
+    UCR_GET_HDMAP_BOUNDARIES_FAILED = 3;
+    UCR_GET_PERCEPTION_BOUNDARIES_FAILED = 4;
+    UCR_SCENARIO_UNKNOWN = 5;
+    UCR_CHECK_DISTANCE_FAILED = 6;
+  }
+
+  enum GetBoundaryPointsResult {
+    BPR_UNKNOW = 0;
+    BPR_SUCCESS = 1;
+    BPR_CHECK_HOST_BOUNDARY_FAILED = 2;
+    BPR_CHECK_BOUNDARIES_SP_FAILED = 3;
+    BPR_CHECK_LANE_CHANGE_FAILED = 4;
+    BPR_CHECK_LANE_WIDTH_FAILED = 5;
+    BPR_CHECK_LEFT_BOUNDARY_VALID = 6;
+    BPR_CHECK_RIGHT_BOUNDARY_VALID = 7;
+    BPR_CHECK_BOTH_BOUNDARY_INVALID = 8;
+    BPR_VIRTUAL_VIRTUAL_SP = 9;
+  }
+
+  enum GeometryDistanceCheckResult {
+    DCR_UNKNOW = 0;
+    DCR_POINT_SIZE_SMALL = 1;
+    DCR_BUFFER_SIZE_SMALL = 2;
+    DCR_OPEN_JUNCTION_SCENE = 3;
+    DCR_SPLIT_MERGE_SCENE = 4;
+    DCR_TYPE_NOT_MATCH = 5;
+    DCR_LARGE_DISTANCE = 6;
+    DCR_MIDDLE_DISTANCE = 7;
+    DCR_SMALL_DISTANCE = 8;
+  };
+
+  enum ScenarioType {
+    UNKNOWN = 0;
+    HIGH_WAY = 1;
+    URBAN = 2;
+    PSP_AREA = 3;
+    EXPRESS_WAY = 4;
+  }
+
+  // timestamp
+  optional uint64 timestamp = 1;
+
+  // hdmap get boundaries
+  optional GetBoundaryPointsResult hdmap_get_boundaries_result = 2;
+  repeated FusionModelPoint hdmap_host_left_boundary_points = 3;
+  repeated FusionModelPoint hdmap_host_right_boundary_points = 4;
+  optional int64 hdmap_host_left_boundary_id = 5;
+  optional int64 hdmap_host_right_boundary_id = 6;
+
+  // perception get boundaries
+  optional GetBoundaryPointsResult perception_get_boundaries_result = 7;
+  repeated FusionModelPoint perception_host_left_boundary_points = 8;
+  repeated FusionModelPoint perception_host_right_boundary_points = 9;
+  optional int64 perception_host_left_boundary_id = 10;
+  optional int64 perception_host_right_boundary_id = 11;
+
+  // difference
+  repeated FusionModelPoint left_distance_diff = 12;
+  repeated FusionModelPoint right_distance_diff = 13;
+
+  // statistics results
+  optional GeometryDistanceCheckResult left_distance_check_result = 14;
+  optional GeometryDistanceCheckResult right_distance_check_result = 15;
+  optional float left_distance_near = 16;
+  optional float left_distance_far = 17;
+  optional float right_distance_near = 18;
+  optional float right_distance_far = 19;
+  optional float left_distance_threshold_near = 20;
+  optional float right_distance_threshold_near = 21;
+  optional float left_distance_threshold_far = 22;
+  optional float right_distance_threshold_far = 23;
+
+  // final output result
+  optional LaneDiffCheckResult lane_diff_check_result = 24;
+
+  // unable check reason
+  optional UnableCheckReason unable_check_reason = 25;
+
+  // virtual virtual point
+  repeated FusionModelPoint virtual_virtual_points = 26;
+
+  // current scenario type
+  optional ScenarioType curr_scenario_type = 27;
+}
+
+message ConstructionResultDebug {
+  optional int64 fusion_boundary_id = 1;
+  // change geometry boundary point
+  repeated FusionModelPoint fusion_boundary_points = 2;
+  optional FusionModelPoint merge_point = 3;
+}
+
+message ExtraInfoDebug {
+  repeated uint64 uint64_debug = 1;
+  repeated double double_debug = 2;
+  repeated string string_debug = 3;
+}
+
+message CorridorChange {
+  enum ChangeReason {
+    NONE = 0;
+    CURB = 1;
+    GOD = 2;
+    STOP_LINE = 3;
+    YELLOW_LINE = 4;
+    REVERSE_TRAFFIC = 5;
+    DYN_OBJS_PTS = 6;
+    REVERSE_OBJS = 7;
+    PERC_LANES = 8;
+    UNDIVIDED_SHIFT = 9;
+    OUT_COMPENSATION = 10;
+    IN_COMPENSATION = 11;
+    INFER_LANE = 12;
+  };
+
+  optional ChangeReason change_reason = 1;
+  optional double offset = 2;
+  optional string desc = 3;
+}
+
+message NaviStubDebug {
+  optional uint64 id = 1;
+  optional uint64 offset = 2;
+  optional bool is_right_turn_lane = 3;
+  optional Polygon polygon = 4;
+  optional double polygon_s = 5;
+
+  optional string desc = 50;
+}
+
+message NaviExitRegionDebug {
+  optional uint64 idx = 1;
+  optional double width = 2;
+  optional Vector3d left_boundary_point = 3;
+  optional Vector3d right_boundary_point = 4;
+  optional uint64 motor_way_confidence = 5;
+  optional uint64 reverse_way_confidence = 6;
+  optional uint64 one_direction_confidence = 7;
+  optional bool is_selected = 8;
+  optional bool is_virtual = 9;
+  optional bool is_vehicle = 10;
+  optional string confidence_debug_str = 11;
+
+  optional ExtraInfoDebug extra_info = 50;
+}
+
+message NaviErrorCode {
+  optional uint32 code = 1;
+  optional string name = 2;
+  optional uint32 count = 3;
+}
+
+message CorridorRefineDebug {
+  enum LineInput {
+    UNKNOWN = 0;
+    ONESTAGE = 1;
+    TWOSTAGE = 2;
+  };
+
+  optional LineInput line_input = 1;
+  optional uint32 search_step = 2;
+  optional bool is_collisionless = 3;
+  optional string desc = 4;
+}
+
+message NaviMapDebug {
+  repeated CorridorChange corridor_changes = 1;
+  repeated NaviStubDebug navi_stub_debugs = 2;
+  repeated NaviExitRegionDebug navi_exit_regions_debugs = 3;
+  repeated NaviErrorCode error_codes = 4;
+  optional string extra_info = 5;
+  repeated CorridorRefineDebug corridor_refine_debugs = 6;
+}
+
+message PerformanceMonitor {
+  optional uint64 timestamp = 1;
+  optional uint32 heartbeat = 2;
+  optional float total_duration = 4;  // in ms
+  repeated string submodule_duration = 5;
+  optional Handshake handshake = 6;
+
+  message Handshake {
+    optional uint64 request_signal = 1;
+    optional uint64 receive_signal = 2;
+    optional uint64 last_update_timestamp = 3;
+    optional uint64 frame_id = 4;
+  }
+}
+
+message SceneInfoDebug {
+  optional uint32 ad_function = 1;
+  repeated SceneJudge scenes = 2;
+
+  message SceneJudge {
+    enum SceneType {
+      UNKNOWN = 0;
+      ROAD_SPLIT = 1;
+      FRONTAGE = 2;
+      GRADUALLY_WIDEN = 3;
+      RIGHT_TURN_LANE = 4;
+      NO_LANELINES = 5;
+      OFFRAMP = 6;
+    }
+
+    enum TurnDirection {
+      TURN_STRAIGHT = 0;
+      TURN_LEFT = 1;
+      TURN_RIGHT = 2;
+    }
+
+    optional SceneType scene_type = 1;
+    optional TurnDirection turn_direction = 2;
+    optional int32 scene_distance = 3;
+    optional string extra_info = 4;
+  }
+
+  optional string extra_info = 50;
+}
+
+message LaneExtend {
+  optional Polyline base_traj = 1;
+  optional uint32 scene = 2;
+  optional uint64 id = 3;
+}
+
+message LaneTracking {
+  repeated TrackingInfo tracking_info = 1;
+  optional string lane_tracking_str = 2;
+  optional string lane_match_str = 3;
+  optional string extra_info = 4;
+
+  message TrackingInfo {
+    optional uint32 lane_id = 1;
+    optional uint32 left_boundary_id = 2;
+    optional uint32 right_boundary_id = 3;
+    optional uint32 lost_times = 4;
+    optional uint32 tracking_times = 5;
+    optional uint32 god_track_times = 6;
+    optional float lane_lost_thresh = 7;
+    optional float god_lost_thresh = 8;
+
+    optional string extra_info = 30;
+  }
+}
+
+message LaneState {
+  repeated LaneStateReason lane_state_reason = 1;
+  optional string lane_state_info = 2;
+
+  message LaneStateReason {
+    optional uint32 lane_id = 1;
+    optional uint32 left_boundary_id = 2;
+    optional uint32 right_boundary_id = 3;
+    optional string state = 4;
+    optional string state_reason = 5;
+  }
+}
+
+message BGM {
+  repeated InterestRegion regions = 1;
+  repeated CandidateExit exits = 2;
+  optional Polyline safety_path = 3;
+
+  message InterestRegion {
+    optional uint32 id = 1;
+    optional Polygon polygon = 2;
+    optional uint32 type = 3;
+  }
+
+  message CandidateExit {
+    optional uint32 id = 1;
+    optional Polyline line = 2;
+    optional uint32 type = 3;
+  }
+}
+
+message MPoint {
+  optional double x = 1;
+  optional double y = 2;
+  optional double z = 3;
+  optional uint32 conf = 4;
+}
+
+message MPolyline {
+  repeated MPoint points = 1;
+
+  optional string extra_info = 50;
+}
+
+message AnchorLane {
+  optional MPolyline guide_points = 1;
+  optional MPolyline guide_line = 2;
+}
+
+message MCorridorDebug {
+  repeated AnchorLane anchor_lanes = 1;
+}
+
+message MapLessDebug {
+  // Performance Monitor
+  optional PerformanceMonitor performance_monitor = 1;
+  // Lane extend
+  optional LaneExtend lane_extend = 2;
+  // Scene
+  optional SceneInfoDebug scene_debug = 3;
+  optional BGM bgm = 4;
+  // lane tracking
+  optional LaneTracking lane_tracking = 5;
+  // lane state
+  optional LaneState lane_state = 6;
+  // mapless corridor
+  optional MCorridorDebug mcorridor = 7;
+  // extra
+  optional string extra_info = 50;
+}
+
+// merge all debug
+message WorldModelDebug {
+  optional uint64 time_pub = 1;
+  optional FusionModelDebug fusion_model_debug = 2;
+  optional TrafficLightProcessorDebug traffic_light_processor_debug = 3;
+  optional LaneDiffCheckerDebug lane_diff_checker_debug = 4;
+  optional ConstructionResultDebug construction_result_debug = 5;
+  optional NaviMapDebug navi_map_debug = 6;
+  optional MapLessDebug mapless_model_debug = 7;
+  optional ExtraInfoDebug extra_info_debug = 50;
+
+  optional uint64 timestamp = 536870905;     // ptp time, nanosec, for cosine bundle timestamp 
+  optional SensorTSHeader sensor_original_ts = 536870906;  // sensor original ts
+  optional uint64 publish_ptp_ts =
+      536870907;  // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909;  // uuid of the publisher
+  optional uint64 counter = 536870910;       // message counter
+  optional uint64 publish_ts =
+      536870911;  // publish utc timestamp; unit : nanosecond
+}

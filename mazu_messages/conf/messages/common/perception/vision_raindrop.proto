@@ -1,0 +1,40 @@
+
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message RainDrop {
+    optional RainFall rainfall = 1;
+    optional RainFallLevel rainfall_level = 2;
+
+    enum RainFall {
+        NO_RAIN = 0;
+        RAIN = 1;
+        RESERVED = 2;
+        INVALID=3;
+    }
+    
+    enum RainFallLevel {
+        LEVEL_0 = 0;
+        LEVEL_1 = 1;
+        LEVEL_2 = 2;
+        LEVEL_3 = 3;
+        LEVEL_4 = 4;
+        LEVEL_5 = 5;
+        LEVEL_6 = 6;
+        LEVEL_INVALID = 7;  
+    }
+}
+
+message RainDropDetection {
+    optional uint64 timestamp = 1;//ptp time of perception result, unit: ns
+    optional RainDrop raindrop = 2;
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909;       // uuid of the publisher
+    optional uint64 counter = 536870910;            // message counter
+    optional uint64 publish_ts = 536870911;         // publish utc timestamp; unit : nanosecond
+}

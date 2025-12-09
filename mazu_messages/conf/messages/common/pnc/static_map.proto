@@ -1,0 +1,59 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/pnc/road_map.proto";
+import "common/map_engine/global_hd_routes.proto";
+import "common/map_engine/sd_map.proto";
+import "common/pnc/geometry.proto";
+import "common/perf/sensor_ts_header.proto";
+
+// StaticMap is received from Map Engine, including a base map in 9 tiles,
+// a global routing result within the area of the base map,
+// and the realtime traffic jam info alongside the routing.
+// StaticMap is updated in 1Hz.
+message StaticMap {
+  enum StaticMapSource {
+    reserved 0;
+    LANEMAP = 1;        // global localization is bad, no hdmap info
+    GLOBAL_HDMAP = 2;   // hdmap in global coordinate
+    EGO_HDMAP = 3;      // hdmap in ego-car coordinate
+    EGO_FUSIONMAP = 4;  // corrected hdmap in ego-car coordinate
+    INVALID = 5;        // from wm_confidence
+  };
+  optional uint64 time_pub =
+      1;  // timestamp when the message is published. unit: ns
+  optional RoadMap road_map = 2;   // a range of 1km radius centered on ego-car
+  optional string tile_id = 3;     // inherited from map_engine
+  optional int32 map_version = 4;  // inherited from map_engine
+  optional GlobalRouting global_routing = 5;
+  optional uint64 routing_update_time =
+      6;  // related to GlobalRouting.global_routing_counter
+  optional StaticMapSource source =
+      7;  // indirectly indicates if global localization is reliable
+  optional uint64 current_lane_id =
+      8;  // current hd lane id, from global localization
+  optional Point3d wgs84_position = 9;  // ego-car position in lon/lat/alt
+  optional uint64 time_meas =
+      10;  // timestamp aligned with ego-car position timestamp
+  optional Vector3d cartesian_position =
+      11;                        // ego-car position in cartesian enu
+  optional double heading = 12;  // ego-car heading in radian when static_map is
+                                 // published, under ENU frame
+  optional RoadMap navi_map = 13;  // used for local routing, only contains
+                                   // topological info, no geometry info
+
+  optional uint64 timestamp = 536870905;     // ptp time, nanosec, for cosine bundle timestamp 
+  optional SensorTSHeader sensor_original_ts = 536870906;  // sensor original ts
+  optional uint64 publish_ptp_ts =
+      536870907;  // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909;  // uuid of the publisher
+  optional uint64 counter = 536870910;       // message counter
+  optional uint64 publish_ts =
+      536870911;  // publish utc timestamp; unit : nanosecond
+}
+// global_routing updates in 3 cases:
+// 1. DC updates passively when user drives on a wrong road
+// 2. DC updates actively when user changes the destination
+// 3. Routing info updates when road_map changes

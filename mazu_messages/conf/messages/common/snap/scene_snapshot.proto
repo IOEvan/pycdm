@@ -1,0 +1,557 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+import "common/sensors/pvat.proto";
+// import "common/vehicle_in/vehicle_10ms.proto";
+import "common/dms/dms_feature.proto";
+import "common/vehicle_out/ads_actu.proto";
+import "common/vehicle_out/ads_drv_if.proto";
+import "common/vehicle_out/ads_ls_if.proto";
+import "common/vehicle_in/veh_drv.proto";
+import "common/vehicle_in/veh_ctrl_if.proto";
+import "common/vehicle_in/veh_whl.proto";
+import "common/vehicle_in/veh_dyn.proto";
+import "common/vehicle_in/veh_body.proto";
+import "common/vehicle_in/brk_sys.proto";
+import "np/apps/fct_out.proto";
+import "common/dms/dms_can.proto";
+
+import "common/vehicle_in/veh_enum_type.proto";
+import "common/localization/geometry.proto";
+import "common/localization/global_localization.proto";
+import "common/vehicle_in/veh_pt.proto";
+import "common/vehicle_in/str_sys.proto";
+import "np/apps/fct_dlb.proto";
+import "common/dms/dms_base.proto";
+import "common/sensors/gnss_result.proto";
+import "common/map_engine/sd_hd_info.proto";
+import "common/perception/vision_traffic_sign.proto";
+import "common/function_arb/function_arb_in.proto";
+import "np/apps/ehy_rme_road_base.proto";
+import "common/perception/vision_road_detection.proto";
+
+import "common/map_engine/map_scenario_info.proto";
+import "common/map_engine/sd_map.proto";
+import "common/dms/adms_risk_score.proto";
+import "np/apps/ehy_tsi_outputs.proto";
+import "np/apps/ehy_target_base.proto";
+
+import "common/dms/dms_drive_assist.proto";
+
+import "common/nop/task_scheduler/power_swap_pilot_state.proto";
+import "np/apps/road_model_adasmap.proto";
+import "common/pnc/pnc_planner_state_statistic.proto";
+
+import "common/dms/adms.proto";
+import "common/cdm/cdm_tag.proto";
+
+import "common/perception/vision_traffic_light.proto";
+import "common/cdm/cdm_report_info.proto";
+import "common/localization/global_routes.proto";
+import "common/esd/esd_np_feature.proto";
+import "np/apps/parking/par_state_machine.proto";
+import "common/map_engine/fence_odd_list.proto";
+import "common/ssm/ssm_status.proto";
+import "common/vehicle_out/sapa_ui_results_eth.proto";
+import "common/adhmi/adhmi_function_from_dc.proto";
+import "np/apps/parking/par_control_out.proto";
+
+import "common/platform/hw_manager/shutdown_broadcast.proto";
+import "common/diagnostic/fim/fim_cameras.proto";
+import "common/diagnostic/fim/fim_lidar.proto";
+import "common/diagnostic/fim/fim_can_feature.proto";
+import "common/diagnostic/fim/fim_can.proto";
+import "common/perception/vision_failsafe.proto";
+import "common/perception/perception_objects.proto";
+import "common/perception/multisource_object.proto";
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message SceneSnapshot {
+    reserved 2,3,4,5,6,7,8,9;
+    optional uint64                      timestamp           = 1;
+
+    optional NpIfInfo.DANADStType_e      DANADSts            = 10;             // 3.  common\vehicle_out\ DrvIntractInfo -> NpIfInfo-> DA_NAD_Sts
+    optional uint32                      DA_NAD_WTI          = 11;             // 4.  np/apps/fct_out.proto->HwaOut.NaNadWTI
+    optional NpIfInfo.HODsymbol_e        HODsymbol           = 12;             // 5.  common\vehicle_out\ DrvIntractInfo -> NpIfInfo-> HODsymbol
+    optional DrowsinessLevel_ADC03       drowsiness_lvl      = 13;             // 6.  common\dms\dms_can ->drowsiness_lvl
+    optional DistractionLevel_ADC03      distraction_lvl     = 14;             // 7.  common\dms\dms_can ->distraction_lvl
+    optional DistractionSts_ADC03        distraction_sts     = 15;             // 8.  common\dms\dms_can ->distraction_sts
+
+    optional LnAsstStType_e              LnAssistSts         = 16;             // 9.  common\vehicle_out\ DrvIntractInfo -> NpIfInfo-> LaneAssistSts
+    optional LnLineDispStType_e          AdasLeLine          = 17;             // 10. common\vehicle_out\ DrvIntractInfo -> NpIfInfo-> AdasLeLine
+    optional LnLineDispStType_e          AdasRiLine          = 18;             // 11. common\vehicle_out\ DrvIntractInfo -> NpIfInfo-> AdasRiLine
+    optional NpIfInfo.ELKSts_e           ELKSts              = 19;             // 12. common\vehicle_out\ DrvIntractInfo -> NpIfInfo-> ELKSts
+    optional ESFWarningSts_e             ESFWarningSts       = 20;             // 13. common\vehicle_out\ DrvIntractInfo -> NpIfInfo-> ESFWarningSts
+    optional uint32                      EASSts              = 21;             // 14. np\apps\fct_out->EasOut->EASSts
+    optional uint32                      DA_ALCSsts          = 22;             // 15. np\apps\fct_out->LatCtrlOut->AlcsInfo->DA_ALCSsts
+
+    repeated SdowBsdIfInfo.BsdLcaReWarnType_e BSDLCAReWarnReq = 23;            // 16. common\vehicle_out\ DrvIntractInfo -> SdowBSD-> BSDLCAReWarnReq
+    repeated SdowBsdIfInfo.SdowWarnStType_e   SDOWWarnSts     = 24;            // 17. common\vehicle_out\ DrvIntractInfo -> SdowBSD-> SDOWWarnSts
+    repeated CTAWarnIfInfo.CtaReWarnType_e    CTAReWarnReq    = 25;            // 18. common\vehicle_out\ DrvIntractInfo -> CTAWarn ->CTAReWarnReq
+    optional CTAWarnIfInfo.RCTABStType_e      RCTABrkSts      = 26;            // 19. common\vehicle_out\ DrvIntractInfo -> CTAWarn ->RCTABrkSts
+    repeated CTAWarnIfInfo.CtaFrntWarnType_e  CTAFrntWarnReq  = 27;            // 20. common\vehicle_out\ DrvIntractInfo -> CTAWarn ->CTAFrntWarnReq
+    optional bool                             AhcHiBmReq      = 28;            // 21. np\apps\fct_out->AhcOut->AhcHiBmReq
+    optional SpdDispAndCfgInfo.SAS_SLIFSts_e SAS_SLIF_State   = 29;            // 22. common\vehicle_out\ DrvIntractInfo -> SpdDispAndCfgInfo->SAS_SLIF_State
+
+    optional SpdDispAndCfgInfo.SAS_SLIFWarnTrgSts_e   SAS_SLWF_WarnTrigger      = 30;     // 23. common\vehicle_out\ DrvIntractInfo -> SpdDispAndCfgInfo->SAS_SLWF_WarnTrigger
+    optional ParkStInfo.SapaStType_e                  SApaStatus                = 31;     // 24. common\vehicle_out\ LowSpdFuncInfo-> ParkStInfo->SApaStatus
+    optional ParkStInfo.PSAPHMIStatus_e               PSAPHMIStatus             = 32;     // 25. common\vehicle_out\ LowSpdFuncInfo->ParkStInfo->PSAPHMIStatus
+    optional DrvInfo.AdFunCfgInfo.SetDA_StrAssType_e  SetDA_SteerAssist         = 33;     // 26. common\vehicle_in\DrvInfo-> AdFunCfg-> SetDA_SteerAssist
+    optional DrvInfo.AdFunCfgInfo.SetDA_ALCSType_e    SetDA_ALCS                = 34;     // 27. common\vehicle_in\DrvInfo->AdFunCfg-> SetDA_ALCS
+
+    optional AdFunOnOffType_e           AEBOnOffReq                    = 35;    // 28. common\vehicle_in\DrvInfo->AdFunCfg-> AEBOnOffReq
+    optional AdFunOnOffType_e           FCTAOnOffCmd                   = 36;    // 29. common\vehicle_in\DrvInfo->AdFunCfg-> FCTAOnOffCmd
+    optional LnAssistAidType_e          SetLnAssiAidTyp                = 37;    // 30. common\vehicle_in\DrvInfo->AdFunCfg-> SetLnAssiAidTyp
+    optional LnAssistSnvtyType_e        SetLaneAssiSnvty               = 38;    // 31. common\vehicle_in\DrvInfo->AdFunCfg-> SetLaneAssiSnvty
+    optional FuncActvSts_e              DrowsinessSwtSts               = 39;    // 32. common\vehicle_in\DrvInfo->AdFunCfg-> DrowsinessSwtSts
+    optional FuncActvSts_e              DistractionSwtSts              = 40;    // 33. common\vehicle_in\DrvInfo->AdFunCfg-> DistractionSwtSts
+    optional NpIfInfo.EASWarnLevel_e    EASWarningLevel                = 41;    // 34. common\vehicle_out\ DrvIntractInfo -> NpIfInfo-> EASWarningLevel
+
+    optional AdFunOnOffType_e           LCAOnOff                       = 42;    // 35. common\vehicle_in\DrvInfo-> AdFunCfg-> LCAOnOff
+    optional AdFunOnOffType_e           LCATctlWarnOnOff               = 43;    // 36. common\vehicle_in\DrvInfo->AdFunCfg-> LCATctlWarnOnOff
+    optional AdFunOnOffType_e           RCTABReq                       = 44;    // 37. common\vehicle_in\DrvInfo->AdFunCfg-> RCTABReq
+    optional AdFunOnOffType_e           RCTAReq                        = 45;    // 38. common\vehicle_in\DrvInfo->AdFunCfg-> RCTAReq
+    optional DrvInfo.AdFunCfgInfo.SdowOnOffReq_e       SdowOnOffReq    = 46;    // 39. common\vehicle_in\DrvInfo->AdFunCfg-> SdowOnOffReq
+    optional DrvInfo.AdFunCfgInfo.HmaOnOffType_e       SetHMA          = 47;    // 41. common\vehicle_in\DrvInfo->AdFunCfg-> SetHMA
+    optional DrvInfo.VehEgyMngtMod_e                   VehEgyMngtMod   = 48;    // 44. common\vehicle_in\DrvInfo-> VehEgyMngtMod
+
+    optional PVATResult                                pvat            = 49;    // 47. common\sensor ->  PVATResult
+    optional LocVector3                                wgs84_position  = 50;    // 48. common\localization->GlobalLocalization -> wgs84_position
+    optional GlobalLocalization.Status                 status          = 51;    // 49. common\localization-> GlobalLocalization->status
+    optional LaneLoc                                   lane_loc        = 52;    // 50. common\localization-> GlobalLocalization/LaneLoc
+    optional VehCtrlIfInfo                             VehCtrlIf       = 53;    // 51. common\vehicle_in\ vehicle_10ms ->VehCtrlIfInfo
+
+
+    optional DrvInfo.TrnIndcrSwStType_e              TurnIndcrSwtSts = 54;      // 57. common\vehicle_in\50 DrvInfo->TurnIndcrSwtSts
+    optional DrvInfo.WiprSwtStType_e                 FrntWiprSwtSts  = 55;      // 58. common\vehicle_in\ 50    DrvInfo->FrntWiprSwtSts
+    optional NpIfInfo.TrnLghtReqType_e               TurnLightReq    = 56;      // 59. common\vehicle_out\ DrvIntractInfo -> NpIfInfo-> TurnLightReq
+    optional VehBodyInfo.LightsInfo.HzrdLiStsType_e  HzrdWarnSts     = 57;      // 60. common\vehicle_in\vehicle_50ms->VehBody->LightsInfo-> HzrdWarnSts
+    optional VehBodyInfo.VehStatusInfo.VehStType_e   VehState        = 58;      // 61. common\vehicle_in\vehicle_50ms->VehBody->VehStatusInfo->VehState
+    optional bool                                    CrashDetd       = 59;      // 62. common\vehicle_in\vehicle_50ms->VehBody->CrashDetd
+
+    optional DMS_DrowsinessResult   drowsiness_result      = 60;                // 63. common\dms -> dms_feature->DMS_DrowsinessResult
+    optional DMS_DistractionResult  distraction_result     = 61;                // 64. common\dms -> dms_feature->DMS_DistractionResult
+    optional LatCtrlIf              LatCtrl                = 62;                // 65. common\vehicle_out\ ActuatorIf->LatCtrl
+    optional LngctrlCmfrtIf         LngCtrlCmfrt           = 63;                // 66. common\vehicle_out\ ActuatorIf->LngctrlCmfrtIf
+    optional LngCtrlEmrgIf          LngCtrlEmrgnc          = 64;                // 67. common\vehicle_out\ ActuatorIf->LngCtrlEmrgIf
+    optional LngLwSpdCtrlIf         LngLwSpdCtrl           = 65;                // 68. common\vehicle_out\ ActuatorIf->LngLwSpdCtrlIf
+    optional VehModMngIfInfo        VehModMng              = 66;                // 69. common\vehicle_out\ ActuatorIf->VehModMngIfInfo
+    optional SafeStateInfo          SafetyState            = 67;                // 70. common\vehicle_out\ ActuatorIf-> SafeStateInfo
+
+    optional DrvInfo.AdFunCfgInfo.FcwSetType_e   FCWSetReq        = 68;         // 71. common/vehicle_in/veh_drv -> AdFunCfgInfo -> FCWSetReq
+    optional StrAgFailStsType_e                  StrAgFailSts     = 69;         // 72. common\vehicle_in\vehicle_10ms -> StrSys->StrAgFailSts
+    optional StrAgCalStsType_e                   StrAgCalSts      = 70;         // 73. common\vehicle_in\vehicle_10ms -> StrSys->StrAgCalSts
+    optional float                               StrWhlAgSAE 	  = 71;         // 74. common\vehicle_in\vehicle_10ms -> StrSys->StrWhlAgSAE
+    optional float                               StrWhlAgSpdSAE	  = 72;         // 75. common\vehicle_in\vehicle_10ms -> StrSys->StrWhlAgSpdSAE
+    optional EPSStsType_e                        EPSSts		      = 73;         // 76. common\vehicle_in\vehicle_10ms -> StrSys->EPSSts
+
+    optional EpsDrvModType_e           DrvngMod		      = 74;                 // 77. common\vehicle_in\vehicle_10ms -> StrSys->DrvngMod
+    optional float                     TorsBarTqSAE	      = 75;                 // 78. common\vehicle_in\vehicle_10ms -> StrSys-> TorsBarTqSAE
+    optional StrSysInfo.OverRideDetn_e OverRideDetn		  = 76;                 // 79. common\vehicle_in\vehicle_10ms -> StrSys-> OverRideDetn
+    optional BrkSysInfo.BrkPdlInfo     BrkPdl             = 77;                 // 80. common\vehicle_in\vehicle_10ms ->BrkSysInfo->BrkPdl
+    optional BrkSysInfo.BrkFunInfo     BrkFunSt           = 78;                 // 81. common\vehicle_in\vehicle_10ms ->BrkSysInfo->BrkFunSt
+    optional PtInfo.AccrPedalInfo      AccrPedal          = 79;                 // 82. common\vehicle_in\vehicle_10ms -> PtInfo->AccrPedal
+
+    optional PtInfo.GearInfo             Gear             = 80;                 // 83. common\vehicle_in\vehicle_10ms ->PtInfo->Gear
+    optional PtInfo.VcuCruiseStType_e    CruiseStatus     = 81;                 // 84. common\vehicle_in\vehicle_10ms ->PtInfo->CruiseStatus
+    optional PtInfo.VcuEpbReqType_e      VCUEPBReq        = 82;	                // 85. common\vehicle_in\vehicle_10ms -> PtInfo->VCUEPBReq
+    repeated WhlInfos.WhlDynInfo         WhlDyn           = 83;                 // 86. common\vehicle_in\vehicle_10ms -> WhlDynInfo->WhlDyn
+    optional VehDynInfo.VehSpdInfos      VehSpd           = 84;                 // 87. common\vehicle_in\vehicle_10ms ->VehDynInfo->VehSpd
+    optional float                       LgtSAEAg         = 85;	                // 88. common\vehicle_in\vehicle_10ms ->VehDynInfo->LgtSAEAg
+
+    optional float                           LatSAEAg                   = 86;   // 91. common\vehicle_in\vehicle_10ms ->VehDynInfo->LatSAEAg
+    optional float                           YawRateSAERps              = 87;   // 93. common\vehicle_in\vehicle_10ms ->VehDynInfo->YawRateSAERps
+    optional float                           VehOdom                    = 88;   // 95. common\vehicle_in\vehicle_10ms -> VehDynInfo->VehOdom
+    optional uint32                          HWASM_stHeroButtonPress_mp = 89;   // 96. fct_dlb.proto\ ->  HWASM_stHeroButtonPress_mp
+    optional LngWarnSafetyIfInfo.AEBStType_e AEBSts                     = 90;   // 97. common\vehicle_out\ DrvIntractInfo -> LngWarnSafetyIfInfo->AEBSts
+
+    optional DMS_GazeAoiResult.DMS_GazeAoi   gaze_aoi               = 91;
+    optional DMSPose                         head_pose              = 92;
+    optional uint32                          lane_id                = 93;
+
+    optional GnssResult.GnssStatus position_type  = 94;                              // 96.common\sensors\gnss_result->position_type
+    optional GnssResult.GnssStatus ort_type 	  = 95;                              //  common\sensors\gnss_result->ort_type
+
+    optional double latitude          = 96;                                         // 97.common\sensors\gnss_result->latitude
+    optional double longitude         = 97;                                         // 97.common\sensors\gnss_result->longitude
+    optional float msl_height         = 98;                                         // 97.common\sensors\gnss_result->msl_height
+    optional float yaw                = 99;                                         // 97.common\sensors\gnss_result->yaw
+    optional float std_lat            = 100;                                        // 97.common\sensors\gnss_result->std_lat
+    optional float std_long           = 101;                                        // 97.common\sensors\gnss_result->std_long
+
+    optional uint32 num_sat_used          = 102;                                    // 98.common\sensors\gnss_result->num_sat_used
+    optional GlobalLocalization.Mode mode = 103;                                    // 99.common\localization\global_localization->mode
+    optional LocEulerAngle euler_angle    = 104;                                    // 100.common\localization\global_localization->euler_angle
+    optional float confidence             = 105;                                    // 101.common\localization\global_localization-> confidence
+
+    repeated TrafficSign.TSRName TSR_Name                  = 107;                   // 103.common\perception\vision_traffic_sign->trafficsign->TSR_Name
+    repeated float TSR_Lat_Distance                        = 108;                   // 104.common\perception\vision_traffic_sign->trafficsign->TSR_Lat_Distance
+    repeated float TSR_Long_Distance                       = 109;                   // 105.common\perception\vision_traffic_sign->trafficsign->TSR_Long_Distance
+    repeated float TSR_Name_Value                          = 110;                   // 106.common\perception\vision_traffic_sign->trafficsign->TSR_Name_Value
+
+    optional DrvInfo.AdFunCfgInfo.SapaPrkModType_e SAPAPrkgModReq   = 111;           // 110.common/vehicle_in/veh_drv.proto-->SAPAPrkgModReq
+    optional LngWarnSafetyIfInfo.PcwWarnType_e  PcwWarnReq          = 112;           // 111.common/vehicle_out/ads_drv_if.proto --> PcwWarnReq
+    optional FunctionXstatus.FunctionStatus function_status_nop_sts = 113;           // 112. common/nop/nop_functionstatus.proto-->function_status_nop_sts->FuncSts
+    optional uint32 nop_alc_sts                                     = 114;           // 113. common/nop/nop_vehicleout.proto --> message NopVehicleOut --> nop_alc_sts
+    optional int32 TauGapSet                                        = 115;           // 114. np/apps/fct_out.proto --> TauGapSet
+    optional DrvInfo.AdFunCfgInfo.SetSpeedCtrlSts_e SetSpeedCtrlSts = 116;           // 115. common/vehicle_in/veh_drv.proto --> SetSpeedCtrlSts
+    optional bool SwtichDA_NOP                                      = 117;           // 116. common/vehicle_in/veh_drv.proto --> SwtichDA_NOP
+    optional DrvInfo.AdFunCfgInfo.SetDA_NOPALC_e SetDA_NOPALC       = 118;           // 117. common/vehicle_in/veh_drv.proto --> SetDA_NOPALC
+    optional uint32 LatCtrl_bfLksSprs_mp                            = 119;           // 118. np/debug/dgb_fct.latctrl_debug_out.LatCtrl_bfLksSprs_mp
+    optional uint32 LatCtrl_bfLCATakeOverSprsMask_mp                = 120;           // 119. np/debug/dgb_fct.latctrl_debug_out.LatCtrl_bfLCATakeOverSprsMask_mp
+    optional float VehDispSpd                                       = 121;           // 120. common/vehicle_in/veh_dyn->vehdispspd
+    optional uint32 SAS_SpeedLimitValue                             = 122;           // 121. common/vehicle_out/ads_drv_if/SAS_SpeedLimitValue
+
+    optional DMS_EyeStatusResult eye_status_result                  = 123;
+    optional DMS_PhoneActionResult phone_result                     = 124;
+    optional DMS_SmokeResult smoke_result                           = 125;
+    optional DMS_YawnResult yawn_result                             = 126;
+    optional DMS_HeadMovementResult head_movement_result            = 127;
+    optional DMS_AgeResult age_result                               = 128;
+
+    optional DMS_GenderResult gender_result                         = 129;
+    optional DMS_EmotionResult emotion_result                       = 130;
+    optional DMS_StrabismusType strabismus_result                   = 131;
+    optional DMS_Status system_status                               = 132;
+    optional string uuid                                            = 133;
+
+    optional DrvInfo.AdFunCfgInfo.SetDA_SpdAssType_e SetDA_SpeedAssist      = 134;          // 133. common/vehicle_in/veh_drv.proto -> SetDA_SpeedAssist
+    repeated DrvInfo.StrWhlSwtchInfo.SwcSwStType_e AdUpSwtSts               = 135;          // 134. common/vehicle_in/veh_drv.proto --> AdUpSwtSts
+    optional uint32 DisplaySetSpd                                   = 136;          // 135. common/vehicle_out/ads_drv_if.proto --> DisplaySetSpd
+    optional SasOut.SpdLmtTkOv_e SpeedLimitTakeover                 = 137 [default = None]; // 136. np/apps/fct_out.proto.SpdLmtTkOv_e
+
+    optional uint32 DA_NopWTI                                       = 138;          // 137. common/nop/nop_vehicleout.proto->nop_wti, topic common/nop/planner_out_wti
+    optional uint32 nop_speed_limit_value                           = 139;          // 138. common/nop/nop_speedlimitvalue.proto -->nop_speed_limit_value
+    optional DrvInfo.DriverPSAPRequest_e DriverPSAPRequest       = 140;          // 139. common/vehicle_in/veh_drv.proto --> DriverPSAPRequest
+    optional uint32 ACCSC_uNOPActivationPrevention_mp               = 141;          // 140. np/debug/dgb_fct.proto --> ACCSC_uNOPActivationPrevention_mp
+    optional uint32 ACCSC_uNOPSuppression_mp                        = 142;          // 141. np/debug/dgb_fct.proto -->ACCSC_uNOPSuppression_mp
+    
+    optional bool nop_scene_mgmt_ok                                 = 143;          // 142. common/nop/nop_scenemgmt.proto --> nop_scene_mgmt_ok
+    optional uint32 form_of_way                                     = 144;          // 143. common/map_engine/sd_map.adas_info. segment[0].form_of_way
+    optional uint32 m_adasmap_is_highway                            = 145;          // 144. common/map_engine/sd_map.adas_info.m_adasmap_is_highway
+    optional uint32 SApaAbortReason                                 = 146;          // 145. common/vehicle_out/ads_ls_if.proto -->SApaAbortReason
+    optional ParkStInfo.PSAPAbortReason_e  PSAPAbortReason          = 147;          // 146. common/vehicle_out/ads_ls_if.proto -->PSAPAbortReason
+    
+    optional string station_id                                      = 148;          // 147. common/vehicle_in/pwrswapstn_info.proto --> station_id
+    optional RmeLine tpp_trajectory                                 = 149;          // 148. np/apps/ehy_tpp_outputs.proto->tpp_trajectory
+    optional LaneDetection laneline                                 = 150;          // 149. common/perception/vision_road_detection.proto->laneline
+    optional NpIfInfo.DA_SetSpdAnmt_e DA_SetSpeedAnimation          = 151;          // 150. common/vehicle_out/ads_drv_if.proto->DA_SetSpeedAnimation
+
+    optional uint32 DA_NOP_WTIs                           = 152;                // np/apps/fct_out.proto->HwaOut.DA_NOP_WTIs
+    optional uint32 DA_iACC_WTIs                          = 153;                // np/apps/fct_out.proto->HwaOut.DA_iACC_WTIs
+    optional uint32 DA_Pilot_WTIs                         = 154;                // np/apps/fct_out.proto->HwaOut.DA_Pilot_WTIs
+    optional ParkStInfo.SapaInstrctnType_e SApaInstruction = 155;               // common/vehicle_out/ads_drv_if.proto
+    optional uint32 Textinfo                               = 156;               // common/vehicle_out/ads_drv_if.proto	NpIfInfo
+    optional NpIfInfo.LatCtrlTar_e LatCtrlTarLe            = 157;               // common/vehicle_out/ads_drv_if.proto	NpIfInfo
+
+    optional NpIfInfo.LatCtrlTar_e LatCtrlTarRi                          = 158;           // common/vehicle_out/ads_drv_if.proto	NpIfInfo
+    optional bool ADC_VehDisp_Warn                                       = 159;           // common/vehicle_out/ads_drv_if.proto ADIcsInf
+    optional SpdDispAndCfgInfo.SAS_SpdLmtTkOv_e SAS_SpeedLimitTakeover   = 160;           // common/vehicle_out/ads_drv_if.proto SpdDispAndCfgInfo
+    optional bool  	AutoBrkgActv                                         = 161;           // common/vehicle_in/ads_ctrl_if.proto
+    repeated SdowBsdIfInfo.RsdsDispType_e FrntRSDSDisp                   = 162;           // common/vehicle_out/ads_drv_if.proto SdowBsdIfInfo
+
+    optional BodyIfInfo.LightIfInfo.HmaStType_e HMASts      = 163;        // common/vehicle_out/ads_drv_if.proto
+    optional LngWarnSafetyIfInfo.FcwCnfgType_e FCWSetSts    = 164;        // common/vehicle_out/ads_drv_if.proto
+    optional ADSysInfo.SnsrSts_e LidarSts                   = 165;        // common/vehicle_out/ads_drv_if.proto
+
+    optional FuncActvSts_e SetDA_NOP                           = 166;        // 167. common/vehicle_in/veh_drv.proto -->SetDA_NOP
+    optional NpIfInfo.DA_NOP_Avl_e DA_NOP_Avl                  = 167;        // 168. common/vehicle_out/ads_drv_if.proto -->DA_NOP_Avl
+    optional bool is_in_road_construction_area                 = 168;        // 169. common/map_engine/map_scenario_info.proto --> is_in_road_construction_area
+    optional int32 traffic_flow                                = 169;        // 170. common/map_engine/map_scenario_info.proto --> traffic_flow
+    optional BrkPdlStsType_e    BrkPedlSts                     = 170;        // 171. common/vehicle_in/brk_sys.proto-->BrkPedlSts
+    optional uint64 seg_spd_lmt                                = 171;        // 172. sd_map.adas_info.segment[0].seg_spd_lmt
+    optional SdMapSegment.SpeedLimitType seg_spd_lmt_type      = 172;        // 173. sd_map.adas_info.segment[0].seg_spd_lmt_type 
+    optional ADMSRiskScore adms_risk_score                     = 173;        // 174. common/dms/ADMSRiskScore
+
+    repeated float tgt_ttc                                     = 174;        // np/apps/ehy_tsi_outputs.proto->tsi_obj[0/1/2/3/4/5/6/7/8/9/10/11].ttc
+    repeated TgtObj.TgtObjType tgt_type                        = 175;        // np/apps/ehy_tsi_outputs.proto->tsi_obj[0/1/2/3/4/5/6/7/8/9/10/11].type
+    optional bool ManHornSwtSts                               = 176;        // common/vehicle_in/veh_drv.proto --> AdFunCfg.ManHornSwtSts
+    repeated VehBodyInfo.SeatOcupStType_e SeatOccpSts        = 177;        // common/vehicle_in/veh_body.proto --> SeatOccpSts
+
+    optional DMSDistractionLevel_DA distraction_level            = 178;      // common/dms/dms_drive_assist.proto --> distraction_level
+    optional DMSDrowsinessLevel_DA drowsiness_level              = 179;      // common/dms/dms_drive_assist.proto --> drowsiness_level
+    optional StrSysInfo.HOSts_e HOSts                          = 180;      // common/vehicle_in/str_sys.proto --> HOSts
+    optional DrowsinessSts_ADC03 DrowsinessSts                 = 181;      // common/dms/dms_can.proto --> DrowsinessSts
+    optional DMSDrowsinessSts_DA DMSDrowsinessSts_DA           = 182;      // common/dms/dms_drive_assist.proto --> DMSDrowsinessSts_DA
+    optional DMSDistractionSts_DA DMSDistractionSts_DA         = 183;      // common/dms/dms_drive_assist.proto --> DMSDistractionSts_DA
+    repeated uint32 obj_index                                  = 184;      // np/apps/ehy_tsi_outputs.proto -->tsi_obj[0,1,2,3,4,5,6,7,8,10,11].obj_index
+    repeated float lat_pos_ccs                                 = 185;      // np/apps/ehy_tsi_outputs --> tsi_obj[0,1,2,3,4,5,6,7,8,10,11].lat_pos_ccs
+    repeated float lon_pos_ccs                                 = 186;      // np/apps/ehy_tsi_outputs --> tsi_obj[0,1,2,3,4,5,6,7,8,10,11].lon_pos_ccs
+    optional HeartBeatInfo.NavigationState NavigationState     = 187;      // common/map_engine/sd_map.proto --> NavigationState
+    optional HeartBeatInfo.ReliableState ReliableState         = 188;      // common/map_engine/sd_map.proto --> ReliableState
+    
+    optional uint32 conf_reject_reason                       = 189;        //common\localization\global_localization->conf_reject_reason
+
+    optional PowerSwapPilotState.OrderState order_state      = 190;    // common/nop/task_scheduler/power_swap_pilot_state.order_state
+    optional PowerSwapPilotState.TaskState task_state        = 191;    // common/nop/task_scheduler/power_swap_pilot_state.task_state
+    optional PowerSwapPilotState.Result task_result          = 192;    // common/nop/task_scheduler/power_swap_pilot_state.task_result
+    optional int32 is_in_map_area                            = 193;    // common/localization/global_localization.auxiliary_parking_info.is_in_map_area
+    optional bool is_position_good                           = 194;    // np/apps/road_model_adasmap.adas_info.is_position_good
+    optional bool is_curr_horizon_empty                      = 195;    // np/apps/road_model_adasmap.adas_info.is_curr_horizon_empty
+    optional bool is_pos_outdated                            = 196;    // np/apps/road_model_adasmap.adas_info.is_pos_outdated
+    optional AdasMapRoadClass road_class                     = 197;    // np/apps/road_model_adasmap.adas_info.segment[0].road_class
+    optional PncPlannerState PncPlannerState                 = 198;    // common/pnc/pnc_planner_state_statistic.PncPlannerState
+
+    optional DMSDefensiveDriveRequest defensive_drive_req      = 199; // common/dms/adms/defensive_drive_req
+    optional DMSSteeringTorqueReq steering_torque_req          = 200;// common/dms/adms/steering_torque_req
+
+    optional RoadTopology.RoadTypeL1  l1_type                  = 201;   // common/cdm/cdm_tag.proto  --> RoadTopology.RoadTypeL1
+    optional RoadTopology.RoadTypeL2  l2_type                  = 202;   // common/cdm/cdm_tag.proto  --> RoadTopology.RoadTypeL2
+    optional RoadTopology.RoadTypeL3  l3_type                  = 203;   // common/cdm/cdm_tag.proto  --> RoadTopology.RoadTypeL3
+    optional InteRaction interaction                           = 204;   // common/cdm/cdm_tag.proto  --> InteRaction
+
+    optional DMSMissTurnWarning miss_turn_warning                 = 205;   // common/dms/adms.proto->miss_turn_warning
+    optional DMSDefensiveDriveReason defensive_drive_reason       = 206;   // common/dms/adms.proto->defensive_drive_reason
+    optional DMSOverlayWarning overlay_warning                    = 207;   // common/dms/adms.proto->overlay_warning
+    optional DMSRiskSceneWarning static_obj_warning               = 208;   // common/dms/adms.proto->static_obj_warning
+    optional DMSRiskSceneWarning sharp_turn_warning               = 209;   // common/dms/adms.proto->sharp_turn_warning
+    optional DMSRiskSceneWarning cutin_warning                    = 210;   // common/dms/adms.proto->cutin_warning
+    optional DMSRiskSceneWarning contruction_redwarnsign_warnin   = 211;   // common/dms/adms.proto->contruction_redwarnsign_warning
+    optional uint32 ADMS_WTIs                                     = 212;   // common/dms/adms.proto->ADMS_WTIs
+
+    optional ParkStInfo.PSAPInstruction_e PSAPInstruction         = 213;   // common/vehicle_out/ads.LowSpdFun.ParkSt.PSAPInstruction
+    optional uint32 esd_in_PowerStation                           = 214;   // common/esd/esd_nop_feature.esd_in_PowerStation
+    optional uint32 DA_PSP_WTIs                                   = 215;   // np/apps/fct_out.proto->HwaOut.DA_PSP_WTIs
+    repeated TagInfo tag_info                                     = 216;   // common/cdm/cdm_tag.tag_info
+
+    optional string power_swap_station_uid        = 217;     // common/nop/task_scheduler/power_swap_pilot_state.power_swap_station_uid
+    repeated double online_parameters             = 218;     // common/localization/global_localization.online_parameters
+    optional LocVector3 velocity                  = 219;     // common/localization/global_localization.velocity
+    optional int32 hdmm_status                    = 220;     // common/localization/localization_status.mm_loc_info.status
+    optional LocVector3 hdmm_position             = 221;     // common/localization/localization_status.mm_loc_info.position
+    optional LocQuaternion hdmm_quaternion        = 222;     // common/localization/localization_status.mm_loc_info.quaternion
+    optional int32 se3_status                     = 223;     // common/localization/se3_pose.status
+    optional LocVector3 se3_position              = 224;     // common/localization/se3_pose.position
+    optional LocQuaternion se3_quaternion           = 225;     // common/localization/se3_pose.orientation
+    repeated double imu_turnrate                  = 226;     // common/sensors/imu.turnrate
+    repeated double imu_acceleration              = 227;     // common/sensors/imu.acceleration
+    repeated uint64 off_set                       = 228;     // common/map_engine/sd_map.adas_info.stub[0-1].offset
+    optional uint64 sign_type                     = 229;     // common/map_engine/sd_map.adas_info.traffic_sign[0].sign_type
+    repeated TrafficLight trafficlight            = 230;     // common/perception/vision_traffic_light.trafficlight[0-2]
+    repeated PanelLight Panellight                = 231;     // common/perception/vision_traffic_light.proto->TrafficLightDetection->Panellight[0-2]
+    repeated StopLine stopline                    = 232;     // common/perception/vision_road_detection.proto->stopline[0-2]
+
+    repeated float lon_vel                        = 233;     // np/apps/ehy_tsi_outputs --> tsi_obj[0,1,2,3,4,5,6,7,8,10,11].lonVel
+    optional double nop_deactivation_trigger      = 234;     // np/debug/dgb_fct.reserved[109]
+
+    optional DMS_DistractionResult moment_distraction_result           = 235;  // common/dms/dms_result.proto->moment_distraction_result
+    optional DMSDriverInLoopSt driver_in_loop_status                   = 236;  // common/dms/dms_driver_assist.proto->driver_in_loop_status
+    optional uint64 dms_status                                         = 237;  // common/dms/dms_driver_assist.proto->dms_status
+    optional DMSDistractionLevel_DA_Moment moment_distraction_level    = 238;  // common/dms/dms_driver_assist.proto->distraction_level_moment
+    optional DMSDistractionSts_DA_Moment moment_distraction_sts        = 239;  // common/dms/dms_driver_assist.proto->distraction_sts_moment
+    optional DMSRiskLevel adms_risk_level                              = 240;  // common/dms/adms.proto->adms_risk_level
+    optional float driver_in_loop_conf                                 = 241;  // common/dms/adms.proto->driver_in_loop_conf
+    optional DMSAttnRisk driver_attn_lost_intersection                 = 242;  // common/dms/adms.proto->driver_attn_lost_intersection
+    optional DMSAttnRisk driver_attn_lost_cutin                        = 243;  // common/dms/adms.proto->driver_attn_lost_cutin
+    optional int32 map_mode                                            = 244;  // /planner/debug_info   TaskDebugInfo.map_mode
+    optional uint32 coapp_HWASM_stNadDaSts_mp                          = 245;  // coapp/np/apps/fct_dlb.hwasm_dlb_out.HWASM_stNadDaSts_mp
+    optional uint32 coapp_aebsts                                       = 246;  // coapp/np/apps/fcts_out.Aeb.aebsts
+
+    optional double priority_road_class                                = 247;  // np/debug/dgb_fct.reserved[200]
+    optional CdmReportInfo cdm_report_info                             = 248;
+    optional int32 wm_confidence                                       = 249;  // /canbus/car_state.wm_confidence, fsm
+    optional bool steer_override                                       = 250;  // /canbus/car_info.steer_report.steer_override, fsm
+    optional string power_swap_station_uid_request                     = 251;  // common/nop/task_scheduler/power_swap_pilot_state.power_swap_station_uid_request
+    optional VehBodyInfo.WipperInfo.WiprStType_e FrntWiprSts           = 252;  // common\vehicle_in\vehicle_50ms.VehBody.WipperSts.FrntWiprSts
+    optional bool is_reference_line_replaced                           = 253;  // /planner/diagnose->reference_line_debug.is_reference_line_replaced
+    optional DrvInfo.AdFunCfgInfo.MAISetReq_e MAISetReq                = 254;  // common/vehicle_in/vehicle_50ms.DrvIn.AdFunCfg.MAISetReq
+    optional DrvInfo.AdFunCfgInfo.MAISetReq_e co_MAISetReq             = 255;  // coapp/common/vehicle_in/vehicle_50ms.DrvIn.AdFunCfg.MAISetReq
+    optional OAASetSts_e OAASetReq                                     = 256;  // common/vehicle_in/veh_drv.OAASetReq
+    optional bool SetDA_OAA                                            = 257;  // common/vehicle_in/veh_drv.DrvInfo.SetDA_OAA
+    optional OAASetSts_e co_OAASetReq                                  = 258;  // coapp/common/vehicle_in/veh_drv.OAASetReq
+    optional bool SetDA_PSP                                            = 259;  // common/vehicle_in/vehicle_50ms.DrvIn.AdFunCfg.SetDA_PSP
+
+    optional uint32 NAD_PSP_WTI2                                       = 260;  //common/nop/nop_vehicleout.proto->NAD_PSP_WTI2, topic:common/nop/planner_out_wti,fsm
+    optional uint32 NAD_PSP_WTI3                                       = 261;  // common/nop/nop_vehicleout.proto->NAD_PSP_WTI3 , topic:common/nop/planner_out_wti,fsm
+    repeated float phi_angle                                           = 262;  //np/apps/ehy_tsi_outputs.proto->tsi_obj.phi_angle
+    optional uint64 first_turn_info                                    = 263;  //common/map_engine/sd_map.navigation_info.turn_info.first_turn_info
+    optional uint64 dist_to_first_turn                                 = 264;  //common/map_engine/sd_map.navigation_info.turn_info.dist_to_first_turn
+    optional uint32 nop_distance_to_next_split                         = 265;  // /planner/state_machine.nop_distance_to_next_split
+    optional DMS_FaceResult face_result                                = 266;  //common/dms/dms_result.proto->face_result, clear landmarks+landmark_number
+    optional DMSPosition3f head_position                               = 267;  //common/dms/dms_result.proto->head_result.head_position
+
+    repeated TgtObj.BlinkerType blinker_info                           = 268;  //np/apps/ehy_tsi_outputs.proto->tsi_obj[0~4].blinker_info
+    repeated uint32 brake_lights                                       = 269;  //np/apps/ehy_tsi_outputs.proto->tsi_obj[0~4].brake_lights
+    optional string psp_station_id                                     = 270;  //common/localization/global_localization.auxiliary_parking_info.station_id
+    optional VehBodyInfo.NbsDrvStType_e NBSDrvrSts                     = 271;  // common/vehicle_in/vehicle_50ms.VehBody.NBSDrvrSts, need fsm
+    optional GlobalRoutesInfo global_routes_info                       = 272;  // common/localization/global_localization.global_routes_info
+    
+    optional uint32 status_in_fail_reason                              = 273; // common/localization/global_localization.map_topo_loc.status_in_fail_reason
+    optional uint32 status_out_reason                                  = 274; // common/localization/global_localization.map_topo_loc.status_out_reason
+    optional uint64 best_loc_link_id                                   = 275; // common/localization/global_localization.map_topo_loc.best_loc_data.link_id
+    optional uint32 hd_enter_fail_reason                               = 276; // common/localization/global_localization.map_topo_loc.hd_enter_fail_reason
+    optional uint32 hd_enter_succeed_reason                            = 277; // common/localization/global_localization.map_topo_loc.hd_enter_succeed_reason
+    optional uint32 hd_exist_reason                                    = 278; // common/localization/global_localization.map_topo_loc.hd_exist_reason
+
+    optional int32 route_match_state                                   = 279; // common/map_engine/global_hd_routes.route_match_state
+    optional bool is_full_routes                                       = 280; // common/map_engine/global_hd_routes.is_full_routes
+    optional uint64 current_hd_link_id                                 = 281; // common/map_engine/global_hd_routes.current_hd_link_id
+    optional uint64 current_sd_link_id                                 = 282; // common/map_engine/global_hd_routes.current_sd_link_id
+    optional uint64 last_match_time_ns                                 = 283; // common/map_engine/global_hd_routes.last_match_time_ns
+
+    optional uint64 sd_topo_link_id                                    = 284; // common/localization/global_localization->map_topo_loc.best_sd_loc_data.link_id
+    optional uint64 sd_topo_lane_id                                    = 285; // common/localization/global_localization->map_topo_loc.best_sd_loc_data.lane_id
+    optional uint64 sequence_id                                        = 286; // common/localization/global_localization->map_topo_loc.best_sd_loc_data.sequence_id
+    optional uint64 link_start_offset                                  = 287; // common/localization/global_localization->map_topo_loc.best_sd_loc_data.link_start_offset
+    optional string status_message                                     = 288; // common/localization/global_localization.status_message
+    optional string global_localization_version                        = 289; // common/localization/global_localization.version
+
+    optional ParkStInfo.PrkgActvFeatureTyp_e PrkgActvFeatureTyp        = 290; // common /vehicle_out/ads->LowSpdFuncInfo-> ParkSt.PrkgActvFeatureTyp
+    optional SummonStInfo.RpsSts_e RpsSts                              = 291; // common /vehicle_out/ads->LowSpdFuncInfo-> SummonSt.RpsSts
+    optional float cross_distance                                      = 292; // /world_model/corrected_pose->cross_distance
+    optional uint64 cross_link_id                                      = 293; // /world_model/corrected_pose->cross_link_id
+    optional uint64 hd_topo_link_id                                    = 294; // common/localization/global_localization->map_topo_loc.best_loc_data.link_id
+
+    optional DMSPose head_pose_by_oms                                  = 295; //common/dms/dms_result.proto->head_result.head_pose_by_oms
+    optional DMS_DistractionResult distraction_result_by_oms           = 296; // common/dms/dms_result.proto->distraction_result_by_oms
+    optional bool is_in_odd_flg                                        = 297; // /planner/state_machine.nad_state_machine_debug.dasm_ioadaptor.is_in_odd_flg
+    optional uint32 aa_state                                           = 298; // common/aa_state/aa_state_broadcast.proto->status
+    optional string extern_info                                        = 299; // extern info when fsm happened
+    repeated string fsm_sig                                            = 300; // info of fsm signals
+    optional uint32 RpsAbortReason                                     = 301; //common/vehicle_out/ads.proto->LowSpdFunInfo->SummonSt.RpsAbortReason, fsm
+
+    optional uint32 path_mode                                          = 302; // /planner/path.path_mode enum
+    optional bool is_PSP_connection_area_available                     = 303; // np/apps/parking_outputs.parking_status_out.is_PSP_connection_area_available
+    optional EsdPspPsapTarget_e esd_psp_psap_target                    = 304; // common/esd/esd_nop_feature.esd_psp_info.esd_psp_psap_target
+    optional double distance_to_queue_area_start_point                 = 305; // common/nop/task_scheduler/power_swap_pilot_state.distance_to_queue_area_start_point
+    optional double yaw_rate                                           = 306; // /canbus/car_state.yaw_rate
+    
+    optional uint32 driver_attn_alert                                  = 307; // common/dms/adms.proto->driver_attn_alert
+    optional DMSRiskSceneWarning md_rolling_warning                    = 308; // common/dms/adms.proto->md_rolling_warning
+    optional StateMachine.PsapModeType_e psap_mode                     = 309; // np/apps/parking/par_state_machine.psap_mode
+    optional DrvInfo.AdFunCfgInfo.SetSWFType_e SetSWF                  = 310; // common/vehicle_in/vehicle_50ms.DrvIn.AdFunCfg.SetSWF
+    optional DMS_DrowsinessResult fast_drowsiness_result               = 311; // common/dms/dms_result.proto->fast_drowsiness_result
+    optional DrvInfo.AdFunCfgInfo.SetAEBTypeReq_e SetAEBTypeReq        = 312; // common\vehicle_in\DrvInfo->AdFunCfg->SetAEBTypeReq
+    repeated FunctionFeatureControl feature_controls                   = 313; // common/map_engine/fence_odd_list.proto.fence_odd_list[1].feature_controls[:], not more than 5
+
+    optional int32 trigger_type                                        = 314; // /planner/scheduler.scheduler_task.trigger_type
+    optional int32 nop_func_sts                                        = 315; // /planner/state_machine.nop_func_sts
+    optional int32 navi_stub_type                                      = 316; // /world_model/dynamic_map.navi_map.long_range_info.navi_stub[0].type 
+    optional int32 navi_stub_turn_direction                            = 317; // /world_model/dynamic_map.navi_map.long_range_info.navi_stub[0].turn_direction
+    optional bool navi_stub_is_able_to_ad                              = 318; // /world_model/dynamic_map.navi_map.long_range_info.navi_stub[0].is_able_to_ad
+    optional bool navi_stub_is_covered_by_hdmap                        = 319; // /world_model/dynamic_map.navi_map.long_range_info.navi_stub[0].is_covered_by_hdmap
+    optional TLDJunction TLD_Junction                                  = 320; // common/perception/vision_traffic_light.TLD_Junction[0].TLD_Junction_Left;TLD_Junction_UTurn;TLD_Junction_Straight;TLD_Junction_Right
+
+    optional int32 tl_uturn_color                                      = 321; // /world_model/dynamic_map.traffic_light_junctions[0].tl_uturn.color 
+    optional uint32  tl_uturn_is_flash                                 = 322; // /world_model/dynamic_map.traffic_light_junctions[0].tl_uturn.is_flash
+    optional bool tl_uturn_is_blocked                                  = 323; // /world_model/dynamic_map.traffic_light_junctions[0].tl_uturn.is_blocked
+    optional int32 tl_straight_color                                   = 324; // /world_model/dynamic_map.traffic_light_junctions[0].tl_straight.color
+    optional uint32 tl_straight_is_flash                               = 325; // /world_model/dynamic_map.traffic_light_junctions[0].tl_straight.is_flash
+    optional bool tl_straight_is_blocked                               = 326; // /world_model/dynamic_map.traffic_light_junctions[0].tl_straight.is_blocked
+    optional int32 tl_left_color                                       = 327; // /world_model/dynamic_map.traffic_light_junctions[0].tl_left.color
+    optional uint32 tl_left_is_flash                                   = 328; // /world_model/dynamic_map.traffic_light_junctions[0].tl_left.is_flash
+    optional bool tl_left_is_blocked                                   = 329; // /world_model/dynamic_map.traffic_light_junctions[0].tl_left.is_blocked
+    optional int32 tl_right_color                                      = 330; // /world_model/dynamic_map.traffic_light_junctions[0].tl_right.color
+    optional uint32 tl_right_is_flash                                  = 331; // /world_model/dynamic_map.traffic_light_junctions[0].tl_right.is_flash
+    optional bool tl_right_is_blocked                                  = 332; // /world_model/dynamic_map.traffic_light_junctions[0].tl_right.is_blocked
+    optional bool is_controlled_by_traffic_light                       = 333; // /world_model/dynamic_map.traffic_light_junctions[0].is_controlled_by_traffic_light
+    optional int32 trafficlight_info_source                            = 334; // /world_model/dynamic_map.traffic_light_junctions[0].trafficlight_info_source
+    
+    optional SpdDispAndCfgInfo.SAS_SpdLmtAttr_e SAS_SpeedLimitAttribute = 335; // common/vehicle_out/ads.DrvrIF.SpdDispAndCfg.SAS_SpeedLimitAttribute
+    repeated uint64 link_ids                                            = 336; // common/map_engine/fence_odd_list.fence_odd_list[1].link_ids[:], no more than 10
+    optional uint32 DriverSAPASlotSelection                             = 337; // common/vehicle_in/vehicle_50ms.DrvIn.DriverSAPASlotSelection
+    optional uint32 DriverSAPAReq                                       = 338; // common/vehicle_in/vehicle_50ms.DrvIn.DriverSAPAReq
+    optional FeatureStatus feature_status                               = 339; // np/apps/parking/par_state_machine.feature_status
+    optional VehBodyInfo.RpsRemoteMovReq_e RpsRemoteMovReq              = 340; // common/vehicle_in/vehicle_50ms. VehBody.RpsRemoteMovReq
+    repeated uint32 SeatBltSts                                          = 341; // common/vehicle_in/vehicle_50ms.VehBody.SeatBltSts
+    optional double exploration_impl                                    = 342; // np/debug/dgb_fct.reserved[393]
+    optional bool exploration_trigger                                   = 343; ///planner/diagnose.local_map_debug.exploration_debug.exploration_trigger
+    optional int32 hdmap_version                                        = 344; // common/localization/global_localization.map_topo_loc.hdmap_version
+
+    optional DrvInfo.SVCFncInfo.RaebOnOffReq_e RaebOnOffReq             = 345; // common/vehicle_in/vehicle_50ms.DrvIn.SVCInfo.RaebOnOffReq
+    optional LngWarnSafetyIfInfo.RearAEBSts_new_e RearAEBSts_new        = 346; // common/vehicle_out/ads.DrvrIF.LngWarnSafe.RearAEBSts_new
+    optional LngWarnSafetyIfInfo.RearGOASts_e RearGOASts                = 347; // common/vehicle_out/ads.DrvrIF.LngWarnSafe.RearGOASts
+    optional bool AESOnOffSts                                           = 348; // common/vehicle_in/vehicle_50ms.DrvIn.AdFunCfg.AESOnOffSts
+    optional DrvInfo.SVCFncInfo.RMAISetReq_e RMAISetReq                 = 349; // common/vehicle_in/vehicle_50ms.DrvIn.SVCInfo.RMAISetReq
+    optional LngWarnSafetyIfInfo.RearMAISts_e RearMAISts                = 350; // common/vehicle_out/ads.DrvrIF.LngWarnSafe.RearMAISts
+
+    repeated AbnormalState abnormal_states                              = 351; // common/localization/globalLocalization.abnormal_states
+    repeated Measurement measurements                                   = 352; // common/localization/globalLocalization.measurements
+    optional bool ADMS_DynBliSpotWarnSWSts                              = 353; // common/vehicle_in/vehicle_50ms.DrvIn.DMSInfo.ADMS_DynBliSpotWarnSWSts  
+    optional int32 source_tag                                           = 354; // /planner/debug_info.behavior_debug.interactive_scene[0].source_tag 
+    optional int32 astra_planner_into_das_level                         = 355; // /planner/diagnose.astra_planner_into_das_level
+    optional SsmOutPutStatus.AdcRebootType ssm_adc_reboot               = 356; // SsmStatusMessage.ssm_out.ssm_adc_reboot
+    
+    optional DMStelltaleLevel dms_telltale_level                        = 357; // common/dms/dms_can.dms_telltale_level (NIO)
+    optional float routing_remaining_length                             = 358; // common/map_engine/global_hd_routes.routing_remaining_length
+    optional LngWarnSafetyIfInfo.OAASts_e OAASts                        = 359; // common/vehicle_out/ads.DrvrIF.LngWarnSafe.OAASts
+    optional LngWarnSafetyIfInfo.GOA_preWarningReq_e GOA_preWarningReq  = 360; // common/vehicle_out/ads.DrvrIF.LngWarnSafe.GOA_preWarningReq
+    optional bool softbrk                                               = 361; // np/debug/dgb_aebstrategy.AebActuFlg.softbrk
+    optional bool hardbrk                                               = 362; // np/debug/dgb_aebstrategy.AebActuFlg.hardbrk
+    optional bool iba_req                                               = 363; // np/debug/dgb_aebstrategy.AebActuFlg.iba_req
+    optional uint32 MAISts                                              = 364; // common/vehicle_out/ads.Actuator.LngCtrlEmrgnc.MAISts
+    
+    optional uint32 lane_change_cancel_reason                           = 365; // /planner/state_machine.lane_change_cancel_reason
+    optional uint64 hd_road_net_link_id                                 = 366; // common\localization\global_localization.map_topo_loc.hd_topo_loc.road_state.link_id
+    optional uint64 hd_routing_link_id                                  = 367; // common\localization\global_localization.map_topo_loc.hd_topo_loc.routing_state.link_id
+    optional uint64 sd_road_net_link_id                                 = 368; // common\localization\global_localization.map_topo_loc.sd_topo_loc.road_state.link_id
+    optional uint64 sd_routing_link_id                                  = 369; // common\localization\global_localization.map_topo_loc.sd_topo_loc.routing_state.link_id
+   
+    optional DrvInfo.SVCFncInfo.RCMSetReq_e RCMSetReq                   = 370;  //  common/vehicle_in/vehicle_50ms.DrvIn.SVCInfo.RCMSetReq
+    optional LngWarnSafetyIfInfo.RCM_WarnReq_e RCM_WarnReq              = 371;  //  common/vehicle_out/ads.DrvrIF.LngWarnSafe.RCM_WarnReq
+    optional NpIfInfo.ADC_RCM_Hazardreq_e ADC_RCM_Hazardreq             = 372;  //  common/vehicle_out/ads.DrvrIF.NpDrvIF.ADC_RCM_Hazardreq
+    optional NpIfInfo.RCM_ecall_e RCM_ecall                             = 373;  //  common/vehicle_out/ads.DrvrIF.NpDrvIF.RCM_ecall
+    optional DrvInfo.AdFunCfgInfo.RCM_Ecall_sts_e RCM_Ecall_sts         = 374;  //  common/vehicle_in/vehicle_50ms.DrvIn.AdFunCfg.RCM_Ecall_sts
+    optional LngWarnSafetyIfInfo.RCMSts_e RCMSts                        = 375;  //  common/vehicle_out/ads.DrvrIF.LngWarnSafe.RCMSts
+    optional bool enable_control_cmd                                    = 376;  //  common/pnc/path.enable_control_cmd
+
+    optional uint32 custom_park_mode_req                                = 377;  // common/adhmi/adhmi_function_from_dc.Hmi_CustomPark.custom_park_mode_req 
+    repeated sapaSlotUi.slotStatusUiType_e    slotStatusUiType          = 378;  // common/vehicle_out/sapa_ui_results_eth.sapaSlotUiResults[:].slotStatusUiType
+    optional uint32 sapa_interactions                                   = 379;  // np/apps/parking_outputs.ParkingOut.sapa_interactions
+    optional uint32 SApaInstructionSecond                               = 380;  // common/vehicle_out/ads.LowSpdFun.ParkSt.SApaInstructionSecond
+    optional Hmi_CustomParkSts custom_park_sts                          = 381;  // common/adhmi/adhmi_function_from_dc.Hmi_AdFunction_from_dc.custom_park_info.custom_park_sts
+    repeated sapaSlotUi.slotUiMode_e slot_mode                          = 382;  // common/vehicle_out/sapa_ui_results_eth.sapaSlotUiResults[:].slot_mode
+    optional uint32 mai_warnreq_new                                     = 383;  // np/apps/fcts_out.Mai.MAI_WarnReq_new
+    optional uint32 aes_pncsts                                          = 384;  // np/apps/fcts_out.Aes.aes_pncsts
+    
+    optional ControlEstopType control_estop_type                        = 385;  // np/apps/parking/par_control_out.control_estop_type
+    optional CTAWarnIfInfo.SCTABOnOffSts_e SCTABOnOffSts                = 386;  // common/vehicle_out/ads.DrvrIF.CTAWarn.SCTABOnOffSts
+    optional LngWarnSafetyIfInfo.AESStType_e AESSts                     = 387;  // common/vehicle_out/ads.DrvrIF.LngWarnSafe.AESSts
+    optional uint32 DAmain_Status                                       = 388;  // common/ssm/fsm_driving_output.damain_out.DaStatus.DAmain_Status 
+    optional uint32 DA_NOPMode                                          = 389;  // common/ssm/fsm_driving_output.damain_out.DaStatus.DA_NOPMode
+    repeated DynObject dynamic_obj                                      = 390;  // common/perception/multisource_object.dynamic_obj
+    optional bool goal_mode                                             = 391;  // common/perception/astra_planner_agents_post.goal_mode
+    optional bool goal_mode2                                            = 392;  // /planner/debug_info.p2p_con_debug.is_in_odd
+
+    // 400~417 for L3
+    repeated MovingTag moving_tag                                       = 400; // np/debug/dgb_ehy.ehy_sin_var.vision_objects.dynamicobj.OBJ.motion_state_judge_frame.motion_types.moving_tag
+    repeated TgtObj tsi_obj                                             = 401; // np/apps/ehy_tsi_outputs --> tsi_obj[...].lat_vel,lon_vel,length,height,width
+    optional ShutdownBroadcast.RequestType s1_request_type              = 402; // common/platform/hw_manager/shutdown_broadcast.s1_request_type
+    optional PtInfo.VCUChrgDispLampReqType_e VCUChrgDispLampReq         = 403; // common/vehicle_in/vehicle_10ms.PT.VCUChrgDispLampReq
+    repeated VehBodyInfo.LightsInfo.TurnLiStType_e TurnIndcrLiSts       = 404; // common/vehicle_in/vehicle_50ms.VehBody.LightSts.TurnIndcrLiSts
+    repeated VehBodyInfo.LightsInfo.BeamStType_e BeamSts                = 405; // common/vehicle_in/vehicle_50ms.VehBody.LightSts.BeamSts
+    repeated VehBodyInfo.LightsInfo.FogLiStType_e FogLiSts              = 406; // common/vehicle_in/vehicle_50ms.VehBody.LightSts.FogLiSts
+    optional VehBodyInfo.MnLiSttype_e MaiLiSet                          = 407; // common/vehicle_in/vehicle_50ms.VehBody.MaiLiSet
+    optional VehDynInfo.ImuSigalStType_e LgtASts                        = 408; // common/vehicle_in/vehicle_10ms.VehDyn.LgtASts
+    optional CameraFimInfo fim_cameras                                  = 409; // common/diagnostic/fim/fim_cameras
+    optional LidarFimInfo fim_lidar                                     = 410; // common/diagnostic/fim/fim_lidar
+    optional CanFeatureFimInfo fim_can_feature                          = 411; // common/diagnostic/fim/fim_can_feature
+    optional FimCanInfo fim_can                                         = 412; // common/diagnostic/fim/fim_can
+    optional float avg_illuminance                                      = 413; // common/perception/vision_illumnance_flag.illum.avg_illuminance
+    optional FailSafe failsafe_FW                                       = 414; // common/perception/vision_failsafe.failsafe_FW
+    optional bool 	AmbTempValid                                        = 415; // common/vehicle_in/vehicle_50ms.VehBody.AmbTempValid
+	optional float 	AmbTemp                                             = 416; // common/vehicle_in/vehicle_50ms.VehBody.AmbTemp
+    optional uint32 DA_Inhibit                                          = 417; // np/apps/fct_out.LonCtrl.DA_Inhibit
+
+
+
+    message ConfigurableParam {
+        optional string field = 1;
+        repeated string value = 2; // ["1"],["1.0000002",["1.2222"]],["abcd"],["aaa$^%$&^%^$&^"]
+    }
+    repeated ConfigurableParam configurable = 1000;           // dynamic configuration
+}
+
+message SceneSnapshotList {
+    optional SceneSnapshot scene_snapshot = 1;
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts      = 536870907;     // publish ptp timestamp, uint in nanosec
+    optional string publisher_id        = 536870909;     // uuid of the publisher
+    optional uint64 counter             = 536870910;     // message counter
+    optional uint64 publish_ts          = 536870911;     // publish utc timestamp; unit : nanosecond
+}

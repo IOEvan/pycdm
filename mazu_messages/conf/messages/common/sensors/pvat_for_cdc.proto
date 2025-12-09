@@ -1,0 +1,78 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message PvatForCdc {
+  enum GNSSPos_e {
+    NONE         = 0;           // gnss invalid
+    SINGLE       = 1;           // single point
+    DGPS         = 2;
+    RTK_FIX      = 4;
+    RTK_FLOAT    = 5;
+  }
+
+  // bit0: init_position    0 or 1
+  // bit1: init_velocity    0 or 1
+  // bit2: init_attitude    0 or 1
+  // bit3: init_orientation 0 or 1
+  optional uint32 init_state        = 1;
+
+  // 0: not combined;
+  // 1: attitude initializing;
+  // 2: normal combined results;
+  // 3: no GNSS, no wheel-speed, DR;
+  // 4: no GNSS, wheel-speed + DR;
+  optional uint32 ins_state         = 2;
+
+  optional GNSSPos_e position_type  = 3;   // compliance with GPGGA's setting;
+
+  optional double latitude          = 4;   // degree, [-90, 90] - wgs84
+  optional double longitude         = 5;   // degree, [-180, 180] - wgs84
+  optional double height            = 6;   // meters, Position's Height above mean sea level - wgs84
+  optional double undulation        = 7;   // meters, undulation of height, // tbd // don't know how to cal the undulation
+  optional double velocity_north    = 8;   // m/s, [-515, 515]
+  optional double velocity_east     = 9;   // m/s, [-515, 515]
+  optional double velocity_up       = 10;  // m/s, [-515, 515]
+  optional double roll              = 11;  // rad, [-90/180*pi, 90/180*pi]
+  optional double pitch             = 12;  // rad, [-90/180*pi, 90/180*pi]
+  optional double azimuth           = 13;  // rad, [-180/180*pi, 180/180*pi]
+
+  optional float std_lat            = 14;  // degree   (0 99.9999]
+  optional float std_long           = 15;  // degree   (0 99.9999]
+  optional float std_height         = 16;  // m        (0 99.9999]
+  optional float std_vel_north      = 17;  // m/s      (0 99.9999]
+  optional float std_vel_east       = 18;  // m/s      (0 99.9999]
+  optional float std_vel_up         = 19;  // m/s      (0 99.9999]
+  optional float std_roll           = 20;  // degree   (0 99.9999]
+  optional float std_pitch          = 21;  // degree   (0 99.9999]
+  optional float std_azimuth        = 22;  // degree   (0 99.9999]
+
+  optional double itow_time         = 23;  // s  [0, 604800000), seconds from the beginning of the GPS reference week
+  optional uint32 gps_ref_week      = 24;  // GPS reference week number, [0, 3072)
+
+  optional uint32 num_sat_track     = 25;  // number of tracking satellites [0, 50]
+  optional uint32 num_sat_used      = 26;  // number of used satellites [0, 50]
+  optional uint32 num_sat_dfrq      = 27;  // number of satellites tracking dual-frequecy, [0, 50)
+  optional uint32 update_flag       = 28;  // solution update flags
+  optional uint32 propagate_time    = 29;  // ms, elapsed time since the last absolute positioning update
+
+
+  enum GDPRStatus_e {
+    GNSS_OFF                = 0;  // off
+    GNSS_ON_ENABLE_SHARING  = 1;  // on & enable sharing, the gnss data could be used in vehicle and out of vehicle
+    GNSS_ON_DISABLE_SHARING = 2;  // on & disable sharing, the gnss data should be used in vehicle.
+  }
+
+  optional GDPRStatus_e gdpr_status  = 30;
+
+  optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin 
+  optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+  optional uint64 publish_ptp_ts = 536870907;   // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909;     // uuid of the publisher
+  optional uint64 counter = 536870910;          // message counter
+  optional uint64 publish_ts = 536870911;       // publish utc timestamp; unit : nanosecond
+}
+
+

@@ -1,0 +1,39 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perception/lidar_occupancy_grid.proto";
+import "np/apps/parking/par_semantic_map.proto";
+
+message PSAPFreeSpace {
+
+  enum MotionState {
+    Moving = 0;
+    Static = 1;
+    UNKNOWN = 99;
+  }
+
+  message FSPoint {
+    optional float X = 1;
+    optional float y = 2;
+    optional LidarOccupancyGrid.LOGSemanticClass point_type = 3;
+    optional MotionState motion_state = 4 [ default = UNKNOWN ];
+  }
+  repeated FSPoint boundary_map = 1; // boundary from gridmap
+  optional uint64 timestamp = 2;     // freespace build timestamp
+}
+
+message PSAPFusionOutput {
+  optional PSAPFreeSpace free_space = 1; //
+  optional ParSemanticMap semantic_map = 2;
+  optional string version_id = 3; // semantic_map version id
+
+  optional string vid = 10000; // vid of target vehicle
+
+  optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+  optional uint64 publish_ptp_ts = 536870907; // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909; // uuid of the publisher
+  optional uint64 counter = 536870910;      // message counter
+  optional uint64 publish_ts = 536870911; // publish utc timestamp; unit : nanosecond
+}

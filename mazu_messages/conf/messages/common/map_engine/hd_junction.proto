@@ -1,0 +1,24 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+import "common/map_engine/map_geometry.proto";
+
+
+message HdJunction {
+  optional uint64 id = 1;
+
+  // The surface of junction.
+  optional MapPolygon surface = 2;
+
+  // The lane ids which touch this junction.
+  repeated uint64 lane_id = 3;
+
+  repeated uint64 crosswalk_id = 4;
+  repeated uint64 stop_line_id = 5;
+}
+
+message HdJunctionList {
+  repeated HdJunction junction_list = 1;
+}

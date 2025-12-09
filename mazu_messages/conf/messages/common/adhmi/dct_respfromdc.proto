@@ -1,0 +1,124 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/adhmi/dct_info.proto";
+import "common/perf/sensor_ts_header.proto";
+//receive dynamic config table's result from dc
+
+message DcDctInfo {
+enum DctServiceStatus {
+    INIT        = 0;
+    NORMAL      = 1;
+    ABNORMAL    = 2;
+}
+    optional DctServiceStatus dct_service_status = 1;
+    optional DctInfo dct_info =  2;
+}
+
+message ExecutionResp {
+enum ExecutionResult {
+    EXECUTION_SUCCESS                       = 0;
+    EXECUTION_FAIL                          = 1;
+}
+enum ExecutionType {
+    UNDEFINED   = 0;
+    IC_TEXT     = 1;
+    ICS_TEXT    = 2;
+    ICON        = 3;
+    AUDIO       = 4;
+    TTS         = 5;
+
+    // @begin segscope: NT3
+    TSP_UPLOAD  = 50;
+    // @end segscope: NT3
+}
+    optional ExecutionResult exe_result         = 1;
+    optional ExecutionType exe_type             = 2;
+}
+
+message EventTriggerResp {
+enum TriggerRespType {
+    TABLE       = 0;  //NT2 AD interaction zone
+    TAUGAP      = 1;
+    ISA         = 2;
+    ODDPROGRESS = 3;
+
+    // @begin segscope: NT3
+    WTI         = 50;  //NT3 WTI
+    ADITRCT     = 51;  //NT3 AD interaction zone
+    TSP         = 52;  //NT3 TSP
+    SAFETY      = 53;  //NT3 SAFETY
+    // @end segscope: NT3
+}
+enum AckResult {
+    SUCCESS                                 = 0;
+    FAIL_FOR_QUEUE_OVERFLOW                 = 1;
+    FAIL_FOR_ID_NOT_FOUND                   = 2;
+    FAIL_FOR_INVALID_ARG                    = 3;
+    FAIL_FOR_PARSE_GENERAL_ERROR            = 4;
+    FAIL_FOR_AUDIO_SERVICE_ERROR            = 5;
+    FAIL_FOR_HUD_SERVICE_ERROR              = 6;
+    FAIL_FOR_ICS_SERVICE_ERROR              = 7;
+    FAIL_FOR_TTS_SERVICE_ERROR              = 8;
+    FAIL_FOR_EMOTION_SERVICE_ERROR          = 9;
+
+    FAIL_FOR_GENERAL_ERROR                  = 20;
+    FAIL_FOR_CONNECTION_ERROR               = 21;
+}
+    optional uint32 trigger_sequence_id         = 1;
+    optional AckResult trigger_ack_result       = 2;
+    optional TriggerRespType trigger_resp_type  = 3;
+    optional uint32 feature_id                  = 4;  //wti_id or aditrct_id
+    optional ExecutionResp execution_result     = 5;
+ }
+
+message DctTableSyncResp {   
+enum AckResult {
+    NONE_RESULT                             = 0;
+    FILE_UPGRADING                          = 1;
+    FILE_UPGRADE_SUCCESS                    = 2;
+    FAIL_FOR_VERSION_NOMATCH                = 3; 
+    FAIL_FOR_FORMAT_NOMATCH                 = 4;
+    FAIL_FOR_GENERAL_ERROR                  = 5;
+}
+    optional AckResult upgrade_ack_result = 1;
+}
+
+message DctInfoSyncResp {
+enum AckResult {
+    NONE_RESULT                             = 0;
+    VERIFY_SUCCESS                          = 1;
+    FAIL_FOR_DPLM_VERIFYFAIL                = 2; 
+    FAIL_FOR_CANNOT_CONNECT_DPLM            = 3;    
+}   
+    optional AckResult notify_ack_result    = 1;
+}
+
+message DctSwitchDefaultTableResp {
+enum AckResult {
+    NONE_RESULT                             = 0;
+    DEFAULT_SWITCH_DONE                     = 1;
+    FAIL_FOR_DEFAULT_SWITCHERROR            = 2;
+}    
+    optional AckResult switch_ack_result    = 1;
+}
+
+
+message DctRespFromDc {
+    optional DcDctInfo dctinfo_from_dc                              = 1;  //Dynamic info from dc
+    optional DctInfoSyncResp info_sync_resp                         = 2;  //only for NT2
+    optional DctTableSyncResp table_sync_resp                       = 3;  //only for NT2
+    optional DctSwitchDefaultTableResp switch_default_resp          = 4;  //only for NT2
+    repeated EventTriggerResp trigger_msg_resp                      = 5;
+    
+    optional string hmi_version = 1000 [default = "1.0.1"] ;         // proto version
+    optional string hmi_update_date = 1001 [default = "20241206"] ;   // proto updated date
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    optional SensorTSHeader sensor_original_ts                      = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts                                  = 536870907;   // publish ptp timestamp, uint in nanosec
+    optional string publisher_id                                    = 536870909;   // uuid of the publisher
+    optional uint64 counter                                         = 536870910;   // message counter
+    optional uint64 publish_ts                                      = 536870911;   // publish utc timestamp; unit : nanosecond
+}

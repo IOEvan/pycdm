@@ -1,0 +1,155 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+import "common/sensors/pvat.proto";
+// import "common/vehicle_in/vehicle_10ms.proto";
+import "common/dms/dms_feature.proto";
+import "common/vehicle_out/ads_actu.proto";
+import "common/vehicle_out/ads_drv_if.proto";
+import "common/vehicle_out/ads_ls_if.proto";
+import "common/vehicle_in/veh_drv.proto";
+import "common/vehicle_in/veh_ctrl_if.proto";
+import "common/vehicle_in/veh_whl.proto";
+import "common/vehicle_in/veh_dyn.proto";
+import "common/vehicle_in/veh_body.proto";
+import "common/vehicle_in/brk_sys.proto";
+import "np/apps/fct_out.proto";
+import "common/dms/dms_can.proto";
+
+import "common/vehicle_in/veh_enum_type.proto";
+import "common/localization/geometry.proto";
+import "common/localization/global_localization.proto";
+import "common/vehicle_in/veh_pt.proto";
+import "common/vehicle_in/str_sys.proto";
+import "np/apps/fct_dlb.proto";
+import "common/dms/dms_base.proto";
+import "common/sensors/gnss_result.proto";
+import "common/map_engine/sd_hd_info.proto";
+import "common/perception/vision_traffic_sign.proto";
+import "common/function_arb/function_arb_in.proto";
+import "np/apps/ehy_rme_road_base.proto";
+import "common/perception/vision_road_detection.proto";
+import "common/map_engine/map_scenario_info.proto";
+import "common/map_engine/sd_map.proto";
+import "common/dms/adms_risk_score.proto";
+import "np/apps/ehy_tsi_outputs.proto";
+import "np/apps/ehy_target_base.proto";
+import "common/map_engine/global_hd_routes.proto";
+import "common/dms/dms_drive_assist.proto";
+import "common/nop/task_scheduler/power_swap_pilot_state.proto";
+import "np/apps/road_model_adasmap.proto";
+import "common/pnc/pnc_planner_state_statistic.proto";
+import "common/localization/global_routes.proto";
+import "common/dms/adms.proto";
+import "common/cdm/cdm_tag.proto";
+
+import "common/perception/vision_traffic_light.proto";
+import "common/cdm/cdm_report_info.proto";
+import "np/apps/fcts_out.proto";
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message CoSceneSnapshot {
+    optional uint64 timestamp                                          = 1;
+    optional uint32 coapp_aebsts                                       = 3;  // coapp/np/apps/fcts_out.Aeb.aebsts
+    optional PncPlannerState PncPlannerState                           = 4;    // coapp/common/pnc/pnc_planner_state_statistic.PncPlannerState
+    repeated TagInfo tag_info                                          = 5;   // coapp/common/cdm/cdm_tag.tag_info
+    optional ADMSRiskScore adms_risk_score                             = 6;        //  coapp/common/dms/ADMSRiskScore
+    optional float VehOdom                                             = 7;   //  common\vehicle_in\vehicle_10ms -> VehDynInfo->VehOdom
+    optional LocVector3 wgs84_position                                 = 8;    // common\localization->GlobalLocalization -> wgs84_position
+    optional GlobalLocalization.Status status                          = 9;    // common\localization-> GlobalLocalization->status
+    optional LaneLoc lane_loc                                          = 10;    // common\localization-> GlobalLocalization/LaneLoc
+    optional NpIfInfo.DANADStType_e   DANADSts                         = 11;     // coapp/common\vehicle_out\ DrvIntractInfo -> NpIfInfo-> DA_NAD_Sts
+    optional double nop_deactivation_trigger                           = 12;     // coapp/np/debug/dgb_fct.reserved[109]
+    optional int32 wm_confidence                                       = 13;     // coapp//world_model/corrected_pose->.wm_confidence
+    optional int32 route_match_state                                   = 14;      //coapp/common/map_engine/global_hd_routes->route_match_state
+    optional uint64 current_hd_link_id                                 = 15;       // coapp/common/map_engine/global_hd_routes->current_hd_link_id
+    optional VehDynInfo.VehSpdInfos  VehSpd                            = 16;       //  common\vehicle_in\vehicle_10ms ->VehDynInfo->VehSpd
+    optional float LgtSAEAg                                            = 17;	   // common\vehicle_in\vehicle_10ms ->VehDynInfo->LgtSAEAg
+    optional float LatSAEAg                                            = 18;   // common\vehicle_in\vehicle_10ms ->VehDynInfo->LatSAEAg
+    optional float YawRateSAERps                                       = 19;   // common\vehicle_in\vehicle_10ms ->VehDynInfo->YawRateSAERps
+    optional GnssResult.GnssStatus position_type                       = 20;      // common\sensors\gnss_result->position_type
+    optional GnssResult.GnssStatus ort_type 	                       = 21;      //  common\sensors\gnss_result->ort_type
+    optional double latitude                                           = 22;           // 97.common\sensors\gnss_result->latitude
+    optional double longitude                                          = 23;           // 97.common\sensors\gnss_result->longitude
+    optional float msl_height                                          = 24;           // 97.common\sensors\gnss_result->msl_height
+    optional float yaw                                                 = 25;           // 97.common\sensors\gnss_result->yaw
+    optional float std_lat                                             = 26;          // 97.common\sensors\gnss_result->std_lat
+    optional float std_long                                            = 27;          // 97.common\sensors\gnss_result->std_long
+    optional uint32 num_sat_used                                       = 28;      // 98.common\sensors\gnss_result->num_sat_used
+    optional GlobalLocalization.Mode mode                              = 29;      // 99.common\localization\global_localization->mode
+    optional LocEulerAngle euler_angle                                 = 30;      // 100.common\localization\global_localization->euler_angle
+    optional float confidence                                          = 31;      // 101.common\localization\global_localization-> confidence
+    optional uint32 form_of_way                                        = 32;          // 143. common/map_engine/sd_map.adas_info. segment[0].form_of_way
+    optional LaneDetection laneline                                    = 33;          // 149. common/perception/vision_road_detection.proto->laneline
+    optional uint32 conf_reject_reason                                 = 34;        //common\localization\global_localization->conf_reject_reason
+    optional AdasMapRoadClass road_class                               = 35;    // np/apps/road_model_adasmap.adas_info.segment[0].road_class
+    repeated double online_parameters                                  = 36;     // common/localization/global_localization.online_parameters
+    optional LocVector3 velocity                                       = 37;     // common/localization/global_localization.velocity
+    optional int32 hdmm_status                                         = 38;     // common/localization/localization_status.mm_loc_info.status
+    optional LocVector3 hdmm_position                                  = 39;     // common/localization/localization_status.mm_loc_info.position
+    optional LocQuaternion hdmm_quaternion                             = 40;     // common/localization/localization_status.mm_loc_info.quaternion
+    optional int32 se3_status                                          = 41;     // common/localization/se3_pose.status
+    optional LocVector3 se3_position                                   = 42;     // common/localization/se3_pose.position
+    optional LocQuaternion se3_quaternion                              = 43;     // common/localization/se3_pose.orientation
+    repeated double imu_turnrate                                       = 44;     // common/sensors/imu.turnrate
+    repeated double imu_acceleration                                   = 45;     // common/sensors/imu.acceleration
+    optional GlobalRoutesInfo global_routes_info                       = 46;     // common/localization/global_localization.global_routes_info
+    optional uint32 status_in_fail_reason                              = 47;     // coapp/common/localization/global_localization->map_topo_loc.status_in_fail_reason
+    optional uint32 status_out_reason                                  = 48;     //coapp/common/localization/global_localization->map_topo_loc.status_out_reason
+    optional bool is_full_routes                                       = 49;     // coapp/common/map_engine/global_hd_routes->is_full_routes
+    optional uint64 current_sd_link_id                                 = 50;     // coapp/common/map_engine/global_hd_routes->current_sd_link_id
+    optional uint64 last_match_time_ns                                 = 51;     // coapp/common/map_engine/global_hd_routes->last_match_time_ns
+    optional uint64 current_sd_link_index                              = 52;     // coapp/common/map_engine/global_hd_routes->current_sd_link_index
+    optional uint64 current_hd_link_index                              = 53;     // coapp/common/map_engine/global_hd_routes->current_hd_link_index
+    repeated SdLinkInfo sd_link_info_list                              = 54;      // coapp/common/map_engine/global_hd_routes->sd_link_info_list
+    optional uint64 sd_topo_link_id                                    = 55;      // coapp/common/localization/global_localization->map_topo_loc.best_sd_loc_data.link_id
+    optional uint64 sd_topo_lane_id                                    = 56;      // coapp/common/localization/global_localization->map_topo_loc.best_sd_loc_data.lane_id
+    optional uint64 hd_topo_link_id                                    = 57;      // coapp/common/localization/global_localization->map_topo_loc.best_loc_data.link_id
+    optional DMSDistractionLevel_DA   distraction_lvl                  = 58;      // coapp/common\dms\dms_drive_assist ->distraction_lvl   
+    optional uint64      dms_status                                    = 59;      // coapp/common\dms\dms_drive_assist ->dms_status
+    optional uint64 sequence_id                                        = 60;      // coapp/common/localization/global_localization->map_topo_loc.best_sd_loc_data.sequence_id
+    optional uint64 link_start_offset                                  = 61;      // coapp/common/localization/global_localization->map_topo_loc.best_sd_loc_data.link_start_offset
+    optional string loc_status_message                                 = 62;      // coapp/common/localization/global_localization->status_message
+    optional string loc_version                                        = 63;      // coapp/common/localization/global_localization->version
+    optional uint32 hd_enter_fail_reason                               = 64;      // coapp/common/localization/global_localization->map_topo_loc.hd_enter_fail_reason
+    optional uint32 hd_enter_succeed_reason                            = 65;      // coapp/common/localization/global_localization->map_topo_loc.hd_enter_succeed_reason
+    optional uint32 hd_exist_reason                                    = 66;      // coapp/common/localization/global_localization->map_topo_loc.hd_exist_reason
+    optional uint64 hd_issue_timestamp                                 = 67;      // coapp/common/hdmap/hdmap_issue_notification->timestamp
+    optional string hd_issue_description                               = 68;      // coapp/common/hdmap/hdmap_issue_notification->description
+    optional float cross_distance                                      = 69;      // coapp//world_model/corrected_pose->cross_distance
+    optional int32 sd_confidence                                       = 70;      // coapp/common/localization/global_localization->map_topo_loc.best_sd_loc_data.confidence
+    optional uint64 cross_link_id                                      = 71;      // coapp//world_model/corrected_pose->cross_link_id
+    optional uint64 seg_spd_lmt                                        = 72;      // coapp/common/map_engine/sd_map.adas_info.segment[0].seg_spd_lmt
+    optional SdMapSegment.SpeedLimitType seg_spd_lmt_type              = 73;      // coapp/common/map_engine/sd_map.adas_info.segment[0].seg_spd_lmt_type 
+    optional string map_topo_loc_reserve                               = 74;      // coapp/common/localization/global_localization->map_topo_loc.reserve
+    optional bool is_adasmap_valid                                     = 75;      // coapp/np/apps/road_model_adasmap->adas_info.is_adasmap_valid
+    repeated AbnormalState abnormal_states                             = 76;      // coapp/common/localization/globalLocalization.abnormal_states
+    repeated Measurement measurements                                  = 77;      // coapp/common/localization/globalLocalization.measurements
+    optional uint32 co_oaa_sts                                         = 78;      // coapp/np/apps/fcts_out.Oaa.oaasts
+    optional uint32 co_mai_sts                                         = 79;      // coapp/np/apps/fcts_out.Mai.maists
+    optional Fcts_ElkOut.Fcts_ELKSts co_elk_sts                        = 80;      // coapp/np/apps/fcts_out.Elk.ElkSts
+    optional uint32 co_aes_sts                                         = 81;      // coapp/np/apps/fcts_out.Aes.aes_sts
+    optional LnAsstStType_e co_ldw_lka_sts                             = 82;      // coapp/common/vehicle_out/ads.DrvrIF.NpDrvIF.LnAssistSts
+    optional uint64 hd_road_net_link_id                                = 83;     // coapp/common/localization/global_localization.map_topo_loc.hd_topo_loc.road_state.link_id
+    optional uint64 hd_routing_link_id                                 = 84;     // coapp/common/localization/global_localization.map_topo_loc.hd_topo_loc.routing_state.link_id
+    optional uint64 sd_road_net_link_id                                = 85;     // coapp/common/localization/global_localization.map_topo_loc.sd_topo_loc.road_state.link_id
+    optional uint64 sd_routing_link_id                                 = 86;     // coapp/common/localization/global_localization.map_topo_loc.sd_topo_loc.routing_state.link_id
+    optional LngWarnSafetyIfInfo.RCMSts_e co_rcm_sts                   = 87;     // coapp/common/vehicle_out/ads.DrvrIF.LngWarnSafe.RCMSts
+    optional bool enable_control_cmd                                   = 88;      //  coapp/common/pnc/path.enable_control_cmd
+   
+}
+    
+
+message CoSceneSnapshotList {
+    optional CoSceneSnapshot co_scene_snapshot = 1;
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts      = 536870907;     // publish ptp timestamp, uint in nanosec
+    optional string publisher_id        = 536870909;     // uuid of the publisher
+    optional uint64 counter             = 536870910;     // message counter
+    optional uint64 publish_ts          = 536870911;     // publish utc timestamp; unit : nanosecond
+}

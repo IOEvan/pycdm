@@ -1,0 +1,615 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package hdmap.service;
+// import "nio.ad.messages/common/perf/sensor_ts_header.proto";
+
+// Position Information
+message PositionInfo {
+    optional uint32 longitude = 1;
+    optional uint32 latitude = 2;
+}
+
+// Direction Enum
+enum Direction {
+    DIR_ONEWAY = 1;
+    DIR_BOTH = 2;
+}
+
+// Road Class Enum
+enum RoadClass {
+    ROADCLASS_FREEWAY = 0;
+    ROADCLASS_NATIONAL_ROAD = 1;
+    ROADCLASS_PROVINCE_ROAD = 2;
+    ROADCLASS_COUNTY_ROAD = 3;
+    ROADCLASS_RURAL_ROAD = 4;
+    ROADCLASS_IN_COUNTY_ROAD = 5;
+    ROADCLASS_CITY_SPEED_WAY = 6;
+    ROADCLASS_MAIN_ROAD = 7;
+    ROADCLASS_SECONDARY_ROAD = 8;
+    ROADCLASS_COMMON_ROAD = 9;
+    ROADCLASS_NON_NAVI_ROAD = 10;
+    ROADCLASS_INVALID = 255;
+}
+
+// Geometry message
+message Geometry {
+    optional double longitude = 1;
+    optional double latitude = 2;
+    optional int32 height = 3;
+}
+
+// Connect Roads
+message ConnectRoads {
+    repeated uint64 fromRoadIds = 1;
+    repeated uint64 toRoadIds = 2;
+}
+
+// Range
+message Range {
+    optional uint32 startoffset = 1;
+    optional uint32 endOffset = 2;
+}
+
+// Time of Day
+message TimeOfDay {
+    optional uint32 hours = 1;
+    optional uint32 minutes = 2;
+}
+
+// Time Range of Day
+message TimeRangeOfDay {
+    optional TimeOfDay startTime = 1;
+    optional TimeOfDay endTime = 2;
+    optional bool isLimited = 3;
+}
+
+// Days of Week Type
+enum DaysOfWeekType {
+    DAYSOFWEEKTYPE_INVALID = 0;
+    DAYSOFWEEKTYPE_SUNDAY = 1;
+    DAYSOFWEEKTYPE_MONDAY = 2;
+    DAYSOFWEEKTYPE_TUESDAY = 4;
+    DAYSOFWEEKTYPE_WEDNESDAY = 8;
+    DAYSOFWEEKTYPE_THURSDAY = 16;
+    DAYSOFWEEKTYPE_FRIDAY = 32;
+    DAYSOFWEEKTYPE_SATURDAY = 64;
+}
+
+// Days of Week message
+message DaysOfWeek {
+    optional uint32 daysOfWeekType = 1;
+    optional bool isLimited = 2;
+}
+
+// Day of Year message
+message DayOfYear {
+    optional uint32 year = 1;
+    optional uint32 month = 2;
+    optional uint32 day = 3;
+}
+
+// Vehicle Type Enum
+enum VehicleType {
+    VEHICLETYPE_INVALID = 0;
+    VEHICLETYPE_PEDESTRIAN = 1;
+    VEHICLETYPE_SPECIALVEHICLE = 2;
+    VEHICLETYPE_PICKUPTRUCKS = 3;
+    VEHICLETYPE_ELECTRICBICYCLE = 4;
+    VEHICLETYPE_CARRYDANGEROUS = 5;
+    VEHICLETYPE_MOTORBIKE = 6;
+    VEHICLETYPE_BICYCLE = 7;
+    VEHICLETYPE_TAXI = 8;
+    VEHICLETYPE_BUS = 9;
+    VEHICLETYPE_LARGEBUS = 10;
+    VEHICLETYPE_MINIBUS = 11;
+    VEHICLETYPE_TRAILER = 12;
+    VEHICLETYPE_BIGTRUCK = 13;
+    VEHICLETYPE_MINITRUCK = 14;
+    VEHICLETYPE_MINICAR = 15;
+    VEHICLETYPE_CAR = 16;
+    VEHICLETYPE_ALL = 17;
+}
+
+// Vehicle message
+message Vehicle {
+    optional VehicleType type = 1;
+    optional bool isLimited = 2;
+}
+
+// Weather Type Enum
+enum WeatherRuleType {
+    WEATHERTYPE_INVALID = 0;
+    WEATHERTYPE_SUNSHINE = 1;
+    WEATHERTYPE_RAINSNOW = 2;
+    WEATHERTYPE_ICE = 4;
+    WEATHERTYPE_FOG = 8;
+    WEATHERTYPE_WIND = 16;
+}
+
+// Weather message
+message Weather {
+    optional WeatherRuleType type = 1;
+    optional bool isLimited = 2;
+}
+
+// Speed Limit Info
+message SpeedLimitInfo {
+    optional uint32 speed = 1;
+    optional Range range = 2;
+}
+
+// Constants message
+message Constants {
+    optional int32 INVALID_OFFSET_VALUE = 1 [default = -100]; 
+    optional int32 INVALID_POS_STATUS = 2 [default = 0];
+    optional uint32 ROAD_DIR_FORWARD = 3 [default = 0];
+    optional uint32 ROAD_DIR_BACKWARD = 4 [default = 1];
+    optional float PROBILITY_DEFAULT = 5 [default = 0];
+
+    optional uint32 CURVATURE_UNKNOWN_VALUE = 6 [default = 1023];
+    optional uint32 INVALID_ANGLE_VALUE = 7 [default = 65535]; // 0xFFFF
+    optional uint32 INVALID_REGION_CODE = 8 [default = 0];
+
+    optional int64 ROUTE_INVALID_NUMBER = 9 [default = -1];
+    optional int32 ROUTE_INVALID_INDEX = 10 [default = -1];
+    optional int64 ROUTE_INVALID_OFFSET = 11 [default = -1];
+}
+
+// 枚举类型
+enum ECAMERA_TYPE {
+    ECAMERA_SPEED = 0;
+    ECAMERA_MONITOR = 1;
+    ECAMERA_TRAFIC_LIGHT = 2;
+    ECAMERA_RULE = 3;
+    ECAMERA_BUS = 4;
+    ECAMERA_EMERGENCY = 5;
+    ECAMERA_NON_MOTORIZED = 6;
+    ECAMERA_RANGE = 7;
+    ECAMERA_INTER_SPEED_START = 8;
+    ECAMERA_INTER_SPEED_END = 9;
+    ECAMERA_UNKNOWN = 255;
+}
+
+enum FACILITY_TYPE {
+    FACILITY_LEFT_INTER_FLOW = 1;
+    FACILITY_RIGHT_INTER_FLOW = 2;
+    FACILITY_REVERSE_TURN = 4;
+    FACILITY_LINKING_TURN = 5;
+    FACILITY_ACCIDENT_AREA = 6;
+    FACILITY_RAILWAY_CROSS = 8;
+    FACILITY_SLIPPERY = 9;
+    FACILITY_MAX_SPEED_LIMIT = 10;
+    FACILITY_MIN_SPEED_LIMIT = 11;
+    FACILITY_VILLAGE = 12;
+    FACILITY_LEFT_NARROW = 13;
+    FACILITY_RIGHT_NARROW = 14;
+    FACILITY_DOUBLE_NARROW = 15;
+    FACILITY_CROSS_WIND_AREA = 16;
+    FACILITY_SCHOOL = 17;
+    FACILITY_NOPASSING = 18;
+    FACILITY_NARROW_BRIDGE = 19;
+    FACILITY_AROUND_THE_LINE = 20;
+    FACILITY_LEFT_BYPASS = 21;
+    FACILITY_RIGHT_BYPASS = 22;
+    FACILITY_LEFT_MOUNTAIN_ROAD = 23;
+    FACILITY_RIGHT_MOUNTAIN_ROAD = 24;
+    FACILITY_ONSTEEPLOPE = 25;
+    FACILITY_UNDERSTEEPLOPE = 26;
+    FACILITY_OVER_WATER_ROAD = 27;
+    FACILITY_UNEVEN_ROAD = 28;
+    FACILITY_STROLL = 29;
+    FACILITY_ATTENTION_TO_DANGER = 30;
+    FACILITY_CROSSWALK = 31;
+    FACILITY_RIVER_BANK_LEFT = 33;
+    FACILITY_RIVER_BANK_RIGHT = 34;
+    FACILITY_CHILDREN = 35;
+    FACILITY_CYCLISTS = 36;
+    FACILITY_DOMESTIC_ANIMALS_CROSSING = 37;
+    FACILITY_GIVE_WAY = 38;
+    FACILITY_STOP = 39;
+    FACILITY_PRIORITY_FOR_ONCOMING_TRAFFIC = 40;
+    FACILITY_PRIORITY_OVER_ONCOMING_TRAFFIC = 41;
+    FACILITY_HUMPBACK_BRIDGE = 42;
+    FACILITY_END_OF_SPEED_LIMIT = 43;
+    FACILITY_END_OF_PROHIBITION_ON_OVERTAKING = 44;
+    FACILITY_RAILWAY_CROSS_EXTEND = 50;
+    FACILITY_RAILWAY_WITH_GATES = 51;
+    FACILITY_RAILWAY_WITHOUT_GATES = 52;
+    FACILITY_VARIABLE_SPEED = 53;
+    FACILITY_MAX_SPEED_LIMIT_WITH_RULEINFO = 54;
+    FACILITY_PEDESTRIANS = 56;
+    FACILITY_UNKNOWN = 255;
+}
+
+enum FACILITY_SCENETYPE {
+    FACILITY_SCENE_TYPE_UNKNOWN = 0;
+    FACILITY_SCENE_TYPE_RAMP_SPEED_LIMIT = 2;
+}
+
+enum FormOfWay {
+    FORMWAY_DIVISED_LINK = 0;               // 上下线分离 主路
+    FORMWAY_CROSS_LINK = 1;                 // 交叉点内 复杂节点内部道路
+    FORMWAY_JCT = 2;                        // JCT
+    FORMWAY_ROUND_CIRCLE = 3;               // 环岛
+    FORMWAY_SERVICE_ROAD = 4;               // 服务区 辅助道路
+    FORMWAY_SLIP_ROAD = 5;                  // 引路 匝道
+    FORMWAY_SIDE_ROAD = 6;                  // 辅路
+    FORMWAY_SLIP_JCT = 7;                   // 引路 JCT
+    FORMWAY_EXIT_LINK = 8;                  // 出口
+    FORMWAY_ENTRANCE_LINK = 9;              // 入口
+    FORMWAY_TURN_RIGHT_LINEA = 10;          // 右转专用道
+    FORMWAY_TURN_RIGHT_LINEB = 11;          // 右转专用道
+    FORMWAY_TURN_LEFT_LINEA = 12;           // 左转专用道
+    FORMWAY_TURN_LEFT_LINEB = 13;           // 左转专用道
+    FORMWAY_COMMON_LINK = 14;               // 普通道路
+    FORMWAY_TURN_LEFTRIGHT_LINE = 15;       // 左右转专用道
+    FORMWAY_NONMOTORIZED_DRIVEWAY = 16;     // ADF+ 专用
+    FORMWAY_FRONTDOOR_ROAD = 17;            // 门前道路
+    FORMWAY_SERVICE_SLIP_ROAD = 18;         // 服务区 + 引路
+    FORMWAY_SERVICE_JCT = 19;               // 服务区 + JCT
+    FORMWAY_SERVICE_JCT_SLIP_ROAD = 20;     // 服务区 + 引路 + JCT
+    FORMWAY_NON_VEHICLE = 21;               // 非机动车道路
+    FORMWAY_INVALID = 22;                   // 道路构成无效值
+}
+
+enum Adas_FormOfWay {
+    ADAS_FW_UNKNOWN = 0;
+    ADAS_FW_FREEWAY = 1;
+    ADAS_FW_MULTIPLE_CARRIAGEWAY_OR_MULTIPLY_DIGITIZED_ROAD = 2;
+    ADAS_FW_SINGLE_CARRIAGEWAY = 3;
+    ADAS_FW_ROUNDABOUT_CIRCLE = 4;
+    ADAS_FW_EXIT_AND_ENTRANCE_LINK = 6;
+    ADAS_FW_PARALLEL_ROAD = 8;
+    ADAS_FW_SLIP_ROAD_OR_RAMP_ON_FREEWAY_OR_CONTROLLED_ACCESS_ROAD = 9;
+    ADAS_FW_SLIP_ROAD_OR_RAMP = 10;
+    ADAS_FW_SERVICE_ROAD_OR_FRONTAGE_ROAD = 11;
+    ADAS_FW_ENTRACE_TO_OR_EXIT_OF_CAR_PARK = 12;
+    ADAS_FW_ENTRACE_TO_OR_EXIT_OF_SERVICE = 13;
+    ADAS_FW_PEDESTRIAN_ZONE = 14;
+}
+
+enum DividedRoad {
+    DIVIDED_ROAD_UNKNOWN = 0;
+    DIVIDED_ROAD_PHYSICAL = 1;
+    DIVIDED_ROAD_LEGAL = 2;
+    DIVIDED_ROAD_NONE = 3;
+}
+
+enum Ownership {
+    OWNERSHIP_PUBLIC = 0;
+    OWNERSHIP_INNER = 1;
+    OWNERSHIP_PRIVATE = 2;
+    OWNERSHIP_UNKNOWN = 255;
+}
+
+enum HOLIDAYTYPE {
+    HOLIDAYTYPE_NONE = 0;      // 未设定
+    HOLIDAYTYPE_VALID = 1;     // 节假日有交通限制
+    HOLIDAYTYPE_EXCEPT = 2;    // 有交通限制但节假日除外
+}
+
+enum WORKHOLIDAYTYPE {
+    WORKHOLIDAYTYPE_NONE = 0;
+    WORKHOLIDAYTYPE_VALID = 1;
+    WORKHOLIDAYTYPE_INVALID = 2;
+    WORKHOLIDAYTYPE_WEEKEND = 3;
+}
+
+enum LICENSEPLATETYPE {
+    LICENSEPLATETYPE_LOCALFOREIGN = 0;  // 本埠 + 外埠
+    LICENSEPLATETYPE_FOREIGN = 1;       // 外埠
+    LICENSEPLATETYPE_LOCAL = 2;         // 本埠
+}
+
+enum LANE_DIRECT_TYPE {
+    LANE_DIRECT_TYPE_NORMAL = 0;
+    LANE_DIRECT_TYPE_BUS = 1;
+    LANE_DIRECT_TYPE_OTHER_SPECIAL = 2;
+    LANE_DIRECT_TYPE_REVERSIBLE = 3;
+    LANE_DIRECT_TYPE_VARIABLE = 4;
+}
+
+enum ARROW_TYPE {
+    ARROW_TYPE_INVALID = 0;
+    ARROW_TYPE_LEFTUTURN = 1;
+    ARROW_TYPE_TURNLEFT = 2;
+    ARROW_TYPE_STRAIGHT = 4;
+    ARROW_TYPE_TURNRIGHT = 8;
+    ARROW_TYPE_RIGHTUTURN = 16;
+    ARROW_TYPE_LEFT_SIDE_WIDTH_CHANGE = 1048576;
+    ARROW_TYPE_RIGHT_SIDE_WIDTH_CHANGE = 2097152;
+    ARROW_TYPE_SINGLE_LANE_NO_UTURN = 4194304;
+    ARROW_TYPE_LEFT_CURVATURE = 8388608;
+    ARROW_TYPE_RIGHT_CURVATURE = 16777216;
+    ARROW_TYPE_EMPTY_LANE = 33554432;
+}
+
+// 结构体定义
+message PointCurvature {
+    optional uint32 offset = 1;
+    optional uint32 value = 2;
+}
+
+message Camera {
+    optional uint32 offset = 1;
+    optional ECAMERA_TYPE type = 2;
+    optional uint32 value = 3;
+}
+
+message TimeRegulation {
+    optional TimeOfDay day = 1;
+    optional uint32 week = 2;
+    optional DayOfYear year = 3;
+}
+
+message TimeRegulationRange {
+    optional TimeRegulation start_time = 1;
+    optional TimeRegulation end_time = 2;
+    optional bool is_limited = 3;
+}
+
+message Facility {
+    optional uint32 offset = 1;
+    optional FACILITY_TYPE type = 2;
+    optional FACILITY_SCENETYPE scene_type = 3;
+    optional uint32 value = 4;
+    repeated TimeRegulationRange time = 5;
+    optional Weather weather = 6; // 需要定义 Weather 消息类型
+}
+
+message CheckPoint {
+    optional uint32 offset = 1;
+}
+
+message LongSolidLine {
+    repeated uint64 effect_road_ids = 1;
+    repeated uint32 valid_lanes = 2;
+}
+
+message BusLaneInfo {
+    optional uint32 offset = 1;
+    repeated uint32 on_lanes = 2;
+    repeated TimeRegulationRange time = 3;
+    optional HOLIDAYTYPE holiday = 4;
+    optional WORKHOLIDAYTYPE work_holiday = 5;
+}
+
+message LaneArrow {
+    optional uint32 arrow_type = 1;
+    repeated TimeRegulationRange time = 2;
+    optional HOLIDAYTYPE holiday = 3;
+    optional WORKHOLIDAYTYPE work_holiday = 4;
+}
+
+message BackLaneInfo {
+    optional uint32 number = 1;
+    optional LANE_DIRECT_TYPE lane_type = 2;
+    repeated LaneArrow arrows = 3;
+}
+
+message ForbiddenRegulation {
+    repeated TimeRegulationRange time = 1;
+    optional HOLIDAYTYPE holiday = 2;
+    optional WORKHOLIDAYTYPE work_holiday = 3;
+    optional uint32 season = 4;
+    optional LICENSEPLATETYPE license_plate = 5;
+}
+
+message RelationForbiddenInfo {
+    repeated uint64 to_road_ids = 1;
+    repeated ForbiddenRegulation regulations = 2;
+}
+
+message RoadPackage {
+    optional uint64 road_id = 1;
+    optional uint32 length = 2;
+    optional Direction direction = 3;
+    optional RoadClass road_class = 4;
+    optional FormOfWay form_way = 5;
+    optional Adas_FormOfWay adas_form_way = 6;
+    optional DividedRoad divided_road = 7;
+    optional uint32 angle_f = 8;
+    optional uint32 angle_t = 9;
+    optional uint32 link_type = 10;
+    optional uint32 history_average_speed = 11;
+    optional bool has_toll = 12;
+    optional bool has_traffic_light = 13;
+    optional uint32 plns = 14;
+    optional Ownership ownership = 15;
+    optional uint32 region_code = 16;
+    repeated Geometry geometries = 17;
+    repeated PointCurvature curvatures = 18;
+    repeated uint32 arrow_markings = 19;
+    repeated Camera cameras = 20;
+    repeated Facility facilities = 21;
+    repeated SpeedLimitInfo speed_limit_infos = 22;
+    repeated SpeedLimitInfo derived_speed_limit_infos = 23;
+    optional ConnectRoads connect_roads = 24;
+    repeated CheckPoint check_points = 25;
+    repeated LongSolidLine long_solid_lines = 26;
+    repeated BusLaneInfo bus_lane_infos = 27;
+    repeated BackLaneInfo back_lanes = 28;
+    repeated RelationForbiddenInfo turn_forbiddens = 29;
+}
+
+// MatchRoadInfo message
+message MatchRoadInfo {
+    optional uint64 road_id = 1;          // roadId
+    optional uint64 tile_id = 2;          // tileId
+    optional int32 offset = 3;            // offset
+    optional uint32 direction = 4;        // direction (0: FORWARD, 1: BACKWARD)
+    optional float probability = 5;       // probability
+}
+
+enum ROUTEPOINTTYPE {
+    START_POINT = 0;  // 起点
+    END_POINT = 1;    // 终点
+    WAY_POINT = 2;    // 途径点
+    NONE_POINT = 3;   // 无类型
+}
+
+message RouteIndex {
+    optional int32 g_index = 1;  // 全局索引
+    optional int32 s_index = 2;  // 段索引
+    optional int32 l_index = 3;  // 局部索引
+}
+
+enum MAPPINGSTATUS {
+    MAPPING_NONE = 1;      // 无mapping
+    MAPPING_HD_EXACT = 2;  // 高精度mapping
+    MAPPING_HD_ROUGH = 3;  // 高精度粗略mapping
+    MAPPING_SD = 4;        // 标准精度mapping
+}
+
+enum SEGMENTSTATUS {
+    SINGLE_PATH = 0;       // 单一路径
+    MULTI_PATH = 1;        // 多路径
+    DISCONNECT_PATH = 2;   // 断开路径
+    PARALLEL_PATH = 3;     // 平行路径
+}
+
+message Link {
+    optional uint64 link_id = 1;  // 连接ID
+}
+
+message Segment {
+    repeated Link links = 1;  // 连接列表
+}
+
+message SegmentGroup {
+    optional bool is_continue = 1;         // 是否连续
+    optional SEGMENTSTATUS status = 2;     // 段状态
+    repeated Segment segments = 3; // 段列表
+}
+
+message MappingPoint {
+    optional MAPPINGSTATUS status = 1;  // mapping状态
+    optional uint64 id = 2;             // 道路ID
+    optional int64 offset = 3;          // 偏移量
+    optional RouteIndex index = 4;      // 索引信息
+}
+
+message RoutePoint {
+    optional int32 number = 1;                  // 点编号
+    optional ROUTEPOINTTYPE type = 2;           // 点类型
+    optional PositionInfo pos = 3;              // 位置信息
+    repeated MappingPoint points = 4;  // mapping点列表
+}
+
+message Route {
+    // Define the fields for Route
+    repeated RoutePoint route_points = 1;      // 路径点列表
+    repeated SegmentGroup segment_groups = 2;  // 段组列表
+}
+
+message OriginalRoutePoint {
+    optional int32 number = 1;          // 点编号
+    optional ROUTEPOINTTYPE type = 2;   // 点类型
+    optional int32 index = 3;           // 索引
+    optional PositionInfo pos = 4;      // 位置信息
+}
+
+message LocInfo {
+    // Define the fields for LocInfo
+    optional uint64 timestamp = 1;        // timestamp
+    optional int32 status = 2;            // status
+    repeated MatchRoadInfo road_infos = 3;  // roadInfos (vector of MatchRoadInfo)
+}
+
+// Enum for dynamic status of original data
+enum ORIGINALDYNAMICSTATUS {
+    ORIGINAL_DYNAMIC_STATUS_UNKOWN = 0;  // Unknown status
+    ORIGINAL_DYNAMIC_STATUS_CREATE = 1;   // Created
+    ORIGINAL_DYNAMIC_STATUS_UPDATE = 2;   // Updated
+    ORIGINAL_DYNAMIC_STATUS_DELETE = 3;   // Deleted
+}
+
+// Enum for traffic flow status of original data
+enum ORIGINALTRAFFICFLOWSTATUS {
+    ORIGINALTRAFFICFLOWSTATUS_UNKNOWN = 0;  // Unknown status
+    ORIGINALTRAFFICFLOWSTATUS_SMOOTH = 1;   // Smooth traffic flow
+    ORIGINALTRAFFICFLOWSTATUS_AMBLE = 2;    // Slow-moving traffic
+    ORIGINALTRAFFICFLOWSTATUS_CONGESTION = 3;  // Traffic congestion
+    ORIGINALTRAFFICFLOWSTATUS_BLOCKAGE = 4;  // Blockage
+    ORIGINALTRAFFICFLOWSTATUS_NO = 5;       // No traffic
+    ORIGINALTRAFFICFLOWSTATUS_OTHER = 99;    // Other
+}
+
+// Message for Original Dynamic Data Id
+message OriginalDynamicDataId {
+    optional uint64 roadId = 1;  // Road ID
+}
+
+// Message for traffic flow dynamic attributes
+message OriginalTrafficFlowDynamicAttr {
+    optional ORIGINALDYNAMICSTATUS status = 1;  // Dynamic status
+    optional ORIGINALTRAFFICFLOWSTATUS trafficFlowStatus = 2;  // Traffic flow status
+}
+
+// Message for original dynamic data
+message OriginalDynamicData {
+    optional OriginalDynamicDataId dynamicDataId = 1;  // Dynamic data ID
+    repeated OriginalTrafficFlowDynamicAttr trafficFlows = 2;  // List of traffic flow dynamic attributes
+}
+
+enum ROUTESTATUS {
+    ROUTESTATUS_UNKNOWN = 0;          // 未知状态
+    ROUTESTATUS_FIRSTROUTE = 1;       // 导航路径开始
+    ROUTESTATUS_NONFIRSTROUTE = 2;    // 导航路径变更
+    ROUTESTATUS_NAVIFINISH = 3;       // 导航路径结束
+    ROUTESTATUS_MAPPINGFAILED = 4;    // mapping失败
+    ROUTESTATUS_MAPPINGTIMEOUT = 5;   // mapping超时
+    ROUTESTATUS_ROUTEINFOMISSING = 6; // 导航信息缺失
+    ROUTESTATUS_OFFLINEROUTE = 7;     // 离线导航路径
+    ROUTESTATUS_HOTSWITCH = 8;        // 导航路径热切换变更
+    ROUTESTATUS_SUCCESS = 9;          // mapping成功
+}
+
+message ReceiveNaviRoute {
+    optional uint32 cyclic_counter = 1;
+    optional string route_id = 2;
+    optional ROUTESTATUS status = 3;
+    optional Route route = 4;
+}
+
+message ReceiveLocInfo {
+    optional uint32 cyclic_counter = 1;
+    optional LocInfo loc_info = 2;
+}
+
+message ReceiveDeletedDynamicData {
+    optional uint32 cyclic_counter = 1;
+    repeated uint64 road_ids = 2;
+}
+
+message ReceiveDynamicData {
+    optional uint32 cyclic_counter = 1;
+    repeated OriginalDynamicData dynamic_datas = 2;
+}
+
+message ReceiveDeleteRoadIds {
+    optional uint32 cyclic_counter = 1;
+    repeated uint64 road_ids = 2;
+}
+
+message ReceiveRoadPackages {
+    optional uint32 cyclic_counter = 1;
+    repeated RoadPackage road_packages = 2;
+}
+
+message MapApiInfo {
+    optional ReceiveNaviRoute receive_navi_route = 1;
+    optional ReceiveLocInfo receive_loc_info = 2;
+    optional ReceiveDeletedDynamicData receive_deleted_dynamic_data = 3;
+    optional ReceiveDynamicData receive_dynamic_data = 4;
+    optional ReceiveDeleteRoadIds receive_delete_road_ids = 5;
+    optional ReceiveRoadPackages receive_road_packages = 6;
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    // optional nio.ad.messages.SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907; // publish ptp timestamp, uint in nanosecond
+    optional string publisher_id = 536870909;  // uuid of the publisher
+    optional uint64 counter = 536870910;       // message counter
+    optional uint64 publish_ts = 536870911;    // publish utc timestamp; unit : nanosecond
+}

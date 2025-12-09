@@ -1,0 +1,70 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+message VOccFreeSpace {
+    enum FSPointType {  // https://nio.feishu.cn/docx/QJSUd3gzyowYguxzfsWcJIBUnNe
+        TYPE_VEHICLE = 0;       // vehile
+        TYPE_VRU = 1;           // VRU
+        TYPE_WALKGROUND = 2;    // walkable ground
+        TYPE_CURB = 3;          // curb
+        TYPE_OTHERS = 4;        // others
+        TYPE_PEDESTRIAN = 5;    // pedestrian
+        TYPE_CYCLIST = 6;       // cylist
+        TYPE_VEGETATION = 7;    // vegetation
+        TYPE_WALL = 8;          // wall
+        TYPE_FENCE = 9;         // fence
+        TYPE_POLE = 10;         // pole
+        TYPE_UPRIGHTPOST = 11;  // upright post
+        TYPE_FIVESOD = 12;      // 5 SOD
+        TYPE_GROUND = 13;       // ground
+        TYPE_IMPERMANENT = 14;  // other impermanent objects
+        TYPE_PERMANENT = 15;    // other permanent objects
+    }
+
+    message FSBoundary {
+        enum FSBoundaryType {
+            TYPE_OUTER_BOUNDARY = 0;  // outmost boundary of driving area
+            TYPE_INNER_BOUNDARY = 1;  // barrier boundary inside OUTER_BOUNDARY
+            TYPE_UNSAFE_BOUNDARY = 2;  // unsafe area boundary
+        }
+        repeated uint64 points = 1;  // 00-09 bit, 10-bits represent for: row_idx
+                                     // 10-19 bit, 10-bits represent for: col_idx
+                                     // 20-35 bit, each 8-bits represent for: hmax_idx, hmin_idx
+                                     // 36-51 bit, each 8-bits represent for: FSPointType, confidence
+                                     // 52-52 bit, 1-imaginative object, 0-real object
+        optional FSBoundaryType boundary_type = 2;
+        optional FSPointType boundary_class_type = 3;  // voted boundary class type
+        optional int32 boundary_min_z = 4;  // all points' heights in boundary
+                                            // are greater than or equal to this value,
+                                            // default: -40cm, unit: cm, e.g. 5cm
+    }
+
+    // driving freespace
+    optional float resolution = 1;  // voxel resolution, unit: meter, e.g. 0.20
+    optional uint32 rows = 2;       // voxel row numbers, e.g. 512
+    optional uint32 cols = 3;       // voxel column numbers, e.g. 256
+    optional uint32 heights = 4;    // voxel height numbers, e.g. 12
+    optional float bottom_right_veh_x = 5;  // vehicle coordinates x of bottom-right point, unit: meter
+    optional float bottom_right_veh_y = 6;  // vehicle coordinates y of bottom-right point, unit: meter
+    optional float bottom_right_veh_z = 7;  // vehicle coordinates z of bottom-right point, unit: meter
+    repeated FSBoundary boundary_maps = 10;  // boundaries from vision occ freeSpace
+
+    optional uint64 timestamp = 11;  // timestamp of receving images, unit: nanosec
+
+    // parking freespace
+    repeated FSBoundary park_boundary_maps = 20;  // boundaries from vision occ freeSpace
+    optional float park_resolution = 21;  // voxel resolution, unit: meter, e.g. 0.05
+    optional uint32 park_rows = 22;       // voxel row numbers, e.g. 480
+    optional uint32 park_cols = 23;       // voxel column numbers, e.g. 448
+    optional uint32 park_heights = 24;    // voxel height numbers, e.g. 48
+    optional float park_bottom_right_veh_x = 25;  // vehicle coordinates x of bottom-right point, unit: meter
+    optional float park_bottom_right_veh_y = 26;  // vehicle coordinates y of bottom-right point, unit: meter
+    optional float park_bottom_right_veh_z = 27;  // vehicle coordinates z of bottom-right point, unit: meter
+
+    optional uint64 publish_ptp_ts = 536870907;  // publish ptp timestamp, unit: nanosec
+    optional string publisher_id = 536870909;    // uuid of the publisher
+    optional uint64 counter = 536870910;         // message counter
+    optional uint64 publish_ts = 536870911;      // publish utc timestamps, unit: nanosec
+}

@@ -1,0 +1,29 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+import "common/vehicle_in/veh_body.proto";
+import "common/vehicle_in/veh_suspn.proto";
+import "common/vehicle_in/veh_drv.proto";
+import "common/vehicle_in/veh_upa.proto";
+import "common/vehicle_in/pwrswapstn_can.proto";
+import "common/vehicle_in/adb_adas_info.proto";
+
+message VEH50ms{
+	required SuspensionInfo Suspension = 1;
+	required VehBodyInfo VehBody = 2;
+	required DrvInfo DrvIn = 3;
+	required UPAInfo  UPA   = 4;
+	optional PsapStationCan PsapCan=10000;
+	optional AdbActvSts AdbActvStatus    = 5;
+
+	optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+	optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+	optional string publisher_id = 536870909; // uuid of the publisher
+	optional uint64 counter = 536870910;         // message counter
+	optional uint64 publish_ts = 536870911;    // publish utc timestamp; unit : nanosecond
+
+} 

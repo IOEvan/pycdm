@@ -1,0 +1,283 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+import "common/pnc/geometry.proto";
+import "common/pnc/dynamic_map.proto";
+import "common/pnc/path.proto";
+
+message SpaceBoundaryPoint {
+  optional Vector3d point = 1;
+  enum BoundaryPointType {
+    BOUNDARY_STATIC_GOD = 0;
+    BOUNDARY_VIRTUAL = 1;
+  }
+  optional BoundaryPointType type = 2;
+}
+
+message DrivingSpaceEvaluationInfo {
+  repeated SpaceBoundaryPoint left_space_boundary = 1;
+  repeated SpaceBoundaryPoint right_space_boundary = 2;
+  optional uint64 car_state_time_meas = 3;
+  optional Vector3d car_state_position = 4;
+  optional Vector3d car_state_roll_pitch_yaw = 5;
+  optional uint64 space_boundary_generate_time = 6;
+  repeated SpaceBoundaryPoint left_driving_space_boundary = 7;
+  repeated SpaceBoundaryPoint right_driving_space_boundary = 8;
+}
+
+message JunctionInfo {
+  optional bool is_in_junction = 1;
+}
+
+message PlannerEvaluation {
+  optional uint64 time_meas = 1;
+  optional bool path_qp_success = 2;
+  optional bool speed_qp_success = 3;
+  optional double behavior_timecost = 4;  // ms
+  optional double motion_timecost = 5;    // ms
+  optional bool behavior_fallback = 6;
+  optional bool motion_fallback = 7;
+
+  enum LaneChangeType {
+    NONE = 0;
+    LEFT_FORWARD = 1;
+    RIGHT_FORWARD = 2;
+    FINISH = 3;
+    CANCEL = 4;
+    LEFT_PREPARING = 5;
+    RIGHT_PREPARING = 6;
+  }
+  optional LaneChangeType lane_change_type = 8;
+  repeated AgentInfo agent_info = 9;
+  optional double ego_neareast_refpoint_offset_to_map = 10;  // m
+  repeated BehaivorKeepConfusionMatrix behavior_keep_confusion_matrix = 11;
+  enum PlannerCapabilityMode {
+    LaneKeep = 0;
+    LaneChange = 1;
+    LaneMerge = 2;
+    Crossing = 3;
+  }
+  repeated PlannerCapabilityMode planner_capability_mode =
+      12;  // means ego is LK,LC or Merge and repeated means ego could Merge
+           // with LC
+  repeated BehaviorMergeConfusionMatrix behavior_merge_confusion_matrix = 13;
+  repeated BehaviorLaneChangeConfusionMatrix
+      behavior_lane_change_confusion_matrix = 14;
+  repeated BehaviorCrossingConfusionMatrix behavior_crossing_confusion_matrix =
+      30;
+  repeated BehaviorVruConfusionMatrix behavior_vru_confusion_matrix = 36;
+
+  // batch of timestamps that describe the timeline of planner process
+  optional uint64 on_roadmap_start_ts = 15;
+  optional uint64 on_global_routing_start_ts = 16;
+  optional uint64 update_navi_start_ts = 17;
+  optional uint64 planner_start_ts = 18;
+  optional uint64 planner_update_start_ts = 19;
+  optional uint64 planner_run_start_ts = 20;
+  optional uint64 prediction_run_start_ts = 21;
+  optional uint64 bp_run_start_ts = 22;
+  optional uint64 update_lane_change_start_ts = 23;
+  optional uint64 update_refline_start_ts = 24;
+  optional uint64 mp_run_start_ts = 25;
+  optional uint64 planner_finished_ts = 26;
+  optional int32 perception_objects_count = 27;
+
+  /* repeated RiskAwareInfo risk_aware_info = 28; */
+  repeated PlannerFunctionalMetric functional_metrics = 28;
+
+  optional DrivingSpaceEvaluationInfo driving_space_evaluation_info = 29;
+  optional TrafficLightEvaInfo traffic_light_eva_info = 31;
+  optional LaneMapRoute lane_map_route = 32;
+  optional JunctionInfo junction_info = 33;
+  optional double planner_timecost = 34;     // ms
+  optional double planner_timecost_99 = 35;  // ms
+}
+
+message PlannerFunctionalMetric {
+  optional string name = 1;   // functional metric name, setted manually by user
+  optional double value = 2;  // functional metric value
+  optional double threshold = 3;  // threshold, compare value and threshold for
+                                  // key frame and dlb capture
+  optional string desc =
+      4;  // functional metric description, setted manually by user
+  optional string threshold_relationship =
+      5;  // comparison logic, available options are gt, gte, lt, lte, equal
+}
+
+message RiskAwareInfo {
+  enum RiskAwareType {
+    NONE = 0;
+    CUTIN = 1;
+    AWARE = 2;
+    SLOW_NEIGHBOR_TRAFFIC_SPEED = 3;
+    SLOW_NEIGHBOR_TRAFFIC_DEC_WTI = 4;
+    SLOW_NEIGHBOR_TRAFFIC_ACC_WTI = 5;
+    CONSTRUCTION_ZONE = 6;
+    CUTIN_RISK_BRAKE = 7;
+    SLOW_NEIGHBOR_TRAFFIC_LANE_CHANGE = 8;
+    JUNCTION = 9;
+    CROSSWALK = 10;
+    RAMP_MERGE_IN = 11;
+    OPENING = 12;
+    NO_TRAFFIC_LIGHT_STOPLINE = 13;
+    RELIEF_ENTRANCE = 14;
+    OCCLUSION = 15;
+    CURB_PARKING = 16;
+    MERGE_OCCLUSION = 17;
+    CROWDED_ROAD = 18;
+    SCENE_FRONTAGE = 19;
+    URBAN_MERGE_OCCLUSION = 20;
+  }
+  optional int32 id = 1;
+  optional RiskAwareType risk_aware_type = 2;
+}
+
+message AgentInfo {
+  enum Type {
+    FOLLOW = 0;
+    CUT_IN = 1;
+  }
+
+  message LonLatInfo {
+    optional double longitudinal = 1;
+    optional double lateral = 2;
+  }
+
+  optional int32 id = 1;
+  optional Type type = 2;
+  optional LonLatInfo distance = 3;
+  optional LonLatInfo velocity = 4;
+  optional LonLatInfo acceleration = 5;
+  optional double timestamp = 6;
+}
+
+message PlannerReturnCode {
+  enum ErrorCode {
+    FAILURE = 0;
+    SUCCESS = 1;
+    LOCAL_MAP_EMPTY = 2;
+    GLOBAL_ROUTE_EMPTY = 3;
+    LOCAL_ROUTER_FAILED = 4;
+    REFERENCE_LINE_UPDATE_FAILED = 5;
+    EGO_CAR_NOT_IN_LOCAL_MAP = 6;
+    MOTION_PRE_CHECK_FAILED = 7;
+    REF_LINE_GENERATOR_FAILED = 8;
+    MOTION_SPEED_FALLBACK = 9;
+    EXCEPTION = 10;
+    MOTION_PLANNER_FAILED = 11;
+    MAP_RECONSTRUCTION_FAILED = 12;
+    MOTION_PATH_FALLBACK = 13;
+    NOT_IN_REFLINE_SCOPE = 14;
+    REF_LINE_GENERATOR_FAILED_AFTER_TRIGGER_RECONSTRUCTION = 15;
+    REF_LINE_GENERATOR_FAILED_TYPE_LATERAL_JUMP_TRIGGER_JUNCTIONSPACE_IN_URBAN =
+        1500;
+    REF_LINE_GENERATOR_FAILED_TYPE_LATERAL_JUMP_TRIGGER_JUNCTIONSPACE_IN_HIGHWAY =
+        1501;
+    REF_LINE_GENERATOR_FAILED_TYPE_LATERAL_JUMP_TRIGGER_EXPLORATION = 1510;
+    REF_LINE_GENERATOR_FAILED_TYPE_LATERAL_JUMP_TRIGGER_EXPLORATION_WITHFITTING_IN_URBAN =
+        1511;
+    REF_LINE_GENERATOR_FAILED_TYPE_LATERAL_JUMP_TRIGGER_EXPLORATION_WITHVEHICLEFLOW_IN_URBAN =
+        1512;
+    REF_LINE_GENERATOR_FAILED_TYPE_LATERAL_JUMP_TRIGGER_EXPLORATION_WITHSEARCH_IN_URBAN =
+        1513;
+    REF_LINE_GENERATOR_FAILED_TYPE_LATERAL_JUMP_TRIGGER_EXPLORATION_WITHVEHICLEFLOW_IN_HIGHWAY =
+        1514;
+    REF_LINE_GENERATOR_FAILED_TYPE_LATERAL_JUMP_TRIGGER_LANENARROWSPACE_IN_URBAN =
+        1520;
+    REF_LINE_GENERATOR_FAILED_TYPE_LATERAL_JUMP_TRIGGER_LANENARROWSPACE_IN_HIGHWAY =
+        1521;
+    REF_LINE_GENERATOR_FAILED_TYPE_LATERAL_JUMP_TRIGGER_LANEWIDESPACE_IN_URBAN =
+        1525;
+    REF_LINE_GENERATOR_FAILED_TYPE_LATERAL_JUMP_TRIGGER_LANEWIDESPACE_IN_HIGHWAY =
+        1526;
+    REF_LINE_GENERATOR_FAILED_TYPE_LENGTH_CHECK_FAILED_TRIGGER_JUNCTIONSPACE_IN_URBAN =
+        1530;
+    REF_LINE_GENERATOR_FAILED_TYPE_LENGTH_CHECK_FAILED_TRIGGER_JUNCTIONSPACE_IN_HIGHWAY =
+        1531;
+    REF_LINE_GENERATOR_FAILED_TYPE_LENGTH_CHECK_FAILED_TRIGGER_EXPLORATION =
+        1540;
+    REF_LINE_GENERATOR_FAILED_TYPE_LENGTH_CHECK_FAILED_TRIGGER_EXPLORATION_WITHFITTING_IN_URBAN =
+        1541;
+    REF_LINE_GENERATOR_FAILED_TYPE_LENGTH_CHECK_FAILED_TRIGGER_EXPLORATION_WITHVEHICLEFLOW_IN_URBAN =
+        1542;
+    REF_LINE_GENERATOR_FAILED_TYPE_LENGTH_CHECK_FAILED_TRIGGER_EXPLORATION_WITHSEARCH_IN_URBAN =
+        1543;
+    REF_LINE_GENERATOR_FAILED_TYPE_LENGTH_CHECK_FAILED_TRIGGER_EXPLORATION_WITHVEHICLEFLOW_IN_HIGHWAY =
+        1544;
+    REF_LINE_GENERATOR_FAILED_TYPE_LENGTH_CHECK_FAILED_TRIGGER_LANENARROWSPACE_IN_URBAN =
+        1550;
+    REF_LINE_GENERATOR_FAILED_TYPE_LENGTH_CHECK_FAILED_TRIGGER_LANENARROWSPACE_IN_HIGHWAY =
+        1551;
+    REF_LINE_GENERATOR_FAILED_TYPE_LENGTH_CHECK_FAILED_TRIGGER_LANEWIDESPACE_IN_URBAN =
+        1555;
+    REF_LINE_GENERATOR_FAILED_TYPE_LENGTH_CHECK_FAILED_TRIGGER_LANEWIDESPACE_IN_HIGHWAY =
+        1556;
+    REF_LINE_GENERATOR_FAILED_TYPE_UPDATE_VEHICLE_STATE_FAILED_TRIGGER_JUNCTIONSPACE_IN_URBAN =
+        1560;
+    REF_LINE_GENERATOR_FAILED_TYPE_UPDATE_VEHICLE_STATE_FAILED_TRIGGER_JUNCTIONSPACE_IN_HIGHWAY =
+        1561;
+    REF_LINE_GENERATOR_FAILED_TYPE_UPDATE_VEHICLE_STATE_FAILED_TRIGGER_EXPLORATION =
+        1570;
+    REF_LINE_GENERATOR_FAILED_TYPE_UPDATE_VEHICLE_STATE_FAILED_TRIGGER_EXPLORATION_WITHFITTING_IN_URBAN =
+        1571;
+    REF_LINE_GENERATOR_FAILED_TYPE_UPDATE_VEHICLE_STATE_FAILED_TRIGGER_EXPLORATION_WITHVEHICLEFLOW_IN_URBAN =
+        1572;
+    REF_LINE_GENERATOR_FAILED_TYPE_UPDATE_VEHICLE_STATE_FAILED_TRIGGER_EXPLORATION_WITHSEARCH_IN_URBAN =
+        1573;
+    REF_LINE_GENERATOR_FAILED_TYPE_UPDATE_VEHICLE_STATE_FAILED_TRIGGER_EXPLORATION_WITHVEHICLEFLOW_IN_HIGHWAY =
+        1574;
+    REF_LINE_GENERATOR_FAILED_TYPE_UPDATE_VEHICLE_STATE_FAILED_TRIGGER_LANENARROWSPACE_IN_URBAN =
+        1580;
+    REF_LINE_GENERATOR_FAILED_TYPE_UPDATE_VEHICLE_STATE_FAILED_TRIGGER_LANENARROWSPACE_IN_HIGHWAY =
+        1581;
+    REF_LINE_GENERATOR_FAILED_TYPE_UPDATE_VEHICLE_STATE_FAILED_TRIGGER_LANEWIDESPACE_IN_URBAN =
+        1585;
+    REF_LINE_GENERATOR_FAILED_TYPE_UPDATE_VEHICLE_STATE_FAILED_TRIGGER_LANEWIDESPACE_IN_HIGHWAY =
+        1586;
+  }
+  optional ErrorCode error_code = 1;
+}
+
+message BehaivorKeepConfusionMatrix {
+  optional int32 tree_level = 1;
+  optional int64 true_positive = 2 [default = 0];
+  optional int64 false_positive = 3 [default = 0];
+  optional int64 true_negative = 4 [default = 0];
+  optional int64 false_negative = 5 [default = 0];
+}
+
+message BehaviorMergeConfusionMatrix {
+  optional int32 tree_level = 1;
+  optional bool matched_result = 2;
+}
+
+message BehaviorCrossingConfusionMatrix {
+  optional int32 tree_level = 1;
+  optional bool matched_result = 2;
+}
+
+message BehaviorLaneChangeConfusionMatrix {
+  optional int32 tree_level = 1;
+  optional bool slot_match_result = 2;
+  optional bool safety_match_result = 3;
+}
+
+message BehaviorVruConfusionMatrix {
+  optional int32 tree_level = 1;
+  optional int64 true_positive = 2 [default = 0];
+  optional int64 false_positive = 3 [default = 0];
+  optional int64 true_negative = 4 [default = 0];
+  optional int64 false_negative = 5 [default = 0];
+}
+
+message TrafficLightEvaInfo {
+  optional TrafficLightJunctionDynamicMap traffic_light_junction = 1;
+  optional TrafficLightStatus traffic_light_status = 2;
+  optional int32 traffic_light_direction = 3;
+  optional int32 tld_decision = 4;
+  optional double stop_line_s = 5;
+  optional double ego_to_stopline_distance = 6;
+}

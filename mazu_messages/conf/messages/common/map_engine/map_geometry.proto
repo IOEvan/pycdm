@@ -1,0 +1,34 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+// Geometry data is the major part in map data, so we'd like to use SoA format
+// to reduce the size of serialized data.
+// * The size of each array is guaranteed to be equal with others.
+
+// A point list to describe a polyline.
+message MapPolyline {
+  repeated double x = 1 [ packed = true ];
+  repeated double y = 2 [ packed = true ];
+  repeated double z = 3 [ packed = true ];
+}
+
+// A point list to describe a polygon, supposed to be counterclockwise order on
+// groud.
+// E.g. For a square lies on xy plane:
+//      x = [0, 1, 1, 0]
+//      y = [0, 0, 1, 1]
+//      z = [0, 0, 0, 0]
+message MapPolygon {
+  repeated double x = 1 [ packed = true ];
+  repeated double y = 2 [ packed = true ];
+  repeated double z = 3 [ packed = true ];
+}
+
+// A point list to describe a polyline.
+message MapPoint {
+  optional double x = 1;
+  optional double y = 2;
+  optional double z = 3;
+}

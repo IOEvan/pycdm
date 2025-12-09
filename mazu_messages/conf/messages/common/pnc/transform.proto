@@ -1,0 +1,24 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+import "common/pnc/geometry.proto";
+
+message TransformStamped {
+  // When the measurements were made. In nanoseconds.
+  optional uint64 time_meas = 1; // time_meas is not used in static tf
+  optional string frame_id = 2;
+  optional string child_frame_id = 3;
+  optional Transformation3d transform = 4;
+}
+
+message TransformStampeds {
+  // When the measurements were made. In nanoseconds.
+  optional uint64 time_meas = 1;  // time_meas is not used in static tf
+  optional string frame_id = 2;
+
+  repeated TransformStamped transforms = 4;
+}
+

@@ -1,0 +1,78 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+import "common/dlb/record_camera_event.proto";
+import "common/dlb/record_dds_event.proto";
+import "common/dlb/record_lidar_event.proto";
+import "common/dlb/record_log_event.proto";
+import "common/dlb/record_picture_event.proto";
+import "common/dlb/record_can_event.proto";
+import "common/dlb/record_position_event.proto";
+import "common/dlb/record_calibration_event.proto";
+import "common/dlb/record_perform_diag_event.proto";
+import "common/dlb/record_packet_event.proto";
+import "common/dlb/record_soa_event.proto";
+
+message DataFilterEvent {
+    enum RecordMode {
+        NORMAL = 0;
+        ENGINEERING = 1;
+    }
+
+    enum RecordCmd {
+        TRIGGER = 0;
+        UPDATE = 1;     
+    }
+    message EventDetail {
+        optional string meta                       = 1;        // content of meta.json
+        optional uint32 priority                   = 2;        // 0 ~ 100. 100 is highest
+        optional uint64 expiration_time            = 3;        // in second. expiration time
+        optional DdsDlbEvent dds_event             = 4;        // all proto events
+        optional CamDlbEvent camera_event          = 5;        // all camera events
+        optional LidarDlbEvent lidar_event         = 6;        // all lidar events
+        optional LogDlbEvent log_event             = 7;        // all log events
+        optional string uuid                       = 8;        // uuid of datafilter event
+        optional PicDlbEvent picture_event         = 9;       // all camera picture events
+        optional CanDlbEvent can_event             = 10;       // all can events
+        optional PositionDlbEvent position_event   = 11;       // all position events
+        optional RecordMode mode                   = 12;       // record mode
+        optional string type                       = 13;       // app type. eg. cdm_app cdm_eco_app
+        optional CalibrationDlbEvent calibration_event = 14;   // calibration files
+        optional PerformDiagEvent perform_diag_event   = 15;     // perform_diag
+        optional RecordCmd cmd_event                   = 16;
+        optional PacketDlbEvent  network_packet_event  = 17;
+        optional SoaDlbEvent     soa_event             = 18;
+    }
+
+    optional string meta                       = 1;        // content of meta.json
+    optional uint32 priority                   = 2;        // 0 ~ 100. 100 is highest
+    optional uint64 expiration_time            = 3;        // in second. expiration time
+    optional DdsDlbEvent dds_event             = 4;        // all proto events
+    optional CamDlbEvent camera_event          = 5;        // all camera events
+    optional LidarDlbEvent lidar_event         = 6;        // all lidar events
+    optional LogDlbEvent log_event             = 7;        // all log events
+    reserved 8;
+    optional string uuid                       = 9;        // uuid of datafilter event
+    optional PicDlbEvent picture_event         = 10;       // all camera picture events
+    optional CanDlbEvent can_event             = 11;       // all can events
+    optional PositionDlbEvent position_event   = 12;       // all position events
+    optional RecordMode mode                   = 13;       // record mode
+    optional string type                       = 14;       // app type. eg. cdm_app cdm_eco_app
+    optional CalibrationDlbEvent calibration_event = 15;   // calibration files
+    optional PerformDiagEvent perform_diag_event = 16;     // perform_diag
+    optional RecordCmd cmd_event               = 17;
+    optional PacketDlbEvent  network_packet_event = 18;
+    repeated EventDetail     data_event_detail   = 19;   // several record group for a event
+    optional string rule_version                 = 20;   // version
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin    
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts   = 536870907; // publish ptp timestamp, uint in nanosec
+    optional string publisher_id     = 536870909;   // uuid of the publisher 
+    optional uint64 counter          = 536870910;   // message counter
+    optional uint64 publish_ts       = 536870911;   // publish utc timestamp; unit : nanosecond
+}

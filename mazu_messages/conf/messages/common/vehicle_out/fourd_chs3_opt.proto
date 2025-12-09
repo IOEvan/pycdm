@@ -1,0 +1,277 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message VehFourdCtrlIf{
+    optional uint32 FourdChsDownStrDev01 = 1;                  //@Channel:CHS3_CANFD @Message:0x205 @Signal:FourdChsDownStrDev01
+    optional uint32 FourdChsDownStrDev02 = 2;                  //@Channel:CHS3_CANFD @Message:0x205 @Signal:FourdChsDownStrDev02
+    optional uint32 FourdChsDownStrDev03 = 3;                  //@Channel:CHS3_CANFD @Message:0x205 @Signal:FourdChsDownStrDev03
+    optional uint32 FourdChsDownStrDev04 = 4;                  //@Channel:CHS3_CANFD @Message:0x205 @Signal:FourdChsDownStrDev04
+    optional uint32 FourdDampgIndexFrntCmps = 5;               //@Channel:CHS3_CANFD @Message:0x205 @Signal:FourdDampgIndexFrntCmps
+    optional uint32 FourdDampgIndexFrntReb = 6;                //@Channel:CHS3_CANFD @Message:0x205 @Signal:FourdDampgIndexFrntReb
+    optional uint32 FourdDampgIndexReCmps = 7;                 //@Channel:CHS3_CANFD @Message:0x205 @Signal:FourdDampgIndexReCmps
+    optional uint32 FourdDampgIndexReReb = 8;                  //@Channel:CHS3_CANFD @Message:0x205 @Signal:FourdDampgIndexReReb
+
+    enum FourdDampModReq_e{
+        DampMod_NoReq=0;
+        DampMod_Soft=1;
+        DampMod_Medium=2;
+        DampMod_Hard=3;
+        DAMPREQ_Rsrvd4=4;    //Reserved4
+        DAMPREQ_Rsrvd5=5;    //Reserved5
+        INDEX_MODE=6;
+        DAMPREQ_Rsrvd7=7;    //Reserved7
+    }
+    optional FourdDampModReq_e FourdDampModReq = 9;            //@Channel:CHS3_CANFD @Message:0x205 @Signal:FourdDampModReq
+
+    enum FourdLvlModReq_e{
+        AUTOMATIC_DEFAULT=0;
+        LOW_LEVEL_2=1;
+        LOW_LEVEL_1=2;
+        NORMAL_LEVEL=3;
+        HIGH_LEVEL_1=4;
+        HIGH_LEVEL_2=5;
+        HIGH_LEVEL_3=6;
+        FourdMod_Invld=7;
+    }
+    optional FourdLvlModReq_e FourdLvlModReq = 10;             //@Channel:CHS3_CANFD @Message:0x205 @Signal:FourdLvlModReq
+
+    enum FourdModReq_e{
+        FourdMod_NoReq=0;
+        FULL_FUNCTION=1;
+        DAMPING_REQUEST_ONLY=2;
+        LEVELING_REQUEST_ONLY=3;
+        SRC_RQUEST_ONLY=4;
+        FourdMod_Rsrvd5=5;    //Reserved5
+        FourdMod_Rsrvd6=6;    //Reserved6
+        FourdMod_Rsrvd7=7;    //Reserved7
+    }
+    optional FourdModReq_e FourdModReq = 11;                   //@Channel:CHS3_CANFD @Message:0x205 @Signal:FourdModReq
+
+    enum FourdSrcModReq_e{
+        SrcReq_NoReq=0;
+        SrcReq_Soft=1;
+        SrcReq_Medium=2;
+        SrcReq_Hard=3;
+        SrcReq_Rsrvd4=4;    //Reserved4
+        SrcReq_Rsrvd5=5;    //Reserved5
+        SrcReq_On_Off_MOD=6;
+        SrcReq_Rsrvd7=7;    //Reserved7
+    }
+    optional FourdSrcModReq_e FourdSrcModReq = 12;             //@Channel:CHS3_CANFD @Message:0x205 @Signal:FourdSrcModReq
+
+    enum FourdSrcValveReq_e{
+        SrcVal_NoReq=0;
+        Fourd_Src_on=1;
+        Fourd_Src_off=2;
+        Src_Invld=3;
+    }
+    optional FourdSrcValveReq_e FourdSrcValveReq_FL = 13;      //@Channel:CHS3_CANFD @Message:0x205 @Signal:FourdSrcValveReq_FL
+    optional FourdSrcValveReq_e FourdSrcValveReq_FR = 14;      //@Channel:CHS3_CANFD @Message:0x205 @Signal:FourdSrcValveReq_FR
+    optional FourdSrcValveReq_e FourdSrcValveReq_RL = 15;      //@Channel:CHS3_CANFD @Message:0x205 @Signal:FourdSrcValveReq_RL
+    optional FourdSrcValveReq_e FourdSrcValveReq_RR = 16;      //@Channel:CHS3_CANFD @Message:0x205 @Signal:FourdSrcValveReq_RR
+    optional float FrntObjDist = 17;                           //@Channel:CHS3_CANFD @Message:0x205 @Signal:FrntObjDist
+
+    enum FrntObjType_e{
+        Dmpr_NONE=0;
+        Speed_Bump_Type1=1;
+        Speed_Bump_Type2=2;
+        Speed_Bump_Type3=3;
+        Speed_Bump_Type4=4;
+        Wave_Type1=5;
+        Wave_Type2=6;
+        Wave_Type3=7;
+        Wave_Type4=8;
+        Joint_Type1=9;
+        Joint_Type2=10;
+        Joint_Type3=11;
+        Joint_Type4=12;
+        DMPR_Rsrvd13=13;    //Reserved13
+        DMPR_Rsrvd14=14;    //Reserved14
+        DMPR_Rsrvd15=15;    //Reserved15
+    }
+    optional FrntObjType_e FrntObjType = 18;                   //@Channel:CHS3_CANFD @Message:0x205 @Signal:FrntObjType
+
+    enum FourdRegenModReq_e{
+        NO_Regen_Request=0;
+        FourD_Regen_Request=1;
+        FourD_Regen_Standby=2;
+        FourD_Regen_Interrupted=3;
+        RegMod_Rsrvd4=4;    //Reserved4
+        RegMod_Rsrvd5=5;    //Reserved5
+        RegMod_Rsrvd6=6;    //Reserved6
+        RegMod_Rsrvd7=7;    //Reserved7
+    }
+    optional FourdRegenModReq_e FourdRegenModReq = 19;       //@Channel:ADAS @Message:0xF8 @Signal:FourdRegenModReq
+    optional float FourdTargetDecel = 20;                    //@Channel:ADAS @Message:0xF8 @Signal:FourdTargetDecel
+    optional float FourdMaxDecelJerk = 21;                   //@Channel:ADAS @Message:0xF8 @Signal:FourdMaxDecelJerk
+    optional float FourdMinDecelJerk = 22;                   //@Channel:ADAS @Message:0xF8 @Signal:FourdMinDecelJerk
+    optional uint32 FourdDev01 = 23;                         //@Channel:ADAS @Message:0xF8 @Signal:FourdDev01
+    optional uint32 FourdDev02 = 24;                         //@Channel:ADAS @Message:0xF8 @Signal:FourdDev02
+    optional uint32 FourdDev03 = 25;                         //@Channel:ADAS @Message:0xF8 @Signal:FourdDev03
+    optional uint32 FourdDev04 = 26;                         //@Channel:ADAS @Message:0xF8 @Signal:FourdDev04
+    optional ComfortIndex        ComfortIndexInfo    = 27;
+    optional MaxConfortIndexIf   MaxConfortIndexInfo = 28;
+
+// @begin segscope: NT3
+    optional uint32 chs_down_str_dev01               = 29;
+    optional uint32 chs_down_str_dev02               = 30;
+    optional uint32 chs_down_str_dev03               = 31;
+    optional uint32 chs_down_str_dev04               = 32;
+// @end segscope: NT3
+
+    optional MUEDataOut MUEDataOutIf  = 33;
+}
+
+// @begin segscope: NT3
+message FasCtrlIf{
+    optional float TgtLenBodyPosFL   = 1;
+    optional float TgtLenBodyPosFR   = 2;
+    optional float TgtLenBodyPosRL   = 3;
+    optional float TgtLenBodyPosRR   = 4;
+    optional float TgtVelocityBodySpdFL  = 5;
+    optional float TgtVelocityBodySpdFR  = 6;
+    optional float TgtVelocityBodySpdRL  = 7;
+    optional float TgtVelocityBodySpdRR  = 8;
+    optional float FroceCmdFL            = 9;
+    optional float FroceCmdFR            = 10;
+    optional float FroceCmdRL            = 11;
+    optional float FroceCmdRR            = 12;
+    optional uint32 StFourdCtrlMod        = 13;
+    optional bytes FourdReqPara          = 14;
+}
+// @end segscope: NT3
+
+message ComfortIndex{
+
+    enum FourdArbnCtrlMod_e{
+        Control_off   = 0;
+        Full_function = 1;
+        Predict_only  = 2;
+        Upload_only   = 3;
+    }
+
+    enum RxNaviSts_e{
+        Ns_None   = 0;
+        Route_Cruising = 1;
+        Roaming  =2;
+        Navigating =3;
+    }
+
+    enum RxNaviRailableSts_e{
+        RS_NONE              = 0;
+        Navi_UNRELIABLE      = 1;
+        UNRELIABLE_ROUTING   = 2;
+        UNRELIABLE_YAWING    = 3;
+        UNRELIABLE_SWITCHING = 4;
+        UNRELIABLE_UNKNOWN   = 5;
+        UNRELIABLE_MAX       = 6;
+        Navi_RELIABLE        = 7;
+    }
+
+    enum Mon_FourdSrcModReq_e{
+        SrcMod_No_request    = 0;
+        SrcMod_Soft          = 1;
+        SrcMod_Medium        = 2;
+        SrcMod_Hard          = 3;
+        SrcMod_Rsrvd1        = 4;
+        SrcMod_Rsrvd2        = 5;
+        SrcMod_ON_OFF        = 6;
+        SrcMod_Rsrvd3        = 7;
+    }
+    
+    enum Mon_FourdLvlModReq_e{
+        LvlMod_Automatic_Default  = 0;
+        LvlMod_Low_level2         = 1;
+        LvlMod_Low_level1         = 2;
+        LvlMod_Normal_level       = 3;
+        LvlMod_High_level1        = 4;
+        LvlMod_High_level2        = 5;
+        LvlMod_High_level3        = 6;
+        LvlMod_Invalid            = 7;
+    }
+
+    enum Mon_FourdDampModReq_e{
+        DampMod_No_request    = 0;
+        DampMod_Soft          = 1;
+        DampMod_Medium        = 2;
+        DampMod_Hard          = 3;
+        DampMod_Rsrvd1        = 4;
+        DampMod_Rsrvd2        = 5;
+        DampMod_Index_mode    = 6;
+        DampMod_Rsrvd3        = 7;
+    }
+
+    enum CmbdCommFaultLvl_e{
+        Cmbd_No_error     = 0;
+        Cmbd_FLM_LVL1     = 1;
+        Cmbd_FLM_LVL2     = 2;
+        Cmbd_FLM_LVL3     = 3;
+        Cmbd_FLM_LVL4     = 4;
+        Cmbd_Rsrvd1       = 5;
+        Cmbd_Rsrvd2       = 6;
+        Cmbd_Rsrvd3       = 7;
+    }
+
+    enum FourdCtrlSts_e{
+        Fourd_Not_controlling   = 0;
+        Fourd_Controlling       = 1;
+        Fourd_Paused            = 2;
+        Fourd_Rrsvd             = 3;
+    }
+
+    enum GlbLocalSts_e{
+        Initial     = 0;
+        Indoor      = 1;
+        Outdoor     = 2;
+        Invalid     = 3;
+    }
+
+    optional uint32 MonFourdUserSetting                 = 1;        //@Channel:ADAS @Message:0x3CD @Signal:Mon_FourdUserSetting
+    optional FourdArbnCtrlMod_e FourdArbnCtrlMod        = 2;        //@Channel:ADAS @Message:0x3CD @Signal:FourdArbnCtrlMod
+    optional RxNaviSts_e RxNaviSts                      = 3;        //@Channel:ADAS @Message:0x3CD @Signal:RxNaviSts
+    optional RxNaviRailableSts_e RxNaviRailableSts      = 4;        //@Channel:ADAS @Message:0x3CD @Signal:RxNaviRailableSts
+    optional Mon_FourdSrcModReq_e Mon_FourdSrcModReq    = 5;        //@Channel:ADAS @Message:0x3CD @Signal:Mon_FourdSrcModReq
+    optional Mon_FourdLvlModReq_e Mon_FourdLvlModReq    = 6;        //@Channel:ADAS @Message:0x3CD @Signal:Mon_FourdLvlModReq
+    optional Mon_FourdDampModReq_e Mon_FourdDampModReq  = 7;        //@Channel:ADAS @Message:0x3CD @Signal:Mon_FourdDampModReq
+    optional uint32 ComfortIndex                        = 8;        //@Channel:ADAS @Message:0x3CD @Signal:ComfortIndex
+    optional uint32 OnComingEveDis                      = 9;        //@Channel:ADAS @Message:0x3CD @Signal:OnComingEveDis
+    optional uint32 FourdErrCode                        = 10;       //@Channel:ADAS @Message:0x3CD @Signal:FourdErrCode
+    optional uint32 OnComingEveType                     = 11;       //@Channel:ADAS @Message:0x3CD @Signal:OnComingEveType
+    optional CmbdCommFaultLvl_e CmbdCommFaultLvl        = 12;       //@Channel:ADAS @Message:0x3CD @Signal:CmbdCommFaultLvl
+    optional uint32 FltBufCntr                          = 13;       //@Channel:ADAS @Message:0x3CD @Signal:FltBufCntr
+    optional FourdCtrlSts_e FourdCtrlSts                = 14;       //@Channel:ADAS @Message:0x3CD @Signal:FourdCtrlSts
+    optional uint32 FourdLvlCmdProtnCntr                = 15;       //@Channel:ADAS @Message:0x3CD @Signal:FourdLvlCmdProtnCntr
+    optional GlbLocalSts_e GlbLocalSts                  = 16;       //@Channel:ADAS @Message:0x3CD @Signal:GlbLocal_sts
+}
+
+message MaxConfortIndexIf{
+    optional uint32 MaxComfortIndex          = 1;       //@Channel:ADAS @Message:0x4B2 @Signal:MaxComfortIndex
+    optional uint32 MaxComfortIndexEveType   = 2;       //@Channel:ADAS @Message:0x4B2 @Signal:MaxComfortIndexEveType
+    optional uint32 MaxIndexEveID_01         = 3;       //@Channel:ADAS @Message:0x4B2 @Signal:MaxIndexEveID_01
+    optional uint32 MaxIndexEveID_02         = 4;       //@Channel:ADAS @Message:0x4B2 @Signal:MaxIndexEveID_02
+}
+
+message MUEDataOut{
+    optional uint32 MUEDataR1 = 1;                //@Channel:CHASSIS2 @Message:0x2E0 @Signal:MUEDataR1
+    optional uint32 MUEDataR2 = 2;                //@Channel:CHASSIS2 @Message:0x2E0 @Signal:MUEDataR2
+    optional uint32 MUEDataR3 = 3;                //@Channel:CHASSIS2 @Message:0x2E0 @Signal:MUEDataR3
+    optional uint32 MUEDataR4 = 4;                //@Channel:CHASSIS2 @Message:0x2E0 @Signal:MUEDataR4
+    optional uint32 RdEvtR1   = 5;                //@Channel:CHASSIS2 @Message:0x2E0 @Signal:RdEvtR1
+    optional uint32 RdEvtR2   = 6;                //@Channel:CHASSIS2 @Message:0x2E0 @Signal:RdEvtR2
+}
+
+message FourdCtrlCmd{
+    optional VehFourdCtrlIf      VehFourdCmd         = 1;
+    optional FasCtrlIf           FourdFasCmd         = 2;      // @linescope: NT3
+    
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909;       // uuid of the publisher
+    optional uint64 counter = 536870910;            // message counter
+    optional uint64 publish_ts = 536870911;         // publish timestamp; unit : nanosecond
+}
+

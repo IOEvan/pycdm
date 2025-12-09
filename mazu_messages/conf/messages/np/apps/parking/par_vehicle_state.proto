@@ -1,0 +1,142 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+import "np/apps/parking/par_base.proto";
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message ParVehicleState {
+    optional bool is_valid = 1 [default = false]; // 0 - invalid; 1 - valid
+    enum VehProjectTyp {
+        INVALID_VEH_PROJECT = 0;
+        FORCE = 1;
+        GEMINI = 2;
+        PEGASUS = 3;
+        ARIES = 4;
+        SIRIUS = 5;
+        LIBRA = 6;
+        ORION = 7;
+        LYRA = 8;
+        ES8 = 9;
+        ES6 = 10;
+        EC6 = 11;
+        NT3_LEO = 12;
+        NT3_VELA = 13;
+        NT3_DOM = 14;
+        NT3_CETUS = 15;
+        NT3_DRACO = 16;
+        NT3_BLANC = 17;
+        NT3_ROSA = 18;
+        FY_25 = 19;
+
+        E03 = 100;
+        E0Y = 101;
+    }
+    optional VehProjectTyp vehicle_project = 2; // vehicle project
+    
+    enum SalesRegionTyp {
+        INVALID_SALES_REGION = 0;
+        CN = 1;
+        EU = 2;
+    }
+    optional SalesRegionTyp sales_region = 3;  // sales region
+    
+    optional float speed_kph = 4;
+    
+    optional float steering_angle = 5;  // degree
+    
+    enum BrkPdlStsType_e{
+        BrkPdlSt_NotPrssd  = 0; //Not pressed
+        BrkPdlSt_Prssd     = 1; //Pressed
+        BrkPdlSt_Rsrvd2    = 2; //Reserved
+        BrkPdlSt_Invld     = 3; //Invalid (Error)
+    }
+    optional BrkPdlStsType_e brake_pedal = 6;
+    
+    enum ActGear_e{
+        ActGear_Neutral=0;
+        ActGear_Drive=1;
+        ActGear_Reverse=2;
+        ActGear_Parking=3;
+        ActGear_Reserved1=4;
+        ActGear_Reserved2=5;
+        ActGear_Reserved3=6;
+        ActGear_Invalid=7;
+    }
+    optional ActGear_e act_gear = 7;
+    
+    optional bool is_standstill = 8;
+    
+    optional float stop_dst = 9;
+    
+    optional ParPoint position = 10; // {x, y, z}, unit: m, odom (relative loc)
+    optional ParQuaternion orientation = 11; // {w, x, y, z}, odom (relative loc)
+    optional ParEulerAngle euler_angle = 12; // {roll, pitch, yaw}, unit: radian, odom (relative loc)
+    
+    optional uint64 timestamp = 13; // unit: nanosecond
+
+    optional bool valid_odom = 14 [default = false]; // whether odom result is valid: 0 - invalid; 1 - valid
+
+    optional ParPoint position_svc = 15; // {x, y, z}, unit: m, svc
+    optional ParQuaternion orientation_svc = 16; // {w, x, y, z}, svc
+    optional ParEulerAngle euler_angle_svc = 17; // {roll, pitch, yaw}, unit: radian, svc
+    optional bool valid_svc = 18 [default = false]; // whether svc result is valid: 0 - invalid; 1 - valid
+
+    optional bool is_position_ready = 19 [default = false]; // whether the ego's position is ready for the initialization of station-based localization, currently: 0 - hazard light off; 1 - hazard light on
+
+    optional bool is_veh_uss_estop = 20 [default = false];
+
+    enum DriveHandTyp {
+        INVALID_DRIVE_HAND = 0;
+        LEFT_RUDDER = 1;
+        RIGHT_RUDDER = 2;
+    }
+    optional DriveHandTyp drive_hand = 21;
+
+    enum SeatOcupStType_e{
+        SeatOcup_False  = 0;//No occupant
+        SeatOcup_True   = 1;//Occupant
+        SeatOcup_Rsrvd2 = 2;//Reserved
+        SeatOcup_InVld  = 3;//Invalid
+    }
+    repeated SeatOcupStType_e SeatOccpSts = 22;
+
+    enum PsapDriverOffVehModType_e{
+        DriverOffVehMode_None = 0;
+        DriverOffVehMode_In_Vehicle = 1;
+        DriverOffVehMode_Out_of_Vehicle = 2;
+        }
+    optional PsapDriverOffVehModType_e psap_driver_off_vehicle_mode = 23;
+    
+    optional bool is_parking_ready_clicked = 24;
+
+    enum RwsActvExtif_e {
+        VlatcRwsAei_Manual_Driving     = 0;
+        VlatcRwsAei_Active_ADC_Request = 1;
+        VlatcRwsAei_Active_VDC_Request = 2;
+        VlatcRwsAei_Active_Both        = 3;
+    }
+    optional RwsActvExtif_e RwsActvExtif = 25;
+    
+    enum QfZeroAsVld_e{
+        QfVld   = 0;
+        QfInvld = 1; 
+        }
+    optional QfZeroAsVld_e PnnAgVld = 26;//前轮PnnAg有效性
+    
+    optional float PnnAgSAE = 27; //前轮PnnAg实际值
+    
+    optional float RwsActWhlAng = 28;//后轮实际转角
+    
+    optional bool  RwsActWhlAngVld = 29; //后轮转角有效性
+
+    optional string vid = 10000; // vid of source vehicle
+
+    optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909; // uuid of the publisher
+    optional uint64 counter = 536870910;         // message counter
+    optional uint64 publish_ts = 536870911;    // publish utc timestamp; unit : nanosecond
+
+}

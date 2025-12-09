@@ -1,0 +1,71 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+message CameraTrajectoryPrediction {
+    message Trajectory {
+        message Waypoint {
+            // The timestamp of the predicted waypoint (unit: ns).
+            optional uint64 timestamp = 1;
+            // Absolute x in vhicle coordinate (unit: m, forward is positive). 
+            optional float OBJ_Long_Position = 2; 
+            // Absolute y in vehicle coordinate (unit: m, left is positive). 
+            optional float OBJ_Lat_Position = 3;
+            // Absolute z in vehicle coordinate (unit: m, up is positive). 
+            optional float OBJ_Vertical_Position = 4;
+            // Absolute rotation angle around the z-axis in vehicle coordinate 
+            // (unit: rad, counterclockwise is positive).
+            optional float OBJ_Heading = 5;
+        }
+
+        // Num of predicted waypoints in the trajectory.
+        optional int32 OBJ_Waypoint_Count = 1;
+        // The predicted waypoints of the trajectory (including the camera OD 
+        // output in the current camera frame as the first waypoint).
+        repeated Waypoint OBJ_Waypoints = 2;
+        // The predicted probability of the trajectory.
+        optional float OBJ_Trajectory_Probability = 3;
+    }
+
+    // Num of predicted trajectories of the camera object.
+    optional int32 OBJ_Trajectory_Count = 1;
+    // The predicted trajectories of the camera object.
+    repeated Trajectory OBJ_Trajectories = 2;
+}
+
+message CameraDynamicObjectMotion
+{
+    optional OBJMotionStatus OBJ_Motion_status =1; // 目标运动状态
+    enum OBJMotionStatus{
+        OBJMotionStatus_Unknown = 0; // 目标运动状态未知  
+        OBJMotionStatus_Static = 1; // 目标在进入视野范围内开始没有观测到移动过，并且当前是静止状态
+        OBJMotionStatus_Stopped = 2; // 暂留, 目标先运动后停止
+        OBJMotionStatus_Moving_Slowly = 3; // 暂留, 目标移动很慢
+        OBJMotionStatus_Moving = 4; // 目标在移动
+    }
+}
+
+message CameraDynamicObjectCIPV
+{
+    optional OBJLaneAssignment OBJ_CIPV_Lane = 1; // 目标车道归属
+    enum OBJLaneAssignment{
+        OBJLaneAssignment_Unknown = 0; // 目标车道归属未知
+        OBJLaneAssignment_Host = 1; // 目标在主车道
+        OBJLaneAssignment_Left = 2; // 目标在左车道
+        OBJLaneAssignment_Right = 3; // 目标在右车道
+        OBJLaneAssignment_Left_Left = 4; // 目标在左左车道
+        OBJLaneAssignment_Right_Right = 5; // 目标在右右车道
+    }
+}
+
+message CameraDynamicObjectCCI
+{
+    optional OBJCCISide OBJ_CCI_Side = 1; // 目标Cut-in状态
+    enum OBJCCISide{
+        OBJCCISide_Unknown = 0; // 目标Cut-in状态未知
+        OBJCCISide_Left = 1; // 目标左侧Cut-in
+        OBJCCISide_Right = 2; // 目标右侧Cut-in
+    }
+}

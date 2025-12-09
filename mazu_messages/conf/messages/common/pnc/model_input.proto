@@ -1,0 +1,37 @@
+// @ownerL tiancheng.li@nio.com
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+import "common/perf/sensor_ts_header.proto";
+
+enum DataType {
+  FP16 = 1;
+  FP32 = 2;
+  INT64 = 3;
+};
+
+message Tensor {
+  optional string name = 1;
+  optional DataType dtype = 2;
+  repeated int32 shape = 3;
+  optional bytes data = 4;
+}
+
+message ModelInput {
+  optional uint64 id = 1;
+  optional string model_name = 2;
+  repeated Tensor input_tensor = 3;
+  optional string dynamic_header_entry = 4;
+  optional uint64 timestamp = 5;
+  
+  optional SensorTSHeader sensor_original_ts = 536870906;  // sensor original ts
+  optional uint64 publish_ptp_ts =
+      536870907;  // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909;  // uuid of the publisher
+  optional uint64 counter = 536870910;       // message counter
+  optional uint64 publish_ts =
+      536870911;  // publish timestamp; unit : nanosecond
+}

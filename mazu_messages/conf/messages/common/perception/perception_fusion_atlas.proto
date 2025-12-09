@@ -1,0 +1,122 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+// Driving Space Point
+message DSPoint{
+    optional float x = 1;  // x in ego-car coordinates, front direction is positive
+    optional float y = 2;  // y in ego-car coordinates, left direction is positive
+}
+
+// Driving Space Point3D
+message DSPoint3D{
+    optional DSPoint point = 1;  // driving space points list
+    optional float min_z   = 2;  // min_z in ego-car coordinates, up direction is positive
+    optional float max_z   = 3;  // max_z in ego-car coordinates, up direction is positive
+    optional DrivingType driving_type    = 5;  // driving type
+    // NOTE, if necessary in future, semantic type for each point will be added
+    // optional FusionSemanticClass pt_semantic_class = 4;  // semantic class for each point
+
+    enum DrivingType{
+        UNKNOWN_UNDRIVABLE  = 0;  // unknown-undrivable
+        OBSERVED_UNDRIVABLE = 1;  // observed-undrivable
+        INFERRED_UNDRIVABLE = 2;  // inferred-undrivable
+        OBSERVED_DRIVABLE   = 3;  // observed-drivable
+        INFERRED_DRIVABLE   = 4;  // inferred-drivable
+        UNKNOWN_DRIVINGTYPE = 5;
+    }
+}
+
+
+
+// Driving Space Polygon
+message DSPolygon{
+    repeated DSPoint3D point3d                            = 1;  // driving space point3d list
+    optional DrivingType driving_type                     = 2;  // driving type
+    optional AtlasFusionSource fusion_source              = 3;  // fusion source
+    optional FusionSemanticClass semantic_class           = 4;  // fusion semantic class
+    // optional FusionSemanticSubClass sub_semantic_class = 5;  // fusion sub semantic class
+    // optional float semantic_score                      = 6;  // semantic score for `semantic_class`
+    optional UnsafeAreaSemanticClass unsafe_area_semantic_class    = 7;  // unsafe area semantic class from unsafe_area detection
+    optional SafeAreaSemanticClass safe_area_semantic_class        = 8;  // safe area  semantic class 
+    optional float score                                  = 9;  // Area level score 
+
+    enum DrivingType{
+        UNKNOWN_UNDRIVABLE  = 0;  // unknown-undrivable
+        OBSERVED_UNDRIVABLE = 1;  // observed-undrivable
+        INFERRED_UNDRIVABLE = 2;  // inferred-undrivable
+        OBSERVED_DRIVABLE   = 3;  // observed-drivable
+        INFERRED_DRIVABLE   = 4;  // inferred-drivable
+        UNKNOWN_DRIVINGTYPE = 5;  
+    }
+    
+    enum AtlasFusionSource{
+        FUSION_ONLY_FROM_LIDAR                          = 0;
+        FUSION_ONLY_FROM_VISIONOCC                      = 1;
+        FUSION_FROM_LIDAR_CURB                          = 2;
+        FUSION_FROM_VISIONOCC_CURB                      = 3;
+        FUSION_FROM_LIDAR_VISIONOCC                     = 4;
+        FUSION_FROM_LIDAR_VISIONOCC_CURB                = 5;
+        FUSION_FROM_LIDAR_VISIONOCC_UNDRIVABLEAREA      = 6;
+        FUSION_FROM_LIDAR_VISIONOCC_UNDRIVABLEAREA_CURB = 7;
+    }
+
+    // https://nio.feishu.cn/wiki/KeSMwf528inqJ1kmqW7cPc9Onhe
+    enum FusionSemanticClass{
+        UNKNOWN              = 0;  // unknown
+        GROUND               = 1;  // drivable ground
+        CURB                 = 2;  // curb
+        WALKABLE_GROUND      = 3;  // walkable
+        ANTI_COLLISION       = 4;  // anti-collision static objects
+    }
+
+    // enum FusionSemanticSubClass{
+    //     SUB_UNKNOWN                  = 0;   // unknown
+    //     SUB_GROUND                   = 1;   // Including all kinds of road surface and road marker
+    //     SUB_CURB                     = 2;   // Including all kinds of curb
+    //     SUB_WALKABLE_GROUND          = 3;   // Including all kinds of walkable surface, such as sidewalk and lawn
+    //     SUB_HOLLOW                   = 4;   // Including all kinds of holes
+    //     SUB_VEGETATION               = 5;   // Including vegetation without tree trunk
+    //     SUB_OTHER_IMPERMANENTOBJECT  = 6;   // Including other impermanent object that class is not included above, such as debris, tire, dropped object
+    //     SUB_OTHER_PERMANENTOBJECT    = 7;   // Including other permanent object that class is not included above, such as building, traffic light, fire hydrant and parterre
+    // }
+
+    enum UnsafeAreaSemanticClass{
+        SEMANTIC_UNKNOWN              = 0;  // unknown
+        SEMANTIC_GUIDE                = 1;  // guide
+        SEMANTIC_UNSAFE_AREA          = 2;  // unsafe area
+    }
+
+    enum SafeAreaSemanticClass{
+        SEMANTIC_SAFEAREA_UNKNOWN      = 0;  // unknown
+        SEMANTIC_VIS_ROADSPACE_AREA   = 1;  // vis- road space area
+        SEMANTIC_NAVI_AREA            = 2;  // navi area
+    }
+}
+
+// Fusion Distance Range
+message DrivingDistance{
+    optional float min_x = 1;  // e.g. rear -12m from ego-car
+    optional float max_x = 2;  // e.g. front 50m from ego-car
+    optional float min_y = 3;  // e.g. right -20.16m from ego-car
+    optional float max_y = 4;  // e.g. left 20.16m from ego-car
+}
+
+// Fusion Atlas (Driving Space)
+message FusionAtlas{
+    optional uint64 timestamp                = 1;  // ptp sensor time of perception result, unit: ns
+    optional DSPolygon main_drivable_ground  = 2;  // main drivable ground (observed+inferred) which connects ego-car
+    repeated DSPolygon fg_polygons           = 3;  // foreground polygons
+    optional DrivingDistance distance_range  = 4;  // distance_range
+    repeated DSPolygon unsafe_area_polygons  = 5;  // unsafe area
+    repeated DSPolygon safe_area_polygons    = 6;  // safe_area
+
+    optional SensorTSHeader sensor_original_ts = 536870906;  // sensor original ts
+    optional uint64 publish_ptp_ts             = 536870907;  // publish ptp timestamp, uint in nanosec
+    optional string publisher_id               = 536870909;  // uuid of the publisher
+    optional uint64 counter                    = 536870910;  // message counter
+    optional uint64 publish_ts                 = 536870911;  // publish utc timestamp; unit : nanosecond
+}

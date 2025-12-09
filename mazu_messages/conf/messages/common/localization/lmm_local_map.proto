@@ -1,0 +1,33 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+import "common/localization/geometry.proto";
+
+message LmmPoint3f {
+  optional float x = 1;
+  optional float y = 2;
+  optional float z = 3;
+}
+
+message LocalMap {
+  optional uint64 timestamp_utc_ns = 1; // Globally defined time. [nano second]
+  optional uint64 timestamp_ptp_ns = 2; // Globally defined ptp time. [nano second]
+  optional uint32 type = 3;
+  optional LocVector3 position = 4; 
+  optional LocQuaternion quaternion = 5;
+  repeated LmmPoint3f localmap_points = 6;
+  repeated uint32 localmap_labels = 7;
+  repeated LmmPoint3f scan_points = 8;
+  optional uint32 localmap_points_num = 9;
+  optional uint32 scan_points_num = 10;
+
+  optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin 
+  optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+  optional uint64 publish_ptp_ts   = 536870907;  // publish ptp timestamp, uint in nanosecond
+  optional uint64 publish_ts       = 536870911;  // publish utc timestamp, unit in nanosecond
+  optional string publisher_id     = 536870909;  // uuid of the publisher
+  optional uint64 counter          = 536870910;  // message counter
+}

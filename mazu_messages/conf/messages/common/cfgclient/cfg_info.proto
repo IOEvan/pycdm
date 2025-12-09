@@ -1,0 +1,37 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+//module and sub func define
+enum CfgModule {
+    DEFAULT_MODULE_RESERVED     = 0;
+    ADHMI                       = 1;
+    FCTS_OUT                    = 2;
+    PARKING                     = 3;
+    CHS_4D                      = 4;
+    STATION_ENV                 = 5;
+    ADMS_EXECUTOR               = 6;
+    PLANNER                     = 7;
+    DEVICE                      = 8;
+}
+
+enum SubFunc {
+    DEFAULT_SUBFUNC_RESERVED    = 0;
+    AD_INTERACT_ZONE            = 1;
+    AEB_CONFIG                  = 2;
+    WTI_CONFIG                  = 3;   // @linescope: NT3
+    PARK_CONFIG                 = 4;
+    CHS_4D_CONFIG               = 5;
+    STATION_ENV_CONFIG          = 6;
+    DMS_ALG_SDK_CONFIG          = 7;
+    NOP_CONFIG                  = 8;
+    PCIE_CONFIG                 = 9;
+}
+
+// @begin segscope: NT3
+enum FileType {
+    WTI_CONFIG_FILE             = 0;
+    AD_INTERACTION_FILE         = 1;
+}
+// @end segscope: NT3

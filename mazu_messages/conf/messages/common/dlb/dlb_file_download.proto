@@ -1,0 +1,30 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message DLBFileProperty
+{
+    optional string file_type     = 1;  // rule/model/...
+    optional string sub_type      = 2;  // model type    
+    optional string file_paths    = 3;  // folder path
+    optional string version       = 4;  // file version
+    optional string md5           = 5;  //
+}
+
+message DLBFileDownload {
+    optional uint64 command_id                 = 1;  // command_id of the download task
+    optional string app_type                   = 2;  // app name， cdm,  map...
+    optional string biz_type                   = 3;  // app name:perception, parking, pnc, cdm, map...
+    optional string action                     = 4;  // new, cancel...
+    optional string payload                    = 5;  // mission_payload, json format
+    repeated DLBFileProperty file_property     = 6;
+    
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin    
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts    = 536870907;     // publish ptp timestamp, uint in nanosec
+    optional string publisher_id      = 536870909;     // uuid of the publisher
+    optional uint64 counter           = 536870910;     // message counter
+    optional uint64 publish_ts        = 536870911;     // publish utc timestamp; unit : nanosecon
+}

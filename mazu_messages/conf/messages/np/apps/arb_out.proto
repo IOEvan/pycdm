@@ -1,0 +1,48 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+enum ObjClass_e {
+   kSmallVehicle = 0;
+   kTruck        = 1;
+   kBus          = 2;
+   kMotorCycle   = 3;
+   kEBike        = 4;
+   kBicycle      = 5;
+   kAdult        = 6;
+   kChild        = 7;
+}
+
+
+message AEBFlagOut{
+   optional uint32 VD_Pattern_SetA  = 1; //vehicle warning
+   optional uint32 VD_Pattern_SetB  = 2; //vehicle prefill
+   optional uint32 VD_Pattern_SetC  = 3; //reserved
+   optional uint32 VD_Pattern_SetD  = 4; //vehicle lowbrake
+   optional uint32 VD_Pattern_SetE  = 5; //vehicle highbrake
+   optional uint32 VD_Pattern_SetF  = 6; //reserved
+   optional uint32 VD_Pattern_SetG  = 7; //reserved
+   optional uint32 PD_Pattern_SetA  = 8; //vehicle warning
+   optional uint32 PD_Pattern_SetB  = 9; //vehicle prefill
+   optional uint32 PD_Pattern_SetC  = 10; //reserved
+   optional uint32 PD_Pattern_SetD  = 11; //vehicle lowbrake
+   optional uint32 PD_Pattern_SetE  = 12; //vehicle highbrake
+   optional uint32 PD_Pattern_SetF  = 13; //reserved
+   optional uint32 PD_Pattern_SetG  = 14; //reserved
+   optional ObjClass_e VD_class     = 15;
+   optional ObjClass_e PD_class     = 16;
+}
+
+message ARBOut{
+   optional AEBFlagOut aebflag = 1;
+
+   optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin 
+   optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+   optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+   optional string publisher_id = 536870909; // uuid of the publisher
+   optional uint64 counter = 536870910;         // message counter
+   optional uint64 publish_ts = 536870911;    // publish utc timestamp; unit : nanosecond
+}

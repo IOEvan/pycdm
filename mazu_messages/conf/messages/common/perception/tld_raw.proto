@@ -1,0 +1,20 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message TLDRawDLBObject {
+  optional string model_id = 1 [ deprecated = true ];
+  optional string fw_timestamp = 2;
+  optional string fn_timestamp = 3;
+  repeated float shutter = 4 [ deprecated = true ];      // 2x1, 2 for fw&fn
+  repeated float sensor_again = 5 [ deprecated = true ]; // 2x1, 2 for fw&fn
+  repeated float awb_gain = 6 [ deprecated = true ];     // 2x3, 2 for fw&fn
+  repeated float ccm = 7 [ deprecated = true ];          // 2x9, 2 for fw&fn
+  repeated float boxes_buf = 8;                          // Nx5+Nx5+Nx5
+  repeated bytes image_buf = 9;          // dynamic_size * sizeof(uint16)
+  repeated float pred_scores = 10;       // Nx10+Nx24, 10 for type, 24 for digit
+  repeated float pred_color_scores = 11; // Nx4, 4 for color dim
+}

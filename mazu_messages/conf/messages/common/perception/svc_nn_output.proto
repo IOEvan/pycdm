@@ -1,0 +1,234 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+
+message ParkPointNN{
+  optional float x = 1;
+  optional float y = 2;
+  optional float z = 3;
+  optional float prob = 4;
+  optional bool visible = 5;
+}
+
+enum GroundAttribueType {
+  TYPE_UNKNOWN_GROUND = 0;
+  TYPE_GROUND = 1;
+  TYPE_NOT_GROUND = 2;
+  TYPE_RESERVED_GROUND = 3;
+}
+
+message ObjectAttrNN {
+  enum ObjectAttribute {
+    OBJ_ATTR_NONE = 0;
+    OBJ_ATTR_STOPPER_LOW = 1;
+    OBJ_ATTR_STOPPER_HIGH = 2;
+    OBJ_ATTR_PILLAR_ROUND = 3;
+    OBJ_ATTR_PILLAR_RECTANGULAR = 4;
+    OBJ_ATTR_FACEING_TOWARD = 5;
+    OBJ_ATTR_FACEING_BACKWARD = 6;
+  };
+  optional ObjectAttribute attribute = 1;
+  optional float prob = 2;
+}
+
+message PSAPObjectNN{
+  enum PSAPObjectType{
+    TYPE_NONE = 0;
+    TYPE_LANE = 1;
+    TYPE_DOUBLE_ARROW = 2;
+    TYPE_LOGO = 3;
+    TYPE_LSHAPE = 4;
+    TYPE_TAG = 5;
+    TYPE_VSLOT = 6;
+    TYPE_RESERVED1 = 7;
+    TYPE_RESERVED2 = 8;
+    TYPE_RESERVED3 = 9;
+  }
+  repeated string camera_name = 1;
+  optional int32 id = 2;
+  optional int32 match_id = 3;
+  repeated ParkPointNN points2d = 4;
+  repeated ParkPointNN points3d = 5;
+  optional int32 num_pts = 6;   // number of points
+  optional float prob = 7;
+  optional PSAPObjectType obj_type = 8 [default = TYPE_NONE];
+}
+
+message ParkSlotNN{
+  enum ParkSlotType {
+    SLOT_TYPE_UNKNOWN = 0;
+    SLOT_TYPE_PARALLEL = 1;
+    SLOT_TYPE_CROSS = 2;
+    SLOT_TYPE_ANGLED = 3;
+    SLOT_TYPE_RESERVED = 4;
+  }
+
+  enum ParkSlotStatus {
+    SLOT_STATUS_UNKNOWN = 0;
+    SLOT_STATUS_VALID = 1;
+    SLOT_STATUS_INVALID_MODEL = 2;
+    SLOT_STATUS_INVALID_STATIC_FS = 3;
+    SLOT_STATUS_INVALID_DYNAMIC_FS = 4;
+    SLOT_STATUS_INVALID_LOCK = 5;
+    SLOT_STATUS_INVALID_STOPPER = 6;
+    SLOT_STATUS_INVALID_SLOT_ATTRIBUTE = 7;
+    SLOT_STATUS_INVALID_OTHERS = 8;
+    SLOT_STATUS_RESERVED = 9;
+  }
+
+  enum ParkSlotAttribute {
+    SLOT_ATTRIBUTE_UNKNOWN = 0;
+    SLOT_ATTRIBUTE_NORMAL = 1;
+    SLOT_ATTRIBUTE_BIG = 2;
+    SLOT_ATTRIBUTE_SMALL = 3;
+    SLOT_ATTRIBUTE_RESTRICTED = 4;
+    SLOT_ATTRIBUTE_STEREO_GARAGE = 5;
+    SLOT_ATTRIBUTE_CHARGING = 6;
+    SLOT_ATTRIBUTE_ABNORMAL = 7;
+    SLOT_ATTRIBUTE_HANDICAP = 8;
+    SLOT_ATTRIBUTE_OTHERS = 9;
+    SLOT_ATTRIBUTE_RESERVED = 10;
+  }
+  enum ParkSlotSide {
+    SLOT_SIDE_UNKNOWN = 0;
+    SLOT_SIDE_LEFT = 1;
+    SLOT_SIDE_RIGHT = 2;
+  };
+  repeated string camera_name = 1;
+  optional int32 id = 2;
+  repeated ParkPointNN points2d = 3;
+  repeated ParkPointNN points3d = 4;
+  optional int32 num_pts = 5;   // number of points
+  optional float prob = 6;
+  optional ParkSlotType slot_type = 7;
+  optional ParkSlotStatus slot_status = 8;
+  optional ParkSlotAttribute slot_attribute = 9;
+  // NOTE: the first point index is 0, the second point index is 1
+  // first two points are entrance points, and they should not be changed
+  optional int32 first_point_index = 10 [default = 0];
+  optional int32 second_point_index = 11 [default = 1];
+  optional float aspect_ratio = 12;
+  optional float entrance_length = 13;
+  optional float left_edge_length = 14;
+  optional float right_edge_length = 15;
+  repeated float pts_conf = 16;
+  optional ParkSlotSide park_slot_side = 17;
+}
+
+message StaticObjectNN{
+  reserved 16, 17;
+  enum ObjType {
+    OBJ_TYPE_UNKNOWN = 0;
+    OBJ_TYPE_ROAD = 1;
+    OBJ_TYPE_PILLAR = 2;
+    OBJ_TYPE_WALL = 3;
+    OBJ_TYPE_CONE = 4;
+    OBJ_TYPE_BUMP = 5;
+    OBJ_TYPE_STOPPER = 6;
+    OBJ_TYPE_PEDESTRIAN = 7;
+    OBJ_TYPE_CURB = 8;
+    OBJ_TYPE_BUSH = 9;
+    OBJ_TYPE_OPEN_LOCK = 10;
+    OBJ_TYPE_CLOSE_LOCK = 11;
+    OBJ_TYPE_INDICATOR = 12;
+    OBJ_TYPE_SWAP_SLOPE = 13;
+    OBJ_TYPE_TWO_WHEEL = 14;
+    OBJ_TYPE_FOUR_WHEEL = 15;
+    OBJ_TYPE_LSHAPE = 16;
+    OBJ_TYPE_CROSS_WALK = 17;
+    OBJ_TYPE_ARROW_STRAIGHT = 18;
+    OBJ_TYPE_ARROW_LEFT = 19;
+    OBJ_TYPE_ARROW_RIGHT = 20;
+    OBJ_TYPE_ARROW_STRAIGHT_LEFT = 21;
+    OBJ_TYPE_ARROW_STRAIGHT_RIGHT = 22;
+    OBJ_TYPE_ARROW_LEFT_RIGHT = 23;
+    OBJ_TYPE_ARROW_TURN_ABORT = 24;
+    OBJ_TYPE_ARROW_OTHER = 25;
+    OBJ_TYPE_NO_PARK_ZONE = 26;
+    OBJ_TYPE_DRAIN = 27;
+    OBJ_TYPE_OTHERS = 28;
+    OBJ_TYPE_RESERVED = 29;
+    OBJ_TYPE_SPEED_BUMPER = 30;
+  };
+  repeated string camera_name = 1;
+  optional int32 id = 2;
+  repeated ParkPointNN points2d = 3;
+  repeated ParkPointNN points3d = 4;
+  optional int32 num_pts = 5;   // number of points
+  optional float prob = 6;
+  optional ObjType obj_type = 7;
+  optional GroundAttribueType ground_type = 8;
+  optional ParkPointNN center2d = 9;
+  optional ParkPointNN center3d = 10;
+  optional int32 width = 11;
+  optional int32 height = 12;
+  optional float cam_distance = 13;    // target to observation camera distance
+  optional ParkPointNN cam_point = 14;  // observation camera point
+  repeated int32 cam_ids = 15;  // each point was observed by which camera id
+  repeated ObjectAttrNN object_attributes = 18;
+}
+
+message FsPointNN{
+  optional float x = 1;
+  optional float y = 2;
+  optional float z = 3;
+  optional float prob = 4;
+  optional int32 point_type = 5;
+  optional GroundAttribueType ground_type = 6;
+}
+
+message FsCircleNN{
+  enum FSBoundaryType {
+    TYPE_UNKNOWN_BOUNDARY = 0;
+    TYPE_OUTER_BOUNDARY = 1;
+    TYPE_INNTER_BOUNDARY = 2;
+    TYPE_RESERVED_BOUNDARY = 3;
+  }
+  repeated string camera_name = 1;
+  optional int32 id = 2;
+  repeated FsPointNN points2d = 3;
+  repeated FsPointNN points3d = 4;
+  optional int32 num_pts = 5;   // number of points
+  optional FSBoundaryType boundary_type = 6;
+}
+
+message FsMaskNN{
+  repeated string camera_name = 1;
+  optional int32 id = 2;
+  optional string mask_name = 3;
+  optional int32 cols = 4;
+  optional int32 rows = 5;
+  optional int32 channels = 6;
+  optional int32 elt_type = 7;
+  optional int32 elt_size = 8;
+  optional bytes mask = 9;
+}
+
+message CameraInfo{
+  optional int32 camera_id = 1;  
+  optional bool is_black_frame = 2;
+}
+
+message SVCNNOutput{
+  repeated string camera_source = 1;
+  repeated PSAPObjectNN psap_objects = 2;
+  repeated ParkSlotNN park_slots = 3;
+  repeated FsCircleNN fs_circles = 4;
+  repeated StaticObjectNN static_ods = 5;
+  optional uint64 camera_ts = 6; // image capture time (us)
+  optional uint64 nn_ts = 7; // starting time of DNN (us)
+  optional uint64 nn_post_ts = 8; // starting time of DNN Post (us)
+  optional uint64 end_ts = 9; // time of DNN pipeline end (us)
+  repeated FsMaskNN fs_mask = 10;
+  repeated CameraInfo cameras = 11;
+  optional uint64 timestamp = 12; // sensor time
+
+  optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+  optional uint64 publish_ptp_ts = 536870907;   // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909;     // uuid of the publisher
+  optional uint64 counter = 536870910;         // message counter
+  optional uint64 publish_ts = 536870911;      // publish utc timestamp; unit : nanosecond
+}

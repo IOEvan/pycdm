@@ -1,0 +1,55 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+import "common/perception/perception_objects.proto";
+import "common/perception/vision_road_detection.proto";
+import "common/perception/vision_road_sign.proto";
+import "common/perception/vision_traffic_light.proto";
+
+message EsdEnvironment {
+
+  message Vector3d {
+    optional double x = 1;
+    optional double y = 2;
+    optional double z = 3;
+    }
+  // Rotation order: R = R_z{yaw} * R_y{pitch} * R_x{roll}
+  message EulerAngle {
+    optional double roll = 1;  // Rotation angle around the x-axis. [radian]
+    optional double pitch = 2; // Rotation angle around the y-axis. [radian]
+    optional double yaw = 3;   // Rotation angle around the z-axis. [radian] [counterclockwise positive]
+    }
+
+  message Localization {
+      optional double timestamp = 1; // Globally defined time. [second]
+      enum Status {
+      UNINITIALIZED = 0; // Not initialized yet.
+      VALID = 1;         // Relative localization works well.
+      INVALID = 2;       // Relative localization not available.
+      SENSOR_ERROR = 3;  // Sensor failure, such as abnormal value.
+      }
+      optional Status status = 2;
+      // Relative pose. https://nio.feishu.cn/docs/doccn9gPfk2XQBK1aR9rLykc1eX
+      optional EulerAngle euler_angle = 3; // 3 DoFs attitude in the local frame, expressed using Euler angle. [radian] 
+      optional Vector3d position = 4;       // 3 DoFs position in the local frame. [m]
+      optional Vector3d velocity = 5;       // 3 DoFs velocity in the vehicle frame. [m/s]
+      optional Vector3d linear_acc = 6;     // 3 DoFs acceleration in the vehicle frame. [m/s^2]
+      optional Vector3d angular_vel = 7;    // 3 DoFs angular velocity in the vehicle frame. [radian/s]
+    }
+
+    optional RoadDetection road_detection = 1;          // old esd_vision_road_detection
+    optional ObjectsDetection objects_detection = 2;    // old esd_perception_objects
+    optional VisionRoadSignDetection road_sign_detection = 3; // BL140 new
+    optional TrafficLightDetection traffic_light_detection = 4; // BL140 new
+
+    optional Localization relative_localization = 5; // used for DC
+
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional string publisher_id = 536870909; // uuid of the publisher
+    optional uint64 publish_ptp_ts = 536870907; // publish ptp timestamp, uint in nanosec
+    optional uint64 counter = 536870910;         // message counter
+    optional uint64 publish_ts = 536870911;    // publish timestamp; unit : nanosecond
+}

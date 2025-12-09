@@ -1,0 +1,86 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message FeatureAHC{
+    optional HLBDecision HLB_Decision = 1;
+    optional HLBReasonLowBeam HLB_Reason_Low_Beam = 2;
+
+    enum HLBDecision{
+        HLBDecision_HighBeam_Off = 0; // 大灯关
+        HLBDecision_HighBeam_On = 1; // 大灯开
+    }
+
+    enum HLBReasonLowBeam{
+        HLBReasonLowBeam_Unknown = 0;
+    }
+}
+
+message DynamicLight{
+    optional uint32 DynamicLight_Num = 1; // 动态灯数量
+    optional uint32 DynamicLight_ID = 2; // 动态灯id
+    optional uint32 DynamicLight_Prob = 3; // 动态灯置信度
+    optional uint32 DynamicLight_Measured = 4;
+    optional DynamicLightType DynamicLight_Type = 5; // 动态灯类别
+    optional DynamicLightStatus DynamicLight_On_Off = 6 [deprecated = true];
+    optional uint32 DynamicLight_AssignedOD_ID = 7 [deprecated = true];
+    repeated float DynamicLight_Angle_yawList = 8; // 动态灯yaw
+    repeated float DynamicLight_Angle_pitchList = 9; // 动态灯pitch
+    optional float DynamicLight_Distance_X = 10; // 动态灯纵向距离
+    optional float DynamicLight_Velocity_x = 11; // 动态灯纵向速度
+    optional float DynamicLight_Velocity_y = 12; // 动态灯横穿速度
+    optional float DynamicLight_Brightness = 13 [deprecated = true];
+
+    enum DynamicLightType{
+        DynamicLightType_Unknown = 0;
+        DynamicLightType_Single_Head = 1; // 单头灯
+        DynamicLightType_Couple_Head = 2; // 双头灯
+        DynamicLightType_Single_Tail = 3; // 单尾灯
+        DynamicLightType_Couple_Tail = 4; // 双尾灯
+        DynamicLightType_Top_Cabin = 5 [deprecated = true];
+        DynamicLightType_Brake_Light = 6 [deprecated = true];
+        DynamicLightType_LeftTurn_Light = 7 [deprecated = true];
+        DynamicLightType_RightTurn_Light = 8 [deprecated = true];
+    }
+
+    enum DynamicLightStatus{
+        DynamicLight_Unknown = 0;
+        DynamicLight_ON = 1;
+        DynamicLight_OFF = 2;
+    }
+}
+
+message StaticLight{
+    optional uint32 StaticLight_Num = 1; // 静态灯数量
+    optional uint32 StaticLight_ID = 2; // 静态灯id
+    optional uint32 StaticLight_Prob = 3; // 静态灯置信度
+    optional StaticLightType StaticLight_Type = 4; // 静态灯类别
+    optional float StaticLight_Distance_X = 5;// 静态灯纵向距离
+    optional float StaticLight_Brightness = 6 [deprecated = true];
+
+    enum StaticLightType{
+        StaticLightType_Unknown = 0;
+        StaticLightType_Street_Light = 1; // 路灯
+        StaticLightType_Strong_Reflective= 2 [deprecated = true];
+        StaticLightType_Traffic_Light = 3 [deprecated = true];
+        StaticLightType_Reserve1= 4 [deprecated = true];
+        StaticLightType_Reserve2 = 5 [deprecated = true];
+    }
+}
+
+message Features{
+    optional uint64 timestamp = 1;//ptp time of perception result, unit: ns
+    optional FeatureAHC ahc = 2;
+    repeated DynamicLight dynamiclight =3;
+    repeated StaticLight staticlight =4;
+
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909;       // uuid of the publisher
+    optional uint64 counter = 536870910;            // message counter
+    optional uint64 publish_ts = 536870911;         // publish utc timestamp; unit : nanosecond
+
+}

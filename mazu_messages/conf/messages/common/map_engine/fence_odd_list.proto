@@ -1,0 +1,266 @@
+// @owner: jianxiao.hu@nio.com
+
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+import "common/map_engine/hd_lane.proto";
+import "common/map_engine/hd_link_info.proto";
+
+message FunctionFeatureControl {
+  enum AdFunctionType {
+    DrivingFunction = 0;
+    NOP_plus_urban = 1;
+    NOP_plus_highway = 2;
+    NP_plus = 3;
+    PSP = 4;
+    TJP = 5;
+  }
+  optional AdFunctionType ad_function_type = 1;
+  optional uint32 management_feature = 2;
+  optional uint32 event_type = 3;
+}
+
+message FenceODD{
+  optional uint32 fence_id = 1;
+  optional bool is_in_fence = 2;
+  optional float distance_to_fence_start = 3;
+  optional float distance_to_fence_end = 4;
+  repeated FunctionFeatureControl feature_controls = 5;
+  optional uint32 fence_boundary_type = 6;
+  repeated uint64 link_ids = 7;
+}
+
+message SpeedLimit {
+  enum SpeedUnit {
+    UNKNOWN = 0;
+    KPH = 1;
+    MPH = 2;
+  }
+  optional double distance = 1; // m
+  optional double min_speed_limit = 2; // legacy speed limit
+  optional double max_speed_limit = 3; // legacy speed limit
+  optional double max_camera_speed_limit = 4; // electronic eye speed limit
+  optional double max_advisory_speed_limit = 5;
+  optional SpeedUnit speed_unit = 6;
+  optional uint64 speed_id = 7;
+  optional HdLinkInfo.PriorityRoadClass road_class = 8;
+  optional HdLane.SpeedLimitSource speed_limit_source = 9;
+  optional HdLane.SpeedLimitSource advisory_speed_limit_source = 10;
+  optional HdLane.SpeedLimitSource camera_speed_limit_source = 11;
+  repeated HdLane.SpeedLimitChangeEvent speed_limit_change_events = 12;
+  // from PNC messages
+  optional uint32 speed_gp_type = 13;  // SDMap/HDMap/Camera
+  optional double recom_speed = 14;
+  optional uint32 recom_speed_src = 15;  // map/camera etc;
+  optional uint32 speed_conf = 16;       // camera confidence
+  optional int32 sup_sign_typ = 17;
+  optional int32 sup_sign_attr = 18;
+}
+
+message NaviSdMap {
+
+  message GPSLocation {
+    optional double longitude = 1;
+    optional double latitude = 2;
+    optional double altitude = 3;
+    optional double bearing = 4;
+  }
+
+  message HeartBeatInfo {
+    optional uint32 heart_beat = 1;
+
+    enum ReliableState {
+      RS_NONE = 0;
+      UNRELIABLE = 1;
+      UNRELIABLE_ROUTING = 2;
+      UNRELIABLE_YAWING = 3;
+      UNRELIABLE_SWITCHING = 4;
+      UNRELIABLE_UNKNOWN = 5;
+      UNRELIABLE_MAX = 6;
+      RELIABLE = 7;
+    }
+    optional ReliableState reliable_state = 2;
+
+    enum NavigationState {
+      NS_NONE = 0;
+      ROUTE_CRUISING = 1;
+      ROAMING = 2;
+      NAVIGATING = 3;
+    }
+    optional NavigationState navigation_state = 3;
+  }
+
+  message TurnInfo {
+    optional uint32 dist_to_first_turn = 1;
+    optional uint32 first_turn_info = 2;
+    optional uint32 dist_to_second_turn = 3;
+    optional uint32 second_turn_info = 4;
+  }
+
+  message LaneInfo {
+    optional string id = 1;
+    repeated uint32 lane_nr_info = 2;
+    optional uint32 dist_to_lane_info_guide = 4;
+  }
+
+  message MultiLaneInfo {
+    optional string id = 1;
+    repeated uint32 lane_nr_info = 2;
+    optional bool show = 3;
+    optional uint32 dist_to_lane_info_guide = 4;
+  }
+
+  // 红绿灯倒计时信息
+  message LightState {
+    // 类型, 1 红灯倒计时, 10 绿灯可通行，20 即将变红灯
+    optional int32 type = 1;
+    // 灯态开始时间戳，单位秒,1970,utc+8
+    optional uint64 stime = 2;
+    // 灯态结束时间戳，单位秒,1970,utc+8
+    optional uint64 etime = 3;
+
+    optional int32 countdown = 4;
+  }
+
+  message LightInfo {
+    // 等红绿灯轮数
+    optional uint64 wait_num = 1;
+    // 红绿指示方向，1 是左转，2 是右转，7是调头、8是直行
+    optional int32 direction = 2;
+    // 灯态，对应LightState
+    repeated LightState light_states = 3;
+    // 灯态列表
+    optional string desc = 4;
+  }
+
+  message TrafficLightCountdown {
+    // 路线ID
+    optional uint64 path_id = 1;
+    // 路况状态，1-极度拥堵，2-拥堵，3-拥堵+缓行， 4-缓行， 5-畅通
+    optional int32 status = 2;
+    // 所在linkID值
+    optional uint64 link_id = 3;
+    // segment导航段索引
+    optional uint64 segment_index = 4;
+    // link段索引
+    optional uint64 link_index = 5;
+    // 所在位置
+    optional GPSLocation position = 6;
+    // 实时灯态信息
+    optional LightInfo light_info = 7;
+
+    optional int32 distance = 8;
+  }
+
+  message NavMapLoc {
+    optional GPSLocation ego_loc_after_matching = 1;
+    optional float angle = 2;
+    optional int32 distance = 3;
+    optional string road_name = 4;
+    optional string used_road_name = 5;
+    optional string e_road_name = 6;
+    optional double link_length = 7;
+    optional uint64 link_id = 8;
+    optional int32 speed_limit = 9;
+    optional int32 match_state = 10;
+    //数据生成时时间戳，用于判断数据延迟
+    optional uint64 timestamp = 11;
+    //最后一次路线变更的时间戳
+    optional uint64 last_route_change_timestamp = 12;
+    //导航中路线变更的次数，每次变更加1.
+    optional int32 last_route_count = 13;
+    //当前自车所在link剩余的距离（单位米）
+    optional float link_remain_dist = 14;
+    //当前自车所在link index
+    optional int32 link_index = 15;
+    // -1 无效, 0 普通道路, 1 航道, 2 隧道, 3 桥梁, 4 高架路
+    optional int32 link_type = 16;
+    // 0 公共道路, 1 内部道路, 2 私有道路, 3 地下停车场道路, 4 立体停车场道路
+    optional int32 owner_ship = 17;
+
+    optional int32 road_class = 18;
+    repeated int32 formway = 19;
+  }
+
+  message NaviPosition {
+    optional string road_name = 1;
+    optional string nation = 4;
+    optional string province = 5;
+    optional string city = 6;
+    optional string area = 7;
+  }
+
+  message NavigationInfo {
+    optional HeartBeatInfo heart_beat_info = 1;
+    optional TurnInfo turn_info = 2;
+    optional LaneInfo lane_info = 3;
+    repeated MultiLaneInfo lane_info_list = 4;
+    repeated TrafficLightCountdown traffic_light_countdown_list = 5;
+    optional NavMapLoc nav_map_loc = 6;
+    optional TrafficLightCountdown current_traffic_light_countdown = 7;
+    optional NaviPosition navi_position = 8;
+  }
+
+  optional NavigationInfo navigation_info = 1;
+}
+
+message FenceODDList {
+  repeated FenceODD fence_odd_list = 1;
+  repeated SpeedLimit speed_limit_list = 2;
+
+  optional uint64 routing_timestamp = 3;
+  optional string routing_request_id = 4;
+  optional uint64 routing_link_index = 5;
+  optional uint64 routing_link_id = 6;
+
+  optional bool current_position_valid = 7;
+  optional double current_offset = 8;
+  optional double current_lateral_offset = 9;
+  optional uint64 current_routing_link_index = 10;
+  optional uint64 current_routing_link_id = 11;
+  optional double current_routing_link_offset = 12;
+  optional uint64 current_sd_link_index = 13;
+  optional uint64 current_sd_link_id = 14;
+  optional double current_sd_link_offset = 15;
+  optional uint64 current_hd_link_index = 16;
+  optional uint64 current_hd_link_id = 17;
+  optional double current_hd_link_offset = 18;
+
+  optional uint64 last_checked_sd_link_timestamp = 19;
+  optional uint64 last_checked_hd_link_timestamp = 20;
+
+  optional int32 nop_enable = 21;
+  optional int32 nad_enable = 22;
+  optional double routing_length = 23;
+
+  optional int32 force_open_sd = 24;
+
+  optional double current_localization_lon = 25;
+  optional double current_localization_lat = 26;
+  optional int32 current_routes_path_deviation = 27;
+
+  enum ODDType {
+    UNCLEAR = 0;
+    HIGHWAY = 1;
+    URBAN_PUBLIC_ROAD = 2;
+    POWER_SWAP = 3;  // only reserved, not fill in this type
+    PRIVATE_ROAD_1 = 4;
+    PRIVATE_ROAD_2 = 5;
+  }
+
+  optional ODDType map_loc_odd = 28;  // for planner arbitrition
+
+  // dc导航数据及路网数据
+  optional NaviSdMap navi_sd_map = 29;
+
+  optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin 
+  optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+  optional uint64 publish_ptp_ts = 536870907; // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909;  // uuid of the publisher
+  optional uint64 counter = 536870910;       // message counter
+  optional uint64 publish_ts = 536870911;    // publish utc timestamp; unit : nanosecond
+}
+

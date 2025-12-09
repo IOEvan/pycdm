@@ -1,0 +1,165 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+enum QfZeroAsVld_e{
+    QfVld   = 0;
+    QfInvld = 1; 
+}
+
+enum FuncActvSts_e{
+    Inactive   = 0;
+    Active     = 1; 
+}
+
+enum AdFunOnOffType_e{
+    AdFun_Off   = 0; //Off
+    AdFun_On    = 1; //On
+    AdFun_Rsrvd2= 2; //Reserved
+    AdFun_InVld = 3; //Invalid
+}
+
+
+enum TauGapType_e{
+    TauGap_0 = 0;       //tauGap_0 (1.0s)
+    TauGap_1 = 1;       //tauGap_1 (1.4s)
+    TauGap_2 = 2;       //tauGap_2 (1.8s) 
+    TauGap_3 = 3;       //tauGap_3 (2.2s) 
+    TauGap_4 = 4;       //tauGap_4 (2.6s) 
+    TauGap_Rsrvd5 = 5;  //Reserved
+    TauGap_Rsrvd6 = 6;  //Reserved
+    TauGap_Rsrvd7 = 7;  //Reserved
+}
+enum TauGapTypeStore_e{
+    TauGapStore_0 = 0;       //tauGap_0 (1.0s)
+    TauGapStore_1 = 1;       //tauGap_1 (1.4s)
+    TauGapStore_2 = 2;       //tauGap_2 (1.8s) 
+    TauGapStore_3 = 3;       //tauGap_3 (2.2s) 
+    TauGapStore_4 = 4;       //tauGap_4 (2.6s) 
+    TauGapStore_5 = 5;       //no stored tau gap
+    TauGapStore_Rsrvd6 = 6;  //Reserved
+    TauGapStore_Rsrvd7 = 7;  //Reserved
+}
+enum LnAssistAidType_e{
+    LnAssist_Off = 0;    //Off
+    LnAssist_LDW = 1;    //LDW
+    LnAssist_LKA = 2;    //LKA
+    LnAssist_LKS = 3;    //LKS
+    LnAssist_LDWLKA = 4; //LDW and LKA
+    LnAssist_LDWLKS = 5; //LDW and LKS
+    LnAssist_Rsrvd6 = 6; //Reserved
+    LnAssist_InVld  = 7; //Invalid
+}
+
+enum LnAssistSnvtyType_e{
+    LnAsSnvty_Low    = 0; //Low sensitivity
+    LnAsSnvty_Normal = 1; //Normal sensitivity
+    LnAsSnvty_High   = 2; //High sensitivity
+    LnAsSnvty_InVld  = 3; //Invalid
+}
+
+enum VLCStType_e{
+    LC_Off     = 0;  //ACC/NP both not available
+    LC_Psv     = 1;  //ACC/NP state System Passive
+    LC_Stdb    = 2;  //Longitudinal Control Standby
+    LC_Actv    = 3;  //Long. Cont. in active mode
+    LC_BrkOnly = 4;  //Long. Cont. in brake-only mode
+    LC_Ovrd    = 5;  //Long. Cont. in driver override
+    LC_Stst    = 6;  //Long. Cont. in standstill mode
+    LC_Failure   = 7;//Long. Cont. in failure mode
+}
+
+enum LkaStrSprtLvlType_e{
+    LkaSprtLvl_Light = 0;// Light steering force
+    LkaSprtLvl_Medium= 1;// Medium steering force
+    LkaSprtLvl_Strong= 2;// Strong steering force
+    LkaSprtLvl_InVld = 3;// Invalid
+}
+
+enum LatCtrlEngageType_e{
+    LatCtrlEngage_Auto   = 0;//Auto
+    LatCtrlEngage_Manual = 1;//Manual
+    LatCtrlEngage_Rsrvd2 = 2;//Reserved
+    LatCtrlEngage_InVld  = 3;//Invalid
+}
+
+enum PilotStrLvlType_e{
+    PilotStrLvl_Light  = 0; //Light lane centering support
+    PilotStrLvl_Medium = 1; //Medium lane centering support
+    PilotStrLvl_Strong = 2; //Strong lane centering support
+    PilotStrLvl_InVld  = 3; //Invalid
+}
+
+enum OAASetSts_e{
+    OAASetSts_Off    = 0;
+    OAASetSts_On     = 1;
+    OAASetSts_Early  = 2;
+    OAASetSts_Late   = 3;
+}
+
+enum Da_Inhibit_e{
+    DA_inhibit_no_inhibit = 0;
+    DA_inhibit_Attention_Demand = 1;
+    DA_inhibit_Takeover_Demand = 2;
+    DA_inhibit_Risk_Mitigation_Demand = 3;
+    DA_inhibit_Risk_Instant_Off = 4;
+}
+
+enum DA_TauGapOprtn_e{
+    NoChange   = 0;//no change in tau-gap
+    MinTauGap  = 1;//no change as already at minimum
+    TauGapDec  = 2;//tau-gap decreased
+    TauGapInc  = 3;//tau-gap increased
+    MaxTauGap  = 4;//no change as already at maximum
+}
+
+enum DA_SetSpdAnmt_e{
+    DASetSpdAnmt_None       = 0;//no animation
+    DASetSpdAnmt_Change     = 1;//speed change animation
+    DASetSpdAnmt_MinMax     = 2;//max./min. set-speed animation
+    DASetSpdAnmt_Reserved   = 3;//reserved
+}
+
+enum ButtonDisplay_e{
+    DontDisplay      = 0;
+    Display_Gray     = 1;
+    Display_Color    = 2; 
+    Display_Reserved = 3; 
+}
+
+enum DriverSteeringWheelPull_e{
+    DriverNotPulling                    = 0;
+    DriverPulling_Clockwise_Right       = 1;
+    DriverPulling_CounterClockwise_Left = 2;
+    DriverPulling_Reserved              = 3;
+}
+
+enum HODsymbol_e{
+    HODsymbol_HandsOn     = 0;//hands-on
+    HODsymbol_HandsOff    = 1;//hands-off, but no HOD symbol
+    HODsymbol_WhiteSymbol = 2;//white HOD symbol
+    HODsymbol_RedSymbol   = 3;//red HOD symbol
+}
+
+enum EASSts_e{
+    EAS_UnAvl         = 0;//unavailable
+    EAS_Standby       = 1;//standby
+    EAS_Active        = 2;//active
+    EAS_Failure       = 3;//Failure
+}
+
+enum EASWarnLevel_e{
+    EASWarnLevel_None       = 0;//no warning
+    EASWarnLevel_LV1        = 1;//warning level 1
+    EASWarnLevel_LV2        = 2;//warning level 2
+}
+
+enum ADCDoorLockReq_e{
+    ADCDoorLockReq_NoReq       = 0;//no request
+    ADCDoorLockReq_All_Unlock  = 1;//All door unlock
+    ADCDoorLockReq_All_Lock    = 2;//All door lock
+}
+
+

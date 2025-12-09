@@ -1,0 +1,203 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+import "np/apps/parking/par_lowspeed_map.proto";
+import "common/vehicle_in/veh_pt.proto";
+import "common/perception/vision_road_detection.proto";
+import "np/apps/parking/par_lowspeed_gridmap.proto";
+import "common/pnc/geometry.proto";
+
+
+message FamiliarRoadNaviTrajectory {
+
+  message Vector3d {
+    optional double x = 1;
+    optional double y = 2;
+    optional double z = 3;
+  }
+
+  message Quaternion {
+    optional double x = 1;
+    optional double y = 2;
+    optional double z = 3;
+    optional double w = 4;
+  }
+
+  message BoundaryInfo {
+    optional double width = 1;
+    optional bool is_recorded = 2;
+    optional LowSpeedGrid.GridType type = 3;
+    optional uint32 source = 4; // 0 | virtual edge;bit0 for vocc, bit1 for lidar, bit2 for uss, bit3 for roadedge
+                                // 1 | 0001: only vocc; 
+                                // 2 | 0010: only lidar; 
+                                // 3 | 0011: lidar & vocc; 
+                                // 4 | 0100: only uss;
+                                // 7 | 0111: uss & lidar & vocc
+                                // 8 | 1000: roadedge;
+  }
+
+  enum WayPointAttribute {
+    Attribute_Cruise = 0;  //巡航
+    Attribute_Parking = 1; //泊车
+    Attribute_Reserved1 = 2;
+    Attribute_Reserved2 = 3;
+    Attribute_Reserved3 = 4;
+  }
+
+  enum WayPointTurnLabel{
+    LABEL_UNKNOWN = 0;
+    LABEL_TURN = 1;           //转弯 小于150度转弯
+    LABEL_UTURN = 2;         //u型弯 大于150度小于225度转弯
+    LABEL_CIRCLE = 3;         //环岛或盘旋通道 大于225度转弯
+    LABEL_RESERVED1 = 4;
+    LABEL_RESERVED2 = 5;
+    LABEL_RESERVED3 = 6;
+  }
+
+  enum WayPointCorridorLabel{
+    CORRIDORLABEL_UNKNOWN = 0;
+    CORRIDORLABEL_NARROWCORRIDOR = 1; //宽度小于5米
+    CORRIDORLABEL_WIDECORRIDOR = 2;   //宽度大于5米
+    CORRIDORLABEL_BARRIERGATE = 3;    //闸机
+    CORRIDORLABEL_LEFTWALL = 4;       //左边是墙，通道窄时靠左行驶
+    CORRIDORLABEL_RIGHTWALL = 5;      //右边是墙，通道窄时靠右行驶
+    CORRIDORLABEL_CURB = 6;           //左右都是curb，居中行驶
+    CORRIDORLABEL_ENTRY = 7;
+    CORRIDORLABEL_EXIT = 8;
+  }
+
+  enum WayPointSlopeLabel{
+    SLOPELABEL_UNKNOWN = 0;
+    SLOPELABEL_UPHILL = 1;        //上坡
+    SLOPELABEL_DOWNHILL = 2;      //下坡
+    SLOPELABEL_FLAT = 3;          //平坦的
+    SLOPELABEL_BUMP = 4;          //减速带
+    SLOPELABEL_RESERVED1 = 5;
+    SLOPELABEL_RESERVED2 = 6;
+    SLOPELABEL_RESERVED3 = 7;
+  }
+
+  message WayPoint {
+    optional Vector3d pos = 1;
+    optional Quaternion quat = 2;
+    optional BoundaryInfo left_boundary = 3; //行点到左边障碍物的最小距离，如果当前没有赋值为最大值，10.0m
+    optional BoundaryInfo right_boundary = 4; //行点到右边障碍物的最小距离，如果当前没有赋值为最大值，10.0m
+    optional bool is_slope = 5; //是否在斜坡上
+    optional WayPointAttribute attribute = 6; //是否是泊车轨迹，有R档往前推20m，没有R档，p档20m范围内的第一个点往后都标记为在泊车
+    optional PtInfo.GearInfo.ActGear_e actgear = 7; //档位信息
+    optional double slope_pitch_rad = 8; // 车身相对于重力方向的pitch角，弧度表示
+    optional WayPointTurnLabel turn_label = 9;     
+    optional WayPointCorridorLabel corridor_label = 10;
+    optional WayPointSlopeLabel slope_label = 11;
+    optional double center_point_offset = 12; //值有正负，正往左偏移，负往右偏移,无法求解中心偏移时负无效值(double极大值)
+    optional int32 idx = 13; //行点的全局编号
+    optional uint32 entry_exit = 14;      //入口、出口标志位，0-invalid, 1-entry, 2-exit
+    repeated WayPointCorridorLabel corridor_labels = 15[deprecated=true];
+    optional uint32 split_point_status = 16;  //0-Unknown:无分叉，默认；1-CertainSplit:至少有2个大于10m(可标定)的分叉后继；2-UncertainSplit:1条小于10m，1条小于5m的分叉后继；
+  }
+
+  enum LineType {
+    Unknown = 0;
+    Lane_Line = 1;
+    Parking_Line = 2;
+    Low_Curb = 3;
+    Road_Edge = 4;
+    Type_Reserved2 = 5;
+    Type_Reserved3 = 6;
+  };
+
+  message LinePoint {
+    optional LineProperty.LDType line_style = 1;
+    optional LineProperty.LDColor color_type = 2;
+    optional LineType line_type = 3;
+    optional Vector3d point = 4;
+  }
+
+  message Boundary {
+    optional uint64 line_id = 1;
+    repeated LinePoint line_points = 2;
+  };
+
+  enum UserIntentionType{
+    INTENTION_TYPE_UNKNOWN = 0;
+    DRIVE_OUT_TO_TRANS_PT = 1;
+    DRIVE_OUT_TO_NAVI_DEST = 2;
+    DRIVE_IN_TO_TRANS_PT = 3;
+    DRIVE_IN_TO_LS_DEST = 4;
+  }
+
+  enum TrajLocMode{
+    MODE_UNKNOWN = 0;
+    MODE_SLAM = 1;
+    MODE_GLOBAL_LOC = 2;
+    MODE_RESERVED = 3;
+  }
+
+  message TrajGateMachine{
+    optional uint32 gate_machine_status = 1; // Unknown = 0;closed = 1;opening = 2;open = 3;closing = 4;
+    optional Vector3d pos = 2;
+    optional float heading = 3; // unit: rad
+    optional float length = 4; // unit:m
+    optional float width = 5; // unit:m
+    optional bool is_mo_detected = 6;
+    optional bool is_in_navi_traj = 7;
+  }
+
+  message TrajMetaInfo{
+    optional string traj_id = 1;     //路线ID
+    optional string slot_id = 2;      //常用车位ID
+    optional string user_id = 3;      //用户账户ID
+    optional Vector3f entry_position = 4;     //路线入口位置, GCJ02
+    optional Vector3f slot_position = 5;      //常用车位位置, GCJ02
+    optional Vector3f exit_position = 6;      //路线出口位置, GCJ02
+  }
+
+  message TrajMgtInfo{
+    repeated TrajMetaInfo traj_meta_info = 1;     //记忆路线的路线ID, 车位ID, 账户ID等信息，同步时可能有多个
+    optional bool traj_process = 2;      // 记忆路线保存提示发起,忆路线信息同步应答,记忆路线删除应答
+  }
+
+  //common for P2P & VLN/VLA
+  optional uint64 timestamp = 1;
+  repeated WayPoint local_waypoints = 2; //行点自车坐标系下坐标,范围-10~50m,最小间隔0.3m
+  optional bool is_valid = 3;            //用来判定是否有效，若无效，行点不赋值
+  repeated LowspeedLocalMap.ParkingArea reserved_parking_slots = 4; //推荐车位列表
+  repeated Boundary soft_boundarys = 5;                   //软边界
+  optional Vector3d location_offset = 6; //自车坐标系下的偏移，x轴向前，y轴向左
+  optional float one_click_return_dst  = 7; //全局剩余距离
+  optional bool navi_dest_match_park_entrance = 8; //导航目的地与记忆路线入口衔接点匹配标志位
+  optional bool exist_drive_out_route = 9; // 是否存在驶出路线
+  optional float dist_to_ls_trans_pt = 10; //自车与低速衔接点的距离
+  optional UserIntentionType user_intention_drive_in = 11;  //用户驶入意图
+  optional UserIntentionType user_intention_drive_out = 12; //用户驶出意图
+  optional TrajLocMode traj_loc_mode = 13; //轨迹定位模式
+  optional float dist_to_navi_dest = 14; //自车与导航终点的距离
+  repeated TrajGateMachine gate_machine = 15;
+
+  // 0:Idle, 1:drive_in_initial, 2:drive_in_memory, 3:drive_in_trajectory_save, 4:drive_in_memory_reset, 5:drive_in_navigation_data_initial, 6:drive_in_navigation
+  // 7:drive_out_memory_initial, 8:drive_out_memory_A, 9:drive_out_memory_B, 10:drive_out_memory_extend_A, 11:drive_out_memory_extend_B, 12:drive_out_trajectory_save, 13:drive_out_navigation_initial, 14:drive_out_navigation_data_initial, 15:drive_out_navigation
+  optional uint32 cruise_state_machine = 16; //记忆/导航/泊入/泊出 状态机
+
+  optional Vector3d map_location = 17;  //自车在记忆图中的位置
+  optional Quaternion map_quat = 18;    //自车在记忆图中的姿态
+  optional float dist_to_ls_trans_exp_pt = 19;  //自车与外拓低速衔接点的距离
+
+  //P2P与DC交互的信息
+  optional TrajMetaInfo cur_traj_info = 101;      //当前匹配的记忆路线信息
+  optional uint32 p2p_dist_to_drive_finish = 102;     //驶入或驶出剩余行驶距离，unit: m
+  optional TrajMgtInfo traj_record_req = 103;      //记忆路线保存提示发起
+  optional TrajMgtInfo traj_sync_resp = 104;     //记忆路线信息同步应答
+  optional TrajMgtInfo traj_del_resp = 105;      //记忆路线删除应答
+
+  //VLN/VLA specific
+  optional uint32 park_out_turn_info = 201;     //0-Invalid, 1-Turn Left, 2-Turn Right, 3-Turn Forward, 4-Turn Backward
+  
+  optional SensorTSHeader sensor_original_ts = 536870906; // sensor original ts
+  optional string publisher_id = 536870909;      // uuid of the publisher
+  optional uint64 publish_ptp_ts = 536870907;    // publish ptp timestamp, uint in nanosec
+  optional uint64 counter = 536870910;           // message counter
+  optional uint64 publish_ts = 536870911;        // publish timestamp; unit : nanosecond
+}

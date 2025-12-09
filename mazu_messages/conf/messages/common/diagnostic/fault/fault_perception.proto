@@ -1,0 +1,118 @@
+syntax = "proto2"; 
+option cc_enable_arenas = true;
+       
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message PerceptionFaultInfo {// Detected by AA
+    optional SensorInputFaultInfo sensor_input_fault_info = 1; // sensor input error fault
+    optional CalibrationFaultInfo calibration_fault_info = 2; //calibration fault
+    optional MapFaultInfo map_fault_info = 3; // map fault
+    optional AppInternalFaultResult nop_plus_internal_fault = 4; //nop app internal fault
+    optional AppInternalFaultResult da_internal_fault = 5; //da app internal fault
+    optional AppInternalFaultResult aeb_internal_fault = 6; //aeb app internal fault
+    optional AppInternalFaultResult elk_internal_fault = 7; //elk app internal fault
+    optional AppInternalFaultResult lka_internal_fault = 8; //lka app internal fault
+    optional AppInternalFaultResult eas_internal_fault = 9; //eas app internal fault
+    optional AppInternalFaultResult psap_internal_fault = 10; //psap app internal fault
+    optional AppInternalFaultResult sapa_internal_fault = 11; //sapa app internal fault
+    optional AppInternalFaultResult psp_internal_fault = 12; //psp app internal fault
+    optional AppInternalFaultResult rps_internal_fault = 13; //rps app internal fault
+    optional bool TrafficLight_Error = 14;
+  
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;   // publish ptp timestamp, uint in nanosec
+    optional string publisher_id   = 536870909; // uuid of the publisher
+    optional uint64 counter        = 536870910;         // message counter
+    optional uint64 publish_ts     = 536870911;    // publish utc timestamp; unit : nanosecond
+  }
+
+message SensorInputFaultInfo{
+    optional bool APP_IMU_InputMsg_OrderError = 1;
+    optional bool APP_IMU_PTPTimeStamp_RollBackError = 2;
+    optional bool APP_IMU_PTPTimeStamp_LatencyError = 3;
+    optional bool APP_FrontLidar_InputTimeStamp_Error = 4;
+    optional bool APP_WhlInfosCAN_InputTimeStamp_RollBackError = 5;
+    optional bool APP_FW_Camera_DataInput_Error = 6;
+    optional bool APP_FN_Camera_DataInput_Error = 7;
+    optional bool APP_FL_Camera_DataInput_Error = 8;
+    optional bool APP_FR_Camera_DataInput_Error = 9;
+    optional bool APP_RL_Camera_DataInput_Error = 10;
+    optional bool APP_RR_Camera_DataInput_Error = 11;
+    optional bool APP_SVC_LEFT_Camera_DataInput_Error = 12;
+    optional bool APP_SVC_RIGHT_Camera_DataInput_Error = 13;
+    optional bool APP_SVC_FRONT_Camera_DataInput_Error = 14;
+    optional bool APP_SVC_REAR_Camera_DataInput_Error = 15;
+    optional bool APP_RN_Camera_DataInput_Error = 16;
+    optional bool APP_IMU_DataInput_Error = 17;
+    optional bool APP_RTK_DataInput_Error = 18;
+    optional bool APP_VehicleCAN_DataInput_Error = 19;
+    optional bool APP_LIDAR_DataInput_E2E_Error = 20;
+    optional bool APP_LIDAR_ProcessResultInput_Error = 21;
+    optional bool APP_IMU_PowerOn_SelfTest_ERR = 22;
+    optional bool APP_IMU_Cycle_SelfTest_ERR = 23;
+    optional bool APP_IMU_Hw_Temporary_ERR = 24;
+    optional bool APP_IMU_Hw_Perpetual_ERR = 25;
+    optional bool APP_IMU_PlausibilityCheck_ERR = 26;
+    optional bool Lidar_Abnormal_Status = 27;
+
+    // 0: no fault, 1: has fault;
+}
+
+message CalibrationFaultInfo{
+    optional bool APP_FW_Camera_Calibration_Calibration_Error = 1;
+    optional bool APP_FN_Camera_Calibration_Calibration_Error = 2;
+    optional bool APP_FL_Camera_Calibration_Calibration_Error = 3;
+    optional bool APP_FR_Camera_Calibration_Calibration_Error = 4;
+    optional bool APP_RL_Camera_Calibration_Calibration_Error = 5;
+    optional bool APP_RR_Camera_Calibration_Calibration_Error = 6;
+    optional bool APP_SVC_LEFT_Calibration_Calibration_Error = 7;
+    optional bool APP_SVC_RIGHT_Calibration_Calibration_Error = 8;
+    optional bool APP_SVC_FRONT_Calibration_Calibration_Error = 9;
+    optional bool APP_SVC_REAR_Calibration_Calibration_Error = 10;
+    optional bool APP_RN_Camera_Calibration_Calibration_Error = 11;
+    optional bool APP_FW_Camera_Calibration_File_Read_Error = 12;
+    optional bool APP_FN_Camera_Calibration_File_Read_Error = 13;
+    optional bool APP_FL_Camera_Calibration_File_Read_Error = 14;
+    optional bool APP_FR_Camera_Calibration_File_Read_Error = 15;
+    optional bool APP_RL_Camera_Calibration_File_Read_Error = 16;
+    optional bool APP_RR_Camera_Calibration_File_Read_Error = 17;
+    optional bool APP_SVC_LEFT_Calibration_File_Read_Error = 18;
+    optional bool APP_SVC_RIGHT_Calibration_File_Read_Error = 19;
+    optional bool APP_SVC_FRONT_Calibration_File_Read_Error = 20;
+    optional bool APP_SVC_REAR_Calibration_File_Read_Error = 21;
+    optional bool APP_RN_Camera_Calibration_File_Read_Error = 22;
+    optional bool APP_Lidar_Calibration_Calibration_Error = 23;
+    optional bool APP_Lidar_Calibration_File_Read_Error = 24;
+    optional bool APP_IMU_Calibration_File_Read_Error = 25;
+    optional bool APP_IMU_Calibration_Calibration_Error = 26;
+    optional bool APP_Master_Antenna_Calibration_File_Read_Error = 27;
+    optional bool APP_Master_Antenna_Calibration_Calibration_Error = 28;
+    optional bool APP_Vehicle_Info_Calibration_File_Read_Error = 29;
+    optional bool APP_FW_Remap_Npz_Calibration_File_Read_Error = 30;
+    
+    // 0: no fault, 1: has fault;
+}
+
+message MapFaultInfo{
+    optional bool APP_HDMAP_SEARCH_ERROR = 1;
+    optional bool APP_HDMAP_PARSE_ERROR = 2;
+    optional bool APP_HDMAP_READFILE_ERROR = 3;
+    optional bool APP_HDMAP_DOWNLOAD_ERROR = 4;
+    optional bool APP_RTK_HDMAP_MATCH_ERROR = 5;
+
+    // 0: no fault, 1: has fault;
+}
+
+message AppInternalFaultResult {
+    optional bool Stop_Vehicle_Standstil              = 1;
+    optional bool Deactivate_Function                 = 2;
+    optional bool Lateral_Control_Suppression         = 3;
+    optional bool Longitudinal_Control_Suppression    = 4;
+    optional bool Lane_Change_Suppression             = 5;
+    optional bool Takeover_Warning                    = 6;
+    optional bool Attention_Warning                   = 7;
+    optional bool Insignificant                       = 8;
+}

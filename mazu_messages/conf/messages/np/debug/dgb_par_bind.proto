@@ -1,0 +1,223 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages.debug;
+// import "common/perf/sensor_ts_header.proto";
+
+message Bind_Input_Output_DebugOut{
+
+    enum TopicState{
+        kNotInit    = 0;
+        kFault      = 1;
+        kLossComm   = 2;
+    };
+
+    optional TopicState Input_VEH10ms_state = 1;
+    optional TopicState Input_VEH50ms_state = 2;
+    optional TopicState Input_SVCPerception_state = 3;
+    optional TopicState Input_ParkingControlSts_state = 4;
+    optional TopicState Input_SemanticMap_state = 5;
+    optional TopicState Input_ParFusedLocation_state = 6;
+
+    optional TopicState Output_ParkingOut_state = 7;
+    optional TopicState Output_StateMachine_state = 8;
+    optional TopicState Output_psapObjectInfo_state = 9;
+    optional TopicState Output_ParkingPerceptionCommand_state = 10;
+    optional bool Interface_is_publish_odom = 11;
+    optional bool Interface_is_publish_psap_result = 12;
+    optional bool Interface_is_publish_sapa_result = 13;
+}
+
+message Bind_PSAP_DebugOut{
+    optional uint32 Bitmask_off_to_standby = 1;
+    optional uint32 Bitmask_standby_to_localization = 2;
+    optional uint32 Bitmask_standby_to_localization_internal = 3;
+    optional uint32 Bitmask_search_on = 4;
+    optional uint32 Bitmask_search_on_fault = 5;
+    optional uint32 Bitmask_localization_to_preguidance = 6;
+    optional uint32 Bitmask_planning_status = 7;
+    optional uint32 Bitmask_preguidance_to_guidance_active = 8;
+    optional uint32 Bitmask_guidance_to_finish = 9;
+    optional uint32 Bitmask_control_finish = 10;
+    optional uint32 Bitmask_finish_to_standby = 11;
+    optional uint32 Bitmask_guidance_active_to_suspend = 12;
+    optional uint32 Bitmask_suspend_to_guidance_active = 13;
+    optional uint32 Bitmask_guidance_to_irr_abort = 14;
+    optional uint32 Bitmask_irr_abort_to_standby = 15;
+    optional uint32 Bitmask_guidance_to_takeover_abort = 16;
+    optional uint32 Bitmask_takeover_abort_to_standby = 17;
+    optional uint32 Bitmask_localization_to_takeover_abort = 18;
+    optional uint32 Bitmask_localization_to_standby = 19;
+    optional uint32 Bitmask_standby_to_fault = 20;
+    optional uint32 Bitmask_fault_to_standby = 21;
+    optional uint32 Bitmask_preguidance_to_localization = 22;
+    optional uint32 Bitmask_irr_abort_to_takeover_abort = 23;
+
+    optional uint32 Bitmask_IrrAbort_eps_fault = 24;
+    optional uint32 Bitmask_IrrAbort_service_system_fault = 25;
+    optional uint32 Bitmask_IrrAbort_none_fault = 26;
+    optional uint32 Bitmask_TakeoverAbort_service_system_fault_in_guidance = 27;
+    optional uint32 Bitmask_TakeoverAbort_eps_fault_in_localization = 28;
+    optional uint32 Bitmask_TakeoverAbort_service_system_fault_in_localization = 29;
+    optional uint32 Bitmask_TakeoverAbort_non_fault = 30;
+
+    optional uint32 abort_reason = 31;
+}
+
+message Bind_SAPA_DebugOut{
+    optional uint32 Bitmask_ParkIn_standby_to_search = 1;
+    optional uint32 Bitmask_ParkIn_search_to_standby = 2;
+    optional uint32 Bitmask_ParkIn_search_to_preguidance = 3;
+    optional uint32 Bitmask_ParkIn_preguidance_to_search = 4;
+    optional uint32 Bitmask_ParkIn_preguidance_to_guidance_active = 5;
+    optional uint32 Bitmask_ParkIn_guidance_active_to_suspend = 6;
+    optional uint32 Bitmask_ParkIn_suspend_to_guidance_active = 7;
+    optional uint32 Bitmask_ParkIn_guidance_active_to_finish = 8;
+    optional uint32 Bitmask_ParkIn_finish_to_standby = 9;
+    optional uint32 Bitmask_ParkIn_to_irr_abort = 10;
+    optional uint32 Bitmask_ParkIn_to_takeover_abort = 11;
+    optional uint32 Bitmask_ParkIn_irr_abort_to_takeover_abort = 12;
+    optional uint32 Bitmask_ParkIn_irr_abort_to_standby = 13;
+    optional uint32 Bitmask_ParkIn_takeover_abort_to_standby = 14;
+
+    optional uint32 Bitmask_RemoteParkIn_parkin_preguidance_to_remote_available = 15;
+    optional uint32 Bitmask_RemoteParkIn_remote_available_to_parkin_preguidance = 16;
+    optional uint32 Bitmask_RemoteParkIn_available_to_preguidance = 17;
+    optional uint32 Bitmask_RemoteParkIn_preguidance_to_guidance_active = 18;
+    optional uint32 Bitmask_RemoteParkIn_guidance_active_to_suspend = 19;
+    optional uint32 Bitmask_RemoteParkIn_suspend_to_guidance_active = 20;
+    optional uint32 Bitmask_RemoteParkIn_guidance_active_to_finish = 21;
+
+    optional uint32 Bitmask_ParkOut_standby_to_search = 22;
+    optional uint32 Bitmask_ParkOut_search_to_standby = 23;
+    optional uint32 Bitmask_ParkOut_search_to_preguidance = 24;
+    optional uint32 Bitmask_ParkOut_preguidance_to_search = 25;
+    optional uint32 Bitmask_ParkOut_preguidance_to_guidance_active = 26;
+    optional uint32 Bitmask_ParkOut_guidance_active_to_suspend = 27;
+    optional uint32 Bitmask_ParkOut_suspend_to_guidance_active = 28;
+    optional uint32 Bitmask_ParkOut_guidance_active_to_finish = 29;
+    optional uint32 Bitmask_ParkOut_finish_to_standby = 30;
+    optional uint32 Bitmask_ParkOut_to_irr_abort = 31;
+    optional uint32 Bitmask_ParkOut_to_takeover_abort = 32;
+    optional uint32 Bitmask_ParkOut_irr_abort_to_takeover_abort = 33;
+    optional uint32 Bitmask_ParkOut_irr_abort_to_standby = 34;
+    optional uint32 Bitmask_ParkOut_takeover_abort_to_standby = 35;
+
+    optional uint32 Bitmask_RemoteParkOut_standby_to_search = 36;
+    optional uint32 Bitmask_RemoteParkOut_search_to_standby = 37;
+    optional uint32 Bitmask_RemoteParkOut_search_to_preguidance = 38;
+    optional uint32 Bitmask_RemoteParkOut_preguidance_to_search = 39;
+    optional uint32 Bitmask_RemoteParkOut_preguidance_to_guidance_active = 40;
+    optional uint32 Bitmask_RemoteParkOut_guidance_active_to_suspend = 41;
+    optional uint32 Bitmask_RemoteParkOut_suspend_to_guidance_active = 42;
+    optional uint32 Bitmask_RemoteParkOut_guidance_active_to_finish = 43;
+    optional uint32 Bitmask_RemoteParkOut_finish_to_standby = 44;
+    optional uint32 Bitmask_RemoteParkOut_to_irr_abort = 45;
+    optional uint32 Bitmask_RemoteParkOut_to_takeover_abort = 46;
+    optional uint32 Bitmask_RemoteParkOut_irr_abort_to_takeover_abort = 47;
+    optional uint32 Bitmask_RemoteParkOut_irr_abort_to_standby = 48;
+    optional uint32 Bitmask_RemoteParkOut_takeover_abort_to_standby = 49;
+
+    optional uint32 Bitmask_IrrAbort_eps_fault = 50;
+    optional uint32 Bitmask_IrrAbort_service_system_fault = 51;
+    optional uint32 Bitmask_IrrAbort_none_fault = 52;
+    optional uint32 Bitmask_TakeoverAbort_eps_fault = 53;
+    optional uint32 Bitmask_TakeoverAbort_service_system_fault = 54;
+    optional uint32 Bitmask_TakeoverAbort_non_fault = 55;
+
+    optional uint32 abort_reason = 56;
+    optional uint64 Bitmask_fault1= 57;
+    optional uint64 Bitmask_fault2= 58;
+    optional uint64 Bitmask_fault3= 59;
+    optional uint64 Bitmask_fault4= 60;
+    optional uint64 Bitmask_fault5= 61;
+    optional uint64 Bitmask_fault6= 62;
+    optional uint64 Bitmask_fault7= 63;
+    optional uint64 Bitmask_fault8= 64;
+    optional uint64 Bitmask_fault9= 65;
+
+}
+
+message Bind_App_DebugOut{
+    optional bool App_check_validity = 1;
+    optional bool App_is_psap_override = 2;
+    optional bool App_is_sapa_override = 3;
+    optional uint32 App_running_feature_type = 4;
+}
+
+message ParBind_Reserved{
+    optional double reserved_0    =  1;
+    optional double reserved_1    =  2;
+    optional double reserved_2    =  3;
+    optional double reserved_3    =  4;
+    optional double reserved_4    =  5;
+    optional double reserved_5    =  6;
+    optional double reserved_6    =  7;
+    optional double reserved_7    =  8;
+    optional double reserved_8    =  9;
+    optional double reserved_9    =  10;
+    optional double reserved_10   =  11;
+    optional double reserved_11   =  12;
+    optional double reserved_12   =  13;
+    optional double reserved_13   =  14;
+    optional double reserved_14   =  15;
+    optional double reserved_15   =  16;
+    optional double reserved_16   =  17;
+    optional double reserved_17   =  18;
+    optional double reserved_18   =  19;
+    optional double reserved_19   =  20;
+    optional double reserved_20   =  21;
+    optional double reserved_21   =  22;
+    optional double reserved_22   =  23;
+    optional double reserved_23   =  24;
+    optional double reserved_24   =  25;
+    optional double reserved_25   =  26;
+    optional double reserved_26   =  27;
+    optional double reserved_27   =  28;
+    optional double reserved_28   =  29;
+    optional double reserved_29   =  30;
+    optional int32 reserved_30    =  31;
+    optional int32 reserved_31    =  32;
+    optional int32 reserved_32    =  33;
+    optional int32 reserved_33    =  34;
+    optional int32 reserved_34    =  35;
+    optional int32 reserved_35    =  36;
+    optional int32 reserved_36    =  37;
+    optional int32 reserved_37    =  38;
+    optional int32 reserved_38    =  39;
+    optional int32 reserved_39    =  40;
+    optional int32 reserved_40    =  41;
+    optional int32 reserved_41    =  42;
+    optional int32 reserved_42    =  43;
+    optional int32 reserved_43    =  44;
+    optional int32 reserved_44    =  45;
+    optional int32 reserved_45    =  46;
+    optional int32 reserved_46    =  47;
+    optional int32 reserved_47    =  48;
+    optional int32 reserved_48    =  49;
+    optional int32 reserved_49    =  50;
+    optional int32 reserved_50    =  51;
+    optional int32 reserved_51    =  52;
+    optional int32 reserved_52    =  53;
+    optional int32 reserved_53    =  54;
+    optional int32 reserved_54    =  55;
+    optional int32 reserved_55    =  56;
+    optional int32 reserved_56    =  57;
+    optional int32 reserved_57    =  58;
+    optional int32 reserved_58    =  59;
+    optional int32 reserved_59    =  60;
+}
+
+message ParBindDebugOut{
+    optional Bind_Input_Output_DebugOut     input_debug_out         = 1;
+    optional Bind_PSAP_DebugOut             psap_debug_out          = 2;
+    optional Bind_SAPA_DebugOut             sapa_debug_out          = 3;
+    optional Bind_App_DebugOut              app_debug_out           = 4;
+    optional ParBind_Reserved               debug_reserved          = 5;
+
+    // optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909;   // uuid of the publisher
+    optional uint64 counter = 536870910;        // message counter
+    optional uint64 publish_ts = 536870911;     // publish utc timestamp; unit : nanosecond
+}

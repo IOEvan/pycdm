@@ -1,0 +1,63 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+
+// front guradrails (left or right) are detected and fused by front radar MRR3's detection only;
+// reference enum table for barrier_conf;
+enum BarrierConfidence {
+  BARRIER_CONFIDENCE_NONE = 0;
+  BARRIER_CONFIDENCE_LOW = 1;
+  BARRIER_CONFIDENCE_MEDIUM = 2;
+  BARRIER_CONFIDENCE_HIGH = 3;
+}
+
+message LeftFrontGuardRails {
+  required float left_front_c0 = 1;
+  required float left_front_c1 = 2;
+  required float left_front_heading = 3;
+  required float left_front_offset = 4;
+  required uint32 barrier_conf = 5;         // Change type to uint32; refer to "enum BarrierConfidence" for values;
+  required float left_front_start_distance = 6;
+  required float left_front_end_distance = 7;
+}
+
+message RightFrontGuardRails {
+  required float right_front_c0 = 1;
+  required float right_front_c1 = 2;
+  required float right_front_heading = 3;
+  required float right_front_offset = 4;
+  required uint32 barrier_conf = 5;         // Change type to uint32; refer to "enum BarrierConfidence" for values;
+  required float right_front_start_distance = 6;
+  required float right_front_end_distance = 7;
+}
+
+// Left back barriers are fused by only using left rear radar detections;
+message LeftBackBarriers {
+  required float left_back_c0 = 1;
+  required float left_back_c1 = 2;
+  required float left_back_c2 = 3;
+  required float left_back_c3 = 4;
+  required uint32 barrier_conf = 5;         // Change type to uint32; refer to "enum BarrierConfidence" for values;
+  required float left_back_start_distance = 6;
+  required float left_back_end_distance = 7;
+}
+
+// Right back barriers are fused by only using right rear radar detections;
+message RightBackBarriers {
+  required float right_back_c0 = 1;
+  required float right_back_c1 = 2;
+  required float right_back_c2 = 3;
+  required float right_back_c3 = 4;
+  required uint32 barrier_conf = 5;          // Change type to uint32; refer to "enum BarrierConfidence" for values;
+  required float right_back_start_distance = 6;
+  required float right_back_end_distance = 7;
+}
+
+message RoadBoundary {                               // Refer to Chapter 3.5 for detailed information on these signals;
+  required LeftFrontGuardRails left_guard = 1;
+  required RightFrontGuardRails right_guard = 2;
+  required LeftBackBarriers left_barr = 3;
+  required RightBackBarriers right_barr = 4;
+}

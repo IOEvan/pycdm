@@ -1,0 +1,70 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+import "common/perception/svc_base.proto";
+
+message PSAPSlot{
+  optional SVCPoint pt1 = 1;
+  optional SVCPoint pt2 = 2;
+  optional SVCPoint pt3 = 3;
+  optional SVCPoint pt4 = 4;
+  optional SVCPoint veh_pos = 5;
+  optional float veh_psi = 6; //Yaw angle of vehicle w.r.t detected slot
+  optional int32 slot_status = 7;  //should be non-zero, if slot detected
+}
+
+message PSAPObject{
+  enum PSAPObjectType{
+    TYPE_NONE = 0;
+    TYPE_LANE = 1;
+    TYPE_DOUBLE_ARROW = 2;
+    TYPE_LOGO = 3;
+    TYPE_LSHAPE = 4;
+    TYPE_TAG = 5;
+    TYPE_VSLOT = 6;
+    TYPE_RESERVED1 = 7;
+    TYPE_RESERVED2 = 8;
+    TYPE_RESERVED3 = 9;
+  }
+  optional PSAPObjectType obj_type = 1 [default = TYPE_NONE];
+  optional SVCPoint pt1 = 2;
+  optional SVCPoint pt2 = 3;
+  optional SVCPoint pt3 = 4;
+  optional SVCPoint pt4 = 5;
+  optional int32 marker_id = 6;     //should be non-zero, if obj detected
+}
+
+message PSAPResult{
+  optional uint64 timestamp = 1;//Timestamp_Receive_Image
+  repeated PSAPObject objects = 2; //max to 40
+  optional SVCPoint veh_loc = 3;
+  optional float veh_loc_z = 4;
+  optional SVCOrientation veh_orientation = 5;
+  optional bool veh_loc_valid =6;    //should be true if send veh_loc
+  optional PSAPSlot slot= 7;
+  enum PSAPRefCoordinateType{
+    COOR_TYPE_NONE = 0;
+    COOR_TYPE_RAMP = 1;      // at corner of ramp on the ground
+    COOR_TYPE_VSLOT = 2;     // at corner of V slot on the platform
+    COOR_TYPE_RESERVED = 3; // reserved coordinate
+  }
+  optional PSAPRefCoordinateType coordinate_type = 8;
+  optional float reproject_err = 9; // total reproject error
+  enum LocateStatus {
+    STATUS_UNKONWN = 0;
+    STATUS_NORMAL = 1;
+    STATUS_INITIALIZING = 2;
+    STATUS_VISION_LOSS = 3;
+    STATUS_CAM_EXTRINSIC_ABNORMAL = 4;
+    STATUS_OTHER = 5;
+  }
+  optional LocateStatus locate_status = 10;
+  message VisionObserveInfo {
+    optional int32 cam_id = 1;
+    optional int32 obs_point_num = 2;
+    optional float err = 3; // observe error for each camera, for camera extrinsic checking
+  }
+  repeated VisionObserveInfo vision_observe_info = 11;
+}

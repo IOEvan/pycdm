@@ -1,0 +1,32 @@
+syntax = "proto2"; 
+option cc_enable_arenas = true;
+       
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message SOCsFaultInfo{// Detected by FW
+        optional SOCMountFaultInfo s1_mount_fault_info = 1;
+        optional SOCMountFaultInfo s2_mount_fault_info = 2;
+        optional SOCMountFaultInfo s3_mount_fault_info = 3;
+        optional SOCMountFaultInfo s4_mount_fault_info = 4;         
+        
+        optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+        optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+        optional uint64 publish_ptp_ts = 536870907;   // publish ptp timestamp, uint in nanosec
+        optional string publisher_id   = 536870909; // uuid of the publisher
+        optional uint64 counter        = 536870910;         // message counter
+        optional uint64 publish_ts     = 536870911;    // publish utc timestamp; unit : nanosecond
+
+} 
+
+message SOCMountFaultInfo{
+        optional bool ufs_nio_mount_fail              = 1;
+        optional bool ufs_mnt_flash_mount_fail        = 2;
+        optional bool ufs_mnt_data_mount_fail         = 3;
+        optional bool ufs_mnt_model_mount_fail        = 4;
+        optional bool ufs_mnt_user_private_mount_fail = 5;
+        optional bool ufs_rootfs_mount_fail           = 6;
+
+        // 0: no fault, 1: has fault;        
+}

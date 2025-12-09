@@ -1,0 +1,1159 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+import "common/perception/tld_raw.proto";
+import "common/map_engine/fence_odd_list.proto";
+import "common/perception/nav_input.proto";
+
+message MannerPoint_3D {
+  optional float Point_x = 1;
+  optional float Point_y = 2;
+  optional float Point_z = 3;
+  optional float Point_Score = 4;
+}
+
+message CenterLine {
+  message PointProperty {
+    message Property {
+      enum Source {
+        UNDEFINED = 0;
+        ROAD_AREA = 1;
+        DYNAMIC_OD = 2;
+        CENTERLINE = 3;
+      }
+      
+      enum Type {
+        DEFAULT_POINT = 0; // use as low weight
+        TLD_STOP_POINT = 1;
+        ENTRANCE_GOAL_POINT = 2; // 与NaviGoalRegion配合，截面级别的强约束
+        FORBICAL_CENTER_POINT = 3; // 强制居中，点级别的强约束
+        CRUISE_CENTER_POINT = 4; 
+        LANE_CHANGE_POINT = 5;
+      }
+      
+      optional Source source = 1;
+      optional Type type = 2;
+    }
+      
+    repeated Property properties = 1;
+  }
+  
+  optional uint32 id = 1;     // id of centerline
+  repeated MannerPoint_3D points = 2;   // Geometric path points x,y,z. shape 3xN.
+                                  // the sequence of points is the dirction of the centerline.
+                                  // First point is not last point.
+  optional float confidence = 3;  // confidence of centerline
+  repeated PointProperty point_properties = 4; // same size with points, refer https://nio.feishu.cn/wiki/CcbmwrnyTieTVOkN4CtcA13gnWc
+}
+
+message OnRouteProperty {    
+  enum RouteDirection{    
+      Invalid = 0;
+      Route_Left = 1;
+      Route_Right = 2;
+  }
+
+  optional uint32 on_route_flag = 1; // 1 on route   0 not on route
+  optional RouteDirection  route_direction = 2;
+}
+
+message LaneBoundary {
+  optional uint32 id = 1; // boundary index id/track_id
+  repeated MannerPoint_3D points = 2;   // geometric path
+  message LinePointProperty {
+    enum LDType {
+        LDType_Unknown = 0;
+        LDType_Solid = 1;
+        LDType_Dash = 2;
+        LDType_Solid_Dash = 3;
+        LDType_Dash_Solid = 4;
+        LDType_Solid_Solid = 5;
+        LDType_Dash_Dash = 9;
+        LDType_Deceleration_Dash = 6;
+        LDType_Deceleration_Solid = 7;
+        LDType_Guide = 8;
+        // value from 0 - 9.
+        LDType_Serrate = 10;
+        LDType_Composite = 11;
+        LDType_Parking_Space_Entrace = 12;
+    }
+
+    enum LDColor {
+        LDColor_Unknown = 0;  // unavailable
+        LDColor_White = 1;
+        LDColor_Yellow = 2;
+        LDColor_Orange = 3;  // unavailable
+        LDColor_Blue = 4;    // unavailable
+        LDColor_Others = 5;
+        LDColor_Green = 6;
+        LDColor_Yellow_White = 7;
+        LDColor_White_Yellow = 8;
+    }
+    optional LDType LD_Type = 1;
+    optional LDColor LD_Color = 2;
+    optional uint32 LD_TypeConfidence = 3;
+    optional uint32 LD_ColorConfidence = 4;
+  }
+  repeated LinePointProperty properties = 3;  // Geometric path type and colors. 
+  repeated uint32 confidence = 4; // Geometric path confidence. shape P.
+                                  // Value range of confidence is (0 ~ 100)
+  optional float score = 5; // LaneBoundary score
+  optional OnRouteProperty on_route_property = 6;
+
+  
+}
+
+message SpecialPoint {
+  optional uint32 id = 1;
+  optional MannerPoint_3D point = 2;
+
+  enum LDSpecialPointType{
+        LDSpecialPointType_Unknown = 0;
+        LDSpecialPointType_Type = 1;
+        LDSpecialPointType_Color = 2;
+        LDSpecialPointType_Merge = 3;
+        LDSpecialPointType_Split = 4;
+  }
+  optional LDSpecialPointType special_point_types = 3;
+  repeated uint32 related_lane_boundary_ids = 4;   // bind to laneline
+  repeated uint32 related_lane_ids = 5;            // bind to centerline
+}
+
+message Lane {
+  optional uint32 id = 1; // lane index id/track_id
+  optional CenterLine centerline = 2;
+  optional uint32 left_boundary_id = 3; // boundary index id/track_id
+  optional uint32 right_boundary_id = 4; // boundary index id/track_id
+  enum LaneType {
+    VIR_LANE = 1;
+    MOTORWAY = 2;
+    BICYCLE_LANE = 3;
+    MIXED_LANE = 4;
+    MOTORCYCLE_LANE = 5;
+    LANE_SIDEWALK = 6;
+    VARIABLE_LANE = 7;
+    HOV_LANE = 8;
+    RIGHT_ACCE_LANE = 9;
+    RIGHT_DECE_LANE = 10;
+    LEFT_ACCE_LANE = 11;
+    LEFT_DECE_LANE = 12;
+    SPEED_CHANGE_LANE = 13;
+    TOLL_LANE = 14;
+    CHECKPOINT_LANE = 15;
+    BUS_LANE = 16;
+    CLIMBING_LANE = 17;
+    ROAD_SHOULDER = 18;
+    EMERGENCY_LANE = 19;
+    EMERGENCY_STOP_AREA = 20;
+    PARNKING_LANE = 21;
+    HAZARDOUS_LANE = 22;
+    CUSTOMS_SUPER_LANE = 23;
+    AVOID_LANE_APPRO = 24;
+    PASSING_TRACK = 25;
+    NON_DRIVING_ZONE = 26;
+    BORROWING_ZONE = 27;
+    TRAMCAR_LANE = 28;
+    ETC_LANE = 29;
+    BUS_HARBOR_LANE = 30;
+    SPECIAL_CAR_LANE = 31;
+    REVERSE_LANE = 32;
+    TURNING_WAITING_AREA = 33;  // 待转区
+    ROUNDABOUT_LANE = 34;     // 环岛车道
+    TIDAL_LANE = 35;          // 潮汐车道
+    OTHERS = 99;
+  }
+  optional LaneType lane_type = 5;
+  enum Turn {
+    INVALID = 0;
+    STRAIGHT = 1;
+    LEFT = 2;
+    RIGHT = 4;
+    U_TURN_LEFT = 8;
+    U_TURN_RIGHT = 16;
+    SKEW_LEFT = 32;
+    SKEW_RIGHT = 64;
+  }
+  repeated Turn turns = 6;
+  optional bool is_on_nav = 7; // true means this lane is on the nav direction
+  optional double maximum_limit_speed = 8;                 // for planner
+  // bellows speed-limit releated are for debuging
+  optional SpeedSource maximum_limit_speed_source = 9;     // 优先级: min(经验, 电子眼) > 法规 > 默认
+  repeated SpeedLimitElement maximum_limit_elements = 10;
+  optional float lane_type_confidence = 11;                // 车道类别置信度，范围[0 - 1]
+
+  enum Direction {
+    UNKNOWN = 0;
+    SAME_SIDE = 1;
+    OPPOSITE_SIDE = 2;
+  }
+  optional Direction direction = 12;
+
+  message SpeedLimitElement {
+    optional SpeedSource speed_source = 1;
+    optional double speed_limit = 2;
+  }
+
+  enum SpeedSource {
+    DEFAULT = 0;             // 所有限速值都缺失情况下,采用默认40
+    CAMERA = 1;              // 电子眼
+    ADVISORY = 2;            // 经验
+    LAW_AND_REGULATION = 3;  // 法规
+    DISPLAY_SET_SETSPEED = 4;// 用户设置
+    // scenario based speed limit
+    LANE_CHANGE = 10;        // 换道/防偏航减速
+    OCCLUSION = 11;          // 遮挡限速
+  }
+
+  repeated TimeLimitInfo time_limit_info = 13;  // 通行时段信息
+  optional uint32 time_limit_data = 14;         // 限行日期信息
+  optional float on_route_confidence = 15;      // centerline on route confidence
+
+  message TimeLimitInfo {
+    optional float time_limit_start_time_stamp = 1;  // 限行起始时间
+    optional float time_limit_end_time_stamp = 2;    // 限行结束时间
+  }
+}
+
+message LaneLink {
+  message Dis2Turn {
+    optional float dis = 1;    // distance as meter
+    optional Lane.Turn turn = 2;
+  }
+  optional uint32 id = 1; // track_id or index_id 
+  repeated uint32 lane_ids = 2; // The lane ids which related to this link. the sequence of lanes is the dirction of the link.
+  repeated MannerPoint_3D stop_points = 3; // the intersection of stoplines with lanelink gemotry
+  optional int32 lc_times = 4; // LC times with direction, positive if need left LC, negative if need right LC, and 0 if not need LC (means this nav_lane is the target one). 
+  repeated Dis2Turn turns = 6; // end distance of turn type to the corresponding turn type.
+  optional NavLaneSource source = 7;
+  optional PathSemantic path_semantic = 8;
+  optional float least_lc_dist = 9;
+  optional PathLCType path_lc_type = 10;
+  optional float passing_prob = 11;  // passing probability
+}
+
+message NaviPath {
+  message RefineInfo {
+    enum RefineSource {
+      CENTERLINE = 1;
+      GOAL_POINT = 2;
+      STATIC_COLLISION = 3;
+      REVERSE_SPACE = 4;
+      NONMOTOR_SPACE = 5;
+      BUS_LANE = 6;
+      TARGETLINE = 7;
+    }
+    repeated RefineSource refine_source = 1;
+  }
+  message LaneChangeInfo {
+    optional int32 lc_number = 1; // The number of lane changes
+  }
+
+  message PathDecisionInfo{
+
+    enum PathDecisionType {
+      AVOID = 1;
+      LANE_SELECT = 2;
+      NUDGE = 3;
+    }
+
+    repeated PathDecisionType path_decision_type = 1;
+
+    message PathAvoidInfo {
+      repeated uint32 relation_space_id = 1;
+    }
+
+    optional PathAvoidInfo path_avoid_info = 2;
+  }
+
+
+  optional uint32 id = 1; // track_id or index_id 
+  optional uint32 lane_id = 2; // The lane id which related to this path.
+  repeated MannerPoint_3D stop_points = 3; // the intersection of stoplines with path gemotry
+  optional PathSemantic path_semantic = 4;
+  optional float least_lc_dist = 5;
+  optional PathLCType path_lc_type = 6;
+  optional float score = 7;
+  optional uint32 source = 8;
+  optional uint32 source_id = 9;
+  optional RefineInfo refine_info = 10;
+  optional LaneChangeInfo lane_change_info = 11;
+  optional PathDecisionInfo path_decision_info = 12;
+}
+
+message NavLane {
+  optional uint32 id = 1;
+  repeated Lane nav_lane_segments = 2;
+}
+
+message MannerRoadedge {
+    optional uint32 id = 1;
+    enum MannerLDREClass{
+        LDREClass_Unknown = 0;
+        LDREClass_Cement_Block = 1; //指代固定矮路沿
+        LDREClass_Fence = 2; //指代固定高路沿
+        LDREClass_Cone=3;    //锥桶
+        LDREClass_Barrel=4;  //圆桶
+        LDREClass_Barrier=5; //水马
+        LDREClass_Parked_Vehicle=6;//deprecated
+        LDREClass_Parked_Cycle=7;//deprecated
+        LDREClass_Grass=8;//deprecated，草地
+        LDREClass_gravel=9;//deprecated，碎石
+        LDREClass_ShortPole=10;//deprecated
+        LDREClass_WallFlat=11; //deprecated，墙面
+        LDREClass_Other=12; //deprecated，其他固定类路沿
+    }
+    message RoadedgePointProperty {
+        optional MannerLDREClass LD_RE_Class = 1;  //point class
+    }
+    optional MannerLDREClass LDRE_Class = 2;//路沿细分类
+    repeated MannerPoint_3D points = 3; // geometric path
+    repeated RoadedgePointProperty properties = 4; 
+    optional float score = 5;
+    optional OnRouteProperty on_route_property = 6;
+}
+
+message MannerStopLine {
+    optional uint32 id = 1;
+    optional float Long_Dist_L = 2;
+    optional float Long_Dist_R = 3;
+    optional float Lat_Dist_L = 4;
+    optional float Lat_Dist_R = 5;
+    optional float confidence = 6;
+    repeated uint32 lane_ids = 7;
+    enum Type {
+      Unknown = 0;
+      Normal = 1;
+      WaitingZoneStopLine = 2;
+    }
+    optional Type type = 8;
+}
+
+message BevBox3D {
+    optional float x = 1;
+    optional float y = 2;
+    optional float z = 3;
+    optional float h = 4;
+    optional float w = 5;
+    optional float l = 6;
+    optional float alpha = 7; 
+}
+
+message WMStopline {
+  optional MannerPoint_3D stop_points = 1;
+  optional uint32 stopline_id = 2;
+}
+
+message TrafficLightJunction {
+  optional uint32 id = 1;
+  repeated VirtualTrafficLightStatus virtual_traffic_lights = 2;
+  repeated uint32 stopline_ids = 3;
+  repeated Panel panels = 4;
+  repeated MonoBox mono_boxes = 5;
+  optional TLDRawDLBObject tld_raw_dlb_buf = 6;
+  optional uint32 source = 7;
+  optional bool is_controlled_by_traffic_light = 8;
+  optional float distance_to_entry = 9;
+  optional uint32 trafficlight_info_source = 10;
+  repeated WMStopline wm_stoplines = 11;
+  optional PathSemantic path_semantic = 12;
+  optional TldCenter tld_center = 13;
+  optional uint32 binded_junction_id = 14;  // binded junction id, maybe from road_scene_area or manner scene_info
+
+  message TldCenter {
+    optional bool is_valid = 1;  // if false, you can ignore this TrafficLight
+    optional uint32 panel_id = 2; // if > 0, indicates related panel id, else maybe inferred by sd light
+    optional float x = 3;
+    optional float y = 4;
+  }
+
+  message MonoBox {
+      optional uint32 sensor_id = 1;  // refer https://ad-gitlab.nioint.com/ad/perception/engineering/internal/argus_post_common/-/blob/master/include/argus_post_common/data_structure/common/sensors.h
+      optional uint32 TLD_Status = 2; //0：亮 1：熄灭
+      optional float Width_2d = 3;//图像2d宽
+      optional float Height_2d = 4;//图像2d高
+      optional float Pos_x_2d = 5;//图像2d中心点
+      optional float Pos_y_2d = 6;//图像2d中心点
+      optional uint32 panel_id = 7;           // panel ids  
+      repeated Panel.BlubStatus blub_statuses = 8;     // 灯头属性: 非常规灯头可复用
+      optional float confidence = 9; // 检测框置信度 0～1
+      optional uint32 id = 10;
+      optional float depth = 11;
+      optional float theta = 12;
+  }
+
+  message VirtualTrafficLightStatus {
+    optional uint32 id = 1;
+    optional TLDirection direction = 2;
+    optional TLColor color = 3;
+    optional uint32 color_status = 4;        // 0 normal, 1 blink, 2 broken
+    repeated uint32 lane_ids = 5;            // all the lane ids corresponding to this vtl
+    optional uint32 occlusion_status = 6;    // occlusion status: 0 normal, 1 occluded by dynamic object
+    optional uint32 timer = 7;               // 65535 for undetected countdown  
+    repeated uint32 panel_ids = 8;           // panel ids
+    optional uint32 failure_status = 9;      // wti status: 0 normal
+    optional uint32 timer_progress = 10;     // for progress bar timer, 0: 不亮, 1: 1/4亮, 2: 2/4亮, 3: 3/4亮, 4: 4/4亮
+    optional uint32 has_direction_related_blub = 11;  // if direction is TLDIRECTION_LEFT_TURN, then 1 indicates has TLTYPE_LEFT Blub
+    optional uint32 is_virtual_countdown_valid = 12; // is duration valid
+    optional uint32 virtual_countdown_duration_time = 13; // green blink duration or yellow duration
+    repeated uint32 full_panel_ids = 14;     // panel ids given by e2e model
+    optional uint32 is_ped_timer_valid = 15;  // is pedestrain timer valid
+    optional uint32 ped_timer = 16;  // pedestrain timer
+    enum TLDirection {
+      TLDIRECTION_U_TURN = 0;
+      TLDIRECTION_LEFT_TURN = 1;
+      TLDIRECTION_STRAIGHT = 2;
+      TLDIRECTION_RIGHT_TURN = 3;
+    }
+  }
+
+  message Panel {
+    optional uint32 id = 1;
+    optional BevBox3D bev_box = 2;         // 灯框3D
+    repeated BlubStatus blub_statuses = 3;     // 灯头属性: 非常规灯头可复用
+    optional uint32 tl_usage = 4;              // 灯框属性: 0 normal, 1 bus, 2 vru
+    optional uint32 color_status = 5;          // 灯框亮灯状态: 0 normal, 1 broken
+    optional uint32 occlusion_status = 6;      // 灯框遮挡状态: 0 normal, 1 occluded by dynamic object
+    optional float confidence = 7; // 检测置信度 0～1
+    repeated int32 associate_mono3d_ids = 8;  // 关联Mono框ID
+    
+    message BlubStatus {
+      optional uint32 id = 1;
+      optional TLType type = 2;          // 灯头形状
+      optional TLColor color = 3;        // 灯头颜色
+      optional uint32 timer = 4;         // 倒计时数字,65535为默认无效值
+      optional uint32 color_status = 5;  // 颜色状态, 0 normal, 1 blink, 2 broken
+      optional uint32 timer_progress = 6;  // 进度条数字, 0: 不亮, 1: 1/4亮, 2: 2/4亮, 3: 3/4亮, 4: 4/4亮
+      optional float type_confidence = 7; // 灯头形状置信度 0～1
+      optional float color_confidence = 8; // 灯头颜色置信度 0～1
+      optional float timer_confidence = 9; // 倒计时置信度 0～1
+      repeated float type_confidence_distribution = 10; // 灯头形状置信度分布 num_type * 0～1
+      repeated float color_confidence_distribution = 11; // 灯头颜色置信度分布 num_color * 0~1
+      repeated float timer_confidence_distribution = 12; // 倒计时置信度分布 num_timer * 0～1
+    }
+  }
+  enum TLColor{
+    TLCOLOR_UNKNOWN = 0;
+    TLCOLOR_RED = 1;
+    TLCOLOR_YELLOW = 2;
+    TLCOLOR_GREEN = 3;
+    TLCOLOR_GRAY = 4;
+  }
+
+  enum TLType {
+    TLTYPE_UNKNOWN = 0;
+    TLTYPE_CIRCLE = 1;
+    TLTYPE_LEFT = 2;
+    TLTYPE_RIGHT = 3;
+    TLTYPE_UP = 4;
+    TLTYPE_U_TURN = 5;
+    TLTYPE_PEDESTRIAN = 6;
+    TLTYPE_BICYCLE = 7;
+    TLTYPE_DOWN = 8;          // 下箭头
+    TLTYPE_TIMER = 9;         // 倒计时
+    TLTYPE_FORBID = 10;       // 红叉
+    TLTYPE_BUS = 11;          // 公交
+    TLTYPE_LEFT_UTURN = 12;   // 左转+掉头
+    TLTYPE_PROGRESS_BAR = 13; // 进度条
+    TLTYPE_OTHERS = 14;
+  }
+}
+
+message MannerTrafficSign {
+  optional uint32 id = 1;
+  optional TSType type = 2;            // type
+  optional float type_conf = 3;        // type confidence
+  optional float value = 4;            // 限速或限重值等
+  optional float value_conf = 5;       // 限速或限重值置信度
+  optional MannerPoint_3D ts_position = 6;   // 3d position of ts
+  optional float confidence = 7;       // 整体置信度
+  repeated uint32 lane_ids = 8;        // 绑定的车道ID
+
+  enum TSType {
+    TSType_Unknown = 0;
+    TSType_Numerical_LimitSpd_Max = 101;
+    TSType_Numerical_LimitSpd_Min = 102;
+    TSType_Numerical_Limit_Weight = 103;
+    TSType_Numerical_Limit_Width = 104;
+    TSType_Numerical_Limit_Height = 105;
+    TSType_Numerical_Limit_Zones = 106;
+    reserved 107;
+    TSType_Numerical_LimitCity_Max = 108;
+    TSType_Numerical_LimitSpd_Max_Denmark = 111; //丹麦特殊最高限速
+    TSType_Numerical_LimitSpd_Max_With_Arabic_Uae = 121;  //uae带有阿拉伯标识的限速牌
+    TSType_Numerical_LimitSpd_Max_With_Car_Vehicle_Uae = 122; //uae带有轿车标识的限速牌
+    TSType_Numerical_LimitSpd_Max_With_Two_Vehicle_Uae = 123; //uae双层限速牌
+    TSType_Numerical_LimitSpd_Max_With_Other_Vehicle_Uae = 124; //uae非轿车标识的限速牌
+    TSType_Numerical_LimitSpd_Cancel = 201;
+    TSType_General_LimitSpd_Cancel = 202;
+    TSType_Numerical_LimitZones_Cancel= 203;
+    TSType_Numerical_LimitCity_Cancel = 204;
+    TSType_Highway_Motorway_Entry = 211;
+    TSType_Highway_Motorway_Exit = 212;
+    TSType_Numerical_LimitSpd_Cancel_Denmark = 221; //丹麦特殊最高限速取消
+    TSType_Forbid_Temp_Parking = 301;
+    TSType_Forbid_Parking = 302;
+    TSType_Forbid_Vehicle_Except_Motorcycle = 306; //禁机动车驶入
+    TSType_Forbid_Straight =311;
+    TSType_Forbid_Left =312;
+    TSType_Forbid_Right =313;
+    TSType_Forbid_Left_Right = 314;
+    TSType_Forbid_Straight_Left = 315;
+    TSType_Forbid_Straight_Right = 316;
+    TSType_Forbid_Entry_veh = 322;
+    TSType_Forbid_Honking = 323;
+    TSType_Forbid_Around =324;
+    TSType_Forbid_Stop_Sign = 341; // 停车让行
+    TSType_Forbid_Oncomimg_T = 342;
+    TSType_Forbid_Oncomimg_S = 343;
+    TSType_Forbid_Yield_Sign =344; // 减速让行
+    TSType_Forbid_Overtake =351; //禁止超车
+    TSType_Forbid_Overtake_Cancel =352; // 取消禁止超车
+    TSType_Forbid_Entry = 361;// 禁止驶入
+    TSType_Warning_Pedestrian = 501;
+    TSType_Warning_School = 502;
+    TSType_Warning_Tunnel = 503;
+    TSType_Warning_Danger = 504;
+    TSType_Warning_Roadworks =511; //施工场景
+    TSType_Warning_Fallingrocks_left = 512;
+    TSType_Warning_Fallingrocks_Right = 513;
+    TSType_Warning_Crossroads = 521;
+    TSType_Warning_Junction_T = 522;
+    TSType_Warning_Junction_Left = 523;
+    TSType_Warning_Junction_Right = 524;
+    TSType_Warning_Curve2_Right = 526;
+    TSType_Warning_Curve2_Left = 527;
+    TSType_Warning_Curve_N = 528;
+    TSType_Warning_Slippery = 531;
+    TSType_Warning_Narrows_Both = 532;
+    TSType_Warning_Narrows_Right = 533;
+    TSType_Warning_Narrows_Left = 534;
+    TSType_Warning_Merging_Right = 535;
+    TSType_Warning_Merging_Left = 536;
+    TSType_Warning_Lane_Close_Right = 537;
+    TSType_Warning_Lane_Close_Left = 538;
+    TSType_Warning_Lane_Change_Right = 539;
+    TSType_Warning_Lane_Change_Left = 540;
+    TSType_Warning_Lane_Change_Both = 541;
+    TSType_Warning_Detour_Left = 542;
+    TSType_Warning_Detour_Right = 543;
+    TSType_Warning_Detour_LR = 544;
+    TSType_Warning_Slow = 545;
+    TSType_Warning_Escape_Lane = 546;
+    TSType_Warning_Rain = 551;
+    TSType_Warning_Snow = 552;
+    TSType_Warning_Fog = 553;
+    TSType_Warning_Thunderstorm = 554;
+    TSType_Warning_Reversible_Lane =555;
+
+    TSType_Direct_Left_Only = 601;
+    TSType_Direct_Right_Only = 602;
+    TSType_Direct_Straight_Only = 603;
+    TSType_Direct_Right_Left = 604;
+    TSType_Direct_Around =605;
+    TSType_Direct_Left_Side = 606;
+    TSType_Direct_Right_Side = 607;
+    TSType_Direct_Straight_Right = 608;
+    TSType_Direct_Straight_Left = 609;
+    TSType_Direct_U_Turn =610;
+    TSType_Direct_Pedestrian =611;
+    TSType_Direct_Junction_Priority = 621;
+    TSType_Direct_Parking_Place = 622;
+    TSType_Direct_Parking_Left = 623;
+    TSType_Direct_Parking_Right = 624;
+    TSType_Direct_Parking_Roadside = 625;
+    TSType_Direct_Lane_Open_Right = 631;
+    TSType_Direct_Lane_Open_Left = 632;
+    TSType_Direct_Lane_Close_Right = 637;
+    TSType_Direct_Lane_Close_Left = 638;
+
+    TSType_PassLeftThrough = 639;
+    TSType_PassRightThrough = 640;
+    TSType_Under_Construction_PassLeftThrough = 641;
+    TSType_Under_Construction_PassRightThrough = 642;
+    TSType_Under_Construction_PassThrough = 643;
+    TSType_Under_Construction_PassLeftThrough_Text = 644;
+    TSType_Under_Construction_PassRightThrough_Text = 645;
+
+    TSType_Comp_Sign = 700;
+    TSType_Emergency_Exit = 709;
+    TSType_ResidentialArea_Begin = 711;
+    TSType_BicycleArea_Begin = 712;
+    TSType_PedestrianArea_Begin = 713;
+    TSType_City_Entry = 715;
+    TSType_Expressway_Entry = 716;
+    TSType_ResidentialArea_End = 811;
+    TSType_BicycleArea_End = 812;
+    TSType_PedestrianArea_End = 813;
+    TSType_City_Exit = 815;
+    TSType_Expressway_Exit = 816;
+    // 可变车道
+    TSType_Variable_Lane_Up_Arrow = 821;
+    TSType_Variable_Lane_Left_Arrow = 822;
+    TSType_Variable_Lane_Right_Arrow = 823;
+    TSType_Variable_Lane_Prohibit_Passage = 824; // 潮汐车道
+    TSType_Direct_UTurn_Left_Lane = 825;
+    TSType_Direct_Straight_Right_Lane = 826;
+    TSType_Direct_Straight_Left_Lane = 827;
+    TSType_Direct_UTurn_Lane = 828;
+    TSType_Direct_Main_Aux_sign = 829;
+    // 公交车道
+    TSType_Bus_Direct_Down_Arrow = 831;
+    TSType_Bus_Direct_Left_Arrow = 832;
+    TSType_Bus_Direct_Right_Arrow = 833;
+    TSType_Bus_Direct_No_Arrow = 834;
+    // 非机动车道
+    TSType_Bicycle_Down_Arrow = 841;
+    TSType_Bicycle_Left_Arrow = 842;
+    TSType_Bicycle_Right_Arrow = 843;
+    TSType_Bicycle_No_Arrow = 844;
+
+    // 交通限制区域
+    TSType_Traffic_Reduced_Area = 851;
+    TSType_Traffic_Reduced_Area_Cancel = 852;
+    //公交红绿灯牌
+    TSType_BusTrafficLight = 853; //公交红绿灯牌
+    TSType_PassThrough = 854; 
+    TSType_DirectOthers = 855;
+    TSType_ForbidOthers = 856;
+    TSType_WarningOthers = 857;
+    TSType_BicycleOthers = 858;
+    TSType_BusOthers = 859;
+    TSType_VehicleOthers = 860;
+    TSType_Vehicle_Left_Arrow = 861;
+    TSType_Vehicle_Right_Arrow = 862;
+    TSType_Vehicle_Down_Arrow = 863;
+    TSType_Vehicle_No_Arrow = 864;
+  }
+}
+
+message MannerPolygonArea {
+  repeated MannerPoint_3D points = 1;    // Area boundary points x,y,z. shape 3xN.
+                                   // First point position is unrestricted.
+                                   // Neighboring points have neighboring index.
+                                   // First point is not last point.
+  optional float score = 2;        // Area level score, range (0-1).
+  optional int32 type = 3 [deprecated = true];   // (deprecated) Area type.
+  optional uint32 id = 4;         // id of UnsafeArea
+  enum AreaType{
+    AreaType_Unknown = 0;
+    AreaType_Unsafe = 1;
+    AreaType_Diversion = 2;
+    AreaType_RedWarn = 3;
+    AreaType_NoParking = 4;
+    AreaType_VisRoadSpace = 11;
+    AreaType_Navi = 101;
+  }
+  optional AreaType area_type = 5;         // (Reserved) Area type.
+}
+
+message PoseCorrection {
+  repeated float delta_pose_xy = 1;  // delta pose x,y
+  optional float delta_pose_yaw = 2;  // delta pose yaw
+  optional float lane_loc_distance = 3;  // lane location distance
+  repeated uint32 lane_loc_order = 4;  // lane location order
+}
+
+message MannerRoadSign {
+  enum RoadSignClass {
+    RoadSignClass_Unknown = 0;
+    RoadSignClass_StopLine = 100;
+    RoadSignClass_RoadArrow = 200;
+    RoadSignClass_RoadArrow_Left = 201;
+    RoadSignClass_RoadArrow_Right = 202;
+    RoadSignClass_RoadArrow_Left_Right = 203;
+    RoadSignClass_RoadArrow_Straight = 204;
+    RoadSignClass_RoadArrow_Straight_Right = 205;
+    RoadSignClass_RoadArrow_Straight_Left = 206;
+    RoadSignClass_RoadArrow_Only_Turn = 207;
+    RoadSignClass_RoadArrow_Left_Turn = 208;
+    RoadSignClass_RoadArrow_Straight_Turn = 209;
+    RoadSignClass_RoadArrow_Left_Merge = 210;
+    RoadSignClass_RoadArrow_Right_Merge = 211;
+    RoadSignClass_RoadArrow_Forbid_Sign = 212;
+    RoadSignClass_ZebraCross = 300;
+    RoadSignClass_NoParkingArea = 400;
+    RoadSignClass_SlowZone = 500;
+    RoadSignClass_SpeedBump = 600;
+    RoadSignClass_PolePillar = 700;
+    RoadSignClass_LimitSpd_Max = 801;
+    RoadSignClass_LimitSpd_Min = 802;
+    RoadSignClass_TextPattern = 900;
+    RoadSignClass_TextPattern_Yield = 901;
+    RoadSignClass_TextPattern_Stop = 902;
+    RoadSignClass_TextPattern_Variable = 903;
+    RoadSignClass_TextPattern_Reversible = 904;
+    RoadSignClass_TextPattern_Bike = 905;
+    RoadSignClass_TextPattern_Bus = 906;
+    RoadSignClass_TextPattern_HOV = 907;
+    RoadSignClass_TextPattern_TIME = 908;
+    RoadSignClass_TextPattern_WALK = 909;
+  }
+  optional uint32 id = 1;
+  optional RoadSignClass RoadSign_Class = 2;
+  repeated MannerPoint_3D RoadSign_3DList = 3;
+  optional float RoadSign_Confidence = 4;
+  optional float RoadSign_Heading = 5;
+  optional float RoadSign_Center_x = 6;
+  optional float RoadSign_Center_y = 7;
+  optional float RoadSign_Center_z = 8;
+  optional float RoadSign_Length = 9;
+  optional float RoadSign_Width = 10;
+  optional uint32 lane_id = 11 [deprecated = true];
+  repeated uint32 lane_ids = 12;
+  // 新增marker子类型置信度分数原始分布结果
+  repeated float RoadSign_SubType_Confidence_Distribute = 13;
+}
+
+message RoadSceneArea {
+  message RoadAreaBox {
+    repeated MannerPoint_3D polygon_points = 1;
+    optional float confidence = 2;
+    optional float heading = 3;
+    optional float center_x = 4;
+    optional float center_y = 5;
+    optional float center_z = 6;
+    optional float length = 7;
+    optional float width = 8;
+  }
+
+  message GoalRegion {
+    message GoalRegionInterface {
+      // 两个点构成的截面线段，线段的法向量方向代表goal点的heading = (end - start).heading() + M_PI / 2
+      optional MannerPoint_3D start = 1;
+      optional MannerPoint_3D end = 2;
+    }
+ 
+    optional GoalRegionInterface goal_region_interface = 1; // 截面
+    repeated MannerPoint_3D goal_points = 2; // 导航点
+  }
+
+  message NaviGoalRegion {
+    enum RoadAreaType {
+      ROAD_AREA_JUNCTION = 1;
+      ROAD_AREA_ENTRANCE = 2;
+      ROAD_AREA_NO_ENTRY = 3;
+      ROAD_AREA_CONSTRUCTION = 4;
+      ROAD_AREA_ZONE = 5;
+      ROAD_AREA_DYNAMIC_OD = 10;
+    }
+    optional RoadAreaType type = 1;
+    optional uint32 id = 2; // RoadJunction/RoadEntrance等结构中的id， 可通过type + id唯一检索
+  }
+
+  message RoadJunction {
+    enum RoadJunctionType {
+      RoadJunctionType_Unknown = 0;
+      RoadJunctionType_Cross = 1;
+      RoadJunctionType_TShape = 2;
+      RoadJunctionType_YShape = 3;
+      RoadJunctionType_VRU = 4;
+      RoadJunctionType_Roundabout = 5;
+      RoadJunctionType_Multiple = 6;
+      RoadJunctionType_Straight = 7;
+    }
+    optional uint32 id = 1;
+    optional RoadJunctionType type = 2;
+    optional RoadAreaBox area_box = 3;
+    optional OnRouteProperty on_route_property = 4; // reserved
+  }
+
+  message RoadEntrance {
+    enum RoadEntranceType {
+      RoadEntranceType_Unknown = 0;
+      RoadEntranceType_Straight = 1;
+      RoadEntranceType_LeftTurn = 2;
+      RoadEntranceType_RightTurn = 3;
+      RoadEntranceType_UTurn = 4;
+      RoadEntranceType_Ramp = 5;
+      RoadEntranceType_UrbanTunel = 6;
+      RoadEntranceType_Import = 7;
+      RoadEntranceType_Export = 8;
+      RoadEntranceType_SubPath_Left = 9;
+      RoadEntranceType_SubPath_Right = 10;
+      RoadEntranceType_OpeningUTurn = 11;
+      RoadEntranceType_YellowdashUTurn = 12;
+    }
+    optional uint32 id = 1;
+    optional RoadEntranceType type = 2;
+    optional RoadAreaBox area_box = 3;
+    optional GoalRegion goal_region = 4;
+    optional OnRouteProperty on_route_property = 5;      // reserved
+  }
+
+  message RoadNoEntry {
+    enum RoadNoEntryType {
+      RoadNoEntryType_Unknown = 0;
+      RoadNoEntryType_JunctionWrongSideStopline = 1;
+      RoadNoEntryType_VehicleMergeWay = 2;
+      RoadNoEntryType_NonmotorLane = 3;
+    }
+    optional uint32 id = 1;
+    optional RoadNoEntryType type = 2;
+    optional RoadAreaBox area_box = 3;
+  }
+
+  message RoadConstruction {
+    enum RoadConstructionType {
+      RoadConstructionType_Unknown = 0;
+      RoadConstructionType_Isolation = 1;
+      RoadConstructionType_ConstructionSign = 2;
+    }
+    optional uint32 id = 1;
+    optional RoadConstructionType type = 2;
+    optional RoadAreaBox area_box = 3;
+  }
+
+  message RoadZone {
+    enum RoadZoneType {
+      RoadZoneType_Unknown = 0;
+      RoadZoneType_WaitZone = 1;
+      RoadZoneType_DiversionArea = 2;
+      RoadZoneType_WaitZone_TurnLeft = 3;
+      RoadZoneType_WaitZone_TurnRight = 4;
+      RoadZoneType_WaitZone_Straight = 5;
+      RoadZoneType_WaitZone_TurnAround = 6;
+    }
+    optional uint32 id = 1;
+    optional RoadZoneType type = 2;
+    optional RoadAreaBox area_box = 3;
+    optional OnRouteProperty on_route_property = 4;     // 通过此字段 判断待转区是否位于路径上
+  }
+
+  message DynamicObjectRegion {
+    optional uint32 id = 1;
+    optional RoadAreaBox area_box = 2;
+    optional float confidence = 3;
+    optional OnRouteProperty on_route_property = 4;    
+  }
+
+  repeated RoadJunction junctions = 1;  // 路口场景：十字路口、丁字路口、环岛路口等
+  repeated RoadEntrance entrances = 2;  // 豁口场景：直行/左转/右转/掉头方向入口、匝道口、右转专用道、城市隧道口、主路转无名支路
+  repeated RoadNoEntry no_entries = 3;  // 禁驶场景：逆行口、他车合入口等
+  repeated RoadConstruction constructions = 4;  // 施工场景：占道施工、现实变更
+  repeated RoadZone zones = 5;          // 特殊区场景：待转区、下客区等。
+  repeated DynamicObjectRegion od_regions = 10; // 动态车辆占据的region, 用于表达通行方向
+  repeated NaviGoalRegion navi_goal_region = 20; // 按照导航经过顺序排序后的GoalRegion
+}
+
+message MannerDebug {
+  repeated MannerPoint_3D nav_routing_points = 1;  // nav link process routing path, only tens of points << 3 * 100 * 4B = 1.2kB
+  optional NaviPathInputDebug nav_input = 2;
+
+  map<string, string> module_debug = 10000 [deprecated = true]; // 无法保证顺序，不推荐使用
+  
+  message DebugString {
+    optional string key = 1;
+    optional string value = 2;
+  }
+  repeated DebugString debug_strings = 10001;
+}
+
+enum PathSemantic {
+  PathSemantic_UNKONWN = 0;
+  PathSemantic_STRAIGHT = 1;
+  PathSemantic_LEFT = 2;
+  PathSemantic_RIGHT = 3;
+  PathSemantic_U_TURN_LEFT = 4;
+  PathSemantic_U_TURN_RIGHT = 5;
+}
+
+enum PathLCType {
+  PathLCType_Cruise = 0;
+  PathLCType_LEFT = 1;
+  PathLCType_RIGHT = 2;
+}
+
+enum NavLaneSource {
+  NavLaneSource_Unkown = 0;
+  NavLaneSource_NaviLane = 1;
+  NavLaneSource_NaviPath = 2;
+  NavLaneSource_Supply = 3;    // construct from centerline/laneline
+}
+
+message LaneChangeSceneInfo {
+  optional uint32 current_link_id = 1;
+  optional uint32 target_link_id = 2;
+}
+
+message LaneLocInfo {
+  optional LaneGroup near_group = 1; // 近处lane group
+  optional LaneGroup far_group = 2; // 远处lane group
+  repeated OdOnRoute od_on_route = 3; // 在导航推荐车道上的od
+  
+  message LaneGroup {
+    repeated LaneInfo lane_info = 1;
+    optional uint32 ego_lane_index = 2; // 自车所在车道索引，从左向右
+    repeated uint32 highlight_lane_index = 3; // 导航推荐车道索引，从左向右
+    repeated float ego_lane_index_conf = 4; // 自车所在车道索引置信度
+    repeated float lane_num_conf = 5; // 车道总数置信度
+    repeated MannerPoint_3D lane_center_points = 6; // 车道中心点
+  }
+
+  message LaneInfo {
+    repeated Lane.Turn turns = 1;
+    repeated uint32 topo_index = 2;
+    repeated float turns_conf = 3;
+  }
+
+  message OdOnRoute {
+    optional uint32 id = 1; // od tracking id
+    optional MannerPoint_3D od_on_route_center_point = 2; // od center point
+  }
+}
+
+message MannerScene {
+    enum SceneType {
+        UNKOWN_SCENE = 1;
+        JUNCTION_SCENE = 2; // 路口，暂不区分具体类型
+        T_JUNCTION_SCENE = 3 [deprecated = true];
+        VRU_JUNCTION_SCENE = 4; // 暂无输出
+        MAIN_AUX_ROAD_SCENE = 5; // 主辅路场景
+        ROUNDABOUT_SCENE = 6; // 环岛场景
+        RIGHT_LANE_SCENE = 7; // 右转专用道场景
+        Y_SPLIT_SCENE = 8 [deprecated = true];
+    }
+
+    enum SplitType {
+        T_SPLIT = 1; // 丁字型分叉
+        Y_SPLIT = 2; // Y型分叉
+        FORK_SPLIT = 3; // 卜型分叉
+        F_SPLIT = 4; // F型分叉
+    }
+
+    message SplitInfo {
+        optional SplitType split_type = 1;
+        // 相对于驶入stub方向，驶出stub方向的角度（出角），单位为弧度，逆时针，-pi ~ pi
+        optional float main_drive_out_split_angle_relative_drive_in = 2;
+        // 相对于驶入stub方向，自车不行驶的分支路驶出stub方向的角度（出角），单位为弧度，逆时针，-pi ~ pi
+        repeated float sub_split_angle_relative_drive_in = 3;
+    }
+
+    message UTurnInfo {
+      // 定义见 https://nio.feishu.cn/wiki/Wit6wAaJLinupekoMVkcsgspnFK
+      enum UTurnType {
+        UNKOWN_UTURN = 0;
+        JUNCTION_UTURN = 1;
+        OPENING_UTURN = 2;
+        YELLOW_DASH_UTURN = 3;
+        MAINROAD_DASH_UTURN = 4;
+      }
+
+      optional UTurnType uturn_type = 1;
+    }
+
+    message MergeInfo {
+      enum MergeFromDirection {
+        FROM_LEFT = 1;
+        FROM_RIGHT = 2;
+      };
+
+      optional MergeFromDirection merge_from_direction = 1;
+    }
+
+    message SceneGeometry {
+        repeated MannerPoint_3D polygon_points = 1; // SceneArea
+        optional RoadSceneArea.GoalRegion.GoalRegionInterface interface = 2; // SceneRegion，目前仅支持主辅路
+        // Distance Info
+        optional double distance_to_center = 3; // 无感知观测的情况下，纯sd给出
+        optional double distance_to_entry = 4;
+        optional double distance_to_exit = 5;
+        optional MannerPoint_3D shape_point_with_traffic_light = 6;
+
+        // 待转区作为路口的附属目标表征
+        message WaitZoneAttatchment {
+          // waitzone entry与junction entry相同  不再重复输出
+          optional double distance_to_exit = 1;
+          // optional uint32 ego_inner_flag = 2;  // reseved
+        }
+
+        optional WaitZoneAttatchment waitzone_attachment = 7;  //星光1.2 只支持单待行区输出
+        // 分叉信息参考文档 https://nio.feishu.cn/wiki/Wit6wAaJLinupekoMVkcsgspnFK
+        optional SplitInfo split_info = 8;
+        optional UTurnInfo uturn_info = 9;
+        optional MergeInfo merge_info = 10;
+    }
+
+    enum TurnDirection {
+        UNKNOWN_DIRECTION = 0;
+        STRAIGHT = 1;
+        LEFT = 2;
+        RIGHT = 3;
+        TURN_AROUND_LEFT = 4;
+        TURN_AROUND_RIGHT = 5;
+    }
+
+    optional uint32 id = 1;
+    optional SceneType type = 2;
+    
+    optional SceneGeometry geometry = 3; // 绑定后的几何信息
+    optional bool is_controlled_by_traffic_light = 4;
+    optional TurnDirection turn_direction = 5;
+}
+
+message MannerSceneInfo {
+  repeated MannerScene manner_scene = 1;
+}
+
+message MannerSpaceInfo {
+  message MannerSpace {
+    enum Type {
+      // physical
+      CURB = 1; // 路沿类形成的静态障碍物
+
+      // legal
+      GUIDE_AREA = 1001; // 导流带
+      VIRTUAL_REVERSE = 1002; // 虚拟反向分割线形成的反向区域，用于无车道线观测的场景
+      SOLID_SOLID_YELLOW_LINE_REVERSE = 1003; // 暂时不使用
+      SOLID_YELLOW_LINE_REVERSE = 1004; // 黄实线（包括单黄、双黄）形成的反向区域，泛指双向不可跨越的反向空间
+      DASH_YELLOW_LINE_REVERSE = 1005;  // 黄虚线（包括单黄、双黄）形成的反向区域，泛指双向可跨越的反向空间
+      MULTI_LINE_REVERSE = 1006; // 暂时不使用
+      SOLID_DASH_YELLOW_LINE_REVERSE = 1007; // 左实右虚双黄线形成的反向区域，泛指自车可以跨越到反向，但是反向车辆不可跨越过来的反向空间
+      DASH_SOLID_YELLOW_LINE_REVERSE = 1008; // 左虚右实双黄线形成的反向区域，泛指自车不可以跨越到反向，但是反向车辆可跨越过来的反向空间
+    }
+
+    optional Type type = 1;
+    repeated MannerPoint_3D polygon_points = 2; // 多边形，逆时针，首尾点不重复
+    repeated MannerPoint_3D polyline_points = 3; // 线
+    optional uint32 id = 4;
+
+    optional OnRouteProperty.RouteDirection direction = 5;   // space相对path方向
+  }
+  repeated MannerSpace spaces = 1;
+}
+
+enum TldTriggerType {
+  UNKNOWN_SCENE = 1;
+  LANELEVEL_TLD_SCENE = 2; // 车道级红绿灯场景
+  MAIN_AUX_ROAD_SCENE = 3; // 主辅路场景
+  LEFT_WAITING_ZONE_SCENE = 4; // 左转待转区场景
+  STRAIGHT_WAITING_ZONE_SCENE = 5; // 直行待转区场景
+  BUS_TRAFFIC_SCENE = 6; // 公交车红绿灯场景
+}
+
+// refer to https://ad-gitlab.nioint.com/ad/system/mazu_messages/-/blob/master/common/perception/astra_planner_trajectories.proto?ref_type=heads
+// not include velocity
+
+message ControlPoint {
+  enum GoalPointType {
+    GOALPOINTTYPE_INVALID= 0;
+    GOALPOINTTYPE_P2P_CONNECT = 1;
+    GOALPOINTTYPE_INTERSECTION_ENTRY = 2;   // 进路口居中点， 含常规掉头点位
+    GOALPOINTTYPE_MAIN_SIDE_PASS = 3;
+    GOALPOINTTYPE_CAR_FOLLOW = 4;
+    GOALPOINTTYPE_LANE_KEEP = 5;
+    GOALPOINTTYPE_RED_LIGHT_STOP = 6;
+    GOALPOINTTYPE_LC_SUPPRESSION = 7;
+    GOALPOINTTYPE_LC_NAVIGATION = 8;
+    GOALPOINTTYPE_LC_EFFICIENCY = 9;
+    GOALPOINTTYPE_LK_YIELD = 10;
+    GOALPOINTTYPE_LK_NUDGE = 11;
+    GOALPOINTTYPE_FOLLOW_NAVI_PATH = 12;
+    GOALPOINTTYPE_FOLLOW_FORBICAL_CENTER = 13;
+    GOALPOINTTYPE_FOLLOW_CRUISE_CENTER = 14;
+    GOALPOINTTYPE_MAIN_SIDE_ENTRY = 15;
+    GOALPOINTTYPE_FOLLOW_LANE_CHANGE = 16;
+    GOALPOINTTYPE_TLD_STOP_POINT = 17;
+    GOALPOINTTYPE_LC_STALK = 18;
+    GOALPOINTTYPE_WAITZONE_GENERAL = 19;   // 无法明确方向  不建议使用
+    GOALPOINTTYPE_WAITZONE_TURNLEFT = 20;
+    GOALPOINTTYPE_WAITZONE_TURNRIGHT = 21;
+    GOALPOINTTYPE_WAITZONE_STRAIGHT = 22;
+    GOALPOINTTYPE_WAITZONE_TURNAROUND = 23;  
+
+    GOALPOINTTYPE_UTURN_PRE_ENTRY = 24;  // 掉头豁口 掉头虚线
+    GOALPOINTTYPE_UTURN_POST_ENTRY = 25; // 过斑马线掉头点
+    GOALPOINTTYPE_UTURN_INTERSECTION_EXIT = 26;  // 掉头出路口点，车道居中
+  }
+  
+  optional uint32 id = 1;     // id of points
+  optional float x = 2;
+  optional float y = 3;
+  optional float heading = 4;
+  repeated GoalPointType point_properties = 5; 
+  
+  message ControlPointAttatchment {
+      repeated MannerPoint_3D line = 1; // 用于待行区点给出附属的待行区段的centerline
+  }
+  optional ControlPointAttatchment attatchment = 6;
+}
+
+
+message PerceptionOneMap {
+  repeated Lane lanes = 1;   // recommend to get observation from manner_map_fusion_lanes & vision_lane
+  repeated LaneBoundary lane_boundaries = 2;
+  repeated LaneLink lane_links = 3;
+  repeated MannerRoadedge roadedges = 4;
+  repeated MannerStopLine stop_lines = 5;
+  repeated TrafficLightJunction traffic_light_junctions = 6;
+  repeated MannerPolygonArea unsafe_areas = 7;
+  optional PoseCorrection pose_correction = 8;
+  repeated MannerRoadSign road_signs = 9;
+  repeated MannerTrafficSign traffic_signs = 10;
+  optional MannerPolygonArea nav_area = 11;
+  repeated LaneLink nav_lane_links = 12;
+  // debug info
+  optional MannerDebug manner_debug_info = 13;
+  // for tracking nav lane, refer to https://nio.feishu.cn/docx/Y3kkdVlrWoVdpKxmCUXcj7JTnng
+  repeated NavLane nav_lanes = 14;
+  repeated NaviPath nav_paths = 15;
+  // Road Scene Area Detection, refer to https://nio.feishu.cn/wiki/O2UvwBXvCiurytkPxZlc7gQ0nYf
+  optional RoadSceneArea road_scene_area = 16;
+  // SLDF (speed limit determination function) move to RoadPost, refer to https://nio.feishu.cn/docx/RS43d6Jn9o7kJ4xQ9DqchWBQnqf
+  repeated SpeedLimit speed_limits = 17; // 可能有多个，由近及远排列
+
+  // vision lanes (no-map centerline)
+  repeated Lane vision_lanes = 18;
+  repeated LaneLink vision_lane_links = 19;
+  // scene_info
+  optional MannerSceneInfo scene_info = 20;
+  // tld-vlm trigger
+  optional int32 tld_vlm_trigger = 21;  // 0表示不触发vlm，1表示触发
+  optional uint64 tld_vlm_trigger_timestamp = 22;
+  optional TldTriggerType tld_triggrt_type = 25;
+  // 中心分隔区域
+  optional MannerSpaceInfo space_info = 23; // space info
+  optional MannerSpaceInfo central_separation_line = 24;  // 道路中心分割线
+
+  repeated ControlPoint general_control_point = 26;   //面向静态决策的控制点，不与path绑定
+
+  repeated Lane manner_map_fusion_lanes = 27;  // manner fusion lanes after 320 v1.2
+  optional NaviPathInput nav_input = 28;   // move from debug,  tbt + lanenr
+  repeated SpecialPoint special_points = 29;  // from vision_road_detection
+
+  optional uint64 timestamp = 10000;     // image receive time
+  // map status
+  optional bool has_sd_map = 10001;
+  optional bool has_hd_map = 10002;
+  optional bool has_navi_route = 10003;
+  repeated float hdmap_conf = 10004;
+  optional float global_route_conf = 10005;
+  optional bool has_dc_route = 10006;
+  optional NavLaneSource nav_lane_source = 10007;
+  optional bool nav_path_loc_converged = 10008;
+  optional bool nav_path_route_matched = 10009;
+  optional bool nav_path_frame_not_lost = 10010;
+
+  // for raw nav_paths
+  repeated NaviPath nav_paths_raw = 20001;
+  repeated NaviPath nav_paths_raw_centerline = 20003;
+  repeated NaviPath nav_trajs = 20002;
+
+  // for lc_navlane
+  optional LaneChangeSceneInfo lane_change_info = 30001;
+
+  // for lane_loc
+  optional LaneLocInfo lane_loc_info = 40001;
+
+  // debug for sparse centerline
+  repeated Lane sparse_lanes = 50001;
+  repeated LaneLink sparse_lane_links = 50002;
+
+  optional uint64 tld_fw_camera_ts = 536870904; // for tld chain monitor
+  optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+  optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909; // uuid of the publisher
+  optional uint64 counter = 536870910;         // message counter
+  optional uint64 publish_ts = 536870911;      // publish utc timestamp, unit : nanosecond
+}

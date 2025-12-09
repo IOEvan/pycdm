@@ -1,0 +1,38 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+// 1Hz; 
+
+message SlotPoint{
+  optional float x = 1;
+  optional float y = 2;
+}
+
+message StationSlot{
+  optional int32 slot_id = 1;
+  enum SlotStatus{
+    UNCERTAIN = 0;
+    AVAILABLE = 1;
+    NOT_AVAILABLE = 2;
+  }
+  optional SlotStatus slot_status = 2 [default = UNCERTAIN];
+  optional SlotPoint pt1 = 3;
+  optional SlotPoint pt2 = 4;
+  optional SlotPoint pt3 = 5;
+  optional SlotPoint pt4 = 6;
+}
+
+message UnmannedPsapStationSlotData {
+  
+  optional string version_id = 1;
+  
+  repeated StationSlot slots = 2; 
+
+  optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin   
+  optional uint64 publish_ptp_ts = 536870907; // publish ptp timestamp; unit : nanosecond
+  optional string publisher_id = 536870909;   // uuid of the publisher
+  optional uint64 counter = 536870910;        // message counter
+  optional uint64 publish_ts = 536870911;     // publish utc timestamp; unit : nanosecond
+}

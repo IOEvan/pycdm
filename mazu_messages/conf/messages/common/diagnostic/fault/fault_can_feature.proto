@@ -1,0 +1,213 @@
+syntax = "proto2"; 
+option cc_enable_arenas = true;
+       
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message CanFeatureFaultInfo{// Detected by MW       
+        optional ACMFeatureFaultInfo acm_feature_fault_info = 1;
+        optional APAFeatureFaultInfo apa_feature_fault_info = 2;
+        optional BCUFeatureFaultInfo bcu_feature_fault_info = 3;
+        optional BCMFeatureFaultInfo bcm_feature_fault_info = 4;
+        optional BGWFeatureFaultInfo bgw_feature_fault_info = 5;
+        optional CCUFeatureFaultInfo ccu_feature_fault_info = 6;
+        optional CDCFeatureFaultInfo cdc_feature_fault_info = 7;
+        optional EPB1FeatureFaultInfo epb1_feature_fault_info = 8;
+        optional EPB2FeatureFaultInfo epb2_feature_fault_info = 9;
+        optional EPS1FeatureFaultInfo eps1_feature_fault_info = 10;
+        optional EPS2FeatureFaultInfo eps2_feature_fault_info = 11;
+        optional SCMFeatureFaultInfo scm_feature_fault_info = 12;
+        optional SWCFeatureFaultInfo swc_feature_fault_info = 13;
+        optional VCUFeatureFaultInfo vcu_feature_fault_info = 14;        
+        
+        optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+        optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+        optional uint64 publish_ptp_ts = 536870907;   // publish ptp timestamp, uint in nanosec
+        optional string publisher_id   = 536870909; // uuid of the publisher
+        optional uint64 counter        = 536870910;         // message counter
+        optional uint64 publish_ts     = 536870911;    // publish utc timestamp; unit : nanosecond
+
+} 
+
+message ACMFeatureFaultInfo{
+        optional bool CHS1_ACM_YawRateValSts_Invalid = 1;
+        optional bool CHS1_ACM_LatAValSts_Invalid = 2;
+        optional bool CHS1_ACM_LgtAValSts_Invalid = 3;
+        optional bool CHS1_ACM_AxAyYrsCalSts_Invalid = 4;
+        // 0: no fault, 1: has fault;
+}
+
+message APAFeatureFaultInfo{
+        optional bool ADAS_APA_UpaSysSts_F_Invalid = 1;
+        optional bool ADAS_APA_UpaSysSts_R_Invalid = 2;
+        optional bool ADAS_APA_FrntSnsrFltSt_Invalid = 3;
+        optional bool ADAS_APA_ReSnsrFltSt_Invalid = 4;
+        optional bool ADAS_APA_UpaSysDrv_Service = 5;
+        optional bool ADAS_APA_ApaSts_Failure = 6;
+        optional bool ADAS_APA_MapObjSts_invalid = 7;
+        optional bool ADAS_APA_SDWSts_invalid = 8;
+        optional bool ADAS_APA_UpaSysDi_SystemDisabled = 9;
+        // 0: no fault, 1: has fault;
+}
+
+message BCUFeatureFaultInfo{
+        reserved 17;
+        optional bool CHS1_BCU_WhlSpdMovgDir_Invalid = 1;
+        optional bool CHS1_BCU_WhlSpdSts_invalid = 2;
+        optional bool CHS1_BCU_WhlPlsCntr_Invalid = 3;
+        optional bool CHS1_BCU_VehSpdSts_Invalid = 4;
+        optional bool CHS1_BCU_BrkPressValid_Invalid = 5;
+        optional bool CHS1_BCU_BrkPedlSts_Invalid = 6;
+        optional bool CHS1_BCU_VehMovgDir_Invalid = 7;
+        optional bool CHS1_BCU_BrkPressOffsetValid_Invalid = 8;
+        optional bool CHS1_BCU_HDCSts_Invalid = 9;
+        optional bool CHS1_BCU_AVHSts_Invalid = 10;
+        optional bool CHS1_BCU_AutoBrkAvl_NotAvailable = 11;
+        optional bool CHS1_BCU_VehSpdSts_ASILD_Invalid = 12;
+        optional bool CHS1_BCU_ABSFailLampReq_LampOn = 13;
+        optional bool CHS1_VDCTCSFailLampReq = 14;
+        optional bool CHS1_AutoBrkgAvl_Invalid = 15;
+        optional bool CHS1_AWBAvl_Invalid = 16;
+        // optional bool OBSOLETE_CHS1_ABAAvl_NotAvailable = 17;
+        optional bool CHS1_ABPAvl_NotAvailable = 18;
+        optional bool CHS1_BrkOverHeat = 19;
+        // 0: no fault, 1: has fault;
+}
+
+message BCMFeatureFaultInfo{
+        optional bool ADAS_BCM_HiBeamSts_Invalid = 1;
+        optional bool ADAS_BCM_LoBeamSts_Invalid = 2;
+        optional bool ADAS_BCM_FrntWiprSts_Invalid = 3;
+        optional bool ADAS_BCM_LeTurnIndcrLiSts_Invalid = 4;
+        optional bool ADAS_BCM_RiTurnIndcrLiSts_Invalid = 5;
+        optional bool CHS1_BCM_SeatOccpFrntLeSts_Invalid = 6;
+        optional bool ADAS_BCM_HoodAjarSts_Invalid = 7;
+        optional bool ADAS_BCM_DoorAjarSts_invalid = 8;
+        optional bool ADAS_BCM_FrontFogLight_Invalid = 9;
+        optional bool ADAS_BCM_RearFogLight_Invalid = 10;
+        optional bool CHS1_BCM_TrAjarSts_Invalid = 11;
+        optional bool CHS1_BCM_SeatOccpFrntLeFail_Failure = 12;
+        optional bool CHS1_BCM_LgtErrTurnIndcnFrntLe_Outage = 13;
+        optional bool CHS1_BCM_LgtErrTurnIndcnFrntRi_Outage = 14;
+        optional bool CHS1_BCM_ReLeTurnIndcn_Outage = 15;
+        optional bool CHS1_BCM_ReRiTurnIndcn_Outage = 16;
+        optional bool ADAS_WSHeatError_BCM = 17;
+        // 0: no fault, 1: has fault;
+}
+
+message BGWFeatureFaultInfo{
+        optional bool CHS1_BGW_VehState_Invalid = 1;
+        optional bool ADAS_BGW_FogLiSCMCmd_Invalid = 2;
+        optional bool ADAS_BGW_HiBeamSCMCmd_Invalid = 3;
+        optional bool ADAS_BGW_HODErrSts_Error = 4;
+        // 0: no fault, 1: has fault;        
+}
+
+message CCUFeatureFaultInfo{
+        optional bool CHS1_CCU_AmbTempValid_Invalid = 1;
+        optional bool ADAS_IntrTempValid_CCU = 2;
+        // 0: no fault, 1: has fault;
+}
+
+message CDCFeatureFaultInfo{
+        reserved 4,9;
+        optional bool ADAS_CDC_SetLaneAssiAidTyp_Invalid = 1;
+        optional bool ADAS_CDC_SetLaneAssiSnvty_Invalid = 2;
+        optional bool ADAS_CDC_CDC_FailSts_Failure = 3;
+        // optional bool ADAS_CDC_CDC_ADAS_FailSts_Failure = 4;
+        optional bool ADAS_CDC_SetHMA_Invalid = 5;
+        optional bool ADAS_CDC_MaiLiSet_Invalid = 6;
+        optional bool ADAS_CDC_AEBOnOffReq_Invalid = 7;
+        optional bool ADAS_CDC_DANADTauGapStored_Invalid = 8;
+        // optional bool ADAS_CDC_GoNotifierOnOff_Invalid = 9;
+        optional bool CHS1_CDC_SWCAdjModReq_Invalid = 10;
+        optional bool ADAS_CDC_LaneAssistTactileOnOff_Invalid = 11;
+        optional bool CHS1_CDC_SAPAPrkgModReq_Invalid = 12;
+        optional bool ADAS_CDC_SetALC_Invalid = 13;
+        optional bool ADAS_BGW_VehPrepReq_Invalid = 14;
+        // 0: no fault, 1: has fault;        
+}
+
+message EPB1FeatureFaultInfo{
+        optional bool CHS1_EPB1_EPB1_SwtSts_Invalid = 1;
+        optional bool CHS1_EPB1_EPBSts_Invalid = 2;
+        optional bool CHS1_EPB1_EPBFailLampReq_Invalid = 3;
+        optional bool CHS1_EPB1_EPB1_Mod_Invalid = 4;
+        // 0: no fault, 1: has fault;
+}
+
+message EPB2FeatureFaultInfo{
+        optional bool CHS2_EPB2_EPB2_SwtSts_Invalid = 1;
+        optional bool CHS2_EPB2_EPBSts_Invalid = 2;
+        optional bool CHS2_EPB2_EPBFailLampReq_Invalid = 3;
+        optional bool CHS2_EPB2_EPB2_Mod_Invalid = 4;
+        // 0: no fault, 1: has fault;
+}
+
+message EPS1FeatureFaultInfo{
+        optional bool CHS1_EPS1_EPS1_Sts_Invalid = 1;
+        optional bool CHS1_EPS1_EPS1_ActvExtIf_Invalid = 2;
+        optional bool CHS1_EPS1_EPS1_PinAngVal_Invalid = 3;
+        optional bool CHS1_EPS1_EPS1_TorsBarTqVal_Invalid = 4;
+        optional bool CHS1_EPS1_EPS1_EstRackForceVal_Invalid = 5;
+        optional bool CHS1_EPS1_EPS1_ACIMotorTqVal_Invalid = 6;
+        optional bool CHS1_EPS1_EPS1_TotMotorTqVal_Invalid = 7;
+        optional bool CHS1_EPS1_ADCACIOrAvl = 8;
+        // 0: no fault, 1: has fault;        
+}
+
+message EPS2FeatureFaultInfo{
+        optional bool CHS2_EPS2_EPS2_Sts_Invalid = 1;
+        optional bool CHS2_EPS2_EPS2_ActvExtIf_Invalid = 2;
+        optional bool CHS2_EPS2_EPS2_PinAngVal_Invalid = 3;
+        optional bool CHS2_EPS2_EPS2_TorsBarTqVal_Invalid = 4;
+        optional bool CHS2_EPS2_EPS2_EstRackForceVal_Invalid = 5;
+        optional bool CHS2_EPS2_EPS2_ACIMotorTqVal_Invalid = 6;
+        optional bool CHS2_EPS2_EPS2_TotMotorTqVal_Invalid = 7;
+        optional bool CHS2_EPS2_ADCACIOrAvl = 8;
+        // 0: no fault, 1: has fault;
+}
+
+message SCMFeatureFaultInfo{
+        optional bool CHS1_SCM_SteerAgSnsrFailSts_Error = 1;
+        optional bool CHS1_SCM_SteerAgSnsrCalSts_NotCalibrated = 2;
+        optional bool CHS1_SCM_SteerWhlAgAndSpdValid_Invalid = 3;
+        optional bool CHS1_SCM_TurnIndcrSwtSts_Invalid = 4;
+        optional bool CHS1_SCM_HiLowBeamPushSwtSts_Invalid = 5;
+        optional bool CHS1_SCM_WiprAutModPushSwtSts_Invalid = 6;
+        optional bool CHS1_SCM_FrntWiprSwtSts_Invalid = 7;
+        optional bool CHS1_SCM_FogLiPushSwtSts_Invalid = 8;
+        optional bool CHS1_SCM_WshrAndReWiprPushSwtSts_Invalid = 9;
+        optional bool CHS1_SCM_FrntWiprInterSpd_Invalid = 10;
+        // 0: no fault, 1: has fault;
+}
+
+message SWCFeatureFaultInfo{
+        optional bool CHS1_SWC_SWCLe_CentPushSwtSts_Invalid = 1;
+        optional bool CHS1_SWC_SWCLe_SWCLe_DwnPushSwtSts_Invalid = 2;
+        optional bool CHS1_SWC_SWCLe_SWCLe_LePushSwtSts_Invalid = 3;
+        optional bool CHS1_SWC_SWCLe_SWCLe_RiPushSwtSts_Invalid = 4;
+        optional bool CHS1_SWC_SWCLe_SWCLe_UpPushSwtSts_Invalid = 5;
+        optional bool CHS1_SWC_SWCLe_SWCRi_CentPushSwtSts_Invalid = 6;
+        optional bool CHS1_SWC_SWCLe_SWCRi_DwnPushSwtSts_Invalid = 7;
+        optional bool CHS1_SWC_SWCLe_SWCRi_LePushSwtSts_Invalid = 8;
+        optional bool CHS1_SWC_SWCLe_SWCRi_RiPushSwtSts_Invalid = 9;
+        optional bool CHS1_SWC_SWCLe_SWCRi_UpPushSwtSts_Invalid = 10;
+        optional bool CHS1_SWC_SWCFailSts_Invalid = 11;
+        // 0: no fault, 1: has fault;
+}
+
+message VCUFeatureFaultInfo{
+        optional bool CHS1_VCU_VCUActGearValid_Invalid = 1;
+        optional bool CHS1_VCU_AccrPedlActPosnValid_Invalid = 2;
+        optional bool CHS1_VCU_VCUTargetGearValid_Invalid = 3;
+        optional bool CHS1_VCU_AccrPedlEfcPosnValid_Invalid = 4;
+        optional bool CHS1_VCU_VCUGearSelectorPosnVld_Invalid = 5;
+        optional bool CHS1_VCU_VCU_VLCAvl_Invalid = 6;
+        optional bool CHS2_VCU_VCU_VLCAvl_Invalid = 7;
+        optional bool CHS1_VCU_VCUVehDispSpd_Stuck = 8;
+        optional bool CHS1_VCU_VCUVehDispSpdSts_Invalid = 9;
+        optional bool CH1_VCU_LLCFctSt_Error = 10;
+        // 0: no fault, 1: has fault;
+}

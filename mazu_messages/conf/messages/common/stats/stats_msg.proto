@@ -1,0 +1,26 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+message TagValues {
+    optional string tag = 1;
+    repeated string contents = 2;
+}
+message StatsMsg {
+    optional uint64 module_id = 1;
+    optional uint64 date_from_ts = 2; //stats:from timestamp
+    optional uint64 date_to_ts = 3;//to timestamp
+    repeated TagValues vals = 4;
+}
+
+// AppStatsMsg : send to DLB
+//appid: aa.app 10000 , cdm.app 10001, dlb.app 10002
+//version: release 1.12 , debug roadtest 1.12
+message AppStatsMsg {
+    optional uint64 app_id = 1;
+    optional string version = 2;
+    optional string car_info = 3;
+    repeated StatsMsg sms = 4;
+}

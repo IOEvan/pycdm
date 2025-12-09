@@ -1,0 +1,151 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+//world coordinate
+message sapaUiPoint{
+    optional float x = 1;
+    optional float y = 2;
+}
+
+message sapaUiStopLine{
+    optional sapaUiPoint point1 = 1;
+    optional sapaUiPoint point2 = 2;
+    optional bool isValid = 3;
+}
+
+message sapaParkStopUi{
+	optional sapaUiPoint sapaParkStopUiPoint1 = 1;
+	optional sapaUiPoint sapaParkStopUiPoint2 = 2;
+}
+
+message sapaSlotUi{
+    optional int32 slotIndex = 1; //range:0-1023
+    enum slotStatusUiType_e{
+        SLOTSTATUSUITYPE_PSNone = 0;
+        SLOTSTATUSUITYPE_PSUNSUITABLE = 1;
+        SLOTSTATUSUITYPE_PSOK = 2;
+        SLOTSTATUSUITYPE_PSOkPOSOK = 3;
+        SLOTSTATUSUITYPE_PSOkPOSOKSELECT = 4;
+        SLOTSTATUSUITYPE_RESERVED1 = 5;
+        SLOTSTATUSUITYPE_RESERVED2 = 6;
+        SLOTSTATUSUITYPE_RESERVED3 = 7;
+      }
+    optional slotStatusUiType_e slotStatusUiType = 2;
+    optional float slotUiSizeX = 3;
+    optional float slotUiSizeY = 4;
+    optional sapaUiPoint slotUiVehPos = 5;
+    optional float slotUiVehPsi = 6; //Yaw angle of vehicle w.r.t detected slot
+    enum slotUiType_e {
+      SLOTUITYPE_NONE = 0;
+      SLOTUITYPE_LEFT_PARALLEL_PARKIN = 1;
+      SLOTUITYPE_RIGHT_PARALLEL_PARKIN = 2;
+      SLOTUITYPE_LEFT_CROSS_PARKIN = 3;
+      SLOTUITYPE_RIGHT_CROSS_PARKIN = 4;
+      SLOTUITYPE_LEFT_PARALLEL_PARKOUT = 5;
+      SLOTUITYPE_RIGHT_PARALLEL_PARKOUT = 6;
+      SLOTUITYPE_LEFT_ANGLE_PARKIN = 7;
+      SLOTUITYPE_RIGHT_ANGLE_PARKIN = 8;
+      SLOTUITYPE_LEFT_OTHER_PARKIN = 9;
+      SLOTUITYPE_RIGHT_OTHER_PARKIN = 10;
+      SLOTUITYPE_LEFT_CROSS_PARKOUT = 11;
+      SLOTUITYPE_RIGHT_CROSS_PARKOUT = 12;
+      SLOTUITYEP_LEFT_ANGLE_PARKOUT = 13;
+      SLOTUITYPE_RIGHT_ANGLE_PARKOUT = 14;
+      SLOTUITYPE_RESERVED1 = 15;
+    }
+    optional slotUiType_e slotUiType = 7;
+    optional bool slotUiIsTarget = 8;
+    optional bool slotUIWithParkStop = 9;
+    optional bool slotUiIsNarrow = 10;
+    optional bool slotUiIsStored = 11;
+    repeated sapaParkStopUi slotUiParkStops = 12; // max two for each slot
+    enum slotUiAttribute_e {
+      SLOT_ATTRIBUTE_UNKNOWN = 0;
+      SLOT_ATTRIBUTE_NORMAL = 1;
+      SLOT_ATTRIBUTE_RESTRICTED = 2;
+      SLOT_ATTRIBUTE_STEREO_GARAGE = 3;
+      SLOT_ATTRIBUTE_CHARGING = 4;
+      SLOT_ATTRIBUTE_ABNORMAL = 5;
+      SLOT_ATTRIBUTE_HANDICAP = 6;
+      SLOT_ATTRIBUTE_PARKLOCK = 7;
+      SLOT_ATTRIBUTE_OTHERS = 8;
+      SLOT_ATTRIBUTE_RESERVED = 9;
+    }
+    optional slotUiAttribute_e slot_attribute = 13;
+    enum slotUiMode_e {
+      SLOT_MODE_UNCERTAIN  = 0;
+      SLOT_MODE_USS        = 1;
+      SLOT_MODE_SVC        = 2;
+      SLOT_MODE_CUSTOM     = 3;
+    }
+    optional slotUiMode_e slot_mode = 14;
+    optional bool slotUiParkinDirectionIsSame = 15; 
+    repeated sapaUiPoint slot_points = 16;
+    optional int32 originslotindex = 17;
+    optional bool slotUIWithOpenLock = 18;     // 表达车位内是否有开地锁，ENV不输出，由ADHMI填充发送DC
+
+ }
+
+message sapaPillarUi{
+	optional sapaUiPoint sapaPillarUiPoint1 = 1;
+	optional sapaUiPoint sapaPillarUiPoint2 = 2;
+	optional sapaUiPoint sapaPillarUiPoint3 = 3;
+	optional sapaUiPoint sapaPillarUiPoint4 = 4;
+	optional bool pillarIsValid = 5;
+}
+
+message sapaTrajectory{
+	repeated sapaUiPoint trajectoryPoint = 1;
+	optional sapaUiStopLine stopLine = 2;
+}
+
+message sapaStaticObject{
+  repeated sapaUiPoint objPoint = 1;
+  enum staticObjectType_e {
+    STATIC_TYPE_UNKNOWN = 0;
+    STATIC_TYPE_BUSH = 1;
+    STATIC_TYPE_CONE = 2;
+    STATIC_TYPE_CURB = 3;
+    STATIC_TYPE_FLOORSIGN = 4;
+    STATIC_TYPE_SPEEDBUMP = 5;
+    STATIC_TYPE_WALL = 6;
+    STATIC_TYPE_PARK_LOCK_OPEN = 7;
+    STATIC_TYPE_PARK_LOCK_CLOSE = 8;
+  }
+  optional staticObjectType_e type = 2;
+  optional float objHeading = 3;
+}
+
+message OneClickReturn{   
+  enum OneClickReturnAvlType_e {
+    AVl_TYPE_NOTAVL   = 0;
+    AVl_TYPE_AVL      = 1;
+    AVl_TYPE_RESERVED = 2;
+  }
+  optional OneClickReturnAvlType_e OneClickReturnAvlType = 1;    
+  optional float OneClickReturnDst = 2;
+  repeated sapaTrajectory GlobalTrajectoryResults = 3;
+  optional bool ManeuverSettingAllowed = 4;
+  optional bool TurnAroundSts = 5; // true:Turn around is running  
+}
+
+message sapaUiInfo{
+  repeated sapaSlotUi sapaSlotUiResults = 1; //max to 20
+  repeated sapaPillarUi sapaPillarUiResults = 2; // max to 10
+  repeated sapaTrajectory sapaTrajectoryResults = 3; // multi cnt in preguidance!
+  repeated sapaStaticObject sapaStaticObjectResults = 4; //
+  optional float sapaProgressPercentage = 5; // [0,1]
+  repeated float customParkinRange = 6;
+  optional OneClickReturn OneClickReturnResults = 7; 
+
+  optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+  optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+  optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909; // uuid of the publisher
+  optional uint64 counter = 536870910;         // message counter
+  optional uint64 publish_ts = 536870911;    // publish utc timestamp; unit : nanosecond
+}

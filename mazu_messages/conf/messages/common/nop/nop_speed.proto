@@ -1,0 +1,25 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message NopSpeed {		// broadcast cycle time: 50ms
+    optional double nop_now_electronic_eye_speed_limit = 1; 
+    optional double nop_now_advisory_speed_limit = 2;
+    optional double nop_now_legal_speed = 3;
+    optional double nop_next_electronic_eye_speed_limit = 4;
+    optional double nop_next_advisory_speed_limit = 5;
+    optional double nop_next_legal_speed = 6;
+    optional uint32 nop_distance_to_next = 7;
+    optional uint32 nop_now_road_type = 8;
+    optional uint32 nop_next_road_type = 9;
+    optional uint32 nop_reserved = 99;
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin   
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts   = 536870907;   //publish ptp timestamp, uint in nanosec
+    optional string publisher_id	= 536870909;	// uuid of the publisher  
+    optional uint64 counter 	= 536870910;	// message counter
+    optional uint64 publish_ts 	= 536870911;	// publish timestamp; unit : nanosecond
+}

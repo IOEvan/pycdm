@@ -1,0 +1,29 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message AaStateReport {
+    optional uint32 module_type           = 1;      // modlue id, 0:DlbManager; 1:CdmS1; 2:CdmS4; 3:DataDesensitization
+    optional uint32 status                = 2;      // 0:Off
+                                                    // 1:Full
+                                                    // 2:Manual
+                                                    // 3:Fault
+                                                    // 4:OffToFull
+                                                    // 5:OffToManual
+                                                    // 6:FullToOff
+                                                    // 7:ManualToOff
+                                                    // 8:FullToManual
+                                                    // 9:ManualToFull
+                                                    // 10~ :reserved     
+    repeated uint32 parameters            = 3;      // reserved
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts   = 536870907;    //publish ptp timestamp, uint in nanosec
+    optional string publisher_id     = 536870909;   // uuid of the publisher 
+    optional uint64 counter          = 536870910;   // message counter
+    optional uint64 publish_ts       = 536870911;   // publish timestamp; unit : nanosecond
+}

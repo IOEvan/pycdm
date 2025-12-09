@@ -1,0 +1,506 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+import "common/map_engine/map_geometry.proto";
+import "common/map_engine/hd_common.proto";
+
+// Successor info of lane.
+message Successor {
+  optional uint64 self_id = 1;
+  optional uint64 other_id = 2;
+}
+
+// Predecessor info of lane.
+message Predecessor {
+  optional uint64 self_id = 1;
+  optional uint64 other_id = 2;
+}
+
+// Neighbor info of lane.
+// If two lanes is close enough with each other, they are neighbor lanes, and we
+// use lane s to describe the neighbor interval. e.g.
+//  laneA
+// │  │  │
+// │     │ laneB
+// │  │  │|     | ----- end_s
+// │     ││  │  │   ▲
+// │  │  ││     │   | neighbor segment
+// │     ││  |  │   |
+// │  │  ││     │ ----- start_s
+//        │  |  │
+//        │     │
+//        │  |  │
+//
+message NeightborSegment {
+  optional uint64 self_id = 1;
+  optional uint64 other_id = 2;
+
+  // [start_s, end_s] indicates the interval(in meter) in the lane central line.
+  optional double self_start_s = 3;
+  optional double self_end_s = 4;
+  optional double other_start_s = 5;
+  optional double other_end_s = 6;
+}
+
+// Overlap info of lane.
+// If an object overlaps with a lane, it's an overlap.
+// we use lane s to describe the overlapped interval.
+// e.g.
+//     lane
+//    │  │  │
+//    │     │
+//    │  │  │ crosswalk
+//┌───┼─────┼──┐ ----- end_s
+//│   │  │  │  │   ▲
+//│   │     │  │   | overlapped segment
+//│   │  │  │  │   |
+//└───┼─────┼──┘ ----- start_s
+//    │  │  │
+//    │     │
+//    │  │  │
+//
+message Overlap {
+  optional uint64 self_id = 1;
+  optional uint64 other_id = 2;
+
+  // The element type of the "other" object.
+  enum Type {
+    UNKNOWN_TYPE = 0;
+    LANE = 1;
+    CROSSWALK = 2;
+    JUNCTION = 3;
+    STOP_LINE = 4;
+    TRAFFIC_LIGHT = 5;
+    ARROW = 6;
+    PARKING_AREA = 7;
+    WAITING_ZONE = 8;
+    SPEED_BUMP = 9;
+    TRAFFIC_SIGN = 10;
+    CLEAR_ZONE = 11;
+    VIRTUAL_JUNCTION = 12;
+  }
+  optional Type type = 3;
+
+  // lane_s which describes "self".
+  optional double start_s = 4;
+  optional double end_s = 5;
+  enum LaneOverlapType {
+    TRADITION = 0;
+    SPLIT = 1;
+    MERGE = 2;
+    CROSSING = 3;
+    INTERFERENCE = 4;
+  }
+  optional LaneOverlapType lane_overlap_type = 6;
+}
+
+message TimeOfDay{
+  optional uint32 start_hour = 1;
+  optional uint32 start_minute = 2;
+  optional uint32 end_hour = 3;
+  optional uint32 end_minute = 4;
+  optional bool sunday = 5;
+  optional bool monday = 6;
+  optional bool tuesday = 7;
+  optional bool wednesday = 8;
+  optional bool thursday = 9;
+  optional bool friday = 10;
+  optional bool saturday = 11;
+}
+
+message ProhibitedPassage{
+  repeated TimeOfDay time = 1;
+  optional int32 weather = 2;
+}
+
+
+message ConditionalSpeedLimit{
+  repeated TimeOfDay time = 1;
+  optional int32 weather = 2;
+  optional double speed = 3;
+}
+
+
+// Next id: 33
+message HdLane {
+  optional uint64 id = 1;
+
+  // Turn is a bitset, i.e., a left- and U-turn lane should have value
+  // turn = LEFT | U_TURN = 10.
+  // 0: UNKNOW_TURN
+  // 1: FORWARD
+  // 2: LEFT
+  // 4: RIGHT
+  // 8: U_TURN_LEFT
+  // 16: MERGE_LEFT
+  // 32: MERGE_RIGHT
+  // 64: U_TURN_RIGHT
+  optional int32 turn = 2;
+
+  // Reference line of the lane, not necessarily the geometric central line.
+  // The direction of the central line is the same as driving direction
+  // (except bidirectional lanes).
+  optional MapPolyline central_line = 3;
+
+  // The left/right boundary id.
+  optional uint64 left_boundary_id = 4;
+  optional uint64 right_boundary_id = 5;
+
+  // The geometric predecessor/successor of this lane.
+  repeated Predecessor predecessors = 6;
+  repeated Successor successors = 7;
+
+  // Speed limit(m/s) of this lane.
+  // No speed limit would be specified if the lane doesn't have speed limit.
+  // E.g. bike lanes and road shoulder.
+  optional double min_speed_limit = 8;
+  optional double max_speed_limit = 9;
+
+  // The forward/reverse neighbor segments.
+  // For more details, please refer to the definition of NeightborSegment.
+  optional NeightborSegment left_forward_neighbor = 11 [deprecated = true];
+  optional NeightborSegment right_forward_neighbor = 12 [deprecated = true];
+
+  repeated NeightborSegment left_forward_neighbors = 26;
+  repeated NeightborSegment right_forward_neighbors = 27;
+  repeated NeightborSegment left_reverse_neighbors = 28;
+  repeated NeightborSegment right_reverse_neighbors = 29;
+
+  // The overlap info of this lane.
+  // For more details, please refer to the definition of Overlap.
+  repeated Overlap overlaps = 15;
+
+  // The lane group id which contains current lane.
+  optional uint64 lane_group_id = 16;
+
+  // The connection to the predecessor or successor.
+  enum ConnectionType {
+    SPLIT = 1;
+    MERGE = 2;
+    SPLIT_AND_MERGE = 3;
+  }
+  optional ConnectionType connection_type = 17;
+
+  // The sequence id in lane group, the lanes are ordered from right to left.
+  // e.g. the sequence_id in a 5-lane lane group.
+  //
+  //   │   │   │   │   │   │
+  //   │   │   │   │   │   │  ▲
+  //   │ 4 │ 3 │ 2 │ 1 │ 0 │  │
+  //   │   │   │   │   │   │  │
+  //   │   │   │   │   │   │  │
+  //   │   │   │   │   │   │
+  //
+  optional int32 sequence_id = 18;
+
+  enum LaneType {
+    VIR_LANE = 20;
+    MOTORWAY = 21;
+    BICYCLE_LANE = 22;
+    MIXED_LANE = 23;
+    MOTORCYCLE_LANE = 24;
+    SIDEWALK = 25;
+    STRAIGHT_CROSS_LANE = 26 [deprecated = true];
+    TURN_ROUND_LANE = 27 [deprecated = true];
+    VARIABLE_LANE = 28;
+    HOV_LANE = 29;
+    RIGHT_ACCE_LANE = 30;
+    RIGHT_DECE_LANE = 31;
+    LEFT_ACCE_LANE = 32;
+    LEFT_DECE_LANE = 33;
+    SPEED_CHANGE_LANE = 34;
+    TOLL_LANE = 35;
+    CHECKPOINT_LANE = 36;
+    BUS_LANE = 37;
+    CLIMBING_LANE = 38;
+    RAMP = 39 [deprecated = true];
+    ROAD_SHOULDER = 40;
+    EMERGENCY_LANE = 41;
+    EMERGENCY_STOP_AREA = 42;
+    PARNKING_LANE = 43;
+    HAZARDOUS_LANE = 44;
+    CUSTOMS_SUPER_LANE = 45;
+    AVOID_LANE_APPRO = 46;
+    PASSING_TRACK = 47;
+    NON_DRIVING_ZONE = 48;
+    BORROWING_ZONE = 49;
+    TRAMCAR_LANE = 50;
+    ETC_LANE = 51;
+    BUS_HARBOR_LANE = 52;
+    SPECIAL_CAR_LANE = 53;
+    TURNL_CROSS_LANE = 54 [deprecated = true];
+    TURNR_CROSS_LANE = 55 [deprecated = true];
+    TURNROUND_CROSS_LANE = 56 [deprecated = true];
+    OTHERS = 99;
+    LIMIT_INFO_REVERS = 100 [deprecated = true];
+  }
+  optional LaneType lane_type = 19;
+
+  // The length (in meter) of lane.
+  optional double length = 20;
+
+  // The width (in meter) at every point of central line, the size is the same as central_line.
+  repeated double OBSOLETE_width = 21;
+
+  // The width (in meter) at every point of central line, the size is the same as central_line.
+  repeated double width = 22 [ packed = true ];
+
+  // The accumulated lane_s(in meter) of central line in Euclidean distance.
+  repeated double centerline_s = 23 [ packed = true ];
+
+  // Whether this lane is travelable by car.
+  // 1: Able to travel
+  // 2: Unable to travel(excluding road constrution)
+  // 3: Under road construction
+  optional uint32 lane_status = 24;
+
+  // Whether this lane could be traveled in both directions.
+  optional bool lane_used_in_both_directions = 25;
+
+  // The tile which this lane belongs to.
+  optional uint32 tile_id = 30;
+
+  // The recommanded speed(m/s) comes from multiple sources.
+  optional double advisory_speed_limit = 31;
+
+  // Funciton downgrade info comes from multiple sources.
+  message DowngradeLaneSegment {
+    enum AdModeType {
+        MANUAL = 0;
+        NAD = 1;
+        NOP_PLUS = 2;
+        NP = 3;
+        PSAP = 4;
+        AVP = 5;
+        Driving_Common = 6;
+        Parking_Common = 7;
+        psp = 8;
+    }
+    // The scenario where we should apply on.
+    optional AdModeType ad_mode_type = 1;
+
+    // The lane offset.
+    optional double start_s = 2;
+    optional double end_s = 3;
+
+    // Refer to: https://nio.feishu.cn/docs/doccnKqxKi6Ap4jOtFHeJBv2xRe?hash=18f0cf565e81f5365b20f50603da6e57#
+    optional int32 info_value = 4;
+    optional int32 dynamic_info = 5;
+    optional int32 road_scenario_type = 6;
+
+    optional string event_id = 7;
+  }
+  repeated DowngradeLaneSegment downgrade_lane_segments = 32;
+
+  optional double electronic_eye_speed_limit = 33;
+
+  // The max legal speed limit among all the lanes in the same lane group.
+  optional double max_lane_group_speed_limit = 34;
+
+  // The link that is not virtual link.
+  optional uint64 link_id = 35;
+
+  // 禁行信息
+  optional ProhibitedPassage prohibited_passage = 36;
+
+  // The left width (in meter) at every point of central line, the size is the same as central_line.
+  repeated double left_width = 37 [ packed = true ];
+  // The right width (in meter) at every point of central line, the size is the same as central_line.
+  repeated double right_width = 38 [ packed = true ];
+  enum LaneTypeCs {
+    UNKNOWN_LANE_TYPE_CS = 0;
+    NORMAL_LANE_TYPE_CS = 1;
+    SPECIFY_MOTORWAY_CS = 2;
+    BICYCLE_LANE_TYPE_CS = 3;
+    DRIVEABLE_ROAD_SHOULDER = 4;
+    ROAD_SHOULDER_TYPE_CS = 5;
+    TOLL_LANE_TYPE_CS = 6;
+    PASSING_TRACK_TYPE_CS = 7;
+    INSIDE_INTERSECTION_LANE_CS = 8;
+    VARIABLE_LANE_TYPE_CS = 9;
+    ACCE_LANE_CS = 10;
+    DECE_LANE_CS = 11;
+    SPEED_CHANGE_LANE_TYPE_CS = 12;
+    HOV_LANE_TYPE_CS = 13;
+    PARNKING_LANE_TYPE_CS = 14;
+    NON_DRIVING_ZONE_TYPE_CS = 15;
+    BUS_LANE_TYPE_CS = 16;
+    CENTER_TURN_LANE_CS = 17;
+    CHECKPOINT_LANE_TYPE_CS = 18;
+    OTHER_LANE_TYPE_CS = 19;
+    WAITING_LANE_CS = 20;
+    TOLL_PLAZA_LANE = 21;   // 收费站衔接段车道
+    TOLL_GATE_LANE = 22;    // 收费站闸机通道
+    TOLL_ETC_LANE = 23;     // ETC通道
+    TOLL_MANUAL_LANE = 24;  // 人工通道
+  }
+  // The type will be used in crowdsourced version. 
+  repeated LaneTypeCs lane_type_cs = 39;
+
+  message DynamicLayerInfo {
+    enum AdFunctionType {
+        UNKNOWN_FUNCTION = 0;
+        NOP_HIGHWAY = 1;
+        NOP_URBAN = 2;
+        PSP = 3;
+        NP = 4;
+    }
+    optional AdFunctionType ad_function_type = 1;
+
+    enum AdActionType {
+      UNKNOWN_ACTION = 0;
+      TO_MANUAL = 1;
+      TO_NP = 2;
+      TO_NOP_LOCAL_MAP_MODE = 3;
+      WARNING = 4;
+      LANE_ERROR_DETECTION = 5;
+      NUDGE = 6;
+      SLOW = 7;
+      TD = 8;  // Takeover demand的接管请求行为
+    }
+    optional AdActionType ad_action_type = 2;
+
+    optional int32 event_type = 3;
+
+    // The lane offset.
+    optional double start_s = 4;
+    optional double end_s = 5;
+
+    optional string info_value = 6;
+    optional string event_id = 7;
+
+    message ExitLane {
+      optional uint64 exit_lane_id = 1;
+      optional float prob = 2;
+    }
+    message JunctionLaneSelection {
+      optional uint64 enter_lane_id = 1;
+      repeated ExitLane exit_lane = 2;
+    }
+
+    message EulerAngleInfo {
+      optional float offset_rate = 1;     // 当前id的百分比偏移量,最大为1
+      optional uint64 id = 2;             // link_id
+      optional float next_limit_euler = 3;  // 当前位置到下一个位置之间,坡度值正数取最大,负数取最小
+    }
+    message DigEulerAngle {
+      repeated EulerAngleInfo euler_info_list = 1;
+    }
+
+    message EventExtraInfo{
+      enum ExtraType {
+        JUNCTION_LANE_SELECTION = 0;
+        MAP_OFFSET = 1;  // 对应 达云的 Mapoffsets
+        DIG_EULER_ANGLE = 2; // 对应挖掘坡度
+      }
+      optional ExtraType extra_type = 1; // 透传数据类型
+      optional string info = 2; // extra_type为JUNCTION_LANE_SELECTION时，表示 JunctionLaneSelection 的pb序列化string
+    }
+    optional EventExtraInfo extra_info = 8;
+  }
+  repeated DynamicLayerInfo dynamic_layer_info = 40;
+
+  enum TranType {
+    UNKNOW_TRAN_TYPE = 0;
+    LANE_MERGE = 2;
+    LANE_SPLIT = 3;
+    ROAD_MERGE = 4;
+    ROAD_SPLIT = 5;
+  }
+
+  // The traffic sign id which record the information of variable spped limit.
+  optional uint64 sign_id_for_variable_speed_limit = 41;
+  optional ConditionalSpeedLimit conditional_speed_limit = 42;
+  optional TranType tran_type = 43;
+  // 小汽车可通行属性
+  // 0：Unknown
+  // 1: 小汽车可以通行
+  // 2: 小汽车不可通行-  24小时小汽车均不可通行
+  optional uint32 lane_access = 44;
+
+  message CurvatureInfo {
+    optional double offset = 1;
+    optional double value = 2;
+  }
+  repeated CurvatureInfo curvature = 45;
+
+  repeated GeometryConfidenceRangeScore geometry_confidence = 46;
+
+  enum SpeedLimitSource {
+    UNKNOWN_SOURCE = 0;
+    HDMAP_TENCENT = 1;
+    HDMAP_ADVISORY = 2;
+    SDMAP_AMAP = 3;
+    LANESEG = 4;
+    DIGG = 5;
+    SDMAP_TENCENT = 6;
+    ROAD_CLASS = 7;
+    TOLL_CHECKPOINT = 8;
+    SDMAP_BACKUP = 9;
+    DIGG_SD = 10;
+    URBAN_SDMAP = 11;
+    URBAN_ADVISORY = 12;
+    URBAN_ROAD_CLASS = 13;
+    RAMP_ROAD = 14;
+    TUNNEL_ROAD = 15;
+    JUNCTION_ROAD = 16;
+    LANESEG_SD = 17;
+    LANESEG_DIG = 18;
+    LANESEG_DIG_SD = 19;
+    MATCH = 20;
+
+    SMOOTH_LANE_GROUP = 101;
+    SMOOTH_ABA = 102;
+    SMOOTH_RAMP = 103;
+    SMOOTH_ACCE_LANE = 104;
+    SMOOTH_TUNNEL = 105;
+    SMOOTH_JUNCTION = 106;
+    HISTORICAL = 201;
+  }
+  optional SpeedLimitSource speed_limit_source = 47;
+  optional SpeedLimitSource advisory_speed_limit_source = 48;
+  optional SpeedLimitSource electronic_eye_speed_limit_source = 49;
+
+  enum FuncLaneType {
+    UNKNOWN_FUNC_LANE_TYPE = 0;
+    FUNC_HIGHWAY = 1; // Controlled access. Expects no pedestrians or bicycles.
+    FUNC_STREET = 2; // No access control. Expects pedestrians and bicycles.
+    FUNC_BIDIRECTIONAL = 3; // Continuous two-way left-turn lane.
+    FUNC_SHOULDER = 4; // Emergency stopping lane
+    FUNC_BIKING = 5;
+    FUNC_SIDEWALK = 6;
+    FUNC_RESTRICTED = 7;
+    FUNC_PARKING = 8;
+    FUNC_ROADWORK = 9;
+    FUNC_OFFRAMP = 10; // use this for ramp
+    FUNC_ONRAMP = 11; // no use
+    FUNC_VIRTUAL = 255; // Virtual lane for junction
+  }
+  repeated FuncLaneType func_lane_type = 50;
+
+  message SpeedLimitChangeEvent {
+    enum SpeedLimitType {
+      LEGAL = 1;
+      ADVISORY = 2;
+      ELECTRONIC_EYE = 3;
+    }
+    optional SpeedLimitType type = 1;
+    optional double value = 2;
+    optional SpeedLimitSource source = 3;
+  }
+  repeated SpeedLimitChangeEvent speed_limit_change_events = 51;
+}
+
+message HdLaneList {
+  repeated HdLane lane_list = 1;
+
+  optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin 
+  optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+  optional uint64 publish_ptp_ts = 536870907; // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909;  // uuid of the publisher
+  optional uint64 counter = 536870910;       // message counter
+  optional uint64 publish_ts = 536870911;    // publish utc timestamp; unit : nanosecond
+}

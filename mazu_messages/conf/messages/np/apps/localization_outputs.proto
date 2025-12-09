@@ -1,0 +1,38 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message LocalizationPose {
+  required double x = 1;
+  required double y = 2;
+  required double z = 3;
+  required double roll = 4;
+  required double yaw = 5;
+  required double pitch = 6;
+}
+
+message LocalizationVelocity {
+  required double x = 1;
+  required double y = 2;
+  required double z = 3;
+}
+
+message Localization {
+  required double time = 1;             // local system time
+  required LocalizationPose pose = 2;               // defined in local coordinate
+  repeated double pose_covariance = 3;  // covariance of pose
+  required double pose_confidence = 4;
+  required LocalizationVelocity velocity = 5;
+  repeated double velocity_covariance = 6;  // covariance of velocity
+  required double velocity_confidence = 7;
+  optional LocalizationPose global_pose = 8;            // defined in global coordinate
+
+  optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+  optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+  optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909; // uuid of the publisher
+  optional uint64 counter = 536870910;         // message counter
+	optional uint64 publish_ts = 536870911;    // publish utc timestamp; unit : nanosecond
+}

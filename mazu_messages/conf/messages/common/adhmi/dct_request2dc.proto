@@ -1,0 +1,109 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/adhmi/dct_info.proto";
+import "common/perf/sensor_ts_header.proto";
+
+//DCT(dynamic config table)
+
+message DynamicText {
+    enum TextLanguage {
+        RESERVED    = 0;
+        ZH          = 1;    //华语
+        EN          = 2;    //英语
+        NO          = 3;    //挪威语
+        DE          = 4;    //德语
+        NL          = 5;    //荷兰语
+        DA          = 6;    //丹麦语
+        SV          = 7;    //瑞典语
+        AE          = 8;    //阿拉伯语
+        HE          = 9;    //希伯来语
+
+
+        // @begin segscope: NT3
+        FR          = 100;   //法语
+        ES          = 101;   //西班牙语
+        PT          = 102;   //葡萄牙语
+        // @end segscope: NT3
+    }
+    optional TextLanguage text_language     = 1  [default = ZH];
+    optional string ic_text                 = 2;
+    optional string ics_text                = 3;
+    optional string hud_text                = 4;
+}
+
+//config table trigger msgs
+message TriggerMsg{
+    enum TriggerType {
+        TABLE       = 0;  //NT2 AD interaction zone
+        TAUGAP      = 1 [deprecated = true];
+        ISA         = 2 [deprecated = true];
+        ODDPROGRESS = 3 [deprecated = true];
+
+        // @begin segscope: NT3
+        WTI         = 50;  //NT3 WTI
+        ADITRCT     = 51;  //NT3 AD interaction zone
+        TSP         = 52;  //NT3 TSP
+        SAFETY      = 53;  //NT3 SAFETY
+        // @end segscope: NT3
+    }
+    enum FeatureStatus {
+        NOT_ACTIVE  = 0;
+        ACTIVE      = 1;
+    }
+    enum TriggerStatus {
+        NORMAL  = 0;   //normal send
+        REX     = 1;   //no ack, retransmission
+    }
+    optional uint32 feature_id              = 1;  //config table feature id, wti_id or aditrct_id
+    optional FeatureStatus feature_status   = 2;  //feature status
+    optional TriggerType trigger_type       = 3;  //trigger type
+    optional uint32 trigger_value           = 4 [deprecated = true];  //trigger value
+    optional uint32 trigger_sequence_id     = 5;  //trigger message key, each trigger need a response from dc which will be included
+    optional TriggerStatus trigger_status   = 6;
+    repeated uint32 trigger_values          = 7;  //multi trigger_value,  it can send multi signal values to dc
+    optional DynamicText dtext              = 8;  //when trigger_type = DYNAMIC_ONLY_TEXT or DYNAMIC_TEXT_IMAGE, dtext may be filled
+
+}
+
+message EventTrigger{
+    optional DctInfo dct_info               = 1;
+    repeated TriggerMsg trigger_msgs        = 2;
+ }
+
+//dynamic config table upgrade progress
+message DctTableSyncRequest {
+    //The DCT(dynamic config table) is formed by Flatbuffer, 
+    //which is downloaded from AD cloud directly
+    //The schema format is in project https://ad-gitlab.nioint.com/ad/system/flatbuffer_schema
+    optional DctInfo dct_info               = 1;
+    optional bytes dct_bytes                = 2;    //send to DC through someip, after check it right
+}
+
+//dynamic config table upgrade request 
+message DctInfoSyncRequest {
+    optional DctInfo dct_info               = 1;      
+}
+
+
+message DctSwitchDefaultTableRequest {
+    optional bool is_swtich_default_table   = 1;        
+}
+
+message DctRequest2Dc {
+    optional EventTrigger trigger                                   = 1;
+    optional DctInfoSyncRequest info_sync_request                   = 2;  //only for NT2
+    optional DctTableSyncRequest table_sync_request                 = 3;  //only for NT2
+    optional DctSwitchDefaultTableRequest switch_default_request    = 4;  //only for NT2
+
+    optional string hmi_version = 1000 [default = "1.0.1"] ;         // proto version
+    optional string hmi_update_date = 1001 [default = "20241206"] ;   // proto updated date
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    optional SensorTSHeader sensor_original_ts                      = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts                                  = 536870907;   // publish ptp timestamp, uint in nanosec
+    optional string publisher_id                                    = 536870909;   // uuid of the publisher
+    optional uint64 counter                                         = 536870910;   // message counter
+    optional uint64 publish_ts                                      = 536870911;   // publish utc timestamp; unit : nanosecond
+}

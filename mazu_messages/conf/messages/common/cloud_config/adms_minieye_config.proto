@@ -1,0 +1,53 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+message ADMSMinieyeConfig {
+    message DrowsinessLevel1 {                                // 轻度疲劳参数
+        optional uint32 yawn_win_ms          =1;              // 打哈欠滑动窗口，轻度疲劳判定打哈欠时间滑动窗口, 默认值300000ms，取值范围[100000,1000000]
+        optional uint32 yawn_count_thd       =2;              // 打哈欠发生次数，轻度疲劳判定滑动窗口内打哈欠次数, 默认值3次，取值范围[1,20]
+    }
+    message DrowsinessLevel2 {                               // 中度疲劳参数
+        optional uint32 perclos_win_ms          =1;          // 眼睑闭合滑动窗口，中度疲劳判定眼睑闭合时间滑动窗口, 默认值30000ms，取值范围[10000,100000]
+        optional double perclos_alert_percent   =2;          // 眼睑闭合时长占比，中度疲劳判定滑动窗口内眼睑闭合时长占比百分比, 默认值0.225，表示占滑动窗口22.5%时长，取值范围[0.1,1]
+        optional uint32 fatigue_blink_win_ms    =3;          // 疲劳眨眼滑动窗口,中度疲劳判定疲劳眨眼时间滑动窗口, 默认值60000ms，取值范围[10000,100000]
+        optional uint32 fatigue_blink_count_thd =4;          // 疲劳眨眼发生次数,中度疲劳判定滑动窗口内疲劳眨眼次数, 默认值6次，取值范围[1,20]
+    }
+    message DrowsinessLevel3 {                              // 重度疲劳参数
+        optional uint32 eye_closure_duration_ms     =1;     // 闭眼滑动窗口，重度疲劳判定闭眼滑动窗口，闭眼占比90%判定重度疲劳, 默认值3300ms即3s重度疲劳，取值范围[3000,10000]
+        optional uint32 eye_closure_subsided_time   =2;     // 闭眼消退时长，重度疲劳判定消退条件的非闭眼时长, 默认值300ms，取值范围[0,1000]
+    }
+    message DrowsinessConfig {                      //疲劳识别参数
+        optional DrowsinessLevel1 level1    =1;     //轻度疲劳参数
+        optional DrowsinessLevel2 level2    =2;     //中度疲劳参数
+        optional DrowsinessLevel3 level3    =3;     //重度疲劳参数
+    }
+    message Aoi3DPointRatio {                       //分心区域外扩阈值
+        optional double anchors_front_ratio = 1;    //前挡区域外扩比例，默认值0，取值范围[0,1]
+        optional double anchors_ic_ratio    = 2;    //IC区域外扩比例，默认值0，取值范围[0,1]
+    }
+   message HeadPose {                                      //头姿阈值
+        optional uint32 big_pitch_thd               =1;    //Pitch角，无视线pitch下降大于此度数判定分心，默认值15，取值范围[0,90]，单位度
+        optional uint32 big_yaw_thd                 =2;    //大yaw角，有视线yaw大于此度数判定分心，默认值55，取值范围[0,90]，单位度
+        optional uint32 yaw_thd_when_gaze_invalid   =3;    //小yaw角，无视线yaw大于此度数判定分心，默认值30，取值范围[0,90]，单位度
+    }
+    message DistractionRectangle {                           //长分心区域参数
+        optional Aoi3DPointRatio aoi_3d_point_ratio   =1;    //分心区域外扩阈值
+        optional HeadPose head_pose                   =2;    //头姿阈值
+    }
+    message DistractionDuration {                     //长分心时长参数
+        optional uint32 level1_duration_ms    =1;     // 法规灵敏度，长分心识别时长，默认值3000ms，取值范围[3000,20000]
+        optional uint32 level2_duration_ms    =2;     // 高灵敏度，长分心识别时长，默认值4000ms，取值范围[3000,20000]
+        optional uint32 level3_duration_ms    =3;     // 中灵敏度，长分心识别时长，默认值6000ms，取值范围[3000,20000]
+        optional uint32 level4_duration_ms    =4;     // 低灵敏度，长分心识别时长，默认值8000ms，取值范围[3000,20000]
+    }
+    message DistractionConfig {                                      //分心识别参数
+        optional DistractionDuration distraction_duration        =1; //长分心时长参数
+        optional DistractionRectangle distraction_rectangle      =2; //长分心区域参数
+        optional uint32 distraction_subsided_time_ms             =3; //长分心消退时间，默认值200ms，取值范围[0,1000]
+    }
+
+    optional DrowsinessConfig drowsiness_config         =1;  //疲劳识别参数
+    optional DistractionConfig distraction_config       =2;  //分心识别参数
+}

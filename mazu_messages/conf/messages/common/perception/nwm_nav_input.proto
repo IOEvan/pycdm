@@ -1,0 +1,206 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+import "common/pnc/geometry.proto";
+
+message NwmEgo {
+  optional float whlagsae = 1;
+  optional float whlagspdsae = 2;        
+  optional float vel_x = 3;
+  optional float vel_y = 4;        
+  optional float acc_x = 5;
+  optional float acc_y = 6;        
+  optional float angle = 7;
+}
+
+message NwmActionInput {
+  enum GuideAction {
+    MAIN_ACTION_NULL = 0;
+    TURN_LEFT = 1;
+    TURN_RIGHT = 2;
+    SLIGHT_LEFT = 3;
+    SLIGHT_RIGHT = 4;
+    TURN_HARDLEFT = 5;
+    TURN_HARDRIGHT = 6;
+    UTURN = 7;
+    CONTINUE = 8;
+    MERGE_LEFT = 9;
+    MERGE_RIGHT = 10;
+    ENTRY_RING = 11;
+    LEAVE_RING = 12;
+    SLOW = 13;
+    PLUG_CONTINUE = 14;
+    ENTER_BUILDING = 15;
+    LEAVE_BUILDING = 16;
+    BY_ELEVATOR = 17;
+    BY_STAIR = 18;
+    BY_ESCALATOR = 19;
+    COUNT = 20;
+  }
+  enum AssistAction {
+    ASSI_ACTION_NULL = 0;
+    ENTRY_MAIN = 1;
+    ENTRY_SIDEROAD = 2;
+    ENTRY_FREEWAY = 3;
+    ENTRY_SLIP = 4;
+    ENTRY_TUNNEL = 5;
+    ENTRY_CENTERBRANCH = 6;
+    ENTRY_RIGHTBRANCH = 7;
+    ENTRY_LEFTBRANCH = 8;
+    ENTRY_RIGHTROAD = 9;
+    ENTRY_LEFTROAD = 10;
+    ENTRY_MERGE_CENTER = 11;
+    ENTRY_MERGE_RIGHT = 12;
+    ENTRY_MERGE_LEFT = 13;
+    ENTRY_MERGE_RIGHTSILD = 14;
+    ENTRY_MERGE_LEFTSILD = 15;
+    ENTRY_MERGE_RIGHTMAIN = 16;
+    ENTRY_MERGE_LEFTMAIN = 17;
+    ENTRY_MERGE_RIGHTRIGHT = 18;
+    ENTRY_FERRY = 19;
+    LEFT_FERRY = 20;
+    ALONG_ROAD = 21;
+    ALONG_SILD = 22;
+    ALONG_MAIN = 23;
+    ARRIVE_EXIT = 24;
+    ARRIVE_SERVICEAREA = 25;
+    ARRIVE_TOLLGATE = 26;
+    ARRIVE_WAY = 27;
+    ARRIVE_DESTINATION = 28;
+    ARRIVE_CHARGINGSTATION = 29;
+    ENTRY_RINGLEFT = 30;
+    ENTRY_RINGRIGHT = 31;
+    ENTRY_RINGCONTINUE = 32;
+    ENTRY_RINGUTURN = 33;
+    SMALLRING_NOTCOUNT = 34;
+    RIGHT_BRANCH1 = 35;
+    RIGHT_BRANCH2 = 36;
+    RIGHT_BRANCH3 = 37;
+    RIGHT_BRANCH4 = 38;
+    RIGHT_BRANCH5 = 39;
+    LEFT_BRANCH1 = 40;
+    LEFT_BRANCH2 = 41;
+    LEFT_BRANCH3 = 42;
+    LEFT_BRANCH4 = 43;
+    LEFT_BRANCH5 = 44;
+    ENTER_ULINE = 45;
+    PASS_CROSSWALK = 46;
+    PASS_OVERPASS = 47;
+    PASS_UNDERGROUND = 48;
+    PASS_SQUARE = 49;
+    PASS_PARK = 50;
+    PASS_STAIRCASE = 51;
+    PASS_LIFT = 52;
+    PASS_CABLEWAY = 53;
+    PASS_SKYCHANNEL = 54;
+    PASS_CHANNEL = 55;
+    PASS_WALKROAD = 56;
+    PASS_BOATLINE = 57;
+    PASS_SIGHTSEEING_LINE = 58;
+    PASS_SKIDWAY = 59;
+    PASS_LADDER = 60;
+    PASS_SLOP = 61;
+    PASS_BRIDGE = 62;
+    PASS_FERRY = 63;
+    PASS_SUBWAY = 64;
+    SOON_ENTER_BUILDING = 65;
+    SOON_LEAVE_BUILDING = 66;
+    ENTER_ROUNDABOUT = 67;
+    LEAVE_ROUNDABOUT = 68;
+    ENTER_PATH = 69;
+    ENTER_INNER = 70;
+    ENTER_LEFT_BRANCH_TWO = 71;
+    ENTER_LEFT_BRANCH_THREE = 72;
+    ENTER_RIGHT_BRANCH_TWO = 73;
+    ENTER_RIGHT_BRANCH_THREE = 74;
+    ENTER_GAS_STATION = 75;
+    ENTER_HOUSING_ESTATE = 76;
+    ENTER_PARK_ROAD = 77;
+    ENTER_OVERHEAD = 78;
+    ENTER_CENTER_BRANCH_OVERHEAD = 79;
+    ENTER_RIGHT_BRANCH_OVERHEAD = 80;
+    ENTER_LEFT_BRANCH_OVERHEAD = 81;
+    ALONE_STRAIGHT = 82;
+    DOWN_OVERHEAD = 83;
+    ENTER_LEFT_OVERHEAD = 84;
+    ENTER_RIGHT_OVERHEAD = 85;
+    UPTO_BRIDGE = 86;
+    ENTER_PARKING = 87;
+    ENTER_OVERPASS = 88;
+    ENTER_BRIDGE = 89;
+    ENTER_UNDERPASS = 90;
+    MAX = 91;
+  }
+  optional GuideAction main_action = 1;
+  optional AssistAction assist_action = 2;
+  optional GuideAction guide_main_action = 3;
+  optional AssistAction guide_assist_action = 4;
+  optional float guide_action_distance = 5;
+}
+
+message NwmTrafficLightInput {
+  optional int64 traffic_light_direction = 1;
+  optional int64 traffic_light_type = 2;
+  optional int64 traffic_light_countdown = 3;
+  optional float traffic_light_distance = 4;
+}
+
+message NwmNaviInfo {
+    
+  optional int64 road_class = 1;
+  optional int64 road_type = 2;
+  optional NwmActionInput past_nwm_action_input = 3;
+  optional NwmActionInput nwm_action_input = 4;
+  optional NwmActionInput next_nwm_action_input = 5;
+  optional NwmTrafficLightInput past_nwm_traffic_input = 6;
+  optional NwmTrafficLightInput nwm_traffic_input = 7;
+  optional NwmTrafficLightInput next_nwm_traffic_input = 8;
+  optional int64 past_speedLimit = 9;
+  optional int64 speedLimit = 10;
+  optional int64 next_speedLimit = 11;
+}
+
+message NwmNaviPathInput {
+  optional string prompt = 1;
+  repeated NwmEgo pose_input = 2;
+  optional NwmNaviInfo nav_input = 3;
+  repeated NwmHighLightLane past_lane_attrs_input = 4;
+  repeated NwmHighLightLane lane_attrs_input = 5;
+  repeated NwmHighLightLane next_lane_attrs_input = 6;
+  repeated double hl_dis_input = 7;
+  optional Vector3d wsg_84_input = 8;
+  repeated Vector2d guide_line_input = 9;
+  optional Vector2d whl_angle_input = 10;
+}
+
+message NwmHighLightLane {
+    enum TurnDirection {
+      UNKNOWN_DIRECTION = 0;
+      STRAIGHT = 1;
+      LEFT = 2;
+      RIGHT = 3;
+      TURN_AROUND_LEFT = 4;
+      TURN_AROUND_RIGHT = 5;
+    }
+    optional bool is_recommend_lane = 1;
+    optional bool can_drive_lane = 2;
+    optional int64 lane_type = 3;
+    optional int64 lane_direction = 4;
+    optional int64 lane_hightlight_direction = 5;
+    optional int64 lane_change_type = 6;
+}
+
+message NwmNaviPathInputDebug {
+  optional NwmNaviPathInput nwm_nav_input = 1;
+
+  optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+
+  optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+  optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909; // uuid of the publisher
+  optional uint64 counter = 536870910;         // message counter
+  optional uint64 publish_ts = 536870911;      // publish utc timestamp, unit : nanosecond
+}

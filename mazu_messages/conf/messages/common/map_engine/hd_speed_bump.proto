@@ -1,0 +1,20 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+import "common/map_engine/map_geometry.proto";
+import "common/map_engine/hd_link_info.proto";
+
+
+message HdSpeedBump {
+  optional uint64 id = 1;
+
+  // The surface marking of speed bump.
+  optional MapPolygon surface = 2;
+
+  // The lane ids which touch this speed bump.
+  repeated uint64 lane_ids = 3;
+  // 轻图关联的link
+  repeated LinkOverlap link_overlap = 4;
+}

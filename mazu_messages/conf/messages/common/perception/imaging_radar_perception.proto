@@ -1,0 +1,89 @@
+// @filescope: NT3
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+import "common/perception/imaging_radar_base.proto";
+
+message ImgRadMoveObject {
+  reserved 12;
+  optional uint32 id                    = 1;
+  optional uint32 conf                  = 2;  //object confidence ; range 0~1.
+  optional uint32 age                   = 3;
+  optional ImgRadObjMotion motion       = 4;  // contain position/velocity/acceleration/size
+  optional uint32 motion_state          = 5;  // 0：moving 1：stoped  2：target_stopped_not_observed
+  optional bool observed_status         = 6;  // 1:match detection points   0:not match detection points
+  optional uint32 observed_counter      = 7;
+  optional uint32 classification        = 8;  // 0:unclassified 1:car 2:bus or trunk 3:bike or moto 4:pedestrian
+  optional float class_prob             = 9;  //class probability range 0~1;
+  optional uint32 obstacle_prob         = 10; //the probability that the object is obstacle ; range 0~1
+  optional float object_rcs             = 11;
+  optional uint32 ghost_estm            = 13; // 0-no_ghost 1-wall_ghost 2-car_ghost
+  repeated float pcld_obs_edge_pos_x_m  = 14;
+  repeated float pcld_obs_edge_pos_y_m  = 15;
+  optional uint32 point_match_num       = 16;
+}
+
+message ImgRadStaticObject {
+  reserved 12;
+  optional uint32 id                  = 1;
+  optional uint32 conf                = 2;
+  optional uint32 age                 = 3;
+  optional uint32 edge_num            = 4;
+  repeated float box_edge_lat         = 5;
+  repeated float box_edge_lon         = 6;
+  repeated float rectangle_vertex_lat = 7;
+  repeated float rectangle_vertex_lon = 8;
+  optional float box_height           = 9;
+  optional float box_height_size      = 10;
+  optional bool is_passable           = 11;
+  optional uint32 motion_state        = 13;
+  optional uint32 obstacle_classification = 14;
+  optional float radial_absolute_velocity = 15;
+  optional uint32 point_match_num     = 16;
+}
+
+message ImgRadGuardrail {
+  optional bool valid       = 1;  // 0-invalid, 1-valid
+  optional float c0         = 2;  // [rad/m] curvature of guardrail at 0m downrange
+  optional float c1         = 3;  // [rad/m2] rate at which curvature of guardrail changes distance downrange
+  optional float c2         = 4;  // [rad/m2] rate at which curvature of guardrail changes distance downrange
+  optional float c3         = 5;  // [rad/m2] rate at which curvature of guardrail changes distance downrange
+  optional float strat_lon  = 6;
+  optional float end_lon    = 7;
+}
+
+message ImgRadGuardrailTracker {
+  optional ImgRadGuardrail guardrail_left   = 1;
+  optional ImgRadGuardrail guardrail_right  = 2;
+}
+
+message ImgRadPercDebugData {
+  reserved 1;
+  //optional uint32 useful_len       = 1; //first x byte useful
+  repeated uint32 perc_debug_data  = 2; //debuginfo
+}
+
+
+message ImagingRadarPerception {
+  optional uint32 move_ob_num                  = 1;
+  optional uint32 static_ob_num                = 2;
+  repeated ImgRadMoveObject move_radar_ob      = 3;
+  repeated ImgRadStaticObject static_radar_ob  = 4;
+  optional ImgRadGuardrailTracker guard_rail   = 5;
+  optional ImgRadVehInputInfo veh_input_info   = 6;
+  optional ImgRadHeader head                   = 7;
+  optional uint32 isvalid                      = 8;
+  optional ImgRadPercDebugData perc_debug_data = 9;
+  optional ImgRadInvalidReason invalid_reason  =10;
+
+  optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin   
+  optional SensorTSHeader sensor_original_ts  = 536870906;  // sensor original ts
+  optional uint64 publish_ptp_ts              = 536870907;  // publish ptp timestamp, uint in nanosec
+  optional string publisher_id                = 536870909;  // uuid of the publisher
+  optional uint64 counter                     = 536870910;  // message counter
+  optional uint64 publish_ts                  = 536870911;  // publish utc timestamp; unit : nanosecond
+}

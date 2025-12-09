@@ -1,0 +1,660 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+
+message TagInfo {
+    optional uint64 beg_ts          = 1;
+    optional uint64 end_ts          = 2;
+    optional uint64 beg_ptp_ts      = 3;
+    optional uint64 end_ptp_ts      = 4;
+    optional int64  tagid           = 5;
+    optional string tagname         = 6;
+    optional float  tagscore        = 7;
+}
+
+message TagNP {
+    message TagL1 {
+        enum PercepOD {
+            lidar_iron_board_ghost          = 1;            // 感知lidar误检（有金属牌）
+            fusion_fp                       = 2;            // 感知误检不存在目标（没有金属牌）
+            velocity_far_object             = 3;            // 感知误检远处目标速度
+            fusion_lon_velocity_inaccuracy  = 4;            // 感知纵向速度不准确
+            fusion_lat_velocity_inaccuracy  = 5;            // 感知横向速度不准确
+            fusion_lon_position_inaccuracy  = 6;            // 感知纵向位置不准确
+            fusion_lat_position_inaccuracy  = 7;            // 感知横向位置不准确
+            fusion_heading_inaccuracy       = 8;            // 感知heading不准确
+            fusion_fn                       = 9;            // 感知漏检
+            fusion_size_inaccuracy          = 10;           // 感知尺寸错误
+            fusion_classtype_error          = 11;           // 感知type错误
+            rear_view                       = 12;           // 后视OD问题
+            od_other                        = 999;          // 其他情况
+        }
+
+        enum PercepLANE {
+            c0c1_inaccuracy                 = 1;            // C0/C1错误
+            c0c1_incontinuity               = 2;            // C0/C1跳变
+            c2_inaccuracy                   = 3;            // C2错误
+            c2_incontinuity                 = 4;            // C2跳变
+            c3_inaccuracy                   = 5;            // C3错误
+            c3_incontinuity                 = 6;            // C3跳变
+            start_end_inaccuracy            = 7;            // 起始点/终止点不准
+            lane_role_error                 = 8;            // 角色错误
+            lane_type_error                 = 9;            // 类型错误
+            lane_color_error                = 10;           // 颜色错误
+            lane_low_conf                   = 11;           // 车道线质量低
+            lane_fn                         = 12;           // 车道线漏检
+            lane_fp                         = 13;           // 车道线误检
+            lost_frame                      = 14;           // 车道线丢帧
+            lane_other                      = 999;          // 其他
+        }
+
+        enum PercepTSR {
+            camera_fn                       = 1;            // 漏检
+            camera_fp                       = 2;            // 误检（没有牌检测出牌）
+            camera_class_type_error         = 3;            // 类别错误
+            value_recognition_error         = 4;            // 数值识别错误
+            tsr_other                       = 999;          // 其他
+        }
+
+        enum PercepAHC {
+            dynamic_light_fp                = 1;            // 动态灯误检
+            dynamic_light_fn                = 2;            // 动态灯漏检
+            static_light_fp                 = 3;            // 静态灯误检
+            static_light_fn                 = 4;            // 静态灯漏检
+            distance_inaccurate             = 5;            // 灯源距离不准
+            heading_inaccurate              = 6;            // 灯源角度不对
+            ahc_other                       = 999;          // 其他
+        }
+
+        enum PercepFAILSAFE {
+            rain_classification_inaccurate  = 1;            // 雨天分级不对
+            partial_blockage_error          = 2;            // 半遮挡误判
+            full_blockage_error             = 3;            // 全遮挡误判
+            backlit_error                   = 4;            // 逆光误判
+            low_light_error                 = 5;            // 低照度误判
+            failsafe_other                  = 999;          // 其他
+        }
+
+        enum PercepTLD {
+            tld_fp                          = 1;            // 误检
+            tld_fn                          = 2;            // 漏检
+            tld_classification_inaccurate   = 3;            // 误分类
+            tld_position_inaccurate         = 4;            // 位置不准
+            association_error               = 5;            // 关联问题
+            fusion_error                    = 6;            // 融合问题
+            blockage                        = 7;            // 遮挡
+            tld_other                       = 999;          // 其他
+        }
+
+        enum PercepLIDAR {
+            lidar_fp_vehicle                = 1;            // 类车物体误检成车
+            lidar_fp_vru                    = 2;            // 类vru物体误检成vru
+            lidar_fp_sign                   = 3;            // 路牌因点云复制而误检
+            lidar_fp_reflection             = 4;            // 路牌因反射前车形成鬼影而误检
+            lidar_fp_retro                  = 5;            // 高反金属片 / 防撞桶误检
+            lidar_fp                        = 6;            // 其他目标误检
+            lidar_rain                      = 7;            // 雨造成框不准和误检
+            lidar_fog                       = 8;            // 雾造成框不准和误检
+            lidar_snow                      = 9;            // 雪造成框不准和误检
+            lidar_dust                      = 10;           // 尘造成框不准和误检
+            lidar_exhaust                   = 11;           // 尾气造成框不准和误检
+            lidar_steam                     = 12;           // 蒸汽造成框不准和误检
+            lidar_water_splash              = 13;           // 水花造成框不准和误检
+            lidar_negligible                = 14;           // 可忽略物体造成框不准和误检
+            lidar_vehicle_large             = 15;           // 大型车点云多截造成检测结果错误
+            lidar_vehicle_special           = 16;           // 异型Vehicle目标导致漏检或者检测结果错误
+            lidar_vru_special               = 17;           // 异型VRU目标导致漏检或者检测结果错误
+            lidar_narrow_space              = 18;           // 隧道 / 停车场等狭窄空间造成框不准和误检
+            lidar_fov_boundary              = 19;           // FOV边缘造成框不准和误检
+            lidar_fn_child                  = 20;           // 小孩漏检
+            lidar_fn                        = 21;           // 其他目标漏检
+            lidar_error_heading             = 22;           // 朝向识别错误
+            lidar_error_type                = 23;           // 类别混淆错误
+            lidar_error_occlusion           = 24;           // 严重遮挡导致检测结果波动
+            lidar_error_position            = 25;           // 检测框位置不准
+            lidar_error_extent              = 26;           // 检测框尺寸不准
+            lidar_other                     = 999;          // 其他
+        }
+
+
+        enum EHY {
+            tse_miss                        = 1;            // TSE漏选
+            tse_fp_side_road                = 2;            // TSE误选旁边车道目标
+            tse_fp                          = 3;            // TSE误选（其他）
+            tsi_alc_related                 = 4;            // TSI 问题 （影响ALC)
+            lon_position                    = 5;            // EHY纵向位置不准确
+            lat_position                    = 6;            // EHY横向位置不准确
+            lon_velocity                    = 7;            // EHY纵向速度不准确
+            lat_velocity                    = 8;            // EHY横向速度不准确
+            object_unstable                 = 9;            // EHY融合目标跳变
+            size_inaccuracy                 = 10;           // OBF形状不准确
+            heading                         = 11;           // OBF heading 不准确
+            radar_ghost_moving              = 12;           // Radar ghost (moving)
+            radar_ghost_static              = 13;           // Radar ghost (static)
+            tpp_src                         = 14;           // tpp问题
+            active_shift                    = 15;           // active shift逻辑
+            ehy_other                       = 999;          // 其他情况
+        }
+
+        enum CTRL {
+            curvature_speed                 = 1;            // 曲率限速控制
+            cut_in                          = 2;            // cut-in判断
+            cut_in_tp                       = 3;            // cut_in合理响应
+            eps_related                     = 4;            // EPS问题
+            lat_ctrl                        = 5;            // 横向控制问题
+            alc_tn                          = 6;            // ALC合理抑制
+            alc_fn                          = 7;            // ALC异常抑制
+            fct_gonote                      = 8;            // FCT GoNotifier异常
+            fct_driveoff                    = 9;            // FCT跟起异常
+            ctrl_logic_issue                = 10;           // 控制逻辑bug
+            ctrl_other                      = 999;          // 其他情况
+        }
+
+        enum MAP {
+            SA_loss_reception               = 1;            // SA信号异常
+            adas_map_segment                = 2;            // ADASmap线限速信息错误
+            adas_map_point                  = 3;            // ADASmap点限速信息错误
+            hd_map                          = 4;            // HDmap信息错误
+            map_other                       = 999;          // 其他情况
+        }
+
+        enum OTHER {
+            miss_com                        = 1;            // 通讯丢失
+            ADC_system_fault                = 2;            // ADC系统故障 
+            mating_part_related             = 3;            // 对手件故障/问题
+            takeover_update                 = 4;            // Takeover升级
+            system_design                   = 5;            // 系统方案
+            other_other                     = 999;          // 其他情况
+        }
+
+        optional float          score               = 1;
+        optional PercepOD       pcep_od             = 2;
+        optional PercepLANE     pcep_lane           = 3;
+        optional PercepTSR      pcep_tsr            = 4;
+        optional PercepAHC      pcep_ahc            = 5;
+        optional PercepFAILSAFE pcep_failsafe       = 6;
+        optional PercepTLD      pcep_tld            = 7;
+        optional PercepLIDAR    pcep_lidar          = 8;
+        optional EHY            ehy                 = 9;
+        optional CTRL           ctrl                = 10;
+        optional MAP            map                 = 11;
+        optional OTHER          other               = 999;
+    }
+
+    message TagL2 {
+        enum ACC {
+            brake_fp_hard                   = 1;            // 误刹车（重）
+            brake_fp                        = 2;            // 误刹车
+            brake_risk                      = 3;            // 刹车不及时（安全风险）
+            brake_late                      = 4;            // 没有及时刹车
+            brake_loss                      = 5;            // 制动丢失
+            starting_fail                   = 6;            // 跟车起步失败
+            np_quit                         = 7;            // NP完全退出
+            np_passive                      = 8;            // NP不能进入功能
+        }
+    
+        enum LKS {
+            rush_out_road                   = 1;            // 冲出车道
+            lat_jerk                        = 2;            // 严重猛打方向（安全风险）
+            lat_swing                       = 3;            // 乱打方向
+            curve_cut_line                  = 4;            // 弯道压线
+            lat_position_incorrect          = 5;            // 横向不居中（包含压线）
+            lat_unstable                    = 6;            // 方向摇摆/画龙/抖动
+            np_lat_quit                     = 7;            // NP-横向退出
+            np_lat_passive                  = 8;            // NP-横向不能进入功能
+        }
+    
+        enum ALC {
+            alc_fail                        = 1;            // ALC变道失败
+            alc_fp                          = 2;            // ALC没有抑制不合理变道
+            alc_uncomfortable               = 3;            // ALC变道体验问题（过急，超调等）
+        }
+    
+        enum iACCTSR {
+            speed_zone_lack                 = 1;            // 限速信息缺失
+            speed_zone_late                 = 2;            // 限速信息延迟
+            speed_zone_wrong                = 3;            // 限速信息错误
+            speed_zone                      = 4;            // 调速问题（自动，手动）
+        }
+    
+        enum OTHER {
+            ic_info                         = 1;            // IC信息错误
+            WTI                             = 2;            // WTI弹窗
+            other_other                     = 999;          // 其他情况
+        }
+
+        optional float      score           = 1;
+        optional ACC        acc             = 2;
+        optional LKS        lks             = 3;
+        optional ALC        alc             = 4;
+        optional iACCTSR    iacctsr         = 5;
+        optional OTHER      other           = 999;
+    }
+
+
+    optional uint64 beg_ts                  = 1;
+    optional uint64 end_ts                  = 2;
+    optional uint64 beg_ptp_ts              = 3;
+    optional uint64 end_ptp_ts              = 4;
+    optional TagL1  tag_l1                  = 5;
+    optional TagL2  tag_l2                  = 6;
+}
+
+
+message TagAEB {
+    message TagL1 {
+        enum PercepOD {
+            lidar_iron_board_ghost          = 1;            // 路牌高反鬼影
+            group_vru                       = 2;            // 群体（2个以上目标）聚集ped/cyclist速度输出异常
+            slowly_moving                   = 3;            // 前方目标车辆起步速度更新迟滞
+            vehicle_heading_delay           = 4;            // 目标车辆转弯朝向更新迟滞（可以参考对比点云和图像）
+            front_fov_unstable              = 5;            // 前视120fov边界目标截断状态不稳定
+            underground_garage_fp           = 6;            // 地下停车场误检问题
+            camera_lat_position_inaccuracy  = 7;            // camera横向观测位置不准确
+            camera_lon_position_inaccuracy  = 8;            // camera纵向观测位置不准确
+            camera_lat_heading_inaccuracy   = 9;            // camera横向观测朝向不准确
+            camera_heading_inaccuracy       = 10;           // camera观测朝向不准确
+            camera_classtype_error          = 11;           // camera观测类别错误
+            camera_size_inaccuracy          = 12;           // camera观测尺寸不准确
+            camera_fp                       = 13;           // camera误检，连续2帧（60ms）以上误检
+            camera_fn                       = 14;           // camera漏检，连续2帧以上漏检
+            lidar_lat_position_inaccuracy   = 15;           // lidar横向观测位置不准确
+            lidar_lon_position_inaccuracy   = 16;           // lidar纵向观测位置不准确
+            lidar_lat_heading_inaccuracy    = 17;           // lidar纵向观测位置不准确
+            lidar_heading_inaccuracy        = 18;           // lidar观测朝向不准确
+            lidar_classtype_error           = 19;           // lidar观测类别错误
+            lidar_size_inaccuracy           = 20;           // lidar观测尺寸不准确
+            lidar_fp                        = 21;           // lidar误检，连续2（200ms）帧以上误检
+            lidar_fn                        = 22;           // lidar漏检，连续2帧以上漏检
+            fusion_lat_position_inaccuracy  = 23;           // 融合横向结果位置不准确
+            fusion_lon_position_inaccuracy  = 24;           // 融合纵向结果位置不准确
+            fusion_lat_heading_inaccuracy   = 25;           // 融合横向结果朝向不准确
+            fusion_heading_inaccuracy       = 26;           // 融合结果朝向不准确
+            fusion_lat_velocity_inaccuracy  = 27;           // 融合横向结果速度大小不准确
+            fusion_lon_velocity_inaccuracy  = 28;           // 融合纵向结果速度大小不准确
+            fusion_classtype_error          = 29;           // 融合结果类别错误
+            fusion_size_inaccuracy          = 30;           // 融合结果尺寸不准确
+            fusion_fp                       = 31;           // 融合误检
+            fusion_fn                       = 32;           // 融合漏检
+            camera_not_associate            = 33;           // camera观测未关联到跟踪目标
+            camera_mistake_associate        = 34;           // camera观测错误关联到跟踪目标
+            lidar_not_associate             = 35;           // lidar观测未关联到跟踪目标
+            lidar_mistake_associate         = 36;           // lidar观测错误关联到跟踪目标
+            velocity_far_object             = 37;           // 感知误检远处目标速度
+            rear_view                       = 38;           // 后视OD问题
+            od_other                        = 999;          // 其他情况
+        }
+
+        enum PercepLIDAR {
+            lidar_fp_vehicle                = 1;            // 类车物体误检成车
+            lidar_fp_vru                    = 2;            // 类vru物体误检成vru
+            lidar_fp_sign                   = 3;            // 路牌因点云复制而误检
+            lidar_fp_reflection             = 4;            // 路牌因反射前车形成鬼影而误检
+            lidar_fp_retro                  = 5;            // 高反金属片 / 防撞桶误检
+            lidar_fp_other                  = 6;            // 其他目标误检
+            lidar_rain                      = 7;            // 雨造成框不准和误检
+            lidar_fog                       = 8;            // 雾造成框不准和误检
+            lidar_snow                      = 9;            // 雪造成框不准和误检
+            lidar_dust                      = 10;           // 尘造成框不准和误检
+            lidar_exhaust                   = 11;           // 尾气造成框不准和误检
+            lidar_steam                     = 12;           // 蒸汽造成框不准和误检
+            lidar_water_splash              = 13;           // 水花造成框不准和误检
+            lidar_negligible                = 14;           // 可忽略物体造成框不准和误检
+            lidar_vehicle_large             = 15;           // 大型车点云多截造成检测结果错误
+            lidar_vehicle_special           = 16;           // 异型Vehicle目标导致漏检或者检测结果错误
+            lidar_vru_special               = 17;           // 异型VRU目标导致漏检或者检测结果错误
+            lidar_narrow_space              = 18;           // 隧道 / 停车场等狭窄空间造成框不准和误检
+            lidar_fov_boundary              = 19;           // FOV边缘造成框不准和误检
+            lidar_fn_child                  = 20;           // 小孩漏检
+            lidar_fn_other                  = 21;           // 其他目标漏检
+            lidar_loss_frame                = 22;           // lidar丢帧问题大于200ms或者初始丢帧
+            lidar_error_heading             = 23;           // 朝向识别错误
+            lidar_error_type                = 24;           // 类别混淆错误
+            lidar_error_occlusion           = 25;           // 严重遮挡导致检测结果波动
+            lidar_error_position            = 26;           // 检测框位置不准
+            lidar_error_extent              = 27;           // 检测框尺寸不准
+            lidar_other                     = 999;          // 其他情况
+        }
+
+        enum EHY {
+            lon_position                    = 1;            // 融合目标纵向位置不正确
+            lat_position                    = 2;            // 融合目标横向位置不正确
+            classtype_error                 = 3;            // 融合结果类别错误
+            size_inaccuracy                 = 4;            // 融合结果尺寸不准确
+            lon_velocity                    = 5;            // 融合纵向结果速度大小不准确
+            lat_velocity                    = 6;            // 融合横向结果速度大小不准确
+            heading                         = 7;            // 融合结果朝向不准确
+            lat_heading                     = 8;            // 融合横向结果朝向不准确
+            object_unstable                 = 9;            // EHY融合目标跳变
+            radar_ghost_moving              = 10;           // Radar ghost (moving)
+            radar_ghost_static              = 11;           // Radar ghost (static)
+            radar_fn                        = 12;           // radar漏检
+            ehy_other                       = 999;          // 其他情况
+        }
+
+        enum CTRL {
+            fn                              = 1;            // 上游没有问题，aeb应该触发没有触发
+            fp                              = 2;            // 上游没有问题，aeb不该触发而触发
+            tn                              = 3;            // 上游没有问题，aeb应该不触发且没有触发
+            tp                              = 4;            // 上游没有问题，aeb应该触发并且触发
+            ctrl_other                      = 999;          // 其他情况
+        }
+
+        optional float          score               = 1;
+        optional PercepOD       pcep_od             = 2;
+        optional PercepLIDAR    pcep_lidar          = 8;
+        optional EHY            ehy                 = 9;
+        optional CTRL           ctrl                = 10;
+    }
+
+    optional uint64 beg_ts                  = 1;
+    optional uint64 end_ts                  = 2;
+    optional uint64 beg_ptp_ts              = 3;
+    optional uint64 end_ptp_ts              = 4;
+    optional TagL1  tag_l1                  = 5;
+}
+
+
+//  road_topology
+message RoadTopology {
+    //  primary tag
+    enum  RoadTypeL1 {
+        L1_MOTORWAY                 = 1;
+        L1_URBAN_ROADS              = 2;
+        L1_URBAN_MOTORWAY           = 3;
+        L1_PRIMARY_ROADS            = 4;
+        L1_COUNTRY_ROADS            = 5;
+        L1_SPECIAL_ROADS            = 6;
+        L1_OTHERS                   = 999;
+    }
+
+    //  secordary tag
+    enum  RoadTypeL2 {
+        L2_TRUNK                    = 1;
+        L2_SEPARATION               = 2;
+        L2_MERGE                    = 3;
+        L2_TUNNEL                   = 4;
+        L2_TOLL                     = 5;
+        L2_SERVICE_AREA             = 6;
+        L2_ENTRY                    = 7;
+        L2_EXIT                     = 8;
+        L2_RAMP                     = 9;
+        L2_CHICANE                  = 10;
+        L2_INTERSECTION             = 11;
+        L2_ROADGAP                  = 12;
+        L2_CONVERGE                 = 13;
+        L2_DIVERGE                  = 14;
+        L2_PARKING_LOT_OUTDOR       = 15;
+        L2_PARKING_LOT_INDOOR       = 16;
+        L2_CAMPUS                   = 17;
+        L2_RESIDENTIAL              = 18;
+        L2_OTHERS                   = 999;
+    }
+
+    //  tertiary tag
+    enum  RoadTypeL3 {
+        L3_NORM                     = 1;
+        L3_WITHOUT_MERGELANE        = 2;
+        L3_WITH_MERGELANE           = 3;
+        L3_LONG                     = 4;
+        L3_SHORT                    = 5;
+        L3_NORM_DIRECT              = 6;
+        L3_NORM_PARALLEL            = 7;
+        L3_LANE_DIVERGE             = 8;
+        L3_RAMP_SEPARATION          = 9;
+        L3_TUNNEL                   = 10;
+        L3_WITH_FENCE               = 11;
+        L3_WITHOUT_FENCE            = 12;
+        L3_WITH_GUARDRAIL           = 13;
+        L3_WITH_LANES               = 14;
+        L3_CROSSROAD_WAITTINGZONE   = 15;
+        L3_CROSSROAD_PASSINGZONE    = 16;
+        L3_YJUNCITION_WAITINGZONE   = 17;
+        L3_YJUNCITION               = 18;
+        L3_TJUNCITION_WAITINGZONE   = 19;
+        L3_TJUNCITION               = 20;
+        L3_CROSSROAD                = 21;
+        L3_ROUNDABOUT               = 22;
+        L3_RIGHTTURN_LANE           = 23;
+        L3_S_SHAPE                  = 24;
+        L3_VERTICAL                 = 25;
+        L3_PARALLEL                 = 26;
+        L3_LEAN                     = 27;
+        L3_OTHERS                   = 999;
+    }
+
+    optional uint64 beg_ts                  = 1;
+    optional uint64 end_ts                  = 2;
+    optional uint64 beg_ptp_ts              = 3;
+    optional uint64 end_ptp_ts              = 4;
+    optional RoadTypeL1  l1_type            = 5;
+    optional float       l1_score           = 6;
+    optional RoadTypeL2  l2_type            = 7;
+    optional float       l2_score           = 8;
+    optional RoadTypeL3  l3_type            = 9;
+    optional float       l3_score           = 10;
+}
+
+
+// interaction
+message InteRaction {
+    //  primary tag
+    enum  InteractionType {
+        OBJ_LAUNCH      = 1;
+        OBJ_STOPPING    = 2;
+        OBJ_CUTIN       = 3;
+        OBJ_CUTOUT      = 4;
+        OBJ_STATIONARY  = 5;
+        OBJ_EBRAKE      = 6;
+        LOWSPD_OBJ      = 7;
+        HIGHSPD_OBJ     = 8;
+        EQUALSPD_OBJ    = 9;
+        CROSS_TRAFFIC   = 10;
+        ALC_ONCOMING    = 11;
+        ALC_SIDE        = 12;
+        ALC_OVERTAKING  = 13;
+        OBJ_REVERSE     = 14;
+        NONE            = 15;
+        OTHERS          = 999;
+    }
+
+    optional uint64 beg_ts                  = 1;
+    optional uint64 end_ts                  = 2;
+    optional uint64 beg_ptp_ts              = 3;
+    optional uint64 end_ptp_ts              = 4;
+    optional InteractionType type           = 5;
+    optional float score                    = 6;
+    repeated int32 objids                   = 7;
+}
+
+
+// ego manever
+message EgoManever {
+
+     //  primary tag
+    enum  EgoTypeL1 {
+        L1_MAUNUAL          = 1;
+        L1_NP               = 2;
+        L1_NOP_PSP          = 3;
+        L1_PARKING          = 4;
+        L1_OTHERS           = 999;
+    }
+
+    //  secordary tag
+    enum  EgoTypeL2 {
+        L2_LANE_CHANGE      = 1;
+        L2_MERGE            = 2;
+        L2_EXIT_RAMP        = 3;
+        L2_UTURN            = 4;
+        L2_TURNLEFT         = 5;
+        L2_TURNRIGHT        = 6;
+        L2_PARKING_IN       = 7;
+        L2_PARKING_OUT      = 8;
+        L2_ALC              = 9;
+        L2_CRUISE           = 10;
+        L2_CRUISE_ADAPTIVE  = 11;
+        L2_LC_NAVIGATION    = 12;
+        L2_LC_OVERTAKE      = 13;
+        L2_LC_PREFERRED     = 14;
+        L2_SEARCHSPOT       = 15;
+        L2_OTHERS           = 999;
+    }
+
+    optional uint64 beg_ts                  = 1;
+    optional uint64 end_ts                  = 2;
+    optional uint64 beg_ptp_ts              = 3;
+    optional uint64 end_ptp_ts              = 4;
+    optional EgoTypeL1  l1_type             = 5;
+    optional float      l1_score            = 6;
+    optional EgoTypeL2  l2_type             = 7;
+    optional float      l2_score            = 8;
+}
+
+
+// environment
+message Environment {
+
+     // primary tag
+    enum  EnvironmentTypeL1 {
+        L1_DAY              = 1;
+        L1_DUSK_DAWN        = 2;
+        L1_NIGHT            = 3;
+        L1_OTHERS           = 999;
+    }
+
+    //  secordary tag
+    enum  EnvironmentTypeL2 {
+        L2_CLEAR            = 1;
+        L2_CLOUDY           = 2;
+        L2_RAIN             = 3;
+        L2_SNOW             = 4;
+        L2_FOG              = 5;
+        L2_HAZE             = 6;
+        L2_DUST             = 7;
+        L2_STEAM            = 8;
+        L2_OTHERS           = 999;
+    }
+
+    //  tertiary tag
+    enum  EnvironmentTypeL3 {
+        L3_BACKLIGHT        = 1;
+        L3_NORM             = 2;
+        L3_LIGHT            = 3;
+        L3_MODERATE         = 4;
+        L3_HEAVY            = 5;
+        L3_OTHERS           = 999;
+    }
+
+    optional uint64 beg_ts                      = 1;
+    optional uint64 end_ts                      = 2;
+    optional uint64 beg_ptp_ts                  = 3;
+    optional uint64 end_ptp_ts                  = 4;
+    optional EnvironmentTypeL1  l1_type         = 5;
+    optional float              l1_score        = 6;
+    optional EnvironmentTypeL2  l2_type         = 7;
+    optional float              l2_score        = 8;
+    optional EnvironmentTypeL3  l3_type         = 9;
+    optional float              l3_score        = 10;
+}
+
+
+// actors
+message Actors {
+     //  primary tag
+    enum  ActorsTypeL1 {
+        L1_VRU                  = 1;
+        L1_NONMOTORIZED_VEHICLE = 2;
+        L1_PASSENGER_VEHICLE    = 3;
+        L1_SPECIAL_VEHICLE      = 4;
+        L1_ABNORMAL_VEHICLE     = 5;
+        L1_ABNORMAL_VRU         = 6;
+        L1_NONE                 = 7;
+        L1_OTHERS               = 999;
+    }
+
+    //  secordary tag
+    enum  ActorsTypeL2 {
+        L2_PEDESTRIAN           = 1;
+        L2_CHILD                = 2;
+        L2_ANIMAL               = 3;
+        L2_BICYCLE              = 4;
+        L2_BICYCLE_P            = 5;
+        L2_TRICYCLE             = 6;
+        L2_MOTORCYCLE           = 7;
+        L2_SMALL_VEHICLE        = 8;
+        L2_MIDSIZE_VEHICLE      = 9;
+        L2_LARGE_VEHICLE        = 10;
+        L2_CONSTRUCTION_VECHILES= 11;
+        L2_GARBAGE_TRUCK        = 12;
+        L2_SIREN                = 13;
+        L2_TANKER_TRAILER       = 14;
+        L2_OVERSIZE_TRAILER     = 15;
+        L2_TRACTOR              = 16;
+        L2_CARRIAGE             = 17;
+        L2_SPECIAL_MOTORCYCLE   = 18;
+        L2_GROUP_VAU            = 19;
+        L2_OTHERS               = 999;
+    }
+
+    optional uint64 beg_ts                      = 1;
+    optional uint64 end_ts                      = 2;
+    optional uint64 beg_ptp_ts                  = 3;
+    optional uint64 end_ptp_ts                  = 4;
+    optional ActorsTypeL1 l1_type               = 5;
+    optional float        l1_score              = 6;
+    optional ActorsTypeL2 l2_type               = 7;
+    optional float        l2_score              = 8;
+}
+
+
+message CdmTagResult {
+    optional string       author                = 1;
+    repeated TagInfo      tag_info              = 2;
+    // NP TAG
+    optional TagInfo      np_pcep_od            = 101;
+    optional TagInfo      np_pcep_lane          = 102;
+    optional TagInfo      np_pcep_tsr           = 103;
+    optional TagInfo      np_pcep_ahc           = 104;
+    optional TagInfo      np_pcep_failsafe      = 105;
+    optional TagInfo      np_pcep_tld           = 106;
+    optional TagInfo      np_pcep_lidar         = 107;
+    optional TagInfo      np_ehy                = 108;
+    optional TagInfo      np_ctrl               = 109;
+    optional TagInfo      np_map                = 110;
+    optional TagInfo      np_other              = 149;
+    optional TagInfo      np_l2_acc             = 151;
+    optional TagInfo      np_l2_lks             = 152;
+    optional TagInfo      np_l2_alc             = 153;
+    optional TagInfo      np_l2_iacctsr         = 154;
+    optional TagInfo      np_l2_other           = 199;
+    // AEB TAG
+    optional TagInfo      aeb_pcep_od           = 201;
+    optional TagInfo      aeb_pcep_lidar        = 202;
+    optional TagInfo      aeb_ehy               = 203;
+    optional TagInfo      aeb_ctrl              = 204;
+    optional TagInfo      aeb_other             = 249;
+    optional TagInfo      aeb_l2_other          = 299;
+    // reserve
+    repeated TagNP        tag_np                = 501;
+    repeated TagAEB       tag_aeb               = 502;
+    //
+    optional RoadTopology road_topology         = 701;
+    optional InteRaction  interaction           = 702;
+    optional EgoManever   egomaneuver           = 703;
+    optional Environment  environment           = 704;
+    optional Actors       actors                = 705;
+    // reserve
+    map<string, bytes>    extend_info           = 901;
+    map<string, bytes>    debug_info            = 902;
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    optional SensorTSHeader sensor_original_ts  = 536870906;     // sensor original ts
+    optional uint64 publish_ptp_ts              = 536870907;     // publish ptp timestamp, uint in nanosec
+    optional string publisher_id                = 536870909;     // uuid of the publisher
+    optional uint64 counter                     = 536870910;     // message counter
+    optional uint64 publish_ts                  = 536870911;     // publish utc timestamp; unit : nanosecond
+}

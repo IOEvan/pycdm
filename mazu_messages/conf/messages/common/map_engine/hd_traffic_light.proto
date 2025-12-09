@@ -1,0 +1,62 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+import "common/map_engine/map_geometry.proto";
+import "common/map_engine/hd_common.proto";
+
+
+message HdTrafficLight {
+  optional uint64 id = 1;
+
+  // A four-point box which describes the front surface of traffic light box.
+  optional MapPolygon surface = 2;
+
+  // The heading of front surface.
+  // e.g. 0° stand for north.
+  //      90° stand for east.
+  optional double heading = 3;
+
+  // The type of traffic light.
+  enum TrafficLightType {
+    UNKNOWN_TRAFFICLIGHTTYPE = 0;
+    MOTER = 1;
+    NONMOTER = 2 [deprecated = true];
+    LANE = 3;
+    DIRECTION = 4;
+    RAIL = 5 [deprecated = true];
+    WARNING = 6;
+    PEDESTRIAN = 7 [deprecated = true];
+    COUNTDOWN = 8;
+    BUS = 9 [deprecated = true];
+    OTHER_TRAFFICLIGHTTYPE = 99;
+  }
+  optional TrafficLightType traffic_light_type = 4;
+
+  // The lanes which are controlled by this traffic light.
+  repeated uint64 lane_id = 5;
+
+  // The box type of traffic light.
+  enum BoxType {
+    UNKNOWN_BOXTYPE = 0;
+    HORIZONTAL = 1;
+    VERICAL = 3;
+    SINGLE = 4;
+    OTHER_BOXTYPE = 99;
+  }
+  optional BoxType box_type = 6;
+
+  optional MapPoint center = 7;
+
+  // 灯头数量
+  optional int32 traffic_light_num = 8;
+
+  optional GeometryConfidenceScore geometry_confidence = 9;
+  
+  repeated uint64 stop_line_id = 10;
+}
+
+message HdTrafficLightList {
+  repeated HdTrafficLight traffic_light_list = 1;
+}

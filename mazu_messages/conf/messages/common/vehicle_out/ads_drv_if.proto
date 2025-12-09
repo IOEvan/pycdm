@@ -1,0 +1,1339 @@
+//AD function status and interaction interface to driver
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+import "common/vehicle_in/veh_enum_type.proto";
+
+enum LnAsstStType_e{
+    LnAstSt_Off     = 0;//Lane Assist off
+    LnAstSt_Stdby   = 1;//Lane Assist standby
+    LnAstSt_Actv    = 2;//Lane Assist active
+    LnAstSt_Fail    = 3;//Lane Assist failure
+    LnAstSt_CmrBlckd= 4;//Camera blocked
+    LnAstSt_Rsrvd5  = 5;//Reserved
+    LnAstSt_Rsrvd6  = 6;//Reserved
+    LnAstSt_Rsrvd7  = 7;//Reserved
+}
+
+enum LnLineDispStType_e{
+    LnLnDisp_NotDetected = 0;//line not detected
+    LnLnDisp_Detected    = 1;//line detected
+    LnLnDisp_LDWLKS2Warn = 2;//LDW warning or LKA stage2 warning
+    LnLnDisp_LKA1Warn    = 3;//LKA stage1 warning
+    LnLnDisp_Pilot       = 4;//line as L2 Pilot target
+    LnLnDisp_AlcPrepar   = 5;//line active lane change-preparing
+    LnLnDisp_AlcOngoing  = 6;//line active lane change-ongoing
+    LnLnDisp_AlcAbort    = 7;//line active lane change-aborted
+}
+
+enum ESFWarningSts_e{
+    NoRequest              = 0;//no request
+    OncomingLeftWarn       = 1;//Oncoming warning left
+    OvertakingLeftWarn     = 2;//Overtaking warning left
+    OncomingRightWarn      = 3;//Oncoming warning right
+    OvertakingRightWarn    = 4;//Overtaking warning right
+}
+
+message SpdDispAndCfgInfo{
+    reserved 1,2,3,4,5,6;
+
+    enum SAS_SLIFSts_e{
+        Init           = 0;//INIT (default)
+        GPS_Disabled   = 1;//GPS disabled
+        TSR            = 2;//TSR-only
+        Map            = 3;//Map-only
+        Fusion         = 4;//MAP & TSR fusion
+        Fault          = 5;//Fault
+    }
+
+    optional SAS_SLIFSts_e SAS_SLIF_State        = 7;           //@Channel:ADAS @Message:0x150 @Signal:SAS_SLIF_State
+
+    enum SAS_SLIFWarnTrgSts_e{
+        NoWarning           = 0;//no warning (default)
+        Stg1_SpdWarning     = 1;//speed warning (stage 1)
+        Stg2_SpdWarning     = 2;//speed warning (stage 2)
+        Snow_SpdWarning     = 3;//speed warning (for condition snow)
+    }
+    optional SAS_SLIFWarnTrgSts_e SAS_SLWF_WarnTrigger        = 8;           //@Channel:ADAS @Message:0x150 @Signal:SAS_SLWF_WarnTrigger
+
+
+    enum SAS_SpdLmtAttr_e{
+        NoDisplay           = 0;//[default]no display
+        Warning             = 1;//warning (color)
+        HighConfidence      = 2;//high confidence (color)
+        LowConfidence       = 3;//low confidence (gray)
+    }
+
+    optional SAS_SpdLmtAttr_e SAS_SpeedLimitAttribute        = 9;           //@Channel:ADAS @Message:0x150 @Signal:SAS_SpeedLimitAttribute
+
+    enum SAS_SpdLmtTkOv_e{
+        None          = 0;//no takeover possible [default]
+        UpBtn_TkOv    = 1;//manual takeover possible via up button
+        DownBtn_TkOv  = 2;//manual takeover possible via down button
+        AutoAdjust    = 3;//auto set-speed adjustment ongoing
+    }
+
+    optional SAS_SpdLmtTkOv_e SAS_SpeedLimitTakeover        = 10;           //@Channel:ADAS @Message:0x150 @Signal:SAS_SpeedLimitTakeover
+    optional bool SAS_SpeedLimitUnit        = 11;                           //@Channel:ADAS @Message:0x150 @Signal:SAS_SpeedLimitUnit
+    optional uint32 SAS_SpeedLimitValue        = 12;                        //@Channel:ADAS @Message:0x150 @Signal:SAS_SpeedLimitValue
+    optional bool SAS_SupSignAttribute        = 13;                         //@Channel:ADAS @Message:0x150 @Signal:SAS_SupSignAttribute
+    optional uint32 SAS_SupSignType        = 14;                            //@Channel:ADAS @Message:0x150 @Signal:SAS_SupSignType
+
+    optional uint32 SAS_LocalHzrd        = 15;                              //@Channel:ADAS @Message:0x228 @Signal:SAS_LocalHazards
+    optional uint32 SAS_RdFtrWarnSign        = 16;                          //@Channel:ADAS @Message:0x228 @Signal:SAS_RoadFeatureWarningSign
+    optional uint32 SAS_TrffcLghtSts        = 17;                           //@Channel:ADAS @Message:0x228 @Signal:SAS_TrafficLightSts
+
+    enum SAS_SpeedLimitValue2_e {       // PNC app should later add logic to match this into an integer variable.
+        SpeedLimitValue2_20     = 0;
+        SpeedLimitValue2_25     = 1;
+        SpeedLimitValue2_30     = 2;
+        SpeedLimitValue2_35     = 3;
+        SpeedLimitValue2_40     = 4;
+        SpeedLimitValue2_45     = 5;
+        SpeedLimitValue2_50     = 6;
+        SpeedLimitValue2_55     = 7;
+        SpeedLimitValue2_60     = 8;
+        SpeedLimitValue2_65     = 9;
+        SpeedLimitValue2_70     = 10;
+        SpeedLimitValue2_75     = 11;
+        SpeedLimitValue2_80     = 12;
+        SpeedLimitValue2_85     = 13;
+        SpeedLimitValue2_90     = 14;
+        SpeedLimitValue2_95     = 15;
+        SpeedLimitValue2_100    = 16;
+        SpeedLimitValue2_105    = 17;
+        SpeedLimitValue2_110    = 18;
+        SpeedLimitValue2_115    = 19;
+        SpeedLimitValue2_120    = 20;
+        SpeedLimitValue2_125    = 21;
+    }
+    optional SAS_SpeedLimitValue2_e SAS_SpeedLimitValue2    = 91;           //@Channel:ADAS @Message:0x275 @Signal:SAS_SpeedLimitValue2
+
+    enum SAS_SpeedLimitAttribute2_e {
+        NoIndication    = 0;
+        RampRight       = 1;
+        RampLeft        = 2;
+    }
+    optional SAS_SpeedLimitAttribute2_e SAS_SpeedLimitAttribute2 = 92;      //@Channel:ADAS @Message:0x275 @Signal:SAS_SpeedLimitAttribute2
+}
+
+
+
+message NpIfInfo{
+    reserved 1,2,3,4,5,6,7,8,10,15,18,19,20,21,22,23,24,25,26,29,30,31,32,33,34,35,37,38,47,49,50,52,53,60,63,72,78;
+
+    enum ObjCutInType_e{
+        CutInSt_False   = 0;//no cut-in detected
+        CutInSt_LeSide  = 1;//object cutting in from left side became new longitudinal control target
+        CutInSt_RiSide  = 2;//object cutting in from right side became new longitudinal control target
+        CutInSt_BothSide= 3;//objects cutting in from both sides considered for longitudinal control
+    }
+
+    enum ObjectIntruType_e{
+        ObjIntru_False = 0;//no free space intrusion detected
+        ObjIntru_Left  = 1;//object intruding from left side
+        ObjIntru_Right = 2;//object intruding from right side
+        ObjIntru_Both  = 3;//objects intruding from both sides
+    }
+
+    enum AccDclVisType_e{
+        AccDecl_NoDec   = 0;//no deceleration imminent
+        AccDecl_AboutDec= 1;//decel imminent
+        AccDecl_SoftDec = 2;//soft deceleration
+        AccDecl_MidDec  = 3;//mid strength deceleration
+    }
+    required uint32 Textinfo             = 9;              //@Channel:CHASSIS @Message:0x7E @Signal:Textinfo
+
+
+    enum GoNotifyType_e{
+        GoNotifier_NoReq = 0;//No Request
+        GoNotifier_Req   = 1;//Request
+        GoNotifier_Rsrvd2= 2;//Reserved
+        GoNotifier_InVld = 3;//Invalid
+    }
+    required GoNotifyType_e GoNotifyReq = 11;               //原PNC输出前车起步提醒，废弃
+
+    enum GoNotifyType2_e{
+        GoNotifierType2_NoReq    = 0;    // No Request
+        GoNotifierType2_Req1     = 1;    // Request 1
+        GoNotifierType2_Req2     = 2;    // Request 2
+        GoNotifierType2_Req3     = 3;    // Request 3
+        GoNotifierType2_Req4     = 4;    // Request 4
+        GoNotifierType2_Req5     = 5;    // Request 5
+        GoNotifierType2_Req6     = 6;    // Request 6
+        GoNotifierType2_Req7     = 7;    // Request 7
+    }
+    optional GoNotifyType2_e GoNotifyType2 = 89;            //原PNC输出绿灯起步提醒，废弃
+
+    required LnAssistAidType_e LnAssiTyp= 12;               //@Channel:ADAS @Message:0x228 @Signal:LDWLKALaneAssiTyp
+    required LnAssistSnvtyType_e LnAssiSnvty= 13;         //@Channel:ADAS @Message:0x228 @Signal:LaneAssiSnvty
+    required bool LnAstHptcOnOffSts     = 14;               //@Channel:ADAS @Message:0x227 @Signal:LaneAssiHapticOnOffSts
+
+    required LnAsstStType_e LnAssistSts = 16;               //@Channel:ADAS @Message:0x227 @Signal:LaneAssistSts
+
+    enum DANADStType_e{
+        DANADSt_Default         = 0;    // -- init
+        DANADSt_SysOff          = 1;    // -- reserved
+        DANADSt_SysPsv          = 2;    // System Passive
+        DANADSt_SysReady        = 3;    // PSP Standby
+        DANADSt_AccStdby        = 4;    // ACC Standby
+        DANADSt_PilotStdby      = 5;    // Pilot Standby
+        DANADSt_AccActv         = 6;    // ACC Active
+        DANADSt_PilotActv       = 7;    // Pilot Active (long/lat)
+        DANADSt_LatUnavail      = 8;    // Pilot Active (long.only)
+        DANADSt_NOPActv         = 9;    // NOP Active
+        DANADSt_NADEngaged      = 10;   // PSP Active
+        DANADSt_NADTrsnDmd      = 11;   // NAD Active
+        DANADSt_NADEngagedBETA  = 12;   // Risk Mitigation Procedure
+        DANADSt_TJPActv         = 15;   // TJP Active
+
+    }
+
+    optional DANADStType_e DANADSts      = 17;                  //@Channel:ADAS @Message:0x150 @Signal:DA_NAD_Sts
+
+    enum DAAvl_e{
+        DAAvl_Not_available       = 0;
+        DAAvl_Available           = 1; 
+        DAAvl_Engaged             = 2; 
+        DAAvl_Activation_failed   = 3;
+    }
+
+    enum DA_NOP_Avl_e{
+        DA_NOP_Avl_NotAvl       = 0; //default
+        DA_NOP_Avl_Avl          = 1;
+        DA_NOP_Avl_Engaged      = 2; //same as {DA-NAD-Sts} = state 31 (DA / NOP active)
+        DA_NOP_Avl_Activation_failed       = 3; 
+    }
+    optional DA_NOP_Avl_e DA_NOP_Avl        = 62;            //@Channel:ADAS @Message:0x227 @Signal:DA_NOP_Avl
+    optional DAAvl_e DAiACCAvl              = 87;           //@Channel:ADAS @Message:0x275 @Signal:DA_iACC_Avl
+    optional DAAvl_e DANADAvl               = 86;           //@Channel:ADAS @Message:0x275 @Signal:DA_NAD_Avl
+    optional DAAvl_e DA_Urban_Avl           = 113;          //@Channel:ADAS @Message:0x227 @Signal:DA_Urban_Avl
+    optional DAAvl_e DA_TJP_Avl             = 118;          //@Channel:ADAS @Message:0x337 @Signal:DA_TJP_Avl
+
+    enum DAPilotAvl_e{
+        Not_available               = 0;
+        Available_longonly          = 1; 
+        Available_longlat           = 2;       
+        Engaged_longonly            = 3; 
+        Engaged_longlat             = 4; 
+        Activation_failed_longonly  = 5;
+        Activation_failed_longlat   = 6;
+    }
+    optional DAPilotAvl_e DAPilotAvl        = 88;           //@Channel:ADAS @Message:0x275 @Signal:DA_Pilot_Avl
+
+    enum DAPSCinfo_e {
+        NoPSCinfo    = 0;
+        PSCinfo_1     = 1;
+        PSCinfo_2     = 2;
+        PSCinfo_3     = 3;
+        PSCinfo_4     = 4;
+        PSCinfo_5     = 5;
+        PSCinfo_6     = 6;
+        PSCinfo_7     = 7;
+        PSCinfo_8     = 8;
+        PSCinfo_9     = 9;
+        PSCinfo_10    = 10;
+        PSCinfo_11    = 11;
+        PSCinfo_12    = 12;
+        PSCinfo_13    = 13;
+        PSCinfo_14    = 14;
+        PSCinfo_15    = 15;
+    }
+    optional DAPSCinfo_e DAPSCinfo          = 85;           //@Channel:ADAS @Message:0x263 @Signal:DA_PSCinfo
+
+    enum DAALCinfo_e {
+        NoALCinfo    = 0;
+        ALCinfo_1     = 1;
+        ALCinfo_2     = 2;
+        ALCinfo_3     = 3;
+        ALCinfo_4     = 4;
+        ALCinfo_5     = 5;
+        ALCinfo_6     = 6;
+        ALCinfo_7     = 7;
+        ALCinfo_8     = 8;
+        ALCinfo_9     = 9;
+        ALCinfo_10    = 10;
+        ALCinfo_11    = 11;
+        ALCinfo_12    = 12;
+        ALCinfo_13    = 13;
+        ALCinfo_14    = 14;
+        ALCinfo_15    = 15;
+    }
+    optional DAALCinfo_e DAALCinfo          = 90;           //@Channel:ADAS @Message:0x275 @Signal:DA_ALCinfo
+
+    required LnLineDispStType_e AdasLeLine  = 27;           //@Channel:ADAS @Message:0x228 @Signal:AdasLeLine
+    required LnLineDispStType_e AdasRiLine  = 28;           //@Channel:ADAS @Message:0x228 @Signal:AdasRiLine
+
+    enum NopLcReqStType_e{
+        NopLcReq_None   = 0;//No lane change request
+        NopLcReq_Left   = 1;//Left lane change request
+        NopLcReq_Right  = 2;//Right lane change request
+        NopLcReq_Cnfrmd = 3;//Confirmation received
+    }
+
+    enum TrnLghtReqType_e{
+        TrnLghtReq_NoReq = 0;//No Request
+        TrnLghtReq_Hazard= 1;//Hazard Lights Request
+        TrnLghtReq_Left  = 2;//Left Turn Indicator Request
+        TrnLghtReq_Right = 3;//Right Turn Indicator Request
+    }
+    required TrnLghtReqType_e TurnLightReq = 36;            //@Channel:ADAS @Message:0x228 @Signal:ADC_TurnIndicatorReq
+
+    optional bool AutoCancelTurnCmd        = 117;           //@Channel:ADAS @Message:0x266 @Signal:AutoCancelTurnCmd
+
+    optional TauGapType_e TauGapSet     = 39;                //@Channel:ADAS @Message:0x224 @Signal:DA_TauGapSet
+    optional bool DisplaySetSpeedSwtch  = 40;                //@Channel:ADAS @Message:0x150 @Signal:DA_NAD_DisplSetSpeed
+    optional bool SetSpeedUnit          = 41;                //@Channel:ADAS @Message:0x150 @Signal:DA_Speed_Unit
+    optional uint32 DisplaySetSpd       = 42;                //@Channel:ADAS @Message:0x150 @Signal:DA_SetSpeed
+
+    optional uint32 DA_NAD_WTI          = 43;                //@Channel:ADAS @Message:0x150 @Signal:DA_NAD_WTIs, move to hmi_remap_out for nt2
+    optional uint32 ALCSsts             = 44;                //@Channel:ADAS @Message:0x224 @Signal:DA_ALCSsts
+
+
+    enum LatCtrlTar_e{
+        DALatCtrlInActv  = 0;//DA lateral control not engaged
+        NotLatCtrlTgt    = 1;//left/right lane line not used as lateral control target
+        LatCtrlTgt       = 2;//left/right lane line used as lateral control target
+        DriftOut         = 3;//vehicle drifting out of lane towards the left/right side
+    }
+
+    optional LatCtrlTar_e LatCtrlTarLe                  = 45;           //@Channel:ADAS @Message:0x224 @Signal:DA_LatCtrlTarLe
+
+    optional LatCtrlTar_e LatCtrlTarRi                  = 46;           //@Channel:ADAS @Message:0x224 @Signal:DA_LatCtrlTarRi
+
+    optional bool LongCtrlTar                           = 48;           //@Channel:ADAS @Message:0x224 @Signal:DA_LongCtrlTar
+
+    enum DA_TauGapOprtn_e{
+        NoChange   = 0;//no change in tau-gap
+        MinTauGap  = 1;//no change as already at minimum
+        TauGapDec  = 2;//tau-gap decreased
+        TauGapInc  = 3;//tau-gap increased
+        MaxTauGap  = 4;//no change as already at maximum
+    }
+
+    optional DA_TauGapOprtn_e TauGapChangeDisp          = 51;           //@Channel:ADAS @Message:0x224 @Signal:DA_TauGapChangeDisp
+
+    enum HODsymbol_e{
+        HODsymbol_HandsOn     = 0;//hands-on
+        HODsymbol_HandsOff    = 1;//hands-off, but no HOD symbol
+        HODsymbol_WhiteSymbol = 2;//white HOD symbol
+        HODsymbol_RedSymbol   = 3;//red HOD symbol
+    }
+    optional HODsymbol_e HODsymbol                      =54;            //@Channel:ADAS @Message:0x150 @Signal:DA_HODsymbol
+
+    enum ELKSts_e{
+        ELKSts_Off        = 0;
+        ELKSts_Standby    = 1;
+        ELKSts_Active     = 2;
+        ELKSts_Failure    = 3;
+    }
+    optional ELKSts_e ELKSts                            =55;            //@Channel:ADAS @Message:0x254 @Signal:ELKSts
+
+    optional ESFWarningSts_e ESFWarningSts              =56;            //@Channel:ADAS @Message:0x254 @Signal:ESFWarningSts
+
+    enum EASSts_e{
+        EAS_UnAvl         = 0;//unavailable
+        EAS_Standby       = 1;//standby
+        EAS_Active        = 2;//active
+        EAS_Failure       = 3;//Failure
+    }
+    optional EASSts_e EASSts                            =57;            //@Channel:ADAS @Message:0x254 @Signal:EASSts
+
+    enum EASWarnLevel_e{
+        EASWarnLevel_None       = 0;//no warning
+        EASWarnLevel_LV1        = 1;//warning level 1
+        EASWarnLevel_LV2        = 2;//warning level 2
+    }
+    optional EASWarnLevel_e EASWarningLevel             =58;            //@Channel:ADAS @Message:0x254 @Signal:EASWarningLevel
+
+    optional bool EcallReq                              =59;            //@Channel:ADAS @Message:0x254 @Signal:ADC_EcallReq
+    optional uint32 DA_NOP_ALC_Sts                      =61;            //@Channel:ADAS @Message:0x227 @Signal:DA_NOP_ALC_Sts
+
+    enum ADCDoorLockReq_e{
+        ADCDoorLockReq_NoReq       = 0;//no request
+        ADCDoorLockReq_All_Unlock  = 1;//All door unlock
+        ADCDoorLockReq_All_Lock    = 2;//All door lock
+    }
+    optional ADCDoorLockReq_e ADCDoorLockReq              =64;             //@Channel:ADAS @Message:0x266 @Signal:ADCDoorLockReq
+    optional uint32 DA_NOP_WTIs                           =65;             //@Channel:ADAS @Message:0x254 @Signal:DA_NOP_WTIs, move to hmi_remap_out for nt2
+    optional uint32 DA_iACC_WTIs                          =66;             //@Channel:ADAS @Message:0x254 @Signal:DA_iACC_WTIs, move to hmi_remap_out for nt2
+    optional uint32 DA_Pilot_WTIs                         =67;             //@Channel:ADAS @Message:0x254 @Signal:DA_Pilot_WTIs, move to hmi_remap_out for nt2
+    optional bool DA_SysFailSymbol                        =68;             //@Channel:ADAS @Message:0x227 @Signal:DA_SysFailSymbol
+    enum DA_SetSpdAnmt_e{
+        DASetSpdAnmt_None       = 0;//no animation
+        DASetSpdAnmt_Change     = 1;//speed change animation
+        DASetSpdAnmt_MinMax     = 2;//max./min. set-speed animation
+        DASetSpdAnmt_Reserved   = 3;//reserved
+    }
+    optional DA_SetSpdAnmt_e DA_SetSpeedAnimation         =69;             //@Channel:ADAS @Message:0x227 @Signal:DA_SetSpeedAnimation
+
+    enum DMS_Snvty_e{
+        DMS_Snvty_NoReqrmt      = 0;//no requirement
+        DMS_Snvty_FCW_High      = 1;//high sensitivity of FCW
+        DMS_Snvty_LDW_High      = 2;//high sensitivity of LDW
+        DMS_Snvty_FCW_LDW_High  = 3;//high sensitivity of FCW and LDW
+    }
+    optional DMS_Snvty_e DMSIntrvSnvtyReq                 =70;              //@Channel:ADAS @Message:0x224 @Signal:DMSInterventionSnvtyReq
+    enum DMS_FaultInfo_e{
+        DMS_FaultInfo_NoFault       = 0;//no fault
+        DMS_FaultInfo_GeneralFault  = 1;//general fault
+        DMS_FaultInfo_NoFace        = 2;//no face
+        DMS_FaultInfo_Occluded      = 3;//occluded
+        DMS_FaultInfo_Blurred       = 4;//blurred
+        DMS_FaultInfo_Reserved      = 5;//reserved
+    }
+    optional DMS_FaultInfo_e DMSFaultInfo                 =71;              //@Channel:ADAS @Message:0x224 @Signal:DMSFaultInfo
+    optional uint32 DA_NopWTI                             =73;              //@Channel:ADAS @Message:0x228 @Signal:DA_NopWTI, move to hmi_remap_out for nt2
+    optional uint32 DA_PSP_WTIs                           =74;              //@Channel:ADAS @Message:0x275 @Signal:DA_PSP_WTIs, move to hmi_remap_out for nt2
+    optional uint32 NAD_PSP_WTI2                          =75;              //@Channel:ADAS @Message:0x275 @Signal:NAD_PSP_WTI2, move to hmi_remap_out for nt2
+    optional uint32 NAD_PSP_WTI3                          =76;              //@Channel:ADAS @Message:0x275 @Signal:NAD_PSP_WTI3, move to hmi_remap_out for nt2
+    optional uint32 NAD_PSP_WTI4                          =77;              //@Channel:ADAS @Message:0x275 @Signal:NAD_PSP_WTI4, move to hmi_remap_out for nt2
+    optional uint32 NOPRainMode                             =79;            //@Channel:ADAS @Message:0x224 @Signal:NOPRainMode
+    enum DA_PSP_Sts_e{
+        DA_PSP_Sts_NotAvl       = 0;
+        DA_PSP_Sts_Avl          = 1;
+        DA_PSP_Sts_Engaged      = 2;
+        DA_PSP_Sts_Activation_failed      = 3;
+    }
+    optional DA_PSP_Sts_e DA_PSP_Avl                      =80;              //@Channel:ADAS @Message:0x228 @Signal:DA_PSP_Avl
+    enum DA_NAD_Sub_Sts_e{
+        DA_NAD_Sub_Sts_NOP_Off          = 0;
+        DA_NAD_Sub_Sts_NOP_Highway      = 1;
+        DA_NAD_Sub_Sts_PSP              = 2;
+    }
+    optional DA_NAD_Sub_Sts_e DA_NAD_Sub_Sts              =81;              //@Channel:ADAS @Message:0x228 @Signal:DA_NAD_Sub_Sts
+    optional bool SetHiBeam                               =82;              //@Channel:ADAS @Message:0x228 @Signal:SetHiBeam
+    optional uint32 ADMS_WTIs                             =83;              //@Channel:ADAS @Message:0x227 @Signal:ADMS_WTIs, move to hmi_remap_out for nt2
+    enum ADCtoCDC_temp2bit_2_e{
+        ADCtoCDC_temp2bit_2_NotAvl       = 0;//default
+        ADCtoCDC_temp2bit_2_Avl          = 1;
+        ADCtoCDC_temp2bit_2_Engaged      = 2;//same as {DA-NAD-Sts} = 11 (NAD active)
+    }
+    optional ADCtoCDC_temp2bit_2_e ADCtoCDC_temp2bit_2    =84;             //@Channel:ADAS @Message:0x266 @Signal:ADCtoCDC_temp2bit_2
+    
+    enum ADCtoCDC_temp1bit_1_e{
+        ADCtoCDC_temp1bit_1_0       = 0;
+        ADCtoCDC_temp1bit_1_1       = 1;
+    }
+    optional ADCtoCDC_temp1bit_1_e ADCtoCDC_temp1bit_1    = 92;             //@Channel:ADAS @Message:0x266 @Signal:ADCtoCDC_temp1bit_1 
+    
+    optional bool DA_withinPSPgeofence = 91;                               //@Channel:ADAS @Message:0x228 @Signal:DA_withinPSPgeofence
+
+    enum ADCtoCDC_temp1bit_2_e{
+        ADCtoCDC_temp1bit_2_0          = 0;
+        ADCtoCDC_temp1bit_2_1          = 1; // default 
+    }
+    optional ADCtoCDC_temp1bit_2_e ADCtoCDC_temp1bit_2    =100;             //@Channel:ADAS @Message:0x266 @Signal:ADCtoCDC_temp1bit_2
+
+    enum ADCtoCDC_temp1bit_3_e{
+        ADCtoCDC_temp1bit_3_0          = 0; // default 
+        ADCtoCDC_temp1bit_3_1          = 1; 
+    }
+    optional ADCtoCDC_temp1bit_3_e ADCtoCDC_temp1bit_3    =101;             //@Channel:ADAS @Message:0x266 @Signal:ADCtoCDC_temp1bit_3
+
+    enum ADCtoCDC_temp1bit_4_e{
+        ADCtoCDC_temp1bit_4_0          = 0; // default 
+        ADCtoCDC_temp1bit_4_1          = 1; 
+    }
+    optional ADCtoCDC_temp1bit_4_e ADCtoCDC_temp1bit_4    =102;             //@Channel:ADAS @Message:0x266 @Signal:ADCtoCDC_temp1bit_4
+
+    enum ADCtoCDC_temp1bit_5_e{
+        ADCtoCDC_temp1bit_5_0          = 0; // default 
+        ADCtoCDC_temp1bit_5_1          = 1; 
+    }
+    optional ADCtoCDC_temp1bit_5_e ADCtoCDC_temp1bit_5    =103;             //@Channel:ADAS @Message:0x266 @Signal:ADCtoCDC_temp1bit_5
+
+    enum ADCtoCDC_temp1bit_6_e{
+        ADCtoCDC_temp1bit_6_0          = 0; 
+        ADCtoCDC_temp1bit_6_1          = 1; // default 
+    }
+    optional ADCtoCDC_temp1bit_6_e ADCtoCDC_temp1bit_6   =104;             //@Channel:ADAS @Message:0x266 @Signal:ADCtoCDC_temp1bit_6
+
+    enum ADCtoCDC_temp1bit_7_e{
+        ADCtoCDC_temp1bit_7_0          = 0; // default 
+        ADCtoCDC_temp1bit_7_1          = 1; 
+    }
+    optional ADCtoCDC_temp1bit_7_e ADCtoCDC_temp1bit_7    =105;             //@Channel:ADAS @Message:0x224 @Signal:ADCtoCDC_temp1bit_7 
+
+    enum ADCtoCDC_temp2bit_1_e{
+        ADCtoCDC_temp2bit_1_00          = 0; 
+        ADCtoCDC_temp2bit_1_01          = 1; 
+        ADCtoCDC_temp2bit_1_10          = 2; // default 
+        ADCtoCDC_temp2bit_1_11          = 3;
+    }
+    optional ADCtoCDC_temp2bit_1_e ADCtoCDC_temp2bit_1    =106;             //@Channel:ADAS @Message:0x266 @Signal:ADCtoCDC_temp2bit_1 
+
+
+
+
+    enum ADCtoCDC_temp3bit_1_e{
+        ADCtoCDC_temp3bit_1_000          = 0; 
+        ADCtoCDC_temp3bit_1_001          = 1; 
+        ADCtoCDC_temp3bit_1_010          = 2; 
+        ADCtoCDC_temp3bit_1_011          = 3; // default 
+        ADCtoCDC_temp3bit_1_100          = 4; 
+        ADCtoCDC_temp3bit_1_101          = 5; 
+        ADCtoCDC_temp3bit_1_110          = 6; 
+        ADCtoCDC_temp3bit_1_111          = 7;
+    }
+    optional ADCtoCDC_temp3bit_1_e ADCtoCDC_temp3bit_1    =107;             //@Channel:ADAS @Message:0x266 @Signal:ADCtoCDC_temp3bit_1 
+
+    enum ADCtoCDC_temp4bit_1_e{
+        ADCtoCDC_temp4bit_1_0000          = 0; // default 
+        ADCtoCDC_temp4bit_1_0001          = 1; 
+        ADCtoCDC_temp4bit_1_0010          = 2; 
+        ADCtoCDC_temp4bit_1_0011          = 3; 
+        ADCtoCDC_temp4bit_1_0100          = 4; 
+        ADCtoCDC_temp4bit_1_0101          = 5; 
+        ADCtoCDC_temp4bit_1_0110          = 6; 
+        ADCtoCDC_temp4bit_1_0111          = 7;
+        ADCtoCDC_temp4bit_1_1000          = 8; 
+        ADCtoCDC_temp4bit_1_1001          = 9; 
+        ADCtoCDC_temp4bit_1_1010          = 10; 
+        ADCtoCDC_temp4bit_1_1011          = 11; 
+        ADCtoCDC_temp4bit_1_1100          = 12; 
+        ADCtoCDC_temp4bit_1_1101          = 13; 
+        ADCtoCDC_temp4bit_1_1110          = 14; 
+        ADCtoCDC_temp4bit_1_1111          = 15;
+    }
+    optional ADCtoCDC_temp4bit_1_e ADCtoCDC_temp4bit_1    =108;             //@Channel:ADAS @Message:0x227 @Signal:ADCtoCDC_temp4bit_1 
+
+
+    enum Da_Inhibit_e{
+        DA_inhibit_no_inhibit = 0;
+        DA_inhibit_Attention_Demand = 1;
+        DA_inhibit_Takeover_Demand = 2;
+        DA_inhibit_Risk_Mitigation_Demand = 3;
+        DA_inhibit_Risk_Instant_Off = 4;
+    }
+    optional Da_Inhibit_e Da_Inhibit_out  = 93;                             //@Channel:ADAS @Message:0x275 @Signal:DA_Inhibit
+
+    enum DriverSteeringWheelPull_e{
+        DriverNotPulling                    = 0;
+        DriverPulling_Clockwise_Right       = 1;
+        DriverPulling_CounterClockwise_Left = 2;
+        DriverPulling_Reserved              = 3;
+    }
+    optional DriverSteeringWheelPull_e DriverSteeringWheelPull = 109;       //@Channel:ADAS @Message:0x337 @Signal:DriverSteeringWheelPull
+
+    enum ButtonDisplay_e{
+      DontDisplay      = 0;
+      Display_Gray     = 1;
+      Display_Color    = 2; 
+      Display_Reserved = 3; 
+    }
+    optional ButtonDisplay_e DA_PSPactTriggerDisplay = 110; //@Channel:ADAS @Message:0x275 @Signal:DA_PSPactTriggerDisplay
+
+    optional bool DA_AccPilot_ModeSwitch             = 111; //@Channel:CHASSIS @Message:0x7E @Signal:DA_AccPilot_ModeSwitch
+    optional bool ShowOverSpeedAlertFaultIcon        = 112; //@Channel:ADAS @Message:0x254 @Signal:ShowOverSpeedAlertFaultIcon
+
+    enum ADC_RCM_Hazardreq_e{
+        ADC_RCM_Hazardreq_no_request = 0;
+        ADC_RCM_Hazardreq_request    = 1;
+    }
+    optional ADC_RCM_Hazardreq_e ADC_RCM_Hazardreq  = 114;  //@Channel:ADAS @Message:0x228 @Signal:ADC_RCM_Hazardreq
+
+    enum RCM_ecall_e{
+        RCM_ecall_no_request = 0;
+        RCM_ecall_request    = 1;
+    }
+    optional RCM_ecall_e RCM_ecall  = 115;                  //@Channel:ADAS @Message:0x254 @Signal:RCM_ecall
+
+    enum ActiveSafty_FAS_req_e{
+        ActiveSafty_FAS_req_inactive    = 0;     //Inactive
+        ActiveSafty_FAS_req_active      =1; //Active
+    }
+    optional ActiveSafty_FAS_req_e ActiveSafty_FAS_req  = 116;           //For NT3 RCM FAS request
+
+
+
+
+
+}
+
+message SdowBsdIfInfo{
+
+    required bool SDOWOnOffSts = 1;                         //@Channel:ADAS @Message:0xA8 @Signal:SDOWOnOffSts
+    required bool LCAHapticOnOffSts = 2;                    //@Channel:ADAS @Message:0xA8 @Signal:LCAHapticOnOffSts
+    required bool BSDLCAOnOffSts = 3;                       //@Channel:ADAS @Message:0xA8 @Signal:BSDLCAOnOffSts
+
+    enum SdowWarnStType_e{
+        SDOWSt_Off   = 0;//Off
+        SDOWSt_InActv= 1;//Inactive
+        SDOWSt_Actv  = 2;//Active
+        SDOWSt_Fail  = 3;//Failure
+    }
+    repeated SdowWarnStType_e SDOWWarnSts = 4;              //@Channel:ADAS @Message:0xA8 @Signal:SDOWRiSts
+                                                            //@Channel:ADAS @Message:0xA8 @Signal:SDOWLeSts
+
+    enum RadRRReqType_e{
+        RADRR_NoReq  = 0;//No request
+        RADRR_Rsrvd1 = 1;//Reserved
+        RADRR_Rsrvd2 = 2;//Reserved
+        RADRR_Rsrvd3 = 3;//Reserved
+        RADRR_Hptc1  = 4;//Haptic request nb 1
+        RADRR_Hptc2  = 5;//Haptic request nb 2
+        RADRR_Rsrvd6 = 6;//Reserved
+        RADRR_Rsrvd7 = 7;//Reserved
+    }
+    required RadRRReqType_e ExtReqRAD_RR = 5;               //@Channel:ADAS @Message:0xA8 @Signal:ExtReqRAD_RR
+
+    enum SdowWarnType_e{
+        SdowWarn_Off   = 0;//No warning
+        SdowWarn_Warn  = 1;//Warning
+        SdowWarn_Danger= 2;//Danger Exist
+        SdowWarn_InVld = 3;//Invalid
+    }
+    repeated SdowWarnType_e SDOWWarnReq = 6;                //@Channel:ADAS @Message:0xA8 @Signal:SdowLeWarnReq
+                                                            //@Channel:ADAS @Message:0xA8 @Signal:SdowRiWarnReq
+
+    enum BsdLcaWarnStType_e{
+        BSDlCA_Off   = 0;//Off
+        BSDlCA_InActv= 1;//Inactive
+        BSDlCA_Actv  = 2;//Active
+        BSDlCA_Fail  = 3;//Failure
+    }
+    repeated BsdLcaWarnStType_e BSDLCASts = 7;              //@Channel:ADAS @Message:0xA8 @Signal:BSDLCALeSts @Comment:BSD/LCA left warning feature status
+                                                            //@Channel:ADAS @Message:0xA8 @Signal:BSDLCARiSts
+    enum BsdLcaReWarnType_e{
+        BsdLcaReWarn_Off    = 0;//no warning
+        BsdLcaReWarn_Lvl1   = 1;//warning level 1
+        BsdLcaReWarn_Lvl2   = 2;//warning level 2
+        BsdLcaReWarn_Rsrvd3 = 3;//reserved
+    }
+    repeated BsdLcaReWarnType_e BSDLCAReWarnReq = 8;        //@Channel:ADAS @Message:0xA8 @Signal:BSDLCAReLeWarnReq
+                                                            //@Channel:ADAS @Message:0xA8 @Signal:BSDLCAReRiWarnReq
+
+    enum RsdsDispType_e{
+        RSDS_NoDisp  = 0 ;//no display
+        RSDS_Rsrvd1  = 1 ;//reserved
+        RSDS_Rsrvd2  = 2 ;//reserved
+        RSDS_Rsrvd3  = 3 ;//reserved
+        RSDS_Rsrvd4  = 4 ;//reserved
+        RSDS_Rsrvd5  = 5 ;//reserved
+        RSDS_Rsrvd6  = 6 ;//reserved
+        RSDS_Error   = 7 ;//BSD/LCA/CTA error
+        RSDS_Blind   = 8 ;//BSD/LCA/CTA blindness
+        RSDS_Rsrvd9  = 9 ;//reserved
+        RSDS_Rsrvd10 = 10;//reserved
+        RSDS_Rsrvd11 = 11;//reserved
+        RSDS_Rsrvd12 = 12;//reserved
+        RSDS_Rsrvd13 = 13;//reserved
+        RSDS_Rsrvd14 = 14;//reserved
+        RSDS_Rsrvd15 = 15;//reserved
+    }
+    repeated RsdsDispType_e FrntRSDSDisp = 9;               //@Channel:ADAS @Message:0x22D @Signal:FrntLeRSDSDisp
+                                                            //@Channel:ADAS @Message:0x22E @Signal:FrntRiRSDSDisp
+
+    required RsdsDispType_e ReRiRSDSDisp = 10;              //@Channel:ADAS @Message:0xA8 @Signal:ReRiRSDSDisp
+
+    enum ExSdowWarnType_e{
+        ExSdowWarn_Off   = 0;//No warning
+        ExSdowWarn_Warn  = 1;//Warning
+        ExSdowWarn_Danger= 2;//Danger Exist
+        ExSdowWarn_InVld = 3;//Invalid
+    }
+    repeated ExSdowWarnType_e ExSDOWWarnReq = 11;           // @linescope: NT3
+
+    enum BsdLcaWtiDispType_e{
+        BsdLcaWti_NoDisp  = 0 ;//no display
+        BsdLcaWti_Rsrvd1  = 1 ;//reserved
+        BsdLcaWti_Rsrvd2  = 2 ;//reserved
+        BsdLcaWti_Rsrvd3  = 3 ;//reserved
+        BsdLcaWti_Rsrvd4  = 4 ;//reserved
+        BsdLcaWti_Rsrvd5  = 5 ;//reserved
+        BsdLcaWti_Rsrvd6  = 6 ;//reserved
+        BsdLcaWti_Error   = 7 ;//BsdLca error
+        BsdLcaWti_Rsrvd8  = 8 ;//reserved
+        BsdLcaWti_Rsrvd9  = 9 ;//reserved
+        BsdLcaWti_Rsrvd10 = 10;//reserved
+        BsdLcaWti_Rsrvd11 = 11;//reserved
+        BsdLcaWti_Rsrvd12 = 12;//reserved
+        BsdLcaWti_Rsrvd13 = 13;//reserved
+        BsdLcaWti_Rsrvd14 = 14;//reserved
+        BsdLcaWti_Rsrvd15 = 15;//reserved
+    }
+
+    optional BsdLcaWtiDispType_e BSDLcaWtiDisp = 12;        //@Channel:ADAS @Message:0x260 @Signal:BsdLcaWtiDisp
+
+    enum SdowWtiDispType_e{
+        SdowWti_NoDisp  = 0 ;//no display
+        SdowWti_Rsrvd1  = 1 ;//reserved
+        SdowWti_Rsrvd2  = 2 ;//reserved
+        SdowWti_Rsrvd3  = 3 ;//reserved
+        SdowWti_Rsrvd4  = 4 ;//reserved
+        SdowWti_Rsrvd5  = 5 ;//reserved
+        SdowWti_Rsrvd6  = 6 ;//reserved
+        SdowWti_Error   = 7 ;//Sdow error
+        SdowWti_Rsrvd8  = 8 ;//reserved
+        SdowWti_Rsrvd9  = 9 ;//reserved
+        SdowWti_Rsrvd10 = 10;//reserved
+        SdowWti_Rsrvd11 = 11;//reserved
+        SdowWti_Rsrvd12 = 12;//reserved
+        SdowWti_Rsrvd13 = 13;//reserved
+        SdowWti_Rsrvd14 = 14;//reserved
+        SdowWti_Rsrvd15 = 15;//reserved
+    }
+
+    optional SdowWtiDispType_e SdowWtiDisp = 13;        //@Channel:ADAS @Message:0x260 @Signal:SdowWtiDisp
+
+    enum FctaWtiDispType_e{
+        FctaWti_NoDisp  = 0 ;//no display
+        FctaWti_Rsrvd1  = 1 ;//reserved
+        FctaWti_Rsrvd2  = 2 ;//reserved
+        FctaWti_Rsrvd3  = 3 ;//reserved
+        FctaWti_Rsrvd4  = 4 ;//reserved
+        FctaWti_Rsrvd5  = 5 ;//reserved
+        FctaWti_Rsrvd6  = 6 ;//reserved
+        FctaWti_Error   = 7 ;//Fcta error
+        FctaWti_Rsrvd8  = 8 ;//reserved
+        FctaWti_Rsrvd9  = 9 ;//reserved
+        FctaWti_Rsrvd10 = 10;//reserved
+        FctaWti_Rsrvd11 = 11;//reserved
+        FctaWti_Rsrvd12 = 12;//reserved
+        FctaWti_Rsrvd13 = 13;//reserved
+        FctaWti_Rsrvd14 = 14;//reserved
+        FctaWti_Rsrvd15 = 15;//reserved
+    }
+
+    optional FctaWtiDispType_e FctaWtiDisp = 14;        //@Channel:ADAS @Message:0x260 @Signal:FctaWtiDisp
+
+    enum FctabWtiDispType_e{
+        FctabWti_NoDisp  = 0 ;//no display
+        FctabWti_Rsrvd1  = 1 ;//reserved
+        FctabWti_Rsrvd2  = 2 ;//reserved
+        FctabWti_Rsrvd3  = 3 ;//reserved
+        FctabWti_Rsrvd4  = 4 ;//reserved
+        FctabWti_Rsrvd5  = 5 ;//reserved
+        FctabWti_Rsrvd6  = 6 ;//reserved
+        FctabWti_Error   = 7 ;//Fctab error
+        FctabWti_Rsrvd8  = 8 ;//reserved
+        FctabWti_Rsrvd9  = 9 ;//reserved
+        FctabWti_Rsrvd10 = 10;//reserved
+        FctabWti_Rsrvd11 = 11;//reserved
+        FctabWti_Rsrvd12 = 12;//reserved
+        FctabWti_Rsrvd13 = 13;//reserved
+        FctabWti_Rsrvd14 = 14;//reserved
+        FctabWti_Rsrvd15 = 15;//reserved
+    }
+
+    optional FctabWtiDispType_e FctabWtiDisp = 15;        //@Channel:ADAS @Message:0x260 @Signal:FctabWtiDisp
+
+        enum RctaWtiDispType_e{
+        RctaWti_NoDisp  = 0 ;//no display
+        RctaWti_Rsrvd1  = 1 ;//reserved
+        RctaWti_Rsrvd2  = 2 ;//reserved
+        RctaWti_Rsrvd3  = 3 ;//reserved
+        RctaWti_Rsrvd4  = 4 ;//reserved
+        RctaWti_Rsrvd5  = 5 ;//reserved
+        RctaWti_Rsrvd6  = 6 ;//reserved
+        RctaWti_Error   = 7 ;//Rcta error
+        RctaWti_Rsrvd8  = 8 ;//reserved
+        RctaWti_Rsrvd9  = 9 ;//reserved
+        RctaWti_Rsrvd10 = 10;//reserved
+        RctaWti_Rsrvd11 = 11;//reserved
+        RctaWti_Rsrvd12 = 12;//reserved
+        RctaWti_Rsrvd13 = 13;//reserved
+        RctaWti_Rsrvd14 = 14;//reserved
+        RctaWti_Rsrvd15 = 15;//reserved
+    }
+
+    optional RctaWtiDispType_e RctaWtiDisp = 16;        //@Channel:ADAS @Message:0x260 @Signal:RctaWtiDisp
+
+        enum RctabWtiDispType_e{
+        RctabWti_NoDisp  = 0 ;//no display
+        RctabWti_Rsrvd1  = 1 ;//reserved
+        RctabWti_Rsrvd2  = 2 ;//reserved
+        RctabWti_Rsrvd3  = 3 ;//reserved
+        RctabWti_Rsrvd4  = 4 ;//reserved
+        RctabWti_Rsrvd5  = 5 ;//reserved
+        RctabWti_Rsrvd6  = 6 ;//reserved
+        RctabWti_Error   = 7 ;//Rctab error
+        RctabWti_Rsrvd8  = 8 ;//reserved
+        RctabWti_Rsrvd9  = 9 ;//reserved
+        RctabWti_Rsrvd10 = 10;//reserved
+        RctabWti_Rsrvd11 = 11;//reserved
+        RctabWti_Rsrvd12 = 12;//reserved
+        RctabWti_Rsrvd13 = 13;//reserved
+        RctabWti_Rsrvd14 = 14;//reserved
+        RctabWti_Rsrvd15 = 15;//reserved
+    }
+
+    optional RctabWtiDispType_e RctabWtiDisp = 17;        //@Channel:ADAS @Message:0x260 @Signal:RctabWtiDisp
+
+}
+
+
+message LngWarnSafetyIfInfo{
+
+    enum FcwCnfgType_e{
+        FCWCnfg_Early = 0;//Early
+        FCWCnfg_Normal= 1;//Normal
+        FCWCnfg_Late  = 2;//Late
+        FCWCnfg_Off   = 3;//Off (reserved)
+    }
+    required FcwCnfgType_e FCWSetSts   = 1;                  //@Channel:CHASSIS @Message:0x7E @Signal:FCWSetSts
+
+    enum AEBStType_e{
+        AEBSt_Init          = 0; //Init
+        AEBSt_Stdby         = 1; //Not active
+        AEBSt_Actv          = 2; //Active
+        AEBSt_Psv           = 3; //Inhibit
+        AEBSt_Off           = 4; //Off (Reserved)
+        AEBSt_Rvrs_off_only = 5; //Reverse off only
+        AEBSt_Rvrs_inh_only = 6; //Reverse inhibit only
+        AEBSt_Rsrvd7        = 7; //Reserved
+    }
+    required AEBStType_e AEBSts   = 2;                       //@Channel:CHASSIS @Message:0x7E @Signal:AEBSts
+
+    enum PcwWarnType_e{
+        PCWWarn_NoWarn = 0;//No warning
+        PCWWarn_Veh    = 1;//Vehicle
+        PCWWarn_Ped    = 2;//Pedestrian
+        PCWWarn_Cyclist= 3;//Cyclist
+        PCWWarn_Rsrvd4 = 4;//Reserved
+        PCWWarn_Rsrvd5 = 5;//Reserved
+        PCWWarn_Rsrvd6 = 6;//Reserved
+        PCWWarn_Rsrvd7 = 7;//Reserved
+    }
+    required PcwWarnType_e PcwWarnReq   = 3;                //@Channel:CHASSIS @Message:0x7E @Signal:PCW_preWarningReq
+    enum AesWarnType_e{
+        AESWarn_NoWarn        = 0;//No warning
+        AESWarn_OncomingLe    = 1;//Oncoming warning left
+        AESWarn_OncomingRi    = 2;//Oncoming warning right
+    }
+    optional AesWarnType_e AESWarningSts = 4;               //@Channel:ADAS @Message:0x254 @Signal:AESWarningSts
+
+    enum AESStType_e{
+        AESSt_Off   = 0;//Off
+        AESSt_Stdby = 1;//Standby
+        AESSt_Actv  = 2;//Active
+        AESSt_Fail  = 3;//Failure
+    }
+    optional AESStType_e AESSts = 5;                        //@Channel:CHASSIS @Message:0x7E @Signal:AESSts
+    enum RearAEBStsType_e{
+        RearAEBSts_On       = 0;
+        RearAEBSts_Off      = 1;
+        RearAEBSts_Inhibit  = 2;
+    }
+    optional RearAEBStsType_e RearAEBSts = 6 [deprecated=true];      //@Channel:CHASSIS @Message:0x7E @Signal:RearAEBSts
+
+    enum OAASetSts_e{
+        OAASetSts_Off    = 0;
+        OAASetSts_On     = 1;
+        OAASetSts_Early  = 2;
+        OAASetSts_Late   = 3;
+    }
+    optional OAASetSts_e OAASetSts = 7;                     //@Channel:CHASSIS @Message:0x7E @Signal:OAASetSts
+
+    enum OAASts_e{
+        OAASts_Init      = 0;
+        OAASts_InActv    = 1;
+        OAASts_Actv      = 2;
+        OAASts_Inhibit   = 3;
+        OAASts_Off       = 4;
+    }
+    optional OAASts_e OAASts = 8;                           //@Channel:CHASSIS @Message:0x7E @Signal:OAASts
+
+    optional bool OAA_preWarningReq = 9;                    //@Channel:CHASSIS @Message:0x7E @Signal:OAA_preWarningReq   deleted
+    
+    enum GOA_preWarningReq_e{
+        GOA_preWarningReq_No_Warning       = 0;
+        GOA_preWarningReq_Frnt_Warning     = 1;
+        GOA_preWarningReq_Rear_Warning     = 2;
+        GOA_preWarningReq_Reserved3        = 3;
+    }
+    optional GOA_preWarningReq_e GOA_preWarningReq = 10;     //@Channel:CHASSIS @Message:0x7E @Signal:OAA_preWarningReq
+
+    optional RearAEBSts_new_e RearAEBSts_new = 11;               //@Channel:CHASSIS @Message:0x7E @Signal:RearAEBSts_new
+        enum RearAEBSts_new_e{
+        RearAEBSts_new_init         = 0;
+        RearAEBSts_new_standby      = 1;
+        RearAEBSts_new_active       = 2;
+        RearAEBSts_new_inhibit      = 3;
+        RearAEBSts_new_off          = 4;
+        RearAEBSts_new_reserved_5   = 5;
+        RearAEBSts_new_reserved_6   = 6;
+        RearAEBSts_new_reserved_7   = 7;
+    }
+    optional RearGOASts_e RearGOASts = 12;               //@Channel:CHASSIS @Message:0x7E @Signal:RearGOASts
+        enum RearGOASts_e{
+        RearGOASts_init         = 0;
+        RearGOASts_not_active   = 1;
+        RearGOASts_active       = 2;
+        RearGOASts_inhibit      = 3;
+        RearGOASts_off          = 4;
+        RearGOASts_reserved_5   = 5;
+        RearGOASts_reserved_6   = 6;
+        RearGOASts_reserved_7   = 7;
+    }
+    optional RearMAISts_e RearMAISts = 13;               //@Channel:CHASSIS @Message:0x7E @Signal:RearMAISts
+        enum RearMAISts_e{
+        RearMAISts_init         = 0;
+        RearMAISts_not_active   = 1;
+        RearMAISts_active       = 2;
+        RearMAISts_inhibit      = 3;
+        RearMAISts_off          = 4;
+        RearMAISts_reserved_5   = 5;
+        RearMAISts_reserved_6   = 6;
+        RearMAISts_reserved_7   = 7;
+    }
+    optional RCM_WarnReq_e RCM_WarnReq = 14;               //@Channel:CHASSIS @Message:0x7E @Signal:RCM_WarnReq
+        enum RCM_WarnReq_e{
+        RCM_WarnReq_no_warning      = 0;
+        RCM_WarnReq_warning         = 1;
+        RCM_WarnReq_reserved_1      = 2;
+        RCM_WarnReq_reserved_2      = 3;
+    }
+    optional RCMSts_e RCMSts           = 15;               //@Channel:CHASSIS @Message:0x7E @Signal:RCMSts
+        enum RCMSts_e{
+        RCMSts_init         = 0;
+        RCMSts_standby      = 1;
+        RCMSts_active       = 2;
+        RCMSts_inhibit      = 3;
+        RCMSts_off          = 4;
+        RCMSts_reserved_5   = 5;
+        RCMSts_reserved_6   = 6;
+        RCMSts_reserved_7   = 7;
+    }
+    
+
+
+}
+
+message CTAWarnIfInfo{
+
+    required AdFunOnOffType_e FCTAOnOffSts   = 1;           //@Channel:ADAS @Message:0x228 @Signal:FCTAOnOffSts
+
+    required bool RCTAOnOffSts = 2;                         //@Channel:ADAS @Message:0xA8 @Signal:RCTAOnOffSts
+
+    enum FctaStType_e{
+        FCTASt_Off    = 0;//Off
+        FCTASt_Err    = 1;//Error
+        FCTASt_Stdby  = 2;//Standby
+        FCTASt_Actv   = 3;//Active
+        FCTASt_Warn   = 4;//Warning
+        FCTASt_Rsrvd5 = 5;//Reserved
+        FCTASt_Rsrvd  = 6;//Reserved
+        FCTASt_InVld  = 7;//Invalid
+    }
+    required FctaStType_e FCTASts = 3;                      //@Channel:ADAS @Message:0x224 @Signal:FCTASts
+
+    enum RCTABStType_e{
+        RCTABSt_Off = 0;//Off
+        RCTABSt_On  = 1;//On
+        RCTABSt_Actv= 2;//Active
+        RCTABSt_Err = 3;//Error
+    }
+    required RCTABStType_e RCTABrkSts   = 4;                //@Channel:CHASSIS @Message:0x7E @Signal:RCTABrkSts
+
+    enum CtaFrntWarnType_e{
+        CTAFrnt_NoWarn = 0;//No warning
+        CTAFrnt_NoDngr = 1;//incoming traffic without danger (warning lv1)
+        CTAFrnt_Ptntl  = 2;//incoming traffic with potential danger (warning lv2)
+        CTAFrnt_Imimnt = 3;//incoming traffic with immiment collision (warning lv3)
+    }
+    repeated CtaFrntWarnType_e CTAFrntWarnReq = 5;          //@Channel:ADAS @Message:0x22D @Signal:CTAFrntLeWarnReq
+                                                            //@Channel:ADAS @Message:0x22E @Signal:CTAFrntRiWarnReq
+    enum CtaReWarnType_e{
+        CTAReWarn_Off    = 0;//No warning
+        CTAReWarn_Rsrvd1 = 1;//Reserved
+        CTAReWarn_Lvl2   = 2;//Warning level 2
+        CTAReWarn_Rsrvd2 = 3;//Reserved
+    }
+    repeated CtaReWarnType_e CTAReWarnReq = 6;              //@Channel:ADAS @Message:0xA8 @Signal:CTAReLeWarnReq
+                                                            //@Channel:ADAS @Message:0xA8 @Signal:CTAReRiWarnReq
+    enum CtaWarnStType_e{
+        CTA_Off   = 0;//Off
+        CTA_InActv= 1;//Inactive
+        CTA_Actv  = 2;//Active
+        CTA_Fail  = 3;//Failure
+    }
+    repeated CtaWarnStType_e RCTAWarnSts = 7;               //@Channel:ADAS @Message:0xA8 @Signal:RCTARiSts @Comment:RCTA right warning feature status
+                                                            //@Channel:ADAS @Message:0xA8 @Signal:RCTALeSts
+
+    repeated CtaWarnStType_e FCTAWarnSts = 8;               //@Channel:ADAS @Message:0x22D @Signal:FCTALeSts
+                                                            //@Channel:ADAS @Message:0x22E @Signal:FCTARiSts
+    enum RCTABOnOffSts_e{
+        RCTABOnOffSts_Off = 0;//Off
+        RCTABOnOffStst_On  = 1;//On
+        RCTABOnOffSts_Rsrvd1 = 2;//Reserved
+        RCTABOnOffSts_InVld  = 3;//Invalid
+    }
+    optional RCTABOnOffSts_e RCTABOnOffSts = 9;            //@Channel:CHASSIS @Message:0x7E @Signal:RCTABOnOffSts
+
+    enum FCTABOnOffSts_e{
+        FCTABOnOffSts_Off = 0;//Off
+        FCTABOnOffStst_On  = 1;//On
+        FCTABOnOffSts_Rsrvd1 = 2;//Reserved
+        FCTABOnOffSts_InVld  = 3;//Invalid
+    }
+    optional FCTABOnOffSts_e FCTABOnOffSts = 10;           //@Channel:CHASSIS @Message:0x7E @Signal:FCTABOnOffSts
+
+    enum SCTABOnOffSts_e{
+        SCTABOnOffSts_Off = 0;//Off
+        SCTABOnOffStst_On  = 1;//On
+        SCTABOnOffSts_Rsrvd1 = 2;//Reserved
+        SCTABOnOffSts_InVld  = 3;//Invalid
+    }
+    optional SCTABOnOffSts_e SCTABOnOffSts = 11;            //@Channel:ADAS @Message:0x260 @Signal:SCTABOnOffSts
+
+}
+
+message BodyIfInfo{
+    reserved 4;
+    message LightIfInfo{
+
+        required bool HMAHiBeamReq = 1;                     //@Channel:ADAS @Message:0x227 @Signal:HMAHiBeamReq
+
+        enum HmaStType_e{
+            HMASt_Off      = 0;//HMA Off
+            HMASt_Psv      = 1;//HMA passive
+            HMASt_Actv     = 2;//HMA active
+            HMASt_TmpFail  = 3;//HMA not available, temporary failure
+            HMASt_CmrBlckd = 4;//HMA not avaialble, camera blocked
+            HMASt_PrmntFail= 5;//HMA not available, permanent failure
+            HMASt_Rsrvd6   = 6;//reserved
+            HMASt_InVld    = 7;//Invalid
+        }
+        required HmaStType_e HMASts = 2;                    //@Channel:ADAS @Message:0x227 @Signal:HMASts
+
+        enum MrrLghtReqType_e{
+            MrrLght_Off   = 0;//Off
+            MrrLght_On    = 1;//On
+            MrrLght_Flash = 2;//Flash
+            MrrLght_Rsrvd3= 3;//Reserved
+        }
+        repeated MrrLghtReqType_e MirrLightReq = 3;         //@Channel:ADAS @Message:0xA8 @Signal:MirrLightLeReq
+                                                            //@Channel:ADAS @Message:0xA8 @Signal:MirrLightRiReq
+    }
+    required LightIfInfo LightIf = 1;
+
+    enum DoorUnlckReqType_e{
+        DoorUnlck_NoReq = 0;//No request to unlock door
+        DoorUnlck_Req   = 1;//Request to unlock door
+        DoorUnlck_Rsrvd2= 2;//Reserved
+        DoorUnlck_InVld = 3;//Invalid
+    }
+    required DoorUnlckReqType_e DoorUnlckReq = 2;           //@Channel:ADAS @Message:0x228 @Signal:DoorUnlckReq
+
+    enum RemLogStType_e{
+        RmtLog_Off   = 0;//Off
+        RmtLog_On    = 1;//In progress
+        RmtLog_Rsrvd2= 2;//Reserved
+        RmtLog_Rsrvd3= 3;//Reserved
+    }
+    required RemLogStType_e RemLogSts = 3;                  //@Channel:ADAS @Message:0x224 @Signal:RemLogSts_ADC @Comment:Remote log status of ADC
+
+    enum HornCtrlReqType_e{
+        HornCtrlReq_Off         = 0;
+        HornCtrlReq_On          = 1;
+        HornCtrlReq_Reserved    = 2;
+        HornCtrlReq_Invalid     = 3;
+    }
+    optional HornCtrlReqType_e HornCtrlReq = 5;             //@Channel:ADAS @Message:0x266 @Signal:ADCHornCtrlReq
+    optional bool  ECOPlusModReqSts        = 6;             //@Channel:ADAS @Message:0x150 @Signal:ECOPlusModReqSts
+    optional bool  ADCsts_ECOPlusPlus      = 7;             //@Channel:ADAS @Message:0x266 @Signal:ADCsts_ECOPlusPlus
+
+}
+
+message CAMCInfo{
+
+    optional bool DVRFltSts      = 1;           //@Channel:ADAS  @Message:0x254 @Signal:CAM_DVRFltSts
+    optional bool CAM_FrntFltSts = 2;           //@Channel:ADAS  @Message:0x254 @Signal:CAM_FrntFltSts
+    optional bool CAM_LeFltSts   = 3;           //@Channel:ADAS  @Message:0x254 @Signal:CAM_LeFltSts
+    optional bool CAM_ReFltSts   = 4;           //@Channel:ADAS  @Message:0x254 @Signal:CAM_ReFltSts
+    optional bool CAM_RiFltSts   = 5;           //@Channel:ADAS  @Message:0x254 @Signal:CAM_RiFltSts
+
+}
+
+message ADSysInfo{
+    reserved 3;
+    optional uint32 AD_SysSts           = 1;           //@Channel:ADAS  @Message:0x150 @Signal:AD_SysSts
+    enum ADCUSSMode_e{
+        ADCUSSMode_none=0;
+        ADCUSSMode_SAPA=1;
+        ADCUSSMode_PSAP=2;
+        ADCUSSMode_ACC=3;
+        ADCUSSMode_PSAP_Station=4;
+        ADCUSSMode_Remote=5;
+        ADCUSSMode_Reserved1=6;
+        ADCUSSMode_Reserved2=7;
+    }
+    optional ADCUSSMode_e ADCUSSMode    =2;             //@Channel:ADAS @Message:0x224 @Signal:ADC_USS_Mode
+
+    enum ADCsts_e{
+        ADCsts_Booting                      = 0;//default, This signal is discard
+        ADCsts_InitADAS                     = 1;//limited ADAS mode
+        ADCsts_FullADAS                     = 2;//full ADAS mode
+        ADCsts_NAD                          = 3;//NAD mode
+        ADCsts_Lmt2FullADAS                 = 4;//switching limited to full ADAS mode
+        ADCsts_LmtNAD                       = 5;//switching limited NAD mode
+        ADCsts_Full2Lmt                     = 6;//switching full to limited mode
+        ADCsts_Full2NAD                     = 7;//switching full to NAD mode
+        ADCsts_NAD2Lmt                      = 8;//switching NAD to limited mode
+        ADCsts_Rebooting                    = 9;//ADC reboot
+    }
+    optional ADCsts_e ADCsts            = 4 [deprecated=true];        //@Channel:ADAS @Message:0x266 @Signal:ADCsts
+
+    enum ADCSysSts_e{
+        ADCSysSts_Undefined              = 0;//undefined
+        ADCSysSts_ECO_Plus               = 1;//ECO+ ADAS
+        ADCSysSts_Full                   = 2;//full ADAS
+        ADCSysSts_Reserved               = 3;//Reserved
+    }
+    optional ADCSysSts_e ADC_SystemState = 5;      //@Channel:ADAS @Message:0x224 @Signal:ADC_SystemState
+
+    enum SnsrSts_e{
+      SnsrSts_OK                 = 0;
+      SnsrSts_Dirty              = 1;
+      SnsrSts_Blockage           = 2;
+      SnsrSts_OverHeat           = 3;
+      SnsrSts_Error              = 4;
+      SnsrSts_OutCal             = 5;
+      SnsrSts_CalError           = 6;
+      SnsrSts_Windshield_Frozen  = 7;
+      SnsrSts_Reserved1          = 8;
+      SnsrSts_Reserved2          = 9;
+      SnsrSts_Reserved3          = 10;
+      SnsrSts_Reserved4          = 11;
+      SnsrSts_Reserved5          = 12;
+      SnsrSts_Reserved6          = 13;
+      SnsrSts_Reserved7          = 14;
+      SnsrSts_Reserved8          = 15;
+   }
+   optional SnsrSts_e LidarSts                      = 6;    //@Channel:ADAS @Message:0x263 @Signal:SnsrLidarSts
+   optional SnsrSts_e Camera_FrntWideSts            = 7;    //@Channel:ADAS @Message:0x263 @Signal:SnsrCamera_FrntWideSts
+   optional SnsrSts_e SnsrCamera_SurroundLeSts      = 8;    //@Channel:ADAS @Message:0x263 @Signal:SnsrCamera_SurroundLeSts
+   optional SnsrSts_e SnsrCamera_ReSts              = 9;    //@Channel:ADAS @Message:0x263 @Signal:SnsrCamera_ReSts
+   optional SnsrSts_e SnsrCamera_SideFrntRiSts      = 10;   //@Channel:ADAS @Message:0x263 @Signal:SnsrCamera_SideFrntRiSts
+   optional SnsrSts_e SnsrCamera_SurroundRiSts      = 11;   //@Channel:ADAS @Message:0x263 @Signal:SnsrCamera_SurroundRiSts
+   optional SnsrSts_e SnsrCamera_SideReRiSts        = 12;   //@Channel:ADAS @Message:0x263 @Signal:SnsrCamera_SideReRiSts
+   optional SnsrSts_e SnsrCamera_FrntNarrowSts      = 13;   //@Channel:ADAS @Message:0x263 @Signal:SnsrCamera_FrntNarrowSts
+   optional SnsrSts_e SnsrCamera_SideReLeSts        = 14;   //@Channel:ADAS @Message:0x263 @Signal:SnsrCamera_SideReLeSts
+   optional SnsrSts_e SnsrCamera_SurroundFrntSts    = 15;   //@Channel:ADAS @Message:0x263 @Signal:SnsrCamera_SurroundFrntSts
+   optional SnsrSts_e SnsrCamera_SurroundReSts      = 16;   //@Channel:ADAS @Message:0x263 @Signal:SnsrCamera_SurroundReSts
+   optional SnsrSts_e SnsrCamera_SideFrntLeSts      = 17;   //@Channel:ADAS @Message:0x263 @Signal:SnsrCamera_SideFrntLeSts
+
+   enum SnsrImuSts_e{
+      SnsrImuSts_OK                 = 0;
+      SnsrImuSts_HwtempError        = 1;
+      SnsrImuSts_HwperpetualError   = 2;
+      SnsrImuSts_Reserved1          = 3;
+      SnsrImuSts_Reserved2          = 4;
+      SnsrImuSts_Reserved3          = 5;
+      SnsrImuSts_Reserved4          = 6;
+      SnsrImuSts_Reserved5          = 7;
+      SnsrImuSts_Reserved6          = 8;
+      SnsrImuSts_Reserved7          = 9;
+      SnsrImuSts_Reserved8          = 10;
+      SnsrImuSts_Reserved9          = 11;
+      SnsrImuSts_Reserved10         = 12;
+      SnsrImuSts_Reserved11         = 13;
+      SnsrImuSts_Reserved12         = 14;
+      SnsrImuSts_Reserved13         = 15;
+   }
+   optional SnsrImuSts_e SnsrImuSts                 = 18;  //@Channel:ADAS @Message:0x337 @Signal:SnsrImuSts
+
+   enum FailsafeSts_e{
+      FailsafeSts_OK                = 0;
+      FailsafeSts_FsRain            = 1;
+      FailsafeSts_FsFog             = 2;
+      FailsafeSts_FsSnow            = 3;
+      FailsafeSts_FsLowsunSunray    = 4;
+      FailsafeSts_FSIlluminance     = 5;
+      FailsafeSts_Reserved1         = 6;
+      FailsafeSts_Reserved2         = 7;
+      FailsafeSts_Reserved3         = 8;
+      FailsafeSts_Reserved4         = 9;
+      FailsafeSts_Reserved5         = 10;
+      FailsafeSts_Reserved6         = 11;
+      FailsafeSts_Reserved7         = 12;
+      FailsafeSts_Reserved8         = 13;
+      FailsafeSts_Reserved9         = 14;
+      FailsafeSts_Reserved10        = 15;
+   }
+   optional FailsafeSts_e FailsafeSts               = 19;  //@Channel:ADAS @Message:0x337 @Signal:FailsafeSts
+   optional SnsrSts_e SnsrCamera_LeSVCSts           = 20;  //@Channel:ADAS @Message:0x337 @Signal:SnsrCamera_LeSVCSts
+   optional SnsrSts_e SnsrCamera_RearSVCSts         = 21;  //@Channel:ADAS @Message:0x337 @Signal:SnsrCamera_RearSVCSts
+   optional SnsrSts_e SnsrCamera_FrntSVCSts         = 22;  //@Channel:ADAS @Message:0x337 @Signal:SnsrCamera_FrntSVCSts
+   optional SnsrSts_e SnsrCamera_RiSVCSts           = 23;  //@Channel:ADAS @Message:0x337 @Signal:SnsrCamera_RiSVCSts
+   optional uint32 ADCsts_ECOplus                   = 24;  //@Channel:ADAS @Message:0x266 @Signal:ADCsts_ECOplus
+   optional uint32 ADCWorkMod                       = 25;  //@Channel:ADAS @Message:0x35F @Signal:ADCWorkMod
+}
+
+message DMSInfo{
+    enum DrowsinessLevel_e{
+        DrowsinessNoWarning     = 0;//No warning
+        Light_fatigue           = 1;//Light_fatigue
+        Medium_fatigue          = 2;//Medium_fatigue
+        Heavy_fatigue_Lv1       = 3;//Heavy_fatigue_level1
+        Heavy_fatigue_Lv2       = 4;//Heavy_fatigue_level2
+    }
+    optional DrowsinessLevel_e DrowsinessLevel           =1;            //@Channel:ADAS  @Message:0x254 @Signal:DrowsinessLevel
+
+    enum DrowsinessSts_e{
+        DrowsinessSts_Initial =0;
+        DrowsinessSts_Off =1;
+        DrowsinessSts_On =2;
+        DrowsinessSts_Failure =3;
+    }
+    optional DrowsinessSts_e DrowsinessSts               =2;            //@Channel:ADAS @Message:0x254 @Signal:DrowsinessSts
+
+    enum DistractionLevel_e{
+        DistractionNoWarning    =0;
+        Distraction_Lv1         =1;
+        Distraction_LV2         =2;
+    }
+    optional DistractionLevel_e DistractionLevel         =3;             //@Channel:ADAS @Message:0x254 @Signal:DistractionLevel
+
+    enum DistractionSts_e{
+        Distraction_Initial =0;
+        Distraction_Off =1;
+        Distraction_On =2;
+        Distraction_Failure =3;
+    }
+    optional DistractionSts_e DistractionSts             =4;             //@Channel:ADAS @Message:0x254 @Signal:DistractionSts
+
+    enum DistractionLevel_short_e {
+        DistractionLevel_short_No_Warning         = 0;
+        DistractionLevel_short_Lvl1               = 1;
+        DistractionLevel_short_Lvl2               = 2;
+    }
+    optional DistractionLevel_short_e distraction_lvl_short = 5;             //@Channel:ADAS @Message:0x228 @Signal:DistractionLevel_short
+
+    enum DistractionSts_short_e {
+        DistractionSts_short_Initial              = 0;
+        DistractionSts_short_Off                  = 1;
+        DistractionSts_short_On                   = 2;
+        DistractionSts_short_Failure              = 3;
+    }
+    optional DistractionSts_short_e distraction_sts_short   = 6;
+
+    enum SmartDrvYrsDetSts_e {
+        SmartDrvYrsDetSts_Young                         = 0;
+        SmartDrvYrsDetSts_Old                           = 1;
+        SmartDrvYrsDetSts_Not_Determined                = 2;
+        SmartDrvYrsDetSts_Invalid                       = 3;
+    }
+    optional SmartDrvYrsDetSts_e smart_drv_yrs_det_sts            = 7;
+
+    enum DMSMissTurnWarning_e {
+        DMSMissTurnWarning_No_Warning                                  = 0;
+        DMSMissTurnWarning_Warning                                     = 1;
+        DMSMissTurnWarning_Invalid                                     = 2;
+        DMSMissTurnWarning_Reserved                                    = 3;
+    }
+    optional DMSMissTurnWarning_e miss_turn_warning                  = 8;              //@Channel:ADAS @Message:0x228 @Signal:DMSMissTurnWarning
+
+    enum DMSRoadRageSts_e {
+        DMSRoadRageSts_Normal                                          = 0;
+        DMSRoadRageSts_Angry                                           = 1;
+        DMSRoadRageSts_Invalid                                         = 2;
+        DMSRoadRageSts_Reserved                                        = 3;
+    }
+    optional DMSRoadRageSts_e road_rage_sts                          = 9;              //@Channel:ADAS @Message:0x228 @Signal:DMSRoadRageSts
+
+
+}
+
+message ADIcsInfo{
+    reserved 2,3,4,5,6,7,8,9,10,11,13,14;
+    optional bool ShowSwtichDA_NOP           =1;            //@Channel:ADAS  @Message:0x266 @Signal:ShowSwtichDA_NOP
+    enum ShowSetMode_e{
+        ShowSetMode_Off             =0;//do not show the setting for function
+        ShowSetMode_OnOffSwt        =1;//show setting for function(off / on)
+        ShowSetMode_VisualSwt       =2;//show setting for function(off / visual only / visual and audio)
+    }
+    optional bool ADC_VehDisp_Warn                 =12;           //@Channel:ADAS  @Message:0x266 @Signal:ADC_VehDisp_Warn
+
+    enum FuncFactoryDft_e{
+        FuncFactoryDft_On             =0;//default-on in factory settings
+        FuncFactoryDft_Off            =1;//default-off in factory settings
+    }
+
+    enum DMStelltaleLevel_e {
+        DMStelltaleLevel_No_Warning                     = 0;
+        DMStelltaleLevel_Level_1                        = 1;
+        DMStelltaleLevel_Level_2                        = 2;
+        DMStelltaleLevel_Fault_Longterm                 = 3;
+        DMStelltaleLevel_Fault_Shortterm                = 4;
+    }
+    optional DMStelltaleLevel_e dms_telltale_level     = 15;      //@Channel:ADAS  @Message:0x266 @Signal:DMStelltaleLevel
+    optional uint32 ShowSetDA_ALCS_EU                  = 16;      //@Channel:ADAS  @Message:0x266 @Signal:ShowSetDA_ALCS_EU
+    optional bool ADCsts_fullADAS                      = 17;      //@Channel:ADAS  @Message:0x266 @Signal:ADCsts_fullADAS
+}
+
+message FuncEDRInfo{
+    optional LnAsstStType_e LnAssistSts_EDR        =1;            //@Channel:CHASSIS  @Message:0x22F @Signal:LaneAssistSts_EDR
+    optional LnAssistAidType_e LnAssiTyp_EDR       =2;            //@Channel:CHASSIS  @Message:0x22F @Signal:LDWLKALaneAssiTyp_EDR
+    optional LnLineDispStType_e AdasLeLine_EDR     =3;            //@Channel:CHASSIS  @Message:0x22F @Signal:AdasLeLine_EDR
+
+    enum ACSFStsEDR_e{
+        ACSFStsEDR_Off   = 0;//Off
+        ACSFStsEDR_Stdby = 1;//Standby
+        ACSFStsEDR_Actv  = 2;//Active
+        ACSFStsEDR_Fail  = 3;//Failure
+    }
+    optional ACSFStsEDR_e ACSF_B1_Sts_EDR          =4;            //@Channel:CHASSIS  @Message:0x22F @Signal:ACSF_B1_Sts_EDR
+    optional LnLineDispStType_e AdasRiLine_EDR     =5;            //@Channel:CHASSIS  @Message:0x22F @Signal:AdasRiLine_EDR
+    enum ELK_EDRSts_e{
+        ELK_EDR_Sts_Off        = 0;
+        ELK_EDR_Sts_Standby    = 1;
+        ELK_EDR_Sts_Active     = 2;
+        ELK_EDR_Sts_Failure    = 3;
+    }
+
+    optional ELK_EDRSts_e ELKSts_EDR               =6;            //@Channel:CHASSIS  @Message:0x22F @Signal:ELKSts_EDR
+    optional ACSFStsEDR_e ACSF_D_Sts_EDR           =7;            //@Channel:CHASSIS  @Message:0x22F @Signal:ACSF_D_Sts_EDR
+    optional ACSFStsEDR_e ACSF_B2_Sts_EDR          =8;            //@Channel:CHASSIS  @Message:0x22F @Signal:ACSF_B2_Sts_EDR
+    optional ACSFStsEDR_e ACSF_A_Sts_EDR           =9;            //@Channel:CHASSIS  @Message:0x22F @Signal:ACSF_A_Sts_EDR
+    optional ACSFStsEDR_e ACSF_C_Sts_EDR           =10;           //@Channel:CHASSIS  @Message:0x22F @Signal:ACSF_C_Sts_EDR
+    optional ACSFStsEDR_e ACSF_E_Sts_EDR           =11;           //@Channel:CHASSIS  @Message:0x22F @Signal:ACSF_E_Sts_EDR
+
+    enum ACCStsEDR_e{
+        ACCStsEDR_OnnotActv =0;//NO_NOT_Activation
+        ACCStsEDR_OnActv    =1;//On_Activation
+        ACCStsEDR_Off       =2;//OFF
+        ACCStsEDR_Fault     =3;//Fault
+        ACCStsEDR_Rsrvd1    =4;//Reserved
+        ACCStsEDR_Rsrvd2    =5;//Reserved
+        ACCStsEDR_Rsrvd3    =6;//Reserved
+        ACCStsEDR_Rsrvd4    =7;//Reserved
+    }
+    optional ACCStsEDR_e ACCSts_EDR                =12;           //@Channel:CHASSIS  @Message:0x22F @Signal:ACC_Sts_EDR
+    optional ESFWarningSts_e ESFWarningSts_EDR     =13;           //@Channel:CHASSIS  @Message:0x22F @Signal:ESFWarningSts_EDR
+
+}
+
+message ADCsInfo{
+        enum ADCsType_e{
+            Init    = 0;
+            Passive = 1;
+            Standby = 2;
+            Active  = 3;
+            Failure = 4;
+        }
+        optional ADCsType_e ADCs_2nd_Sts =1; //@Channel:ADAS2  @Message:0x34c @Signal:ADCs_2nd_Sts
+        optional ADCsType_e ES_Sts = 2; //@Channel:ADAS2  @Message:0x34c @Signal:ADCs_ES_Sts
+        optional uint32 ADCs_ES_WTIs = 3; //@Channel:ADAS2  @Message:0x34c @Signal:ADCs_2nd_WTI
+    }
+
+
+message DrvIntractInfo{
+    optional SpdDispAndCfgInfo   SpdDispAndCfg= 1;
+    optional SdowBsdIfInfo       SdowBSD      = 2;
+    optional CTAWarnIfInfo       CTAWarn      = 3;
+    optional BodyIfInfo          BodyCtrl     = 4;
+    optional LngWarnSafetyIfInfo LngWarnSafe  = 5;
+    optional NpIfInfo            NpDrvIF      = 6;
+    optional CAMCInfo            CAMCSts      = 7;
+    optional ADSysInfo           ADSysSts     = 8;
+    optional DMSInfo             DMSIF        = 9;
+    optional ADIcsInfo           ADIcsIF      = 10;
+    optional FuncEDRInfo         FuncEDR      = 11;
+    optional ADCsInfo            ADCsIF       = 12;
+}

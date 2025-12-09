@@ -1,0 +1,190 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+// string长度不允许超过50字节，长了截断
+// repeated允许使用，最长为10，长了截断。不允许嵌套repeated。
+// 通过infra审核，构建时自动化检查，publish前自动截断来保证以上规则实施
+
+message SolidLineInfo {
+  optional double distance_to_start = 1;
+  optional double distance_to_end = 2;
+  optional double length = 3;
+}
+
+message LaneChangeDeciderScenario {
+  optional double leading_vehicle_disp_speed = 1;  // leading_vehicle_disp_speed
+  optional double left_traffic_speed = 2;          // left_route_traffic_speed_
+  optional double right_traffic_speed = 3;         // right_route_traffic_speed_
+  optional bool left_route_valid = 4;              // route_info.is_left_valid
+  optional bool right_route_valid = 5;             // route_info.is_right_valid
+  optional bool left_ref_line_exist = 6;           // multi_ref_line_array[0]
+  optional bool right_ref_line_exist = 7;          // multi_ref_line_array[2]
+  optional double current_route_rest_distance = 8;
+  optional double left_route_rest_distance = 9;
+  optional double right_route_rest_distance = 10;
+  optional int32 left_max_lane_change_num =
+      11;  // route_info.left_max_lane_change_num
+  optional int32 right_max_lane_change_num =
+      12;  // route_info.right_max_lane_change_num
+  optional int32 left_lane_change_num = 13;   // route_info.left_lane_num
+  optional int32 right_lane_change_num = 14;  // route_info.right_lane_num
+  optional bool left_lane_change_is_safe =
+      15;  // route_info.is_left_lane_change_safe
+  optional bool right_lane_change_is_safe =
+      16;  // route_info.is_right_lane_change_safe
+  optional double ego_to_current_bus_lane_start = 17;
+  optional double ego_to_left_bus_lane_start = 18;
+  optional double ego_to_right_bus_lane_start = 19;
+  optional double ego_to_current_bus_lane_end = 20;
+  optional double ego_to_left_bus_lane_end = 21;
+  optional double ego_to_right_bus_lane_end = 22;
+  optional bool current_route_near_bus_lane =
+      23;                                        // current_route_near_bus_lane_
+  optional bool left_route_near_bus_lane = 24;   // left_route_near_bus_lane_
+  optional bool right_route_near_bus_lane = 25;  // right_route_near_bus_lane_
+  optional bool left_route_exist_bus_lane = 26;  // left_route_exist_bus_lane
+  optional bool right_route_exist_bus_lane = 27;  // right_route_exist_bus_lane
+  optional double lane_change_available_distance =
+      28;  // getLaneChangeRestDistance
+  optional bool is_urban_scenario = 29;
+  optional double current_route_probe_length = 30;
+  optional double left_route_probe_length = 31;
+  optional double right_route_probe_length = 32;
+  optional double current_start_of_route = 33;
+  optional double left_start_of_route = 34;
+  optional double right_start_of_route = 35;
+  optional double distance_to_odd_boundary = 36;
+  repeated double distance_to_merge =
+      37;  // order: left route, current route, right route
+  repeated double distance_to_split =
+      38;  // order: left route, current route, right route
+  repeated double distance_to_oed_event = 39;      // order is from near to far
+  repeated double distance_to_laneseg_event = 40;  // order is from near to far
+  repeated double distance_to_junction = 41;       // order is from near to far
+  optional double cumulative_distance_after_pass_junction = 42;
+  optional double current_route_travelable_probability = 43;
+  optional double left_route_travelable_probability = 44;
+  optional double right_route_travelable_probability = 45;
+  optional double left_route_max_travelable_probability = 46;
+  optional double right_route_max_travelable_probability = 47;
+  optional double current_lane_width = 48;
+  optional double left_lane_width = 49;
+  optional double right_lane_width = 50;
+  optional double ego_vrp_to_current_lane_center_distance = 51;
+  optional double ego_vrp_to_current_reference_line_distance = 52;
+  optional double ego_vrp_to_left_reference_line_distance = 53;
+  optional double ego_vrp_to_right_reference_line_distance = 54;
+  optional int32 current_map_mode = 55;
+  optional bool is_left_route_overlap = 56;
+  optional bool is_right_route_overlap = 57;
+  optional bool bus_lane_can_take_up_time = 58;
+  repeated double distance_to_little_junction =
+      59;                                        // order is from near to far
+  repeated SolidLineInfo left_solid_line = 60;   // order is from near to far
+  repeated SolidLineInfo right_solid_line = 61;  // order is from near to far
+  repeated double lane_change_decider_scenario_reserved = 9999;
+}
+
+message LaneChangeDeciderFrontObstacles {
+  repeated int32 current_lane_front_obs_ids = 1;
+  repeated int32 left_lane_front_obs_ids = 2;
+  repeated int32 right_lane_front_obs_ids = 3;
+}
+
+message LaneChangeDeciderObstacles {
+  optional LaneChangeDeciderFrontObstacles front_obs_info = 1;
+  repeated double lane_change_decider_obstacles_reserved = 9999;
+}
+
+message LaneChangeDeciderOvertake {
+  optional int32 target_lane_obs_id = 1;
+  optional double target_lane_obs_longitudinal_velocity = 2;
+  optional int32 overtake_obs_id = 3;
+  optional double overtake_obs_lateral_velocity = 4;
+  optional double overtake_obs_longitudinal_velocity = 5;
+  optional int32 overtake_count = 6;
+  optional int64 left_overtake_valid_timestamp = 7;
+  optional int64 right_overtake_valid_timestamp = 8;
+  optional int64 right_fast_lane_valid_timestamp = 9;
+  optional double right_fast_lane_check_time = 10;
+  optional int64 right_route_supression_bit_flag = 11;
+  optional int64 left_route_supression_bit_flag = 12;
+  optional int64 overtake_count_clear_bit_flag = 13;
+  optional bool leading_vehicle_is_dead_vehicle = 14;
+  optional double left_following_duration_preference = 15;
+  optional double right_following_duration_preference = 16;
+  optional double left_lane_room_preference = 17;
+  optional double right_lane_room_preference = 18;
+  optional bool hold_left_overtake_lane_change = 19;
+  optional bool hold_right_overtake_lane_change = 20;
+  optional double left_overtake_valid_timestamp_delta_time = 21;
+  optional double right_overtake_valid_timestamp_delta_time = 22;
+  optional double right_fast_lane_valid_timestamp_delta_time = 23;
+  optional bool is_left_lane_fast = 24;
+  optional bool is_right_lane_fast = 25;
+  optional bool trigger_left_overtake = 26;
+  optional bool trigger_right_overtake = 27;
+}
+
+message LaneChangeDeciderPreferedLane {
+  optional int64 left_supression_bit_flag = 1;
+  optional int64 right_supression_bit_flag = 2;
+}
+
+message LaneChangeDeciderSplit {
+  optional bool is_left_priority_allow = 1;
+  optional bool is_right_priority_allow = 2;
+  optional bool is_overtake_suprs_left_lc = 3;
+  optional bool is_overtake_suprs_right_lc = 4;
+  optional bool ego_can_overtake_left_slow_vehicle = 5;
+  optional bool ego_can_overtake_right_slow_vehicle = 6;
+}
+
+message LaneChangeDeciderEfficiency {
+  optional LaneChangeDeciderOvertake overtake_info = 1;
+  optional LaneChangeDeciderPreferedLane prefered_lane_info = 2;
+  repeated double lane_change_decider_efficiency_reserved = 9999;
+}
+
+message LaneChangeDeciderNavigation {
+  optional LaneChangeDeciderSplit road_split_lane_info = 1;
+  repeated double lane_change_decider_navigation_reserved = 9999;
+}
+
+message LaneChangeDeciderDecisionMaking {
+  optional LaneChangeDeciderEfficiency lane_change_decider_efficiency = 1;
+  optional LaneChangeDeciderNavigation lane_change_decider_navigation = 2;
+}
+
+message LaneChangeRelatedObstacle {
+  optional int32 id = 1;
+  optional double safety_distance_by_velocity = 2;
+  optional double safety_distance_by_constant_jerk = 3;
+  optional double current_distance_to_ego = 4;
+  optional bool is_safe_by_velocity_check = 5;
+  optional bool is_safe_by_constant_jerk_check = 6;
+  optional bool is_ignored_rear_obs_safety_check = 7;
+  optional double future_distance_to_ego_for_constant_jerk = 8;
+}
+
+// main message
+message LaneChangeDeciderInfo {
+  optional LaneChangeDeciderScenario lane_change_decider_scenario_info = 1;
+  optional LaneChangeDeciderDecisionMaking
+      lane_change_decider_decision_making_info = 2;
+  optional LaneChangeDeciderObstacles lane_change_obs_info = 3;
+}
+
+message LaneChangeSafetyCheckInfo {
+  optional bool is_safe_by_velocity_sampling_check = 1;
+  optional bool is_safe_by_kinematics_check = 2;
+  optional double safety_ratio = 3;
+  optional LaneChangeRelatedObstacle forwardsim_init_front_obs_info = 4;
+  optional LaneChangeRelatedObstacle forwardsim_init_rear_obs_info = 5;
+  optional bool is_checked_by_velocity_sampling = 6;
+  optional bool is_cross_not_return_point = 7;
+  optional double ego_edge_to_cross_line_prediction_distance = 8;
+  optional double ego_not_return_cross_line_threshold = 9;
+  repeated double lane_change_safety_check_reserved = 9999;
+}

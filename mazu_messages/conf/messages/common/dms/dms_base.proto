@@ -1,0 +1,65 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+message DMSVector {
+    optional bool is_valid = 1;
+    optional float x       = 2;
+    optional float y       = 3;
+    optional float z       = 4;
+    optional DMS_INVALID_TYPE invalid_type = 5;
+}
+
+message DMSPose {
+    optional bool is_valid = 1;
+    optional float yaw     = 2;
+    optional float pitch   = 3;
+    optional float roll    = 4;
+    optional DMS_INVALID_TYPE invalid_type = 5;
+}
+
+message DMSPoint2f {
+    optional float x       = 1;
+    optional float y       = 2;
+}
+
+message DMSPosition3f {
+    optional bool is_valid = 1;
+    optional float x       = 2;
+    optional float y       = 3;
+    optional float z       = 4;
+    optional DMS_INVALID_TYPE invalid_type = 5;
+}
+
+enum DMS_INVALID_TYPE {
+    DMS_INVALID_TYPE_NONE                       = 0;
+    DMS_INVALID_TYPE_UNKNOWN                    = 1;
+    DMS_INVALID_TYPE_HAND_ON_WHEEL              = 2;
+    DMS_INVALID_TYPE_FACIAL_OCCLUSION           = 3;
+    DMS_INVALID_TYPE_EYE_WEAR                   = 4;
+    DMS_INVALID_TYPE_EYELASH_MAKEUP             = 5;
+    DMS_INVALID_TYPE_FACIAL_HAIR                = 6;
+    DMS_INVALID_TYPE_FACIAL_TOO_BRIGHT          = 7;
+    DMS_INVALID_TYPE_FACIAL_TOO_DARK            = 8;
+    DMS_INVALID_TYPE_NO_FACE                    = 9;
+    DMS_INVALID_TYPE_HEADPOSE_LIMIT             = 10;
+    DMS_INVALID_TYPE_EYE_INVALID                = 11;
+    DMS_INVALID_TYPE_EYE_NO_OPEN                = 12;
+    DMS_INVALID_TYPE_HEADPOSE_GAZE_DIFF         = 13;
+    DMS_INVALID_TYPE_EYE_TOO_BRIGHT             = 14;
+    DMS_INVALID_TYPE_EYE_TOO_DARK               = 15;
+    DMS_INVALID_TYPE_EMOTION_DEPRESS            = 16;
+    DMS_INVALID_TYPE_EYE_LANDMARK_OCCLUSION     = 17;
+    DMS_INVALID_TYPE_FACE_TOO_SMALL             = 18;
+    DMS_INVALID_TYPE_FACE_OUTBOUND              = 19;
+}
+
+enum DMS_DIST_RESULT_TYPE {
+    DMS_DIST_OFF                                = 0;
+    DMS_DIST_ON_GAZE                            = 1;
+    DMS_DIST_ON_HEADPOSE                        = 2;
+    DMS_DIST_INVALID                            = 3;
+    DMS_DIST_ON_OMS                             = 4;
+}

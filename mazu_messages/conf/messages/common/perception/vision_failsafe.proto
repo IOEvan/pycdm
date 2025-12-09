@@ -1,0 +1,66 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+
+message FailSafe{
+    optional uint32 FS_Rain = 1;
+    optional uint32 FS_Fog = 2;
+    optional uint32 FS_Snow = 3;
+    optional uint32 FS_Full_Blockage = 4;
+    optional uint32 FS_Partial_Blockage = 5 [deprecated = true];
+    optional uint32 FS_Lowsun = 6;
+    optional uint32 FS_Sunray = 7 [deprecated = true];
+    optional uint32 FS_Splash = 8 [deprecated = true];
+    optional uint32 FS_Windshield_Frozen = 9;
+    optional uint32 FS_Out_Of_Calibration = 10;
+    optional uint32 FS_Out_Of_Focus = 11;
+    optional uint32 FS_Blur = 12;
+    optional uint32 FS_Smeared_Halo = 13 [deprecated = true];
+    optional uint32 FS_illuminance = 14 [deprecated = true];
+    optional uint32 FS_Blockage_Frozen = 15;
+    optional uint32 FS_Blockage_Water = 16;
+    optional uint32 FS_Blockage_Fog = 17;
+    optional uint32 FS_Blockage_Other = 18;
+    optional float FS_Blockage_Ratio = 19;
+    optional uint32 FS_Glare_Lights = 20;
+    optional uint32 FS_Intense_Lights = 21;
+    optional uint32 FS_Traffic_Lights = 22;
+    optional uint32 FS_Other_Lights = 23;
+    optional uint64 timestamp = 24;
+    optional float FS_Glare_Ratio = 25;
+    optional float FS_Road_Ratio = 26;
+    optional uint32 FS_Road_LowLight = 27;
+    optional uint32 FS_Road_IntenseLight = 28;
+    optional uint32 FS_Road_Rainfog = 29;
+    optional uint32 FS_Road_Fog = 30;
+    optional uint32 FS_Road_SnowIcing = 31;
+    optional uint32 FS_Road_GatheredWater = 32;
+}
+
+
+message FailSafeDetection{
+    optional uint64 timestamp = 1; //Timestamp_Receive_Image
+    optional FailSafe failsafe_FW = 2; //Front wide
+    optional FailSafe failsafe_FN = 3; //Front narrow
+    optional FailSafe failsafe_FL = 4; //Side front left
+    optional FailSafe failsafe_FR = 5; //Side front right
+    optional FailSafe failsafe_R = 6; //Rear
+    optional FailSafe failsafe_RL = 7; //Side rear left
+    optional FailSafe failsafe_RR = 8; //Side rear right
+    optional FailSafe failsafe_SVC_Front = 9; //SVC front
+    optional FailSafe failsafe_SVC_Rear = 10; //SVC Rear
+    optional FailSafe failsafe_SVC_Left = 11; //SVC Left
+    optional FailSafe failsafe_SVC_Right = 12; //SVC right
+    optional FailSafe failsafe_GOD_rain = 13; // Front LiDAR, for god recall
+
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;   // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909;     // uuid of the publisher
+    optional uint64 counter = 536870910;          // message counter
+    optional uint64 publish_ts = 536870911;       // publish utc timestamp; unit : nanosecond
+
+}

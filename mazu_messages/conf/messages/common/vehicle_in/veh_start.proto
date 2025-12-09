@@ -1,0 +1,74 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+
+message VehStart{
+    repeated bool PN_State = 1;                     //@Channel:ADAS @Message:0x505 @Signal:PN1_BGW
+                                                    //@Channel:ADAS @Message:0x505 @Signal:PN2_BGW
+                                                    //@Channel:ADAS @Message:0x505 @Signal:PN3_BGW
+                                                    //@Channel:ADAS @Message:0x505 @Signal:PN4_BGW
+                                                    //@Channel:ADAS @Message:0x505 @Signal:PN5_BGW
+                                                    //@Channel:ADAS @Message:0x505 @Signal:PN6_BGW
+                                                    //@Channel:ADAS @Message:0x505 @Signal:PN7_BGW
+                                                    //@Channel:ADAS @Message:0x505 @Signal:PN8_BGW
+                                                    //@Channel:ADAS @Message:0x505 @Signal:PN9_BGW
+                                                    //@Channel:ADAS @Message:0x505 @Signal:PN10_BGW
+                                                    //@Channel:ADAS @Message:0x505 @Signal:PN11_BGW
+                                                    //@Channel:ADAS @Message:0x505 @Signal:PN12_BGW
+                                                    //@Channel:ADAS @Message:0x505 @Signal:PN13_BGW
+                                                    //@Channel:ADAS @Message:0x505 @Signal:PN14_BGW
+                                                    //@Channel:ADAS @Message:0x505 @Signal:PN15_BGW
+                                                    //@Channel:ADAS @Message:0x505 @Signal:PN16_BGW
+                                                    //@Channel:ADAS @Message:0x505 @Signal:PN17_BGW
+                                                    //@Channel:ADAS @Message:0x505 @Signal:PN18_BGW
+                                                    //@Channel:ADAS @Message:0x505 @Signal:PN19_BGW
+                                                    //@Channel:ADAS @Message:0x505 @Signal:PN20_BGW
+                                                    //@Channel:ADAS @Message:0x505 @Signal:PN21_BGW
+                                                    //@Channel:ADAS @Message:0x505 @Signal:PN22_BGW
+                                                    //@Channel:ADAS @Message:0x505 @Signal:PN23_BGW
+                                                    //@Channel:ADAS @Message:0x505 @Signal:PN24_BGW
+                                                    //@Channel:ADAS @Message:0x505 @Signal:PN25_BGW
+                                                    //@Channel:ADAS @Message:0x505 @Signal:PN26_BGW
+                                                    //@Channel:ADAS @Message:0x505 @Signal:PN27_BGW
+                                                    //@Channel:ADAS @Message:0x505 @Signal:PN28_BGW
+                                                    //@Channel:ADAS @Message:0x505 @Signal:PN29_BGW
+                                                    //@Channel:ADAS @Message:0x505 @Signal:PN30_BGW
+                                                    //@Channel:ADAS @Message:0x505 @Signal:PN31_BGW
+                                                    //@Channel:ADAS @Message:0x505 @Signal:PN32_BGW
+    enum OperatorState_e {
+        OPERATOR_ST_NONE      = 0;
+        OPERATOR_ST_OUTSIDE   = 1;
+        OPERATOR_ST_AVAILABLE = 2;
+        OPERATOR_ST_INSIDE    = 3;
+        OPERATOR_Rsvrd4       = 4;
+        OPERATOR_Rsvrd5       = 5;
+        OPERATOR_Rsvrd6       = 6;
+        OPERATOR_ST_INVALID   = 7;
+    }
+    optional OperatorState_e OperatorState = 2;
+    // @end segscope: NT3
+
+    enum DrvStType_e{
+        DrvSt_Unknown= 0; //Unknown
+        DrvSt_None   = 1; //None
+        DrvSt_MD     = 2; //MD
+        DrvSt_RD     = 3; //RD
+        DrvSt_AD     = 4; //AD
+        DrvSt_Rsrvd5 = 5; //Reserved
+        DrvSt_Rsrvd6 = 6; //Reserved
+        DrvSt_InVld  = 7; //Invalid
+    }
+    required DrvStType_e DrvState = 3;                     //@Channel:CHASSIS @Message:0x10C @Signal:DrvState    
+
+
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909; // uuid of the publisher
+    optional uint64 counter = 536870910;         // message counter
+    optional uint64 publish_ts = 536870911;    // publish utc timestamp; unit : nanosecond
+
+} 

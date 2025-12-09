@@ -1,0 +1,70 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+import "common/dms/dms_feature.proto";
+
+message DMS_Result {
+    optional DMS_DrowsinessResult drowsiness_result      = 1;
+    optional DMS_DistractionResult distraction_result    = 2;
+    optional DMS_EyeStatusResult eye_status_result       = 3; // 0:left 1:right
+    optional DMS_GazeAoiResult gaze_aoi_result           = 4;
+    optional DMS_HeadResult head_result                  = 5;
+    optional DMS_PhoneActionResult phone_result          = 6;
+    optional DMS_SmokeResult smoke_result                = 7;
+    optional DMS_YawnResult yawn_result                  = 8;
+    optional DMS_HeadMovementResult head_movement_result = 9;
+    optional DMS_AgeResult age_result                    = 10;
+    optional DMS_GenderResult gender_result              = 11;
+    optional DMS_EmotionResult emotion_result            = 12;
+    optional DMS_FaceResult face_result                  = 13;
+    optional DMS_StrabismusType strabismus_result        = 14;
+    optional DMS_Status system_status                    = 15;
+    optional string uuid                                 = 16;
+    optional DMS_DistractionResult moment_distraction_result = 17;
+    optional DMS_GazeAoiResult cur_gaze_aoi_result           = 18;
+    optional DMS_DistZone dist_zone                          = 19;
+    optional DMS_DistractionResult distraction_long_result   = 20;
+    optional DMS_ImageQuality img_quality                    = 21;
+    optional DMS_DistractionResult distraction_result_by_oms = 22;
+    optional DMS_DistractionResult aoi_distraction_result    = 32;
+    optional DMS_DrinkResult    drink                        = 33;
+    optional DMS_DownGradeSignal down_signal                 = 34;
+
+    // @begin segscope: NT3
+    message DMS_AeRoiResult {
+        optional bool is_valid                           = 1;
+        optional uint64 image_timestamp_us               = 2;
+        optional int32 top_left_x                        = 3; // top-left x
+        optional int32 bottom_right_x                    = 4; // bottom-right x
+        optional int32 top_left_y                        = 5; // top-left y
+        optional int32 bottom_right_y                    = 6; // bottom-right y
+        optional int32 ae_target                         = 7;
+        optional int32 height                            = 8;
+        optional int32 width                             = 9;
+    }
+    optional DMS_AeRoiResult dms_ae_roi_result               = 23;
+    optional DMS_Status sdk_status                           = 24;
+    optional bool sdk_reset_by_dist                          = 25;
+    optional bool sdk_reset_by_drow                          = 26;
+    optional uint64 dist_alert_suppression                   = 27;
+    optional uint64 drow_alert_suppression                   = 28;
+    optional DMS_DrowsinessResult post_da_drows_res          = 29;
+    optional DMS_DrowsinessResult post_md_drows_res          = 30;
+    // @end segscope: NT3
+
+    optional DMS_DrowsinessResult fast_drowsiness_result     = 31;
+
+    optional DMS_TopicTime adms_start_time                   = 101;
+    optional uint64 dms_self_check                           = 102;
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin 
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;   // publish ptp timestamp unit : nanosecond
+    optional string publisher_id   = 536870909;   // uuid of the publisher
+    optional uint64 counter        = 536870910;   // message counter
+    optional uint64 publish_ts     = 536870911;   // publish timestamp; unit : nanosecond
+}

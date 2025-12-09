@@ -1,0 +1,77 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message Header {
+    required int64   seq                 = 1;
+    required uint64  stamp               = 2;
+    optional uint64  original_stamp      = 3;
+    optional fixed32 length              = 4;
+    optional uint64  source_camera_stamp = 5;
+}
+
+enum ColorSpace {
+    IMG_RAW_UINT8           = 1;
+    IMG_RAW_UINT16          = 2;
+    IMG_BGR_UINT8           = 5;
+    IMG_RGB_UINT8           = 6;
+    IMG_YUYV                = 10;
+    IMG_YUV420_UINT8_PLANAR = 11;
+    IMG_YUV_UINT8_PLANAR    = 12;
+    IMG_YUV422_UINT8_PLANAR = 13;
+}
+
+enum CompressType {
+    IMG_RAW  = 0;
+    IMG_JPEG = 1;
+    IMG_RGB  = 2;
+    IMG_YUV  = 3;
+}
+
+message MetaData {
+    optional float  analogGain     = 1;
+    optional float  conversionGain = 2;
+    optional float  digitalGain    = 3;
+    optional float  exposureTime   = 4;
+    optional int32  flags          = 5;
+    optional uint32 frameSeq       = 6;
+    optional uint32 msbPosition    = 7;
+    repeated float  wbGain         = 8;
+    optional int32  illuminance    = 9;
+}
+message DataLines{
+    repeated uint32   header                  = 1;
+    optional uint32   payloadMajorVersion     = 2;
+    optional uint32   payloadMinorVersion     = 3;
+    optional uint32   payloadNumBytes         = 4;
+    optional float    histAvg12bLIrDsp        = 5;
+    optional float    histAvg12bLGrDsp        = 6;
+    repeated float    unclippedEv             = 7;
+    optional float    unclippedEvAvg          = 8;
+    repeated float    sensorGain              = 9;
+    repeated uint32   integrationLines        = 10;
+}
+message CameraData {
+    optional Header       header           = 1;
+    optional uint64       sys_time_us      = 2; /*用于各传感器消息时间同步的时间戳*/
+    optional int32        height           = 3; /*分辨率 row*/
+    optional int32        width            = 4; /*分辨率 clomn*/
+    optional int32        channel          = 5;
+    required uint64       imageHandle      = 6;
+    optional ColorSpace   color_space      = 7;
+    optional CompressType compress_type    = 8;
+    optional int32        yuvStride        = 9; /*YUV row size (bytes)*/
+    optional MetaData     meta             = 10;
+    optional uint64       timestamp_ptp_ns = 11;
+    optional uint64       topLineData      = 12;
+    optional DataLines    dataLines        = 13;
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin 
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64       publish_ptp_ts   = 536870907; // publish ptp timestamp, uint in nanosec
+    optional string       publisher_id     = 536870909; // uuid of the publisher
+    optional uint64       counter          = 536870910; // message counter
+    optional uint64       publish_ts       = 536870911; // publish timestamp; unit : nanosecond
+}

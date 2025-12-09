@@ -1,0 +1,50 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message CameraIlluminance{
+    enum Camera{
+        SENSOR_CAMERA_FW    = 0;
+        SENSOR_CAMERA_FN    = 1;
+        SENSOR_CAMERA_RN    = 2;
+        SENSOR_CAMERA_FL    = 3;
+        SENSOR_CAMERA_FR    = 4;
+        SENSOR_CAMERA_RR    = 5;
+        SENSOR_CAMERA_RL    = 6;
+        SENSOR_CAMERA_SFW   = 7;
+        SENSOR_CAMERA_SRCW  = 8;
+        SENSOR_CAMERA_SLW   = 9;
+        SENSOR_CAMERA_SRW   = 10;
+    }
+    enum NVSignal{
+        SIGNAL_NIGHT            = 0; 
+        SIGNAL_DAY              = 1; 
+    }
+    optional Camera cam         = 1;    // which camera
+    optional float illum        = 2;    // illuminace value
+    optional NVSignal nv_signal = 3;    // day or night
+}
+message Illuminance{
+    optional NVSignal NV_Signal = 1;
+    optional float avg_illuminance = 2;
+    enum NVSignal{
+        Signal_night = 0; //night signal calculated from light conditions
+        Signal_day = 1; //day signal calculated from light conditions
+    }
+}
+
+message IlluminanceFeatures{
+    optional uint64 timestamp = 1;//Timestamp_Receive_Image
+    optional Illuminance illum = 2;
+    repeated CameraIlluminance illums = 3;          // illuminace for multiple cameras
+
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;    // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909;      // uuid of the publisher
+    optional uint64 counter = 536870910;           // message counter
+    optional uint64 publish_ts = 536870911;        // publish utc timestamp; unit : nanosecond
+
+}

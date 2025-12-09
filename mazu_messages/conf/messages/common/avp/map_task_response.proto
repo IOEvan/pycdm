@@ -1,0 +1,30 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message MapTaskResponse {
+    enum TaskStatus
+    {
+        SUCCEED = 0; // mapping is succeed       
+        FAILED = 1;  // mapping is failed    
+        BUSY = 2;   // mapping is running
+        UPLOADED = 3;   // map is uploaded   
+        ADDITIONAL = 4;   // reserved
+        UPLOADING = 5;   // map is uploading           
+    }
+
+    required string task_id      = 1;    //same as received
+    optional TaskStatus status   = 2;    // status of execution
+    repeated string fail_reasons = 3;    //fail reason
+    optional uint64 data_size    = 4;    //
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;   // publish ptp timestamp, uint in nanosec
+    optional string publisher_id   = 536870909;     // uuid of the publisher
+    optional uint64 counter        = 536870910;          // message counter
+    optional uint64 publish_ts     = 536870911;       // publish utc timestamp; unit : nanosecond
+}

@@ -1,0 +1,80 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+import "common/pnc/geometry.proto";
+
+message BehaviorVehicleState {
+  optional double time_stamp = 1;
+  optional Vector3d position = 2;
+  optional double angle = 3;
+  optional double curvature = 4;
+  optional double velocity = 5;
+  optional double acceleration = 6;
+  optional double steer = 7;
+}
+
+message BehaviorVehicleParameter {
+  optional double width = 1;
+  optional double length = 2;
+  optional double wheel_base = 3;
+  optional double front_suspension = 4;
+  optional double rear_suspension = 5;
+  optional double max_steering_angle = 6;
+  optional double max_longitudinal_acc = 7;
+  optional double max_lateral_acc = 8;
+  optional double geometry_center_to_rear_axle_distance = 9;
+}
+
+message BehaviorVehicle {
+  optional int64 id = 1;
+  optional int64 leading_id = 2;
+  optional int64 following_id = 3;
+  optional string type = 4;
+  optional BehaviorVehicleParameter vehicle_parameter = 5;
+  optional double time = 6;
+  optional BehaviorVehicleState state = 7;
+  repeated BehaviorVehicleState history_states = 8;
+  optional bool is_virtual = 9;
+}
+
+message BehaviorVehicleSet {
+  repeated BehaviorVehicle vehicles = 1;
+}
+
+message ObstacleLateralBehaviorProbability {
+  enum Type {
+    UNDEFINED = 0;
+    LANE_KEEPING = 1;
+    LANE_CHANGE_LEFT = 2;
+    LANE_CHANGE_RIGHT = 3;
+  };
+  optional Type type = 1;
+  optional double probability = 2;
+}
+
+message ObstacleLateralBehaviors {
+  optional bool is_valid = 1;
+  repeated ObstacleLateralBehaviorProbability lateral_behavior_probabilities =
+      2;
+}
+
+message VehicleSemanticInfo {
+  optional BehaviorVehicle vehicle = 1;
+  optional int64 current_lane_id = 2;
+  // frenet point s and l are relative to current lane
+  optional double frenet_point_s = 3;
+  optional double frenet_point_l = 4;
+  optional ObstacleLateralBehaviors lateral_behaviors = 5;
+  repeated ObstacleLateralBehaviorProbability lateral_behavior_probabilities =
+      6;
+  repeated int64 obstacle_target_lane_ids = 7;
+  repeated int64 leading_obstacle_ids = 8;
+  repeated int64 following_obstacle_ids = 9;
+}
+
+message VehicleSemanticInfoSet {
+  repeated VehicleSemanticInfo vehicle_semantic_infos = 1;
+}

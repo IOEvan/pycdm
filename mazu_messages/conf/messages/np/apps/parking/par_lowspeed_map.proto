@@ -1,0 +1,353 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message LowspeedLocalMap {
+  message Vector3d {
+    optional double x = 1;
+    optional double y = 2;
+    optional double z = 3;
+  }
+
+  message LsPoint {
+    optional double x = 1;
+    optional double y = 2;
+    optional double z = 3;
+    optional float confidence = 4;
+    optional float height = 5;
+
+    enum Sensor {
+      LIDAR = 0;
+      USS = 1;
+      CAMERA = 2;
+      UNKNOWN = 3;
+      VIRTUAL = 4;
+    }
+    optional Sensor sensor = 6;
+  }
+
+  message Polyline {
+    repeated LsPoint points = 1;
+  }
+
+  message Polygon {
+    repeated LsPoint points = 1;
+  }
+
+  message Quaternion {
+    optional double x = 1;
+    optional double y = 2;
+    optional double z = 3;
+    optional double w = 4;
+  }
+
+  message GlobalPosInfo {
+    optional uint64 timestamp = 1;
+    enum GnssState {
+      GNSS_STATE_UNKNOW = 0;
+      GNSS_STATE_SINGLE = 1;
+      GNSS_STATE_DGPS = 2;
+      GNSS_STATE_RTK_FIX = 3;
+      GNSS_STATE_RTK_FLOAT = 4;
+    }
+    optional GnssState gnss_state = 2;
+    optional double latitude = 3;
+    optional double longitude = 4;
+    optional double height = 5;
+    optional double roll = 6;
+    optional double pitch = 7;
+    optional double yaw = 8;
+  }
+
+  message TrajectoryPoint {
+    optional int32 id = 1;
+    optional int32 floor_id = 2;
+    optional GlobalPosInfo global_pos_info = 3;
+    optional Vector3d pos = 4;          // position
+    optional Vector3d attitude = 5;     // euler angle [rad]
+    optional Quaternion quaternion = 6;
+  }
+
+  message ParkingArea {
+    optional int32 id = 1;     // for internal use
+    optional int32 svc_id = 2; // original id of svc perception
+    optional int32 uss_id = 3; // id of uss slot
+    optional int32 floor_id = 4;
+
+    // The surface of parking area.
+    optional Polygon polygon = 5;
+
+    enum MarkingType {
+      MARKING_TYPE_PARA = 40001;               // 平行停车位
+      MARKING_TYPE_VERTICAL = 40002;           // 垂直停车位
+      MARKING_TYPE_LEAN = 40003;               // 斜向停车位
+      MARKING_TYPE_POWER_SWAP_STATION = 41000; // 换电站 // BL140
+    }
+    optional MarkingType marking_type = 6;
+
+    enum ParkingType {
+      PARKING_TYPE_UNKNOWN = 0;
+      PARKING_TYPE_SOCIAL_VEHICLE_PARKING_AREA = 1; // 社会车辆停车位
+      PARKING_TYPE_BATTERY_SWAP_PARKING_AREA = 2; // 换电车位（换电定位框）
+      PARKING_TYPE_NIO_DEDICATED_PARKING_AREA = 3;      // 蔚来专用停车位
+      PARKING_TYPE_CART_PARKING_AREA = 4;               // 大车停车位
+      PARKING_TYPE_POWER_SWAP_STATION_PARKING_AREA = 5; // 换电站 //BL140
+    }
+    optional ParkingType parking_type = 7;
+
+    enum ParkingAttribute {
+      PAKRING_ATTRIBUTE_UNKNOWN = 0;
+      PAKRING_ATTRIBUTE_NORMAL = 1;
+      PAKRING_ATTRIBUTE_BIG = 2;
+      PAKRING_ATTRIBUTE_SMALL = 3;
+      PAKRING_ATTRIBUTE_RESTRICTED = 4;
+      PAKRING_ATTRIBUTE_STEREO_GARAGE = 5;
+      PAKRING_ATTRIBUTE_CHARGING = 6;
+      PAKRING_ATTRIBUTE_ABNORMAL = 7;
+      PAKRING_ATTRIBUTE_HANDICAP = 8;
+      PAKRING_ATTRIBUTE_PARKLOCK = 9;
+      PAKRING_ATTRIBUTE_OTHER = 10;
+    }
+    optional ParkingAttribute parking_attribute = 8;
+
+    enum ParkingStatus {
+      PARKING_STATUS_UNKNOWN = 0;
+      PARKING_STATUS_OPEN = 1;
+      PARKING_STATUS_LOCKED = 2;
+      PARKING_STATUS_OCCUPIED_BY_VEHICLE = 3;
+      PARKING_STATUS_OCCUPIED_BY_OTHER_OD = 4;
+      PARKING_STATUS_PRE_OPEN = 5;
+    }
+    optional ParkingStatus parking_status = 9;
+
+    enum FusionType {
+      FUSION_TYPE_OTHER = 0;
+      FUSION_TYPE_SVC = 1;
+      FUSION_TYPE_USS = 2;
+      FUSION_TYPE_LIDAR = 3;
+    }
+    optional FusionType fusion_type = 10;
+
+    // 航向角
+    optional double heading = 11;
+    // entrance is segment [entrance_line_idx,entrance_line_idx+1]
+    optional int32 entrance_line_idx = 12;
+    optional string ocr_info = 13;
+
+    optional int32 related_stopper_id = 14;
+    optional int32 related_locker_id = 15;
+  }
+
+  message Pillar {
+    optional int32 id = 1;
+    optional int32 floor_id = 2;
+
+    // The boundary of pillar.
+    optional Polygon polygon = 3;
+
+    enum PillarType {
+      PILLAR_TYPE_UNKOWN = 0;
+      PILLAR_TYPE_PRISM = 1;
+      PILLAR_TYPE_CYLINDER = 2;
+    }
+    optional PillarType pillar_type = 4;
+  }
+
+  message SpeedBump {
+    optional int32 id = 1;
+    optional int32 floor_id = 2;
+    optional Polygon surface = 3;
+  }
+
+  message ParkingStopper {
+    optional int32 id = 1;
+    optional int32 floor_id = 2;
+
+    // The boundary of stopper.
+    optional Polyline centerline = 3;
+    enum FacingType {
+      FACING_TYPE_UNKOWN = 0;
+      FACING_TYPE_TOWARD = 1;
+      FACING_TYPE_BACKWARD = 2;
+    }
+    optional FacingType facing_type = 4;
+
+    enum GroundAttributeType {
+      GROUND_ATTRIBUTE_TYPE_UNKOWN = 0;
+      GROUND_ATTRIBUTE_TYPE_GROUND = 1;
+      GROUND_ATTRIBUTE_TYPE_NOT_GROUND = 2;
+    }
+    optional GroundAttributeType ground_attribute_type = 5;
+
+    optional int32 related_slot_id = 6;
+  }
+
+  message ParkingLock {
+    optional int32 id = 1;
+    optional int32 floor_id = 2;
+
+    // The boundary of lock.
+    optional Polygon polygon = 3;
+
+    enum LockStatus {
+      LOCK_STATUS_UNKOWN = 0;
+      LOCK_STATUS_OPEN = 1;
+      LOCK_STATUS_CLOSED = 2;
+    }
+    optional LockStatus status = 4;
+
+    optional int32 related_slot_id = 5;
+  }
+
+message ParkingGateMachine {
+    optional int32 id = 1;
+    optional int32 floor_id = 2;
+
+    optional Polygon polygon = 3;
+
+    enum GateMachineStatus {
+      GATE_MACHINE_STATUS_UNKNOWN = 0;
+      GATE_MACHINE_STATUS_CLOSED = 1;
+      GATE_MACHINE_STATUS_OPENING = 2;
+      GATE_MACHINE_STATUS_OPENED = 3;
+      GATE_MACHINE_STATUS_RESERVED1 = 4;
+      GATE_MACHINE_STATUS_RESERVED2 = 5;
+      GATE_MACHINE_STATUS_RESERVED3 = 6;
+      GATE_MACHINE_STATUS_RESERVED4 = 7;
+    }
+
+    optional GateMachineStatus status = 4;
+    repeated int32 related_barrier_ids = 5; // related barrier ids
+  }
+
+  message Cone {
+    optional int32 id = 1;
+    optional int32 floor_id = 2;
+
+    enum Source {
+      SOURCE_UNKOWN = 0;
+      SOURCE_SVC_PERCEPTION = 1;
+      SOURCE_PERCEPTION_OD = 2;
+      SOURCE_FUSION = 3;
+      SOURCE_OTHER = 4;
+    }
+    optional Source source = 3;
+
+    // The boundary of cone.
+    optional Polygon polygon = 4;
+  }
+
+  message Barrier {
+    optional int32 id = 1;
+    optional int32 floor_id = 2;
+
+    // The boundary of wall on the ground.
+    optional Polyline boundary = 3;
+
+    enum BarrierType {
+      BARRIER_TYPE_UNKOWN = 0;
+      BARRIER_TYPE_WALL = 1;
+      BARRIER_TYPE_CURB = 2;
+      BARRIER_TYPE_CONE = 3;
+      BARRIER_TYPE_BUSH = 4;
+      BARRIER_TYPE_CAR_OR_TRUCK = 5;
+      BARRIER_TYPE_OTHER = 6;
+      BARRIER_TYPE_PILLAR = 7;
+      BARRIER_TYPE_VRU = 8;
+    }
+    optional BarrierType barrier_type = 4;
+
+    enum Freshness {
+      CURRENT = 0;
+      PASSED = 1;
+    }
+    optional Freshness freshness = 5;
+
+    enum Validity {
+      VALID = 0;
+      INVALID = 1;
+    }
+    optional Validity validity = 6;
+    // max height of the barrier
+    optional float max_height = 7;
+    // confidence of the barrier
+    // only has two confidence levels
+    // 0.3(TBD): low confidence, 0.65: high confidence
+    optional float confidence = 8;
+    
+    enum MotionStatus
+    {
+        Unknown = 0;
+        Static = 1;
+        Stopped = 2;
+        Moving = 3;
+    }
+    optional MotionStatus motion_status = 9;
+  }
+
+  message DynamicObject {
+    optional uint64 timestamp = 1;
+    optional int32 id = 2;
+    optional LsPoint position = 3;
+    optional LsPoint velocity = 4;
+    optional LsPoint acceleration = 5;
+    optional double heading = 6;
+
+    optional LsPoint bounding_box = 7; // length/width/height
+    optional Polygon polygon = 8;
+
+    enum ObjectType {
+      OBJECT_TYPE_UNKOWN = 0;
+      OBJECT_TYPE_CAR = 1;
+      OBJECT_TYPE_SUV = 2;
+      OBJECT_TYPE_PICKUP = 3;
+      OBJECT_TYPE_BUS = 4;
+      OBJECT_TYPE_BIKE = 5;
+      OBJECT_TYPE_PEDESTRIAN = 6;
+      OBJECT_TYPE_OTHER = 7;
+    }
+    optional ObjectType type = 9;
+
+    enum MotionStatus {
+      MOTION_STATUS_UNKNOW = 0;
+      MOTION_STATUS_STATIC = 1;
+      MOTION_STATUS_STOPPED = 2;
+      MOTION_STATUS_SLOWLY = 3;
+      MOTION_STATUS_MOVING = 4;
+    }
+    optional MotionStatus motion_status = 10;
+
+    enum FusionType {
+      FUSION_TYPE_OTHER = 0;
+      FUSION_TYPE_VISION = 1;
+      FUSION_TYPE_LIDAR = 2;
+      FUSION_TYPE_RADAR = 3;
+      FUSION_TYPE_FUSION = 4;
+    }
+    optional FusionType fusion_type = 11;
+  }
+
+  optional uint64 timestamp = 1;
+  optional int32 id = 2;
+  repeated ParkingArea slots = 3;
+  repeated Pillar pillars = 4;
+  repeated SpeedBump bumps = 5;
+  repeated ParkingStopper stoppers = 6;
+  repeated ParkingLock locks = 7;
+  repeated Barrier barriers = 8;
+  repeated Cone cones = 11;
+  repeated ParkingGateMachine gate_machines = 12;
+  repeated DynamicObject dynamic_objects = 9;
+  repeated TrajectoryPoint trajectory_points = 10;
+
+  optional SensorTSHeader sensor_original_ts = 536870906; // sensor original ts
+  optional string publisher_id = 536870909; // uuid of the publisher
+  optional uint64 publish_ptp_ts =
+      536870907;                       // publish ptp timestamp, uint in nanosec
+  optional uint64 counter = 536870910; // message counter
+  optional uint64 publish_ts =
+      536870911; // publish timestamp; unit : nanosecond
+}

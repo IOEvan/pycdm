@@ -1,0 +1,54 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+import "common/perception/svc_exceptions.proto";
+
+message ParkingPerceptionCommand{
+	enum ParkingPerceptionType{
+		TYPE_OFF = 0;
+		TYPE_SLOT_SEARCH = 1;
+		TYPE_SLOT_TRACK = 2;
+		TYPE_POWER_SWAP = 3;
+		TYPE_POWER_SWAP_TRACK = 4;
+		TYPE_RESERED1 = 5;  // reserved for dev
+		TYPE_RESERED2 = 6;  // reserved for dev
+	}
+	optional ParkingPerceptionType park_cmd_type = 1;
+	optional int32 slot_track_index = 2;
+	optional float psap_vehpos_x= 3;            // in ramp coordinate
+  	optional float psap_vehpos_y = 4;
+  	optional float psap_vehpos_z = 5;
+  	optional float psap_veh_psi = 6;
+
+	// For clearing SVC Faults
+	message SVCFaultClear {
+		required SVCPerceptionFaultType fault_type          = 1;
+		required int32 fault_code                 = 2; // Convert to Specific alarm code based on alarm type
+		// When 0 is selected as fault code, all faults will be cleared
+		// e.g. fault code = 0, fault_type = sapa will clear all sapa faults
+		//      fault code = 0, fault_type = general will clear all general faults
+		optional int32 reserved                   = 3;
+	}
+	// multiple faults can be cleared at the same time
+	repeated SVCFaultClear svc_fault_clears = 7;
+	
+	optional uint32 park_memory_request = 8;  // 一键返回功能新增，轨迹记忆请求，bitwise, bit0: reverse_assist, bit1: familiar_road, other bits reserved
+	enum FusionModeRequest{
+		INVALID_MODE = 0;
+		PARK_MODE = 1;
+		DRIVING_MODE = 2;   //driving mode for p2p
+		DRIVING_MODE_ONE_CLICK = 3;
+		RESERVER_MODE2 = 4;
+	}
+	optional FusionModeRequest fusion_mode_request = 9; // 一键返回功能新增，路线记忆模式
+	
+	optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+	optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+	optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+	optional string publisher_id = 536870909; // uuid of the publisher
+	optional uint64 counter = 536870910;       // message counter
+	optional uint64 publish_ts = 536870911;    // publish utc timestamp; unit : nanosecond
+}

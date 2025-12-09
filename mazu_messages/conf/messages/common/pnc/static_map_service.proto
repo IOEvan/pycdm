@@ -1,0 +1,23 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/pnc/static_map.proto";
+
+message StaticMapRequest {
+  optional uint64 request_id =
+      1;  // id can be any uint64 number, or simply timestamp, decided by client
+  optional bool request_map = 2;
+  optional bool request_routing = 3;
+}
+
+message StaticMapResponse {
+  enum Status {
+    FAILED = 0;
+    SUCCESS = 1;
+  };
+  optional StaticMapRequest request = 1;  // used for client-server handshaking
+  optional Status status = 2;
+  optional StaticMap map = 3;
+}

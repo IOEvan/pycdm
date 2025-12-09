@@ -1,0 +1,20 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+// template message for each function in the FunctionStatusBook
+message FunctionXstatus {
+      optional string FunctionName     = 1;	   // name	of function	   // redundant to ID
+      optional int32 FunctionID        = 2;		// ID 	of function	   // redundant to name
+      enum FunctionStatus {		               // status 	of function
+            OFF   	   = 0;	                  // app not loaded // not in BL07X
+            LOADED 	   = 1;	                  // app loaded, but not doing anything
+            CHECKING 	= 2;	                  // app loaded and conducting self-checks
+            STANDBY 	   = 3;	                  // app loaded, no inhibit, within ODD
+            RUNNING 	   = 4;	                  // function running
+      }
+      optional FunctionStatus FuncSts = 3;
+      optional int32 ReqFunctionID    = 4;		// ID of another Function requested to take over
+}

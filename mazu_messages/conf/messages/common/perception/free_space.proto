@@ -1,0 +1,97 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+
+message FreeSpace{
+    optional uint32 FSP_Obs_ID = 1;
+    optional FSPLaneAssginment FSP_Lane_Assginment = 2 [deprecated=true];
+    optional float FSP_Range = 3;         // 水平射线距离 
+    optional float FSP_Azimuth_Angle = 4; // 水平射线所在角度
+    optional FSPClassificationType FSP_Classification_Type = 5 [deprecated=true];
+    optional float FSP_Height = 6;
+    optional float FSP_Elevation_Angle = 7;
+    optional FSPMobilityStatus FSP_Mobility_Status = 8;
+    optional float FSP_Existence_Prob = 9;
+    optional uint64 fsp_timestamp = 10;//The mean ptp timestamp of the lidar points within the lidar voxel (unit: ns).
+    optional float FSP_Height_min = 11;
+    optional float fsp_vehicle_frame_x = 12;  // freespace point location x in vehicle coordinate.
+    optional float fsp_vehicle_frame_y = 13;  // freespace point location y in vehicle coordinate.
+    repeated uint32 fsp_semantic_class_list = 14;   // The list of class id which is corresponds to each one of fsp_semantic_score. Each class defined in FSPSemanticClass.
+    repeated float fsp_semantic_score_list = 15 [deprecated=true];   // The list of class score which is corresponds to each one of fsp_semantic_class_list.
+    optional float fsp_vehicle_frame_z = 16;  // freespace point location z in vehicle coordinate.
+    optional float fsp_height_ground = 17;  // freespace point height of ground
+
+    enum FSPLaneAssginment{
+        FSPLaneAssginment_Unknown = 0;
+        FSPLaneAssginment_Host = 1;  //Host lane
+        FSPLaneAssginment_Right = 2; // Right lane
+        FSPLaneAssginment_Left = 3; //Left lane
+        FSPLaneAssginment_Right_Right = 4; //Right right lane
+        FSPLaneAssginment_Left_Left = 5; //Left left lane
+    }
+
+    enum FSPClassificationType{
+        FSPClassificationType_Unknown = 0;
+    }
+
+    enum FSPMobilityStatus{
+        FSPMobilityStatus_Unknown = 0;
+        FSPMobilityStatus_Moving = 1;
+        FSPMobilityStatus_Stationary = 2;
+    }
+
+    enum FSPSemanticClass{
+        FSP_VEHICLE                   = 0;  // Including small_vehicle, large_vehicle, three_wheel_vehicle, trailer, emergency_vehicle and other vehicles
+        FSP_PEDESTRIAN                = 1;  // Including adult, child and other pedestrian
+        FSP_PEDESTRIAN_OBJECT         = 2;  // Including stroller, wheelchair and other pedestrain object 
+        FSP_CYCLIST                   = 3;  // Including motorcyclist, ebicyclist, bicyclist and other two wheel vhicle and its riders
+        FSP_CYCLE                     = 4;  // Including bicycle, ebicycle, motorcycle and other two wheel vhicle without riders
+        FSP_ANIMAL                    = 5;  // Including dog, cat and other animal
+        FSP_CONE                      = 6;  // Including all kinds of cone bucket
+        FSP_CONSTRUCTION_POLE         = 7;  // Including warning post in construction or warning area, and poles that lower than 1.5m
+        FSP_BARRIER                   = 8;  // Including temporal barrier and drum objects
+        FSP_VEGETATION                = 9;  // Including vegetation without tree trunk
+        FSP_CURB                     = 10;  // Including all kinds of curb
+        FSP_POLE_TREETRUNK           = 11;  // Including pole, tree trunk and other cylindrical objects, and poles that higher than 1.5m
+        FSP_SIGN                     = 12;  // Including all kinds of sign, such as traffic sign, construction sign
+        FSP_GROUND                   = 13;  // Including all kinds of road surface and road marker
+        FSP_WALEABLE_GROUND          = 14;  // Including all kinds of walkable surface, such as sidewalk and lawn 
+        FSP_BUMP                     = 15;  // Including bump, cateye
+        FSP_HOLLOW                   = 16;  // Including all kinds of holes
+        FSP_FILTERABLE               = 17;  // Including all filterable objects, such as spray, rooster tail, dust, rain, snow and other noise or filterable ojbect 
+        FSP_OTHER_IMPERMANENTOBJECT  = 18;  // Including other impermanent object that class is not included above, such as debris, tire, dropped object
+        FSP_OTHER_PERMANENTOBJECT    = 19;  // Including other permanent object that class is not included above, such as building, traffic light, fire hydrant and parterre
+        FSP_OBW                      = 20;  // Including instance of water horse when there are one or two water horse
+        FSP_ANTI_COLLISION_BUCKET    = 21;  // Including instance of anti-collision_bucket when there are one or two anti-collision_bucket
+    }
+
+}
+
+enum FreeSpaceSource{
+        kFreeSpaceVision = 0;
+        kFreeSpaceLidar = 1;
+        kFreeSpaceFusion = 2;
+    }
+
+message FreeSpaceDetection{
+    optional uint64 timestamp = 1; 
+    repeated FreeSpace freespace = 2;
+    optional FreeSpaceSource source = 3; 
+    optional uint64 timestamp_ptp_ns = 4;    // Global defined ptp time, record the starting time of lidar first point (ns)
+    repeated FreeSpace occlusion_ped = 5;    //1m height, for child
+    repeated FreeSpace occlusion_car = 6;    //2m height, for small vehicle
+    repeated FreeSpace occlusion_truck = 7;  //4m height, for big vehicle
+    repeated FreeSpace occlusion_ground = 8; //0m height, for ground
+    repeated FreeSpace occlusion_adult = 9;  //1.4m height, for adult
+    repeated FreeSpace driving_space = 10;   // driving space
+
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;  // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909;    // uuid of the publisher
+    optional uint64 counter = 536870910;         // message counter
+    optional uint64 publish_ts = 536870911;      // publish utc timestamp; unit : nanosecond
+}

@@ -1,0 +1,147 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+import "common/pnc/hmi_state.proto";
+import "common/pnc/state_restore_enum_task.proto";
+import "common/pnc/state_restore_enum_trigger.proto";
+import "common/perf/sensor_ts_header.proto";
+
+enum SchedulerLaneChangeType {
+  SUCCEEDING = 0;
+  LEFT_FORWARD = 1;
+  RIGHT_FORWARD = 2;
+  CANCEL_LEFT = 3;
+  CANCEL_RIGHT = 4;
+  CHANGE_BOTH = 5;
+}
+
+enum LaneChangeTriggerType {
+  DRIVER = 0;
+  EMERGENCY_AVOIDANCE = 1;
+  SPLIT = 2;
+  OFF_RAMP = 3;
+  RAMP_TO_ROAD = 4;
+  MERGE = 5;
+  PRIORITY = 6;
+  SPEED = 7;
+  OVERTAKE = 8;
+  NONE_TRIGGER = 9;
+  PREFERED_LANE = 10;
+  LANE_KEEP_SPLIT = 11;
+  RISK_OBSTACLE = 12;
+  AVOID_MERGE_LANE = 13;
+  AVOID_CONSTRUCTION_ZONE = 14;
+  AVOID_STATIC_VEHICLE = 15;
+  AVOID_VEHICLE_IN_JUNCTION = 16;
+  AVOID_BUS_LANE = 17;
+  AVOID_NON_MOTOR_LANE=18;
+}
+
+message SchedulerTask {
+  enum TaskType {
+    TASK_TYPE_HMI_REQ = 0;
+    TASK_TYPE_ROUTING = 1;
+    TASK_TYPE_OVERTAKE = 2;
+    TASK_TYPE_PRIORITY = 3;
+    TASK_TYPE_EMERGENCY = 4;
+    TASK_TYPE_AVOID_MERGE_LANE = 5;
+    TASK_TYPE_AVOID_BUS_LANE = 6;
+  }
+
+  enum Scene {
+    ROAD = 0;
+    ROAD_TO_RAMP = 1;
+    RAMP = 2;
+    RAMP_TO_ROAD = 3;
+  }
+  optional SchedulerLaneChangeType scheduler_lane_change_type = 1;
+  optional TaskType scheduler_lane_change_task_type = 2;
+  optional bool valid = 3;
+  optional bool need_reject_task = 4;
+  optional Scene scene = 5;
+  optional LaneChangeTriggerType trigger_type = 6;
+}
+
+message SchedulerLaneChangeStatus {
+  enum State {
+    STATE_LANE_KEEP = 0;
+    STATE_LEFT_LANE_CHANGE = 1;
+    STATE_RIGHT_LANE_CHANGE = 2;
+    STATE_CANCEL_LEFT_LANE_CHANGE = 3;
+    STATE_CANCEL_RIGHT_LANE_CHANGE = 4;
+    STATE_FINISHED = 5;
+    STATE_PREPARE_LEFT_LANE_CHANGE = 6;
+    STATE_PREPARE_RIGHT_LANE_CHANGE = 7;
+  }
+  optional State scheduler_lane_change_state = 1;
+}
+
+message SchedulerLaneChangePrompt {
+  enum PromptMsg {
+    PROMPT_ROUTE_CHANGE_REQUEST = 0;
+    PROMPT_SCENE_LEVEL_HIGH = 1;
+    PROMPT_SCENE_LEVEL_MIDDLE = 2;
+    PROMPT_SCENE_LEVEL_LOW = 3;
+  }
+  enum PromptScene {
+    ROUTING = 0;
+    OFF_RAMP = 1;
+    ON_RAMP = 2;
+    RAMP_TO_ROAD = 3;
+  }
+  enum LaneChangeType {
+    SUCCEEDING = 0;
+    LEFT_FORWARD = 1;
+    RIGHT_FORWARD = 2;
+  }
+  optional bool prompt_valid = 1;
+  optional LaneChangeType prompt_lane_change_type = 2;
+  optional PromptScene prompt_scene = 3;
+  optional PromptMsg prompt_msg = 4 [deprecated = true];
+  optional SchedulerTask.TaskType task_type = 5;
+  optional SchedulerTask.Scene task_scene = 6;
+}
+
+enum LaneChangeUserResponse {
+  NONE_RESPONCE = 0;
+  CONFIRM_LANE_CHANGE = 1;
+  REJECT_LANE_CHANGE = 2;
+}
+
+message RouteLaneChangeRequest {
+  enum AheadLaneChangeType {
+    NONE = 0;
+    AHEAD_BY_SOLID_LINE = 1;
+    AHEAD_BY_MULTI_JUNCTION = 2;
+  }
+  optional SchedulerLaneChangePrompt.LaneChangeType lane_change_type = 1;
+  optional task.Scene scene = 2;
+  optional trigger.TriggerType trigger_type = 3;
+  optional bool need_reject_task = 4;
+  optional bool valid = 5;
+  optional AheadLaneChangeType ahead_lane_change_type = 6;
+  repeated int32 key_obstacle_id_set = 7;
+  optional bool is_ignore_solid_line = 8;
+}
+
+message PlannerScheduler {
+  optional SchedulerTask scheduler_task = 1;
+  optional SchedulerLaneChangeStatus scheduler_lane_change_status = 2;
+  optional SchedulerLaneChangePrompt scheduler_lane_change_prompt = 3;
+  optional LaneChangeUserResponse lane_change_user_response = 4;
+  optional ALCConfirmReq alc_confirm_mode = 5;
+  optional uint64 time_meas = 6; // in ns
+  optional RouteLaneChangeRequest route_lane_change_request = 7;
+
+  optional uint64 publish_ptp_ts = 1002;   // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 1003;     // uuid of the publisher
+  optional uint64 counter = 1004;         // message counter
+  optional uint64 publish_ts = 1005;      // publish utc timestamp; unit : nanosecond
+
+  optional uint64 timestamp = 536870905;     // ptp time, nanosec, for cosine bundle timestamp  
+  optional SensorTSHeader sensor_original_ts = 536870906;  // sensor original ts
+
+}

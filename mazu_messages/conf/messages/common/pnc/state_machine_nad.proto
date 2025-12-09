@@ -1,0 +1,132 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+import "common/pnc/hmi_state.proto";
+import "common/pnc/planner_debug.proto";
+import "common/pnc/path.proto";
+import "common/pnc/state_machine_debug.proto";
+import "common/pnc/planner_evaluation.proto";
+
+// 0830 nad state machine
+enum DAFuncStatus {
+  DAFuncSts_Off = 0;
+  DAFuncSts_Standby = 1;
+  DAFuncSts_Active = 2;
+};
+
+enum NOPSenarioType {
+  NOPSenario_Default = 0;
+  NOPSenario_Highway = 1;
+  NOPSenario_Urban = 2;
+  NOPSenario_PSP = 3;
+  NOPSenario_Urban_Private_Surface_Road = 4;
+  NOPSenario_Urban_Inside_Building = 5;
+};
+
+message DASMIOAdaptor {
+  // simulink general outputs:
+  optional int32 da_inhibit_enum = 1;
+  optional bool da_activation_prevention_flg = 2;
+  optional bool da_running_req_flg = 3;
+  // get inhibit reasons from simulink
+  optional uint32 nop_suppression_reason1 = 4;
+  optional uint32 nop_act_prev_reason1 = 5;
+  optional uint32 lcc_act_prev_reason1 = 6;
+  optional uint32 lcc_act_prev_reason2 = 7;
+  optional uint32 lcc_act_prev_reason3 = 8;
+  optional uint32 attention_demand_reason1 = 9;
+  optional uint32 attention_demand_reason2 = 10;
+  optional uint32 takeover_demand_reason1 = 11;
+  optional uint32 takeover_demand_reason2 = 12;
+  optional uint32 takeover_demand_reason3 = 13;
+  optional uint32 eas_trigger_reason1 = 14;
+  optional uint32 eas_trigger_reason2 = 15;
+  optional uint32 hard_inhibit_reason1 = 16;
+  optional uint32 hard_inhibit_reason2 = 17;
+  optional uint32 hard_inhibit_reason3 = 18;
+  optional uint32 hard_inhibit_reason4 = 19;
+  optional uint32 psp_act_prev_reason1 = 20;
+  optional uint32 ad_sys_passive_reason = 21;
+  optional uint32 ad_sys_standby_reason = 22;
+  optional uint32 eas_status = 23;
+  optional uint32 nop_act_prev_reason = 24;
+  optional uint32 nop_suppression_reason = 25;
+
+  // psp related signals
+  optional bool psp_activation_prevention_flg = 100;
+  optional bool psp_available_flg = 101;
+
+  // nop related suppression
+  optional bool nop_suppression_flg = 200;
+  optional bool nop_act_prev_flg = 201;
+  optional bool nop_available_flg = 202;
+
+  // lcc+ related signals
+  optional bool lcc_plus_act_prev_flg = 203;
+  optional bool lcc_plus_suppression_flg = 204;
+  optional uint32 lcc_plus_act_prev_reason1 = 205;
+  optional uint32 lcc_plus_suppression_reason1 = 206;
+
+  // hard inhibit related flg
+  optional bool is_crossing_hard_inhibit_flg = 301;  // NIOP-3126
+  optional bool is_in_crossing = 302;
+
+  // lat\lon actuator status
+  optional double eps_hand_torque_Nm = 1000;
+  optional int32 eps_override_sts_enum = 1001;
+  optional bool brake_pedal_presed_flg = 1002;
+  optional double brake_pres_kpa = 1003;
+  optional double accel_pedal_pct = 1004;
+  // car info steer report
+  optional bool steer_override_flg = 1005;
+  optional bool steer_overlay_flg = 1006;
+  // car info brake report
+  optional bool brake_override_flg = 1007;
+
+  // hmi info
+  optional bool is_nad_selected_by_dc_flg = 2000;
+  optional bool sw_resum_flg = 2001;
+  optional bool sw_pilot_flg = 2002;
+  optional bool is_in_navigation_flg = 2003;
+  optional bool is_in_odd_flg = 2004;
+  optional NOPSenarioType nop_senario = 2005;
+  optional bool is_skip_navi_check_flg = 2006;
+
+  // ad app status
+  optional bool planner_sts_flg = 3000;
+  optional bool control_sts_flg = 3001;
+  optional bool control_losscomm_flg = 3002;
+  optional PlannerReturnCode.ErrorCode planner_return_code = 3003;
+  optional string hd_map_suppression_reason = 3004;
+  optional string lane_map_suppression_reason = 3005;
+  optional string nop_unavailable_reason = 3006;
+}
+
+message DASMTransCond {
+  optional bool off_to_standby_flg = 1 [default = false];
+  optional bool standby_to_off_flg = 2 [default = false];
+  optional bool standby_to_active_flg = 3 [default = false];
+  optional bool active_to_standby_flg = 4 [default = false];
+  optional bool active_to_off_flg = 5 [default = false];
+  optional bool is_nad_mode_flg = 6 [default = false];
+}
+
+message NADStateMachine {
+  optional DAFuncStatus da_func_status = 1 [default = DAFuncSts_Off];
+
+  optional DASMTransCond transition_conditions = 2;
+
+  repeated DASMDebugInfo debug_info = 3;
+
+  optional DASMIOAdaptor dasm_ioadaptor = 4;
+
+  optional uint32 danadsts_enum = 5;
+
+  optional bool is_lccplus_available_flg = 6;
+
+  optional uint64 time_meas =
+      536870907;  // time when NADStateMachine::Process finished
+}

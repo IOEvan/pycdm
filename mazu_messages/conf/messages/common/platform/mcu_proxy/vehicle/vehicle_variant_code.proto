@@ -1,0 +1,180 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message VariantCodeInfo {
+    enum NadPackTyp {
+        INVALID_AD_PACK = 0;
+        AD_PACK_CN_WITH_NAD = 1;
+        AD_PACK_EU_WITH_NAD = 2;
+        AD_PACK_RESERVED_1 = 3;
+        AD_PACK_RESERVED_2 = 4;
+        AD_PACK_EU_WITHOUT_NAD = 5;
+        AD_PACK_CN_WITHOUT_NAD = 6;
+    }
+    optional NadPackTyp nad_pkg                             = 1;  // Autonomous Driving feature package
+
+    enum SalesRegionTyp {
+        INVALID_SALES_REGION = 0;
+        CN = 1;
+        EU = 2;
+        UAE = 3;
+    }
+    optional SalesRegionTyp sales_region                    = 2;  // sales region 
+     
+    enum WheelSizeType {
+        INVALID_WHEEL_SIZE = 0;
+        RIM_20_INCH = 1;
+        RIM_19_INCH = 2;
+        RIM_21_INCH = 3;
+        RIM_18_INCH = 4;
+        RIM_22_INCH = 5;
+        RIM_23_INCH = 6;
+    }
+    optional WheelSizeType wheel_size                       = 3; // user may change the wheel size without updating this config
+                                                               
+    enum SalesCountryTyp {
+        INVALID_SALES_COUNTRY = 0;
+        CHINA = 1;
+
+        NORWAY = 4;
+        ISRAEL = 5;
+        MEXICO = 6;
+        GERMANY = 7;
+        ENGLAND = 8;
+        NETHERLANDS = 9;
+        FRANCE = 10;
+        SWEDEN = 11;
+        BELGIUM = 12;
+        ITALY = 13;
+        SPAIN = 14;
+        AUSTRIA = 15;
+        SWITZERLAND = 16;
+        UNITED_ARAB_EMIRATES = 17;
+        DENMARK = 18;
+        FINLAND = 19;
+        PORTUGAL = 20;
+        AZERBAIJAN = 21;
+        MYANMAR = 22;
+        AMERICA = 0xF1;
+    }
+    optional SalesCountryTyp sales_country                  = 4; // country in which the vehicle is supposed to be delivered
+
+    enum VehGenerationTyp {
+        INVALID_VEH_GENERATION = 0;
+        G_1p1 = 1;
+        G_1p2 = 2;
+        G_1p3 = 3;
+        G_1p4 = 4;  // now is G_1pf, G_1p4 is G_1pf
+        G_1p5 = 5;
+        G_1p6 = 6;
+    }
+    optional VehGenerationTyp vehicle_generation           = 5; // vehicle generation
+
+    enum VehProjectTyp {
+        INVALID_VEH_PROJECT = 0;
+        FORCE = 1;
+        GEMINI = 2;
+        PEGASUS = 3;
+        ARIES = 4;
+        SIRIUS = 5;
+        LIBRA = 6;
+        ORION = 7;
+        LYRA = 8;
+        NT1_ES8 = 12;
+        NT1_ES6 = 13;
+        NT1_EC6 = 14;
+        NT3_LEO = 0x14;
+        NT3_VELA = 0x15;
+        NT3_CETUS = 0x16;
+        NT3_DRACO = 0x17;
+        NT3_DOM = 0x1E;
+        NT3_BLANC = 0x1F;
+        NT3_ROSA = 0x20;
+    }
+    optional VehProjectTyp vehicle_project                  = 6; // vehicle project
+    
+    enum DriveHandTyp {
+        INVALID_DRIVE_HAND = 0;
+        LEFT_RUDDER = 1;
+        RIGHT_RUDDER = 2;
+    }
+    optional DriveHandTyp drive_hand                        = 7; // side of driver steering wheel
+    optional bool nop_plus_subscribe_avail                  = 8; // 0: not available; 1: available
+    optional bool RPA_in_subscribe_avail                    = 9; // 0: not available; 1: available
+    optional bool NBS_subscribe_avail                       = 10;// 0: not available; 1: available
+    optional bool NAD_subscribe_avail                       = 11;// 0: not available; 1: available
+
+    enum VehBrandTyp {
+        INVALID_VEHICLE_BRAND = 0;
+        NIO = 1;
+        ALPS = 2;
+        FY = 3;
+    }
+    optional VehBrandTyp vehicle_brand                        = 12; // vehicle brand   
+
+    enum VehPlatformTyp {
+        INVALID_VEHICLE_PLATFORM = 0;
+        NT1 = 1;
+        NT1P2 = 2;
+        NT2 = 3;
+        NT2P5 = 5;
+        NT3 = 7;
+    }
+    optional VehPlatformTyp vehicle_platform                        = 13; // vehicle platform
+
+    optional string variant_config_path                        = 14; // variant config file path
+
+    optional uint64 variant_config_time                        = 15; // variant config modified time
+
+    message VCItem {
+        optional string key               = 1;
+        optional string value             = 2;
+    }
+
+    repeated VCItem vc_list = 16;
+
+    enum RearviewMirrorTyp {
+        NORMAL = 0;
+        STREAMING = 1;
+    }
+    optional RearviewMirrorTyp rearview_mirror                       = 17; // rearview mirror
+
+    enum MicroLedTyp {
+        AVAILABLE = 0;
+        NOT_AVAILABLE = 1;
+    }
+    optional MicroLedTyp micro_led                        = 18; // micro led
+
+    enum SpringTyp {
+        NT3_COIL_SPRING = 0;
+        NT3_AIR_SPRING_SINGLE_CHAMBER = 1;
+        NT3_AIR_DOUBLE_SINGLE_CHAMBER = 2;
+
+        NT2_COIL_SPRING = 16;
+        NT2_AIR_SUSPENSION = 17;
+    }
+    optional SpringTyp spring_type                        = 19; // spring type
+
+    enum DamperTyp {
+      CDC_DAMPER = 0;
+      FAS_DAMPER = 1;
+      PASSIVE_DAMPER = 2;
+    }
+    optional DamperTyp damper_type                        = 20; //damper_type
+}
+
+message VehVariantCode {
+    optional bool is_variant_code_valid = 1; // 0 - invalid; 1 - valid
+    optional VariantCodeInfo variant_code_info = 2; 
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin   
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909; // uuid of the publisher
+    optional uint64 counter = 536870910;         // message counter
+    optional uint64 publish_ts = 536870911;    // publish utc timestamp; unit : nanosecond
+
+}

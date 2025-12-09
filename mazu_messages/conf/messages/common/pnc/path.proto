@@ -1,0 +1,509 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+import "common/pnc/car_state.proto";
+import "common/pnc/geometry.proto";
+import "common/pnc/perception_object.proto";
+import "common/pnc/decision.proto";
+import "common/pnc/road_map.proto";
+import "common/perf/sensor_ts_header.proto";
+import "common/map_engine/hd_link_info.proto";
+
+import "common/pnc/planner_solver_debug.proto";
+import "common/pnc/planner_error_code.proto";
+import "common/pnc/refline_debug.proto";
+import "common/pnc/path_bound_debug.proto";
+import "np/apps/parking/par_base.proto";
+
+message PathPointNop {
+  // position of the path point in global frame in m
+  optional Vector3d position = 1;
+
+  // curvature of the path point in rad/m
+  optional double k = 2;
+
+  // tangential direction on path in rad
+  optional double theta = 3;
+
+  // longitudinal displacement along the center line in m
+  // reference line s in m
+  optional double s = 4;
+
+  // lateral displacement from the center line in m
+  optional double l = 5;
+
+  // speed stamp on the path point in m/s
+  optional double speed = 6;
+
+  // speed limit on the path point in m/s
+  optional double speed_limit = 7;
+
+  // acceleration stamp on the path point in m/s^2
+  optional double acceleration = 8;
+
+  // driving direction, false for forward driving, true for backward driving
+  optional bool backward_driving = 9;
+
+  optional double dl = 10;
+
+  optional double ddl = 11;
+
+  // accumulate from first path point whose t is zero
+  optional double t = 12;
+
+  // accumulate from first path point whose s is zero
+  optional double accumulated_s = 13;
+
+  // (dkappa / ds) in rad/m^2
+  optional double dkappa = 14;
+
+  // offset to map center line, unit in m
+  optional double offset_to_map = 15;
+
+  optional double roll = 16;
+
+  optional double pitch = 17;
+  // ddds/dt jerk unit in m/(s^3)
+  optional double jerk = 18;
+
+  // quaternion in odometry
+  optional ParQuaternion quaternion = 19;
+
+  // s upper bound, ADV should not violate this bound.
+  optional double s_hard_upper_bound_m = 100 [default = inf];
+  // s soft lower bound, suggest not to violate this bound.
+  optional double s_soft_lower_bound_m = 101 [default = -inf];
+}
+
+enum StopState {
+  DRIVING = 0;
+  STOPPED = 1;
+  STOPPING = 2;
+  START_UP = 3;
+}
+
+message RouteSplitInfo {
+  enum SplitDirection {
+    DIRECTION_NONE = 0;
+    DIRECTION_LEFT = 1;
+    DIRECTION_RIGHT = 2;
+  }
+  optional HdLinkInfo.FormWay split_type = 1;
+  optional SplitDirection split_direction = 2;
+  optional double distance_to_split = 3;
+}
+
+message DestinationInfo {
+  enum Type {
+    STANDARD = 0;
+    POWER_SWAP_STATION_LOC_BOX = 1;
+  }
+  optional Type type = 1;
+}
+
+message RouteState {
+  repeated RouteSplitInfo route_split_info = 1;
+  optional DestinationInfo destination_info = 2;
+  optional bool on_last_link_segment = 3;
+  optional double distance_to_destination = 4;
+  optional bool is_leaving_sa = 5;
+}
+
+message CreepInfo {
+  optional bool is_creep_state = 1 [deprecated = false];
+  optional double follow_s = 2;
+  optional double s_buffer = 3;
+  optional double follow_v = 4;
+  optional double follow_a = 5;
+  optional int32 follow_obs_id = 6;
+  optional bool is_compensate_start_up = 7
+      [deprecated = false];  // compensate 0.2s preview t
+  optional bool is_follow_state = 8;
+}
+
+message KeyObject {
+  enum DecisionType {
+    YIELD = 0;
+    NOT_YIELD = 1;
+    MERGE_YIELD = 2;
+    MERGE_OVERTAKE = 3;
+    SLOT_YIELD = 4;
+    SLOT_NOT_YIELD = 5;
+    ALIGN_YIELD = 6;
+    ALIGN_NOT_YIELD = 7;
+    RISK = 8;
+    CROSS_YIELD = 9;
+    OOL_LEFT_NUDGE = 10;
+    OOL_RIGHT_NUDGE = 11;
+    LEFT_NUDGE = 12;
+    RIGHT_NUDGE = 13;
+
+    UNKNOWN = 14;
+    VRU_YIELD = 15;
+    CROSS_OVERTAKE = 16;
+    LANE_CHANGE_HOLD_YIELD = 17
+        [deprecated =
+             true];  // deprecated lc hold type, using slot alignment instead
+    INTERFERENCE_YIELD = 18;
+    INTERFERENCE_RISK = 19;
+    MULTIMODAL_YIELD = 20;
+    MP_YIELD = 21;
+  }
+  optional int32 object_id = 1;
+  optional DecisionType decision_type = 2;
+}
+
+message PathNudgeInfo {
+  optional int32 id = 1;
+  optional double lat_nudge_max_time = 2;
+  optional double lon_nudge_max_time = 3;
+}
+
+message KeyObjectsInfo {
+  repeated int32 nudge_objects = 1;
+  repeated int32 yield_objects = 2;
+  repeated KeyObject key_objects = 3;
+  repeated int32 risk_objects = 4;
+  repeated PathNudgeInfo path_nudge_infos = 6;
+}
+
+
+message ObsDecisonInfo {
+  enum FusionDecisionType {
+    UNKNOWN = 0;
+    YIELD = 1;
+    OVERTAKE = 2;
+    LEFT_NUDGE = 4;
+    RIGHT_NUDGE = 8;
+  }
+  optional int64 id = 1;
+  repeated double t = 2;
+  repeated FusionDecisionType decision_type  = 3;
+}
+
+message SceneFusionInfo {
+  repeated ObsDecisonInfo obs_decison_info = 1;
+}
+
+message GenLaneInfo {
+  optional uint64 id = 1;  // Lane id
+  optional Polyline center_line = 2;
+  optional Polyline left_boundary = 3;
+  optional Polyline right_boundary = 4;
+  optional uint64 left_boundary_id = 5;
+  optional uint64 right_boundary_id = 6;
+}
+
+message JunctionTopoInfo {
+  optional Polygon junction_polygon = 1;
+  repeated GenLaneInfo gen_lane_info = 2;
+  // junction id : last link in junction on Global_route
+  optional uint64 junction_id = 3;
+}
+
+message RouteInfo {
+  repeated uint64 id = 1;  // Lane_id
+}
+
+message PathNop {
+  enum P2PTaskState {
+    FINISH = 0;
+    RUNNING = 1;
+  }
+  // in ns
+  optional uint64 time_meas = 1;
+  // the whole path include several path points
+  repeated PathPointNop path_points = 2;
+
+  optional CarState.TurnSignal turn_signal = 3;
+  optional PerceptionObject lead_vehicle = 4;
+  optional DecisionMain decision_main = 5;
+  optional bool is_replan = 6 [deprecated = true];
+  optional StopState stop_state = 7 [default = DRIVING];
+  optional P2PTaskState task_state = 8;
+  repeated uint64 ref_lane_ids = 9;
+  optional RouteState route_state = 10;
+  // reference car state coor
+  optional Transformation3d reference_car_state = 11;
+  optional double ego_offset_l = 12 [default = 0.0];  // offset to refline
+  optional double left_refline_width = 13
+      [default = 1.75];  // half lane width based on refline
+  optional double right_refline_width = 14
+      [default = 1.75];  // half lane width based on refline
+  optional bool is_creep_state = 15 [deprecated = true];       // useless info
+  optional ReplanType replan_type = 16 [default = NO_REPLAN];  // replan type
+  optional KeyObjectsInfo key_objects = 17;
+
+  enum PathMode {
+    NOP = 0;
+    FS = 1;
+  }
+
+  optional PathMode path_mode = 18 [default = NOP];  // NOP or freespace
+  // gear mode req
+  optional CarState.GearStatus gear_mode_req = 19 [default = DRIVE];
+  optional bool is_fs_forward_priority_llc = 20
+      [default = false];  // fs forward use llc or vlc
+  optional CreepInfo creep_info = 21;
+
+  optional bool is_behavior_fallback = 22 [default = false];
+  optional bool is_motion_fallback = 23 [default = false];
+
+  optional bool is_in_relative = 24
+      [default = false];  // based on relative localization
+
+  optional uint64 reference_time_meas = 25;
+
+  optional RouteInfo local_routing = 26;
+
+  optional RouteInfo current_route = 27;
+
+  optional JunctionTopoInfo junction_topo_info = 28 [deprecated = true];
+
+  repeated JunctionTopoInfo junction_topo_infos = 29;
+
+  optional bool is_ool = 30 [default = false];
+
+  optional ControlScenario control_req = 31;
+
+  optional bool is_cilqr_path_optimizer = 32 [default = false];
+  
+  // lon control mode
+  enum LonCtrlMode {
+    Normal_Driving = 0;
+    P2P_Stopping = 1;
+  }
+
+  optional LonCtrlMode lon_ctrl_mode = 33 [default = Normal_Driving];
+
+  optional bool enable_control_cmd = 34 [default = false];
+
+  enum TurnSignal {
+    NONE_TURN = 0;
+    LEFT = 1;
+    RIGHT = 2;
+    BOTH_DIRECTION = 3;
+  }
+
+  optional TurnSignal new_turn_signal = 35 [default = NONE_TURN];
+  optional SceneFusionInfo scene_fusion = 36;
+
+  enum PlannerStatus {
+    PLANNER_SLEEP = 0;
+    PLANNER_IDLE = 1;
+    PLANNER_RUNNING = 2;
+  }
+  optional PlannerStatus planner_status = 1000
+      [default = PLANNER_RUNNING];  // status of planner
+
+  optional SensorTSHeader sensor_original_ts =
+      1001;  // sensor original ts, last field of msg
+  optional uint64 publish_ptp_ts =
+      536870907;  // publish ptp timestamp, uint in nanosec
+  optional uint64 timestamp = 536870908;  // ptp sensor time of perception result, unit: ns
+  optional string publisher_id = 536870909;  // uuid of the publisher
+  optional uint64 counter = 536870910;       // message counter
+  optional uint64 publish_ts =
+      536870911;  // publish utc timestamp; unit : nanosecond
+  optional bool is_stop_disable_lat = 1006 [default = true];
+  optional bool is_slow_eps_speed = 1007 [default = false];
+  optional uint64 control_tracking_params_type = 1008;
+  repeated SolverStatus err_info = 1009; 
+
+  repeated PlannerStatusPb err_codes = 2000;
+  optional TrajectoryOptimizerDebug trajectory_optimizer_debug = 2001;
+  optional PathConstraintDebug path_bound_debug  = 2002;
+  optional ReferLine ref_line_debug = 2003;
+  optional CarState relative_car_state = 2004;
+  optional uint64 map_mode = 2005;
+  optional Transformation3d transformation_to_localization_coordinate = 2006;
+  optional bool is_astra = 2007 [default = false];
+  optional uint32 arb_path_mode = 2008;
+}
+
+enum ControlScenario {
+  NO_REQ = 0;
+  CONTROL_COMFORTABLE_NUDGE = 1;
+}
+
+enum ReplanType {
+  NO_REPLAN = 0;
+  LATERAL_REPLAN = 1;
+  LONGITUDE_REPLAN = 2;
+  LONGITUDE_LATERAL_REPLAN = 3;
+}
+
+message LaneMapRoute {
+  optional uint64 id = 1;
+  optional Polyline center_line = 2;
+  optional Polyline left_boundary = 3;
+  optional Polyline right_boundary = 4;
+  optional double precise_section_length = 5;
+}
+
+message Routes {
+  repeated PathNop paths = 1 [deprecated = true];
+  repeated LaneSegments routes = 2;
+  repeated LaneSegments crossable_sections = 3;
+  optional string id = 4;
+  optional string map_file_relative_path = 5;
+  repeated LaneMapRoute lane_map_routes = 6;
+}
+
+message SpeedPointNop {
+  optional double s = 1;
+  optional double t = 2;
+  // speed (m/s)
+  optional double v = 3;
+  // acceleration (m/s^2)
+  optional double a = 4;
+  // jerk (m/s^3)
+  optional double da = 5;
+  // lateral acceleration (m/s^2)
+  optional double lat_acc = 6;
+  // lateral jerk (m/s^3)
+  optional double lat_jerk = 7;
+}
+
+message TrajectoryOptimizerDebug {
+  message CostMap {
+    optional string name = 1;
+    optional double cost = 2;
+  }
+  message SignDistance {
+    optional double left = 1;
+    optional double right = 2;
+    optional double front = 3;
+    optional double rear = 4;
+  }
+  message Bound {
+    optional double t = 1;
+    optional double weight = 2;
+    optional double ub = 3;
+    optional double lb = 4;
+  }
+  // state and control
+  message Traj {
+    optional uint64 index = 1;
+    optional double x = 2;
+    optional double y = 3;
+    optional double theta = 4;
+    optional double speed = 5;
+    optional double kappa = 6;
+    optional double kappa_rate = 7;
+    optional double s = 8;
+    optional double l = 9;
+    optional double lat_acc = 10;
+    optional double lat_jerk = 11;
+    optional double acc = 12;
+    optional double jerk = 13;
+    optional double t = 14;
+    optional SignDistance sign_distance = 15;
+    optional SignDistance nudge_sign_distance = 16;
+    optional SignDistance crossable_sign_distance = 17;
+    optional SignDistance static_nudge_sign_distance = 18;
+    optional SignDistance legally_not_nudge_sign_distance = 19;
+    optional SignDistance hard_bound_distance = 20;
+    optional SignDistance nudge_obs_distance = 21;
+    optional SignDistance nudge_god_distance = 22;
+    optional SignDistance nudge_shouder_distance = 23;
+    optional Bound lat_acc_cost_info = 24;
+    optional Bound lat_jerk_cost_info = 25;
+    optional Bound nudge_obs_left_cost_info = 26;
+    optional Bound nudge_obs_right_cost_info = 27;
+    optional double front_l = 28;
+    optional SignDistance front_nudge_obs_distance = 29;
+    optional SignDistance front_nudge_god_distance = 30;
+    optional double s_error = 31;
+    optional double accumulated_s = 32;
+  }
+  // iteration trace info
+  message IterationTraceInfo {
+    optional uint64 iteration = 1;
+    optional double alpha = 2;
+    optional double lamda = 3;
+    optional double cost_reduction = 4;
+    repeated Traj nominal_traj = 5;
+    optional double total_cost = 6;
+    optional double dlambda = 7;
+    optional double grad_norm = 8;
+    optional bool backward_success = 9;
+    optional bool forward_success = 10;
+    repeated CostMap cost_map = 11;
+  }
+  // solve status
+  enum SolveStatus {
+    UNSOLVED = 1;
+    SUCCEEDED = 2;
+    COST_INCREASE = 3;
+    MAX_ITERATIONS = 4;
+    MAX_REGULARIZATION = 5;
+    MAXIMUM_COST = 6;
+    NO_PROGRESS = 7;
+  }
+  message ReflineJumpInfo {
+    optional bool is_jump = 1;
+    repeated int32 source = 2;
+  }
+  optional uint64 iterations = 1;
+  repeated Traj predict_traj = 2;
+  repeated Traj reference_traj = 3;
+  repeated Traj initial_guess = 4;
+  optional Traj initital_state = 5;
+  optional double solve_time = 6;
+  optional SolveStatus solve_status = 7;
+  repeated IterationTraceInfo iteration_trace_info = 8;
+  optional double best_init_guess_cost = 9;
+  optional uint64 best_init_guess_index = 10;
+  optional double final_cost = 11;
+  repeated CostMap final_cost_map = 12;
+  repeated CostMap best_initial_cost_map = 13;
+  optional double execution_time = 14;
+  optional bool is_in_lane_change = 15;
+  optional int32 adaptive_horizon = 16;
+  optional bool is_in_left_right_turn = 17;
+  optional int32 outter_loop_iterations = 18;
+  optional double hard_bound_violation = 19;
+  optional double hard_bound_penalty = 20;
+  optional double stitched_time = 21;
+  repeated Traj stitch_traj = 22;
+  optional bool is_in_straight_or_split_junction = 23;
+  repeated Bound nudge_bound = 24;
+  repeated Bound hard_bound = 25;
+  repeated Bound lat_jerk_bound = 26;
+  repeated Bound lat_acc_bound = 27;
+  optional double steer_speed_ratio_in_active = 28;
+  optional bool is_steer_speed_limit_in_active = 29;
+  optional bool is_in_large_model = 30;
+  optional bool is_in_low_speed = 31;
+  optional bool is_in_astra_planner = 32;
+  optional bool is_in_park_odd = 33;
+  optional bool is_change_exit_lane_in_junction = 34;
+  optional bool is_in_lateral_active_offset = 35;
+  optional double lateral_active_offset_distance = 36;
+  optional ReflineJumpInfo refline_jump_info = 37;
+  repeated Bound rear_left_nudge_obs_bound = 38;
+  repeated Bound rear_right_nudge_obs_bound = 39;
+  repeated Bound front_left_nudge_obs_bound = 40;
+  repeated Bound front_right_nudge_obs_bound = 41;
+  optional bool is_in_lane_change_cancel = 42;
+  repeated Bound kappa_rate_limit_bound = 43;
+  repeated Bound position_bound = 44;
+  repeated Bound heading_bound = 45;
+  repeated Bound kappa_bound = 46;
+  optional bool is_in_hold = 47;
+  optional double hold_lateral_offset_distance = 48;
+  repeated Traj bp_leading_line = 49;
+  optional bool is_in_leading_line = 50;
+  optional double low_speed_nudge_ttc = 51;
+  optional double lateral_kp = 52;
+  optional bool is_refline_jump_protection = 53;
+
+  // reserved
+  repeated double reserved = 10000;
+  repeated Traj reserved_traj = 10001;
+  repeated Bound reserved_bound = 10002;
+}

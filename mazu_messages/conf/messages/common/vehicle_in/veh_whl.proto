@@ -1,0 +1,126 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+import "common/vehicle_in/veh_enum_type.proto";
+
+message WhlInfos{
+	message WhlDynInfo{
+        enum WhlSpdStsType_e{
+            WhlSpd_Vld   = 0; //Valid
+            WhlSpd_InVld = 1; //Invalid
+            WhlSpd_Init  = 2; //Initialization
+            WhlSpd_Rsrvd3= 3; //Reserved
+        }
+		required WhlSpdStsType_e WhlSpdSts = 1;             //@Channel:CHASSIS @Message:0x58 @Signal:WhlSpdFrntLeSts
+                                                            //@Channel:CHASSIS @Message:0x58 @Signal:WhlSpdFrntRiSts
+                                                            //@Channel:CHASSIS @Message:0x59 @Signal:WhlSpdReLeSts
+                                                            //@Channel:CHASSIS @Message:0x59 @Signal:WhlSpdReRiSts
+                                                                //@Channel:CHASSIS2 @Message:0x58 @Signal:WhlSpdFrntLeSts
+                                                                //@Channel:CHASSIS2 @Message:0x58 @Signal:WhlSpdFrntRiSts
+                                                                //@Channel:CHASSIS2 @Message:0x59 @Signal:WhlSpdReLeSts
+                                                                //@Channel:CHASSIS2 @Message:0x59 @Signal:WhlSpdReRiSts
+
+        enum WhlSpdDirType_e{
+            WhlDir_Stst  = 0; //Standstill
+            WhlDir_Frwrd = 1; //Forward
+            WhlDir_Bckwrd = 2;//Backward
+            WhlDir_InVld = 3; //Invalid
+        } 
+        required WhlSpdDirType_e WhlSpdMovgDir = 2;         //@Channel:CHASSIS @Message:0x58 @Signal:WhlSpdFrntLeMovgDir 
+                                                            //@Channel:CHASSIS @Message:0x58 @Signal:WhlSpdFrntRiMovgDir 
+                                                            //@Channel:CHASSIS @Message:0x59 @Signal:WhlSpdReLeMovgDir  
+                                                            //@Channel:CHASSIS @Message:0x59 @Signal:WhlSpdReRiMovgDir
+                                                                //@Channel:CHASSIS2 @Message:0x58 @Signal:WhlSpdFrntLeMovgDir 
+                                                                //@Channel:CHASSIS2 @Message:0x58 @Signal:WhlSpdFrntRiMovgDir 
+                                                                //@Channel:CHASSIS2 @Message:0x59 @Signal:WhlSpdReLeMovgDir  
+                                                                //@Channel:CHASSIS2 @Message:0x59 @Signal:WhlSpdReRiMovgDir
+
+        required float  WhlSpd = 3;                         //@Channel:CHASSIS @Message:0x58 @Signal:WhlSpdFrntLe 
+                                                            //@Channel:CHASSIS @Message:0x58 @Signal:WhlSpdFrntRi 
+                                                            //@Channel:CHASSIS @Message:0x59 @Signal:WhlSpdReLe 
+                                                            //@Channel:CHASSIS @Message:0x59 @Signal:WhlSpdReRi
+                                                                //@Channel:CHASSIS2 @Message:0x58 @Signal:WhlSpdFrntLe 
+                                                                //@Channel:CHASSIS2 @Message:0x58 @Signal:WhlSpdFrntRi 
+                                                                //@Channel:CHASSIS2 @Message:0x59 @Signal:WhlSpdReLe 
+                                                                //@Channel:CHASSIS2 @Message:0x59 @Signal:WhlSpdReRi
+
+        required QfZeroAsVld_e WhlPlsCntrVld = 4;           //@Channel:CHASSIS @Message:0x5A @Signal:WhlPlsCntrFrntLeVld
+                                                            //@Channel:CHASSIS @Message:0x5A @Signal:WhlPlsCntrFrntRiVld
+                                                            //@Channel:CHASSIS @Message:0x5A @Signal:WhlPlsCntrReLeVld
+                                                            //@Channel:CHASSIS @Message:0x5A @Signal:WhlPlsCntrReRiVld
+
+        required uint32 WhlPlsCntr = 5;                     //@Channel:CHASSIS @Message:0x5A @Signal:WhlPlsCntrFrntLe
+                                                            //@Channel:CHASSIS @Message:0x5A @Signal:WhlPlsCntrFrntRi
+                                                            //@Channel:CHASSIS @Message:0x5A @Signal:WhlPlsCntrReLe
+                                                            //@Channel:CHASSIS @Message:0x5A @Signal:WhlPlsCntrReRi	
+        optional uint64  WhlSpd_Timestamp = 6;              //@Channel:CHASSIS @Message:0x58 @Timestamp
+                                                            //@Channel:CHASSIS @Message:0x58 @Timestamp
+                                                            //@Channel:CHASSIS @Message:0x59 @Timestamp
+                                                            //@Channel:CHASSIS @Message:0x59 @Timestamp
+                                                                //@Channel:CHASSIS2 @Message:0x58 @Timestamp
+                                                                //@Channel:CHASSIS2 @Message:0x58 @Timestamp
+                                                                //@Channel:CHASSIS2 @Message:0x59 @Timestamp
+                                                                //@Channel:CHASSIS2 @Message:0x59 @Timestamp
+
+        optional uint64  timestamp_ptp_ns = 7;              //@Channel:CHASSIS @Message:0x58 @Timestamp
+                                                            //@Channel:CHASSIS @Message:0x58 @Timestamp
+                                                            //@Channel:CHASSIS @Message:0x59 @Timestamp
+                                                            //@Channel:CHASSIS @Message:0x59 @Timestamp
+                                                                //@Channel:CHASSIS2 @Message:0x58 @Timestamp
+                                                                //@Channel:CHASSIS2 @Message:0x58 @Timestamp
+                                                                //@Channel:CHASSIS2 @Message:0x59 @Timestamp
+                                                                //@Channel:CHASSIS2 @Message:0x59 @Timestamp
+
+	}
+	repeated WhlDynInfo WhlDyn = 1; //0:FL 1:FR 2:RL 3:RR
+
+	message WhlTpmsInfo{
+		required float Press = 1;                          //@Channel:CHASSIS @Message:0x39B @Signal:TpmsFrntLeWhlPress  
+                                                            //@Channel:CHASSIS @Message:0x39B @Signal:TpmsFrntRiWhlPress 
+                                                            //@Channel:CHASSIS @Message:0x39B @Signal:TpmsReLeWhlPress 
+                                                            //@Channel:CHASSIS @Message:0x39B @Signal:TpmsReRiWhlPress
+
+		required int32 Temp = 2;                           //@Channel:CHASSIS @Message:0x39B @Signal:TpmsFrntLeWhlTemp 
+                                                            //@Channel:CHASSIS @Message:0x39B @Signal:TpmsFrntRiWhlTemp  
+                                                            //@Channel:CHASSIS @Message:0x39B @Signal:TpmsReLeWhlTemp 
+                                                            //@Channel:CHASSIS @Message:0x39B @Signal:TpmsReRiWhlTemp
+
+		required uint32 SnsrFailSts = 3;                    //@Channel:CHASSIS @Message:0x2C5 @Signal:TpmsFrntLeSnsrFailSts
+                                                            //@Channel:CHASSIS @Message:0x2C5 @Signal:TpmsFrntRiSnsrFailSts
+                                                            //@Channel:CHASSIS @Message:0x2C5 @Signal:TpmsReLeSnsrFailSts
+                                                            //@Channel:CHASSIS @Message:0x2C5 @Signal:TpmsReRiSnsrFailSts
+
+		required uint32 BatSts = 4;                         //@Channel:CHASSIS @Message:0x2C5 @Signal:TpmsFrntLeBatSts 
+                                                            //@Channel:CHASSIS @Message:0x2C5 @Signal:TpmsFrntRiBatSts 
+                                                            //@Channel:CHASSIS @Message:0x2C5 @Signal:TpmsReLeBatSts 
+                                                            //@Channel:CHASSIS @Message:0x2C5 @Signal:TpmsReRiBatSts
+
+        enum WhlTpType_e{
+            WhlTp_Nrml = 0;   //Normal Pressure         
+            WhlTp_High = 1;   // @linescope: NT3  //High preesure      
+            WhlTp_Low = 2;    //Low pressure         
+            WhlTp_Rsrvd3 = 3; //Description for the value '0x3'          
+        }
+		required WhlTpType_e PressSts = 5;                  //@Channel:CHASSIS @Message:0x2C5 @Signal:TpmsFrntLeWhlPressSts
+                                                            //@Channel:CHASSIS @Message:0x2C5 @Signal:TpmsFrntRiWhlPressSts
+                                                            //@Channel:CHASSIS @Message:0x2C5 @Signal:TpmsReLeWhlPressSts
+                                                            //@Channel:CHASSIS @Message:0x2C5 @Signal:TpmsReRiWhlPressSts
+
+		required uint32 DeltaPressSts = 6;                  //@Channel:CHASSIS @Message:0x2C5 @Signal:TpmsFrntLeWhlDeltaPressSts
+                                                            //@Channel:CHASSIS @Message:0x2C5 @Signal:TpmsFrntRiWhlDeltaPressSts
+                                                            //@Channel:CHASSIS @Message:0x2C5 @Signal:TpmsReLeWhlDeltaPressSts
+                                                            //@Channel:CHASSIS @Message:0x2C5 @Signal:TpmsReRiWhlDeltaPressSts
+		required uint32 TempSts = 7;                        //@Channel:CHASSIS @Message:0x2C5 @Signal:TpmsFrntLeWhlTempSts 
+                                                            //@Channel:CHASSIS @Message:0x2C5 @Signal:TpmsFrntRiWhlTempSts  
+                                                            //@Channel:CHASSIS @Message:0x2C5 @Signal:TpmsReLeWhlTempSts 
+                                                            //@Channel:CHASSIS @Message:0x2C5 @Signal:TpmsReRiWhlTempSts
+	}
+	repeated WhlTpmsInfo WHlTpms = 2; //0:FL 1:FR 2:RL 3:RR
+    optional uint64 WhlDyn_Timestamp = 3;                   //@Channel:CHASSIS @Message:0x59 @Timestamp
+                                                                //@Channel:CHASSIS2 @Message:0x59 @Timestamp
+    optional uint64 timestamp_ptp_ns = 4;                   //@Channel:CHASSIS @Message:0x59 @Timestamp
+                                                                //@Channel:CHASSIS2 @Message:0x59 @Timestamp
+}

@@ -1,0 +1,177 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages.debug;
+// import "common/perf/sensor_ts_header.proto";
+
+message Interface_DebugOut{
+
+    enum TopicState{
+        kNotInit    = 0;
+        kFault      = 1;
+        kLossComm   = 2;
+    };
+
+    optional TopicState Interface_VEH10ms_state = 1;
+    optional TopicState Interface_VEH50ms_state = 2;
+    optional TopicState Interface_SVCPerception_state = 3;
+    optional TopicState Interface_PsapStationInfo_state = 4;
+    optional TopicState Interface_SemanticMap_state = 5;
+    optional TopicState Interface_PVATResult_state = 6;
+    optional TopicState Interface_StateMachine_state = 7;
+
+    optional TopicState Interface_ParFusedLocation_state = 8;
+    optional bool Interface_is_publish_odom = 9;
+    optional bool Interface_is_publish_psap_result = 10;
+    optional bool Interface_is_publish_sapa_result = 11;
+}
+
+message Odom_DebugOut{
+    optional uint32 Odom_WheelEncoder_left_rear_wheel_encoder = 1;
+    optional uint32 Odom_WheelEncoder_right_rear_wheel_encoder = 2;
+    optional uint32 Odom_WheelEncoder_left_rear_wheel_speed_dir = 3;
+    optional uint32 Odom_WheelEncoder_right_rear_wheel_speed_dir = 4;
+    optional float Odom_WheelEncoder_delta_length_rl = 5;
+    optional float Odom_WheelEncoder_delta_length_rr = 6;
+    optional int32 Odom_WheelEncoder_speed_direction = 7;
+    optional float Odom_WheelEncoder_current_curvature = 8;
+    optional float Odom_WheelEncoder_eps_sign = 9;
+    optional float Odom_WheelEncoder_delta_s = 10;
+    optional float Odom_WheelEncoder_moved_dist = 11;
+
+    optional int32 Odom_Imu_zone_number = 12;
+    optional double Odom_Imu_lon_center_utm = 13;
+    optional bool Odom_Imu_init_status = 14;
+    optional double Odom_Imu_origin_latitude = 15;
+    optional double Odom_Imu_origin_longitude = 16;
+    optional double Odom_Imu_origin_azimuth = 17;
+    optional float Odom_Imu_origin_x = 18;
+    optional float Odom_Imu_origin_y = 19;
+    optional float Odom_Imu_origin_z = 20;
+    optional float Odom_Imu_origin_roll = 21;
+    optional float Odom_Imu_origin_pitch = 22;
+    optional float Odom_Imu_origin_yaw = 23;
+    optional double Odom_Imu_current_latitude = 24;
+    optional double Odom_Imu_current_longitude = 25;
+    optional double Odom_Imu_current_azimuth = 26;
+}
+
+message PSAP_DebugOut{
+    optional bool PSAP_is_psap_enabled = 1;
+    optional bool PSAP_is_slot_type_set = 2;
+    optional bool PSAP_is_right_slot = 3;
+    optional bool PSAP_is_in_valid_regions = 4;
+    optional bool PSAP_is_vehicle_status_ready = 5;
+    optional bool PSAP_is_psap_pose_init = 6;
+    optional int32 PSAP_coor_type = 7;
+    optional float PSAP_tf_gnd2plat_x = 8;
+    optional float PSAP_tf_gnd2plat_y = 9;
+    optional float PSAP_tf_gnd2plat_yaw = 10;
+    optional float PSAP_tf_plat2slot_x = 11;
+    optional float PSAP_tf_plat2slot_y = 12;
+    optional float PSAP_tf_plat2slot_yaw = 13;
+    optional float PSAP_tf_odom2gnd_x = 14;
+    optional float PSAP_tf_odom2gnd_y = 15;
+    optional float PSAP_tf_odom2gnd_yaw = 16;
+}
+
+message SAPA_DebugOut{
+    optional bool SAPA_is_sapa_enabled = 1;
+    optional int32 SAPA_slot_type = 2;
+    optional bool SAPA_is_right_slot = 3;
+    optional float SAPA_tf_base2slot_x = 4;
+    optional float SAPA_tf_base2slot_y = 5;
+    optional float SAPA_tf_base2slot_yaw = 6;
+    optional bool SAPA_is_pose_init = 7;
+}
+
+message State_DebugOut{
+    optional uint32 State_feature_type = 1;
+    optional uint32 State_feature_status = 2;
+    optional uint32 State_node_feature = 3;
+    optional uint32 State_node_status = 4;
+    optional float State_time_in_finish_state = 5;
+}
+
+message App_DebugOut{
+    optional bool App_is_main_thread_running = 1;
+}
+
+message ParLoc_Reserved{
+    optional double reserved_0    =  1;
+    optional double reserved_1    =  2;
+    optional double reserved_2    =  3;
+    optional double reserved_3    =  4;
+    optional double reserved_4    =  5;
+    optional double reserved_5    =  6;
+    optional double reserved_6    =  7;
+    optional double reserved_7    =  8;
+    optional double reserved_8    =  9;
+    optional double reserved_9    =  10;
+    optional double reserved_10   =  11;
+    optional double reserved_11   =  12;
+    optional double reserved_12   =  13;
+    optional double reserved_13   =  14;
+    optional double reserved_14   =  15;
+    optional double reserved_15   =  16;
+    optional double reserved_16   =  17;
+    optional double reserved_17   =  18;
+    optional double reserved_18   =  19;
+    optional double reserved_19   =  20;
+    optional double reserved_20   =  21;
+    optional double reserved_21   =  22;
+    optional double reserved_22   =  23;
+    optional double reserved_23   =  24;
+    optional double reserved_24   =  25;
+    optional double reserved_25   =  26;
+    optional double reserved_26   =  27;
+    optional double reserved_27   =  28;
+    optional double reserved_28   =  29;
+    optional double reserved_29   =  30;
+    optional int32 reserved_30    =  31;
+    optional int32 reserved_31    =  32;
+    optional int32 reserved_32    =  33;
+    optional int32 reserved_33    =  34;
+    optional int32 reserved_34    =  35;
+    optional int32 reserved_35    =  36;
+    optional int32 reserved_36    =  37;
+    optional int32 reserved_37    =  38;
+    optional int32 reserved_38    =  39;
+    optional int32 reserved_39    =  40;
+    optional int32 reserved_40    =  41;
+    optional int32 reserved_41    =  42;
+    optional int32 reserved_42    =  43;
+    optional int32 reserved_43    =  44;
+    optional int32 reserved_44    =  45;
+    optional int32 reserved_45    =  46;
+    optional int32 reserved_46    =  47;
+    optional int32 reserved_47    =  48;
+    optional int32 reserved_48    =  49;
+    optional int32 reserved_49    =  50;
+    optional int32 reserved_50    =  51;
+    optional int32 reserved_51    =  52;
+    optional int32 reserved_52    =  53;
+    optional int32 reserved_53    =  54;
+    optional int32 reserved_54    =  55;
+    optional int32 reserved_55    =  56;
+    optional int32 reserved_56    =  57;
+    optional int32 reserved_57    =  58;
+    optional int32 reserved_58    =  59;
+    optional int32 reserved_59    =  60;
+}
+
+message ParLocDebugOut{
+    optional Interface_DebugOut     interface_debug_out     = 1;
+    optional Odom_DebugOut          odom_debug_out          = 2;
+    optional PSAP_DebugOut          psap_debug_out          = 3;
+    optional SAPA_DebugOut          sapa_debug_out          = 4;
+    optional State_DebugOut         state_debug_out         = 5;
+    optional App_DebugOut           app_debug_out           = 6;
+    optional ParLoc_Reserved        debug_reserved          = 7;
+
+    // optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909;   // uuid of the publisher
+    optional uint64 counter = 536870910;        // message counter
+    optional uint64 publish_ts = 536870911;     // publish utc timestamp; unit : nanosecond
+}

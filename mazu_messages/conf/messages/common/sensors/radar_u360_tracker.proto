@@ -1,0 +1,120 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+
+message VcsPos {
+  required double long_pos = 1;    // unit:m
+  required double lat_pos = 2;     // unit:m
+}
+
+message VcsSpeed {
+  required double long_vel = 1;   // Absolute over the ground longitudinal speed;   unit: m/s
+  required double lat_vel = 2;    // Absolute over the ground lateral speed;   unit: m/s
+  required double abs_vel = 3;    // Over the ground absolute speed;   unit: m/s
+}
+
+message VcsAccel {
+  required double long_accel = 1;   // unit: m/s^2
+  required double lat_accel = 2;    // unit: m/s^2
+}
+
+message Dimensions {
+  required float length = 1;       // unit: m
+  required float width = 2;        // unit: m
+}
+
+enum MeasurementStatus {
+  MEASUREMENT_STATUS_INVALID = 0;
+  MEASUREMENT_STATUS_NEW = 2;
+  MEASUREMENT_STATUS_UPDATED = 5;
+  MEASUREMENT_STATUS_COASTED = 6;
+}
+
+enum ObjectClass {
+  OBJECT_CLASS_UNKNOWN = 0;
+  OBJECT_CLASS_CAR = 1; 
+  OBJECT_CLASS_TRUCK = 2;
+}
+
+enum FusionSource {
+  FUSION_SOURCE_SINGLETRACKLET = 0;
+  FUSION_SOURCE_MULTITRACKLET = 1;
+}
+
+enum Confidence {
+  CONFIDENCE_NONE = 0;
+  CONFIDENCE_LOW = 1;
+  CONFIDENCE_MEDIUM = 2;
+  CONFIDENCE_HIGH = 3;
+}
+
+message MotionStatus {
+  required bool f_stationary = 1;    // 1 means true for this moving status;
+  required bool f_moving = 2;
+  required bool f_moveable = 3;
+  required bool f_oncoming = 4;
+  required bool f_receding = 5;
+  required bool f_crossing = 6;
+}
+
+message FusionVariance {
+  required float var_longPos = 1;       
+  required float var_latPos = 2;
+  required float var_longVel = 3;
+  required float var_latVel = 4;
+  required float var_longAcc = 5;
+  required float var_latAcc = 6;
+}
+
+message FusionDetectionInfo {
+  required float det_max_height = 1;
+  required float det_min_height = 2;
+  required float det_avg_height = 3;
+  required float det_height_std = 4;
+  required uint32 num_det = 5;
+}
+
+enum AebTargetConfidence {
+  AEB_TARGET_CONFIDENCE_NONE = 0;
+  AEB_TARGET_CONFIDENCE_LOW = 1;
+  AEB_TARGET_CONFIDENCE_MEDIUM = 2;
+  AEB_TARGET_CONFIDENCE_HIGH = 3;
+}
+
+message FusionTracks {                    // Refer to Chapter 3.3 for radar attributes detailed information;
+  required uint32 id = 1;
+  required uint32 age = 2;
+  required VcsPos pos = 3;             
+  required float heading = 4;   // rad
+  required VcsSpeed speed = 5;  
+  required VcsAccel accel = 6;
+  required Dimensions dimension = 7;
+
+  required uint32 meas_status = 8;   // value table in enum MeasurementStatus;
+  required uint32 class = 9;         // value table in enum ObjectClass;
+  required float class_prob = 10;
+  required uint32 fus_source = 11;   // value table in enum FusionSource;
+  required uint32 rad_fusSrc = 12;   //bitwise signal:0x0:None, 0x1:MRR, 0x2:SRR_FL, 0x4:SRR_FR, 0x8:SRR_RL,
+                                    // 0x10:SRR_RR, 0x3:MRR+SRR_FL, 0x5:MRR+SRR_FR, ...
+  required uint32 conf = 13;        // Refer to "enum Confidence" for value table;
+  required MotionStatus mot_status = 14;
+
+  required FusionVariance var = 15;
+  required FusionDetectionInfo det_height = 16;
+}
+
+message FusionTrack {
+  repeated FusionTracks fusion_tracks = 1;    // 96 fusion objects;
+}
+
+message TargetSelection {                  // Refer to Chapter 3.4 for detailed information;
+  repeated uint32 acc_tar = 1;             // 6 ACC target selection tracker ID;
+  required uint32 aeb_tar = 2;             // 1 AEB target selection tracker ID;
+  required uint32 aeb_conf = 3;            // refer to "enum AebTargetConfidence" for value table;
+}
+
+
+
+

@@ -1,0 +1,39 @@
+syntax = "proto2"; 
+option cc_enable_arenas = true;
+       // the first line of a proto message
+package nio.ad.messages; 
+import "common/perf/sensor_ts_header.proto";
+
+message MCUCameraStatus{
+
+        optional CamSharingLinkStatus F120_sharing_link_Status     =1;
+        optional CamStatus mcu_svc_front_Status    =2;
+        optional CamStatus mcu_svc_rear_Status     =3;
+        optional CamStatus mcu_svc_left_Status     =4;
+        optional CamStatus mcu_svc_right_Status    =5;
+       
+        enum CamSharingLinkStatus{
+            none                = 0; 
+            notready            = 1;
+            ready               = 2;
+            error               = 3;
+            }
+                   
+        enum CamStatus{
+            off                 = 0; 
+            initializing        = 1;
+            standby             = 2;
+            streaming           = 3;
+            calibration         = 4;
+            streaming_in_fault  = 5;
+            fault_shutdown      = 6;
+            overtemp_shutdown   = 7;
+            resetting           = 8;
+            }
+        optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin         
+        optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+        optional uint64 publish_ptp_ts = 536870907; //publish ptp timestamp, uint in nanosec
+        optional string publisher_id = 536870909; // uuid of the publisher
+        optional uint64 counter = 536870910;         // message counter
+        optional uint64 publish_ts = 536870911;    // publish timestamp; unit : nanosecond
+} 

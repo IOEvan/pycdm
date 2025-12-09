@@ -1,0 +1,68 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message Road {
+    enum Type {
+        Normal       = 0;
+        SharpTrun    = 1;
+        Construction = 2;
+        Tunnel       = 3;
+        Junction     = 4;
+        Other        = 100;
+    }
+    optional Type type        = 1;
+    optional float offset     = 2;
+    optional double start_s   = 3;
+    optional double end_s     = 4;
+    optional int32 extra_code = 5;
+}
+
+enum Turn {
+    INVALID      = 0;
+    STRAIGHT     = 1;
+    LEFT         = 2;
+    RIGHT        = 4;
+    U_TURN_LEFT  = 8;
+    U_TURN_RIGHT = 16;
+    SKEW_LEFT    = 32;
+    SKEW_RIGHT   = 64;
+}
+
+message StateMachineTransfer {
+    enum ALCFuncSts {
+        ALC_NOT_ENGAGED                         = 0;
+        ALC_LANE_CENTERING                      = 1;
+        ALC_PREPARING_LANE_CHANGE_TOWARDS_LEFT  = 2;
+        ALC_PREPARING_LANE_CHANGE_TOWARDS_RIGHT = 3;
+        ALC_EXECUTING_LANE_CHANGE_TOWARDS_LEFT  = 4;
+        ALC_EXECUTING_LANE_CHANGE_TOWARDS_RIGHT = 5;
+        ALC_ABORTING_LANE_CHANGE_INTO_NEW_LANE  = 6;
+    };
+    message NopEsdObject {
+        optional uint64 esd_nop_obj_id = 1; //  1 ~ 2 ^ 20（1048576)
+        optional uint64 esd_nop_obj_da = 2; // highlight level  0~5
+    }
+    repeated NopEsdObject esd_nop_object             = 1;
+    optional ALCFuncSts esd_nop_alc_sts              = 2;
+    optional uint32 esd_nop_distance_to_odd_boundary = 3;
+    optional bool toll_gate_risk_scene               = 4; 
+}
+
+message ADMSTransfer {
+    repeated Road roads                         = 1;
+    // turn is a bitset, i.e., a left- and U-turn lane should have value
+    // turn = LEFT | U_TURN_LEFT = 10.
+    optional uint64 turn                        = 2;
+    optional StateMachineTransfer state_machine = 3;
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin 
+    optional SensorTSHeader sensor_original_ts = 536870906;  // sensor original ts
+    optional uint64 publish_ptp_ts             = 536870907;  // publish ptp timestamp unit : nanosecond
+    optional string publisher_id               = 536870909;  // uuid of the publisher
+    optional uint64 counter                    = 536870910;  // message counter
+    optional uint64 publish_ts                 = 536870911;  // publish timestamp; unit : nanosecond
+}

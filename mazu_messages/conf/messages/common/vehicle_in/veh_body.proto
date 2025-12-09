@@ -1,0 +1,474 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+import "common/vehicle_in/veh_enum_type.proto";
+
+message VehBodyInfo{
+    reserved 11,12;
+	message VehStatusInfo{
+
+        enum VehStType_e{
+            VehSt_Park    = 0;  //Parked vehicle(Off)
+            VehSt_DrvPrsnt= 1;  //Driver present(On)
+            VehSt_Driving = 2;  //Driving
+            VehSt_SwUpdt  = 3;  //Software update
+            VehSt_Charging= 4;  // @linescope: NT3  //Charging
+            VehSt_Pwrswap = 5;  // @linescope: NT3  //Power swap
+            VehSt_Rsrvd6  = 6;  //Reserved
+            VehSt_Rsrvd7  = 7;  //Reserved
+            VehSt_Rsrvd8  = 8;  //Reserved
+            VehSt_Rsrvd9  = 9;  //Reserved
+            VehSt_Rsrvd10 = 10; //Reserved
+            VehSt_Rsrvd11 = 11; //Reserved
+            VehSt_Rsrvd12 = 12; //Reserved
+            VehSt_Rsrvd13 = 13; //Reserved
+            VehSt_Rsrvd14 = 14; //Reserved
+            VehSt_InVld   = 15; //Invalid
+        }
+		required VehStType_e VehState = 1;                  //@Channel:CHASSIS @Message:0x2C3 @Signal:VehState
+		required VehStType_e VehStateASIL = 2;              //@Channel:CHASSIS @Message:0x10C @Signal:VehState_ASIL
+
+        enum VehModeType_e{
+
+            VehMd_NotUsd0   = 0;  //Not used
+            VehMd_Production= 1;  //Production
+            VehMd_Transprot = 2;  //Transport
+            VehMd_ShowRoom  = 3;  //Showroom
+            VehMd_Regular   = 4;  //Regular
+            VehMd_Driverless= 5;  //Driverless
+            VehMd_DUT       = 6;  // @linescope: NT3 //DUT 
+            VehMd_TestDrive = 7;  // @linescope: NT3 //TestDrive
+            VehMd_Maintenance = 8;  // @linescope: NT3 //Maintenance
+            VehMd_SVT       = 9;  // @linescope: NT3 //SVT
+            VehMd_EndofLife = 10; // @linescope: NT3 //End of Life 
+            VehMd_Rsvrd11   = 11; //Reserved
+            VehMd_Rsvrd12   = 12; //Reserved
+            VehMd_Rsvrd13   = 13; //Reserved
+            VehMd_NotUsd14  = 14; //Not used
+            VehMd_InVld     = 15; //Invalid
+        }
+		required VehModeType_e VehMode = 3;	                //@Channel:CHASSIS @Message:0x10C @Signal:VehMode
+
+        // @begin segscope: NT3
+        enum OperatorState_e {
+            OPERATOR_ST_NONE      = 0;
+            OPERATOR_ST_OUTSIDE   = 1;
+            OPERATOR_ST_AVAILABLE = 2;
+            OPERATOR_ST_INSIDE    = 3;
+            OPERATOR_Rsvrd4       = 4;
+            OPERATOR_Rsvrd5       = 5;
+            OPERATOR_Rsvrd6       = 6;
+            OPERATOR_ST_INVALID   = 7;
+        }
+        optional OperatorState_e OperatorState = 4;
+        // @end segscope: NT3
+
+        enum ComfEna_e {
+			Comfort_Not_Enabled = 0;
+			Comfort_Enabled = 1;
+			Comfort_Reserved = 2;
+			Comfort_Invalid = 3;
+        }
+        optional ComfEna_e ComfEna = 5;                    //@Channel:CHASSIS @Message:0x2C3 @Signal:ComfEna
+	}
+	required VehStatusInfo VehStatus = 1;
+
+	message DoorInfo{
+
+        enum DoorAjarStsType_e{
+            DrAjr_Opened  = 0; //Opened
+            DrAjr_Closed  = 1; //Closed
+            DrAjr_Rsrvd2  = 2; //Reserved
+            DrAjr_InVld   = 3; //Invalid
+        }
+		repeated DoorAjarStsType_e DoorAjarSts  = 1;        //@Channel:CHASSIS @Message:0x2BD @Signal:DoorAjarFrntLeSts
+                                                            //@Channel:CHASSIS @Message:0x2BD @Signal:DoorAjarFrntRiSts
+                                                            //@Channel:CHASSIS @Message:0x2BD @Signal:DoorAjarReLeSts
+                                                            //@Channel:CHASSIS @Message:0x2BD @Signal:DoorAjarReRiSts
+		required uint32 HoodAjarSts = 2;                    //@Channel:CHASSIS @Message:0x2BD @Signal:HoodAjarSts
+
+		required uint32 TrAjarSts = 3;                    	//@Channel:CHASSIS @Message:0x2BD @Signal:TrAjarSts
+        enum DoorRelsSwtSts_e{
+            DoorRelsSwtSts_NotPressed  = 0; //Not pressed
+            DoorRelsSwtSts_Pressed     = 1; //Pressed
+            DoorRelsSwtSts_Rsrvd       = 2; //Reserved
+            DoorRelsSwtSts_InVld       = 3; //Invalid
+        }
+		optional DoorRelsSwtSts_e DoorExtRelsSwtReRiSts = 4;                    	//@Channel:ADAS @Message:0xF7 @Signal:DoorExtRelsSwtReRiSts
+		optional DoorRelsSwtSts_e DoorIntRelsSwtReRiSts = 5;                    	//@Channel:ADAS @Message:0xF7 @Signal:DoorIntRelsSwtReRiSts
+		optional DoorRelsSwtSts_e DoorExtRelsSwtReLeSts = 6;                    	//@Channel:ADAS @Message:0xF6 @Signal:DoorExtRelsSwtReLeSts
+		optional DoorRelsSwtSts_e DoorIntRelsSwtReLeSts = 7;                    	//@Channel:ADAS @Message:0xF6 @Signal:DoorIntRelsSwtReLeSts
+		optional DoorRelsSwtSts_e DoorExtRelsSwtFrntRiSts = 8;                    	//@Channel:ADAS @Message:0xF5 @Signal:DoorExtRelsSwtFrntRiSts
+		optional DoorRelsSwtSts_e DoorIntRelsSwtFrntRiSts = 9;                    	//@Channel:ADAS @Message:0xF5 @Signal:DoorIntRelsSwtFrntRiSts
+		optional DoorRelsSwtSts_e DoorExtRelsSwtFrntLeSts = 10;                    	//@Channel:ADAS @Message:0xF4 @Signal:DoorExtRelsSwtFrntLeSts
+		optional DoorRelsSwtSts_e DoorIntRelsSwtFrntLeSts = 11;                    	//@Channel:ADAS @Message:0xF4 @Signal:DoorIntRelsSwtFrntLeSts
+
+	}
+	required DoorInfo Door = 2;
+
+    enum SeatOcupStType_e{
+        SeatOcup_False  = 0;//No occupant
+        SeatOcup_True   = 1;//Occupant
+        SeatOcup_Rsrvd2 = 2;//Reserved
+        SeatOcup_InVld  = 3;//Invalid
+    }
+
+	repeated SeatOcupStType_e SeatOccpSts = 3;              //@Channel:CHASSIS @Message:0x2BD @Signal:SeatOccpFrntLeSts : SeatOccpFrntLeFail;
+									                        //@Channel:CHASSIS @Message:0x2BD @Signal:SeatOccptFrntRiSts
+									                        //@Channel:CHASSIS @Message:0x2BD @Signal:SeatOccpt2ndLeSts
+									                        //@Channel:CHASSIS @Message:0x2BD @Signal:SeatOccpt2ndMidSts
+									                        //@Channel:CHASSIS @Message:0x2BD @Signal:SeatOccpt2ndRiSts
+									                        //@Channel:CHASSIS @Message:0x2BD @Signal:SeatOccpt3rdLeSts
+									                        //@Channel:CHASSIS @Message:0x2BD @Signal:SeatOccpt3rdRiSts
+
+	repeated uint32 SeatBltSts = 4;                         //@Channel:CHASSIS @Message:0x3C @Signal:SeatBltFrntLeSts
+									                        //@Channel:CHASSIS @Message:0x3C @Signal:SeatBltFrntRiSts
+									                        //@Channel:CHASSIS @Message:0x3C @Signal:SeatBltMidRowLeSts
+									                        //@Channel:CHASSIS @Message:0x3C @Signal:SeatBltMidRowMidSts
+									                        //@Channel:CHASSIS @Message:0x3C @Signal:SeatBltMidRowRiSts
+									                        //@Channel:CHASSIS @Message:0x2BD @Signal:SeatBltReRowLeSts
+									                        //@Channel:CHASSIS @Message:0x2BD @Signal:SeatBltReRowRiSts
+
+	message LightsInfo{
+        enum FogLiStType_e{
+            FogLi_Off   = 0;//Off
+            FogLi_On    = 1;//On
+            FogLi_Rsrvd2= 2;//Reserved
+            FogLi_InVld = 3;//Invalid
+        }
+		repeated FogLiStType_e FogLiSts = 1;                //@Channel:ADAS @Message:0x2C0 @Signal:FogLiFrntSts
+                                                            //@Channel:ADAS @Message:0x2C0 @Signal:FogLiReSts
+        enum BeamStType_e{
+            Beam_Off    = 0;//Off
+            Beam_On     = 1;//On
+            Beam_Rsrvd2 = 2;//Reserved
+            Beam_InVld  = 3;//Invalid
+        }
+		repeated BeamStType_e BeamSts = 2;                  //@Channel:ADAS @Message:0x2C0 @Signal:HiBeamSts
+                                                            //@Channel:ADAS @Message:0x2C0 @Signal:LoBeamSts
+
+        enum HzrdLiStsType_e{
+            HzrdLi_Off   = 0;//Off
+            HzrdLi_Hzrd  = 1;//On 1.25 Hz (Hazard)
+            HzrdLi_Alarm = 2;//On 1 Hz (Alarm flash)
+            HzrdLi_InVld = 3;//Invalid
+        }
+		required HzrdLiStsType_e HzrdWarnSts = 3;           //@Channel:ADAS @Message:0x2C0 @Signal:HzrdWarnSts
+
+        enum TurnLiStType_e{
+            TurnLi_Off   = 0; //Off
+            TurnLi_On    = 1; //On
+            TurnLi_Rsrvd2= 2; //Reserved
+            TurnLi_InVld = 3; //Invalid
+        }
+		repeated TurnLiStType_e TurnIndcrLiSts = 4;         //@Channel:ADAS @Message:0x2C0 @Signal:LeTurnIndcrLiSts
+                                                            //@Channel:ADAS @Message:0x2C0 @Signal:RiTurnIndcrLiSts
+
+        enum MirrLiStType_e{
+            MirrLi_Off  = 0;//Off
+            MirrLi_On   = 1;//On
+            MirrLi_Flash= 2;//Flash
+            MirrLi_Fail = 3;//Failure
+        }
+		repeated MirrLiStType_e MirrLigtSts = 5;            //@Channel:ADAS @Message:0x2C2 @Signal:MirrLigtLeSts
+                                                            //@Channel:ADAS @Message:0x2C2 @Signal:MirrLigtRiSts
+
+        repeated bool   LgtErrBrkLi = 6;                    //@Channel:CHASSIS @Message:0x3A5 @Signal:LgtErrBrkLiReLeSide
+                                                            //@Channel:CHASSIS @Message:0x3A5 @Signal:LgtErrBrkLiReLeMid
+                                                            //@Channel:CHASSIS @Message:0x3A5 @Signal:LgtErrBrkLiTop
+                                                            //@Channel:CHASSIS @Message:0x3A5 @Signal:LgtErrBrkLiReRiMid
+                                                            //@Channel:CHASSIS @Message:0x3A5 @Signal:LgtErrBrkLiReRiSide
+
+        repeated bool   LgtErrTurnIndcn = 7;                //@Channel:CHASSIS @Message:0x3A5 @Signal:LgtErrTurnIndcnFrntLe
+                                                            //@Channel:CHASSIS @Message:0x3A5 @Signal:LgtErrTurnIndcnFrntRi
+                                                            //@Channel:CHASSIS @Message:0x3A5 @Signal:LgtErrTurnIndcnReLeSide
+                                                            //@Channel:CHASSIS @Message:0x3A5 @Signal:LgtErrTurnIndcnReLeMid
+                                                            //@Channel:CHASSIS @Message:0x3A5 @Signal:LgtErrTurnIndcnReRiMid
+                                                            //@Channel:CHASSIS @Message:0x3A5 @Signal:LgtErrTurnIndcnReRiSide
+
+		repeated FogLiStType_e FogLiFctActvSts = 8;         //@Channel:CHASSIS @Message:0x2FC @Signal:FogLiFrntFctActvSts
+                                                            //@Channel:CHASSIS @Message:0x2FC @Signal:FogLiReFctActvSts
+
+        required uint32 LiSnsrData      = 9;                //@Channel:ADAS @Message:0x2C1 @Signal:LiSnsrData
+        required bool   LiSnsrFailSts   = 10;               //@Channel:ADAS @Message:0x2C1 @Signal:LiSnsrFailSts
+        repeated bool   DowWarnAmbLeSts = 11;               //@Channel:ADAS @Message:0x2C1 @Signal:DowWarnAmbLeSts
+                                                            //@Channel:ADAS @Message:0x2C1 @Signal:DowWarnAmbRiSts
+
+	}
+	required LightsInfo LightSts = 5;
+
+	message WipperInfo{
+
+        enum WiprStType_e{
+            Wiper_Off    = 0; //Front wiper
+            Wiper_LowSpd = 1; //Front wiper low speed
+            Wiper_HiSpd  = 2; //Front wiper high speed
+            Wiper_Mist   = 3; // @linescope: NT3  //Front wiper mist
+            Wiper_Wash   = 4; // @linescope: NT3  //Front wiper wash mode
+            Wiper_Variable   = 5; // @linescope: NT3  //Front wiper variable speed
+            Wiper_Prohibited = 6; // @linescope: NT3  //Front wiper prohibited
+            Wiper_InVld  = 7; //Invalid
+        }
+		required WiprStType_e FrntWiprSts = 1;              //@Channel:ADAS @Message:0x2C2 @Signal:FrntWiprSts
+
+        enum WiprPrkStType_e{
+            WiprPrk_True  = 0;//Park
+            WiprPrk_False = 1;//No Park
+            WiprPrk_Rsrvd2= 2;//Reserved
+            WiprPrk_InVld = 3;//Invalid
+        }
+		required WiprPrkStType_e FrntWiperParkSts = 2;      //@Channel:ADAS @Message:0x2C2 @Signal:FrntWiperParkSts
+
+        enum FrntWipMod_e{
+            FrntWipMod_Manual = 0;//Manual Mode
+            FrntWipMod_Auto   = 1;//Automatic Mode
+            FrntWipMod_Rsrvd = 2;//Reserved
+            FrntWipMod_InVld  = 3;//Invalid
+        }
+        optional FrntWipMod_e FrntWipMod = 3;              //@Channel:CHASSIS @Message:0x2FA @Signal:FrntWipMod
+
+        enum FrntWiprReq_e{
+            FrntWiprReq_Off     = 0;
+            FrntWiprReq_LowSpd  = 1;
+            FrntWiprReq_HighSpd = 2;
+            FrntWiprReq_InVld   = 3;
+        }
+        optional FrntWiprReq_e FrntWiprReq = 4;               //@Channel:CHASSIS @Message:0x2FA @Signal:FrntWiprReq
+    }
+	required WipperInfo WipperSts = 6;
+
+	message TimingInfo{
+		required uint32 Yr  = 1;                            //@Channel:CHASSIS @Message:0x3B2 @Signal:Yr
+		required uint32 Mth = 2;                            //@Channel:CHASSIS @Message:0x3B2 @Signal:Mth
+		required uint32 Day = 3;                            //@Channel:CHASSIS @Message:0x3B2 @Signal:Day
+		required uint32 Hr  = 4;                            //@Channel:CHASSIS @Message:0x3B2 @Signal:Hr
+		required uint32 Min = 5;                            //@Channel:CHASSIS @Message:0x3B2 @Signal:Min
+		required uint32 Sec = 6;                            //@Channel:CHASSIS @Message:0x3B2 @Signal:Sec
+	}
+	required TimingInfo Time = 7;
+
+    enum CenLockStsType_e{
+        VehLock_False = 0;  //Vehicle unlocked
+        VehLock_Full = 1;   //Vehicle fully locked
+        VehLock_Door = 2;   //Driver door unlock only
+        VehLock_Rsrvd3 = 3; //Reserved
+        VehLock_Rsrvd4 = 4; //Reserved
+        VehLock_Rsrvd5 = 5; //Reserved
+        VehLock_Rsrvd6 = 6; //Reserved
+        VehLock_InVld = 7;  //Invalid
+    }
+
+	required CenLockStsType_e CenLockSts = 8;               //@Channel:CHASSIS @Message:0x1B0 @Signal:CenLockUnlockSts
+
+    enum TpmsStType_e{
+        TpsSys_OK         = 0; //System OK
+        TpsSys_NotOk      = 1; //System Not OK
+        TpsSys_PresAbnrml = 2; //Pressure abnormal
+        TpsSys_Rsrvd3     = 3; //Reserved
+    }
+	required TpmsStType_e TpmsSts = 9;                      //@Channel:CHASSIS @Message:0x2C5 @Signal:TpmsSts
+
+    enum DrvStType_e{
+        DrvSt_Unknown= 0; //Unknown
+        DrvSt_None   = 1; //None
+        DrvSt_MD     = 2; //MD
+        DrvSt_RD     = 3; //RD
+        DrvSt_AD     = 4; //AD
+        DrvSt_Rsrvd5 = 5; //Reserved
+        DrvSt_Rsrvd6 = 6; //Reserved
+        DrvSt_InVld  = 7; //Invalid
+    }
+	required DrvStType_e DrvState = 10;                     //@Channel:CHASSIS @Message:0x10C @Signal:DrvState
+	required bool 	AmbTempValid = 13;                      //@Channel:CHASSIS @Message:0x314 @Signal:AmbTempValid
+	required float 	AmbTemp = 14;                           //@Channel:CHASSIS @Message:0x314 @Signal:AmbTemp
+
+    enum TrlrModType_e{
+        TrlrMod_Off      = 0; //Off
+        TrlrMod_On       = 1; //On
+        TrlrMod_Disabled = 2; //Disabled
+        TrlrMod_Rsrvd4   = 3; //Reserved
+    }
+	required TrlrModType_e TrailerModReq = 15;              //@Channel:CHASSIS @Message:0x2EE @Signal:TrailerModReq
+
+    enum SwcAdjModType_e{
+        SwcAdjMod_Normal = 0;   //Normal Mode (default)
+        SwcAdjMod_Mirror = 1;   //Mirror Adjust mode
+        SwcAdjMod_StrColumn = 2;//Steering column mode
+        SwcAdjMod_Rsrvd3 = 3;   //Reserved
+        SwcAdjMod_Rsrvd4 = 4;   //Reserved
+        SwcAdjMod_Rsrvd5 = 5;   //Reserved
+        SwcAdjMod_Rsrvd6 = 6;   //Reserved
+        SwcAdjMod_InVld  = 7;   //Invalid
+    }
+	required SwcAdjModType_e SWCAdjModReq = 16;             //@Channel:CHASSIS @Message:0x2AE @Signal:SWCAdjModReq
+
+    enum NbsDrvStType_e{
+        NbsDrv_NoAct = 0; //No action
+        NbsDrv_TkOvr = 1; //Driver take over
+        NbsDrv_Rsrvd2= 2; //Reserved
+        NbsDrv_InVld = 3; //Invalid
+    }
+	required NbsDrvStType_e NBSDrvrSts = 17;                //@Channel:CHASSIS @Message:0x1AF @Signal:NBSDrvrSts
+
+    enum PrkSysType_e{
+        PrkSys_None = 0; //No parkingtype request
+        PrkSys_APA  = 1; //APA
+        PrkSys_SAPA = 2; //SAPA
+        PrkSys_Rsrvd3=3; //Reserved
+    }
+	optional PrkSysType_e PrkgTyp = 18;                     //@Channel:CHASSIS @Message:0x1AF @Signal:PrkgTyp
+	required bool 	CrashDetd     = 19;                     //@Channel:CHASSIS @Message:0x3C  @Signal:CrashDetd
+    required bool AdsLampReq      = 20;                     //@Channel:ADAS @Message:0x310 @Signal:CCU_AdsLampReq
+    required float IntrTemp       = 21;                     //@Channel:ADAS @Message:0x312 @Signal:IntrTemp
+    required QfZeroAsVld_e IntrTempVld = 22;                //@Channel:ADAS @Message:0x312 @Signal:IntrTempValid
+
+    enum MnLiSttype_e{
+        MnLiSt_Off      = 0;//Light off
+        MnLiSt_Pstn     = 1;//Position light
+        MnLiSt_LowBm    = 2;//Low Beam
+        MnLiSt_Auto     = 3;//Automatic
+        MnLiSt_Rsrvd4   = 4;//Reserved
+        MnLiSt_Rsrvd5   = 5;//Reserved
+        MnLiSt_SigNotAvl= 6;//Signal not available
+        MnLiSt_InVld    = 7;//Invalid
+    }
+    required MnLiSttype_e MaiLiSet = 23;                    //@Channel:ADAS @Message:0x2A8 @Signal:MaiLiSet
+
+    enum ReqZeroAsOnType_e{
+        SDWReq_On = 0;//On
+        SDWReq_Off= 1;//Off
+    }
+    required ReqZeroAsOnType_e SDWReq = 24;                 //@Channel:ADAS @Message:0x2AE @Signal:SDWReq
+    required ReqZeroAsOnType_e UPAReq = 25;                 //@Channel:ADAS @Message:0x2AE @Signal:UPAReq
+
+    optional bool HornCtrlSts = 26;                         //@Channel:ADAS @Message:0x2C0 @Signal:HornCtrlSts
+    optional bool HeadLampsOn = 27;                         //@Channel:ADAS @Message:0x2C1 @Signal:HeadLampsOn
+
+    enum CDCCameraReq_e{
+        CDCCameraReq_NoReq = 0;     //NO request
+        CDCCameraReq_SVC= 1;        //SVC
+        CDCCameraReq_DVR= 2;        //DVR
+        CDCCameraReq_SVC_DVR= 3;    //SVC+DVR
+        CDCCameraReq_ADCam= 4;      //AD cameras
+        CDCCameraReq_SVC_ADCam= 5;  //SVC+AD cameras
+        CDCCameraReq_Off= 6;        //off
+        CDCCameraReq_Rsrvd= 7;      //Reserved
+    }
+    optional CDCCameraReq_e CDCCameraReq = 28;              //@Channel:ADAS @Message:0x2A8 @Signal:CDCCameraReq
+    optional bool ECOPlusModSts = 29 [deprecated=true];                       //@Channel:ADAS @Message:0x2AE @Signal:ECOPlusModSts
+
+    enum RpsKeyDist_e{
+        RpsKeyDist_None = 0;//No valid key detected
+        RpsKeyDist_Range1 = 1;//Valid key detected in Range 1
+        RpsKeyDist_Range2 = 2;//Valid key detected in Range 2
+        RpsKeyDist_Inside = 3;//Valid key detected insinde vehicle
+        RpsKeyDist_Reserved4 = 4;//Reserved
+        RpsKeyDist_Reserved5 = 5;//Reserved
+        RpsKeyDist_Reserved6 = 6;//Reserved
+        RpsKeyDist_Reserved7 = 7;//Reserved
+
+    }
+
+    optional RpsKeyDist_e RpsKeyDist = 30; //@Channel:ADAS @Message:0x1E6 @Signal:RpsKeyDist
+
+    enum MirrorStatus_e{
+        MirrorStatus_Folded = 0;//Folded
+        MirrorStatus_Folding = 1;//Folding
+        MirrorStatus_Unfolded = 2;//Not Folded (Unfolded)
+        MirrorStatus_Unfolding = 3;//Unfolding
+    }
+
+    repeated MirrorStatus_e MirrorStatus = 31; //@Channel:ADAS @Message:0x1E6 @Signal:MirrFrntLeSts
+                                               //@Channel:ADAS @Message:0x1E6 @Signal:MirrFrntRiSts
+
+    enum RpsMovType_e{
+        RpsMov_Standstill    = 0; //Standstill
+        RpsMov_Fordward = 1; //Move Forward
+        RpsMov_BackWard = 2; //Move Backward
+        RpsMov_OutLeft    = 3; //Parking Out in Left Orientation
+        RpsMov_OutRight    = 4; //Parking Out in Right Orientation
+        RpsMov_ParkIn    = 5; //Parking In
+        RpsMov_Rsrvd6    = 6; //Reservd 6
+        RpsMov_Rsrvd7    = 7; //Reservd 7
+    }
+	optional RpsMovType_e RpsMovReq = 32;                   //@Channel:CHASSIS @Message:0x10C @Signal:RpsMovReq
+
+    enum RpsReqType_e{
+        RpsReq_Off   = 0; //No Request
+        RpsReq_Wireless    = 1; //Remote Request
+        RpsReq_Bluetooth = 2; //BLE Key Request
+        RpsReq_InVld = 3; //Invalid
+    }
+	optional RpsReqType_e RpsReq = 33;                      //@Channel:CHASSIS @Message:0x10C @Signal:RpsReq
+
+    enum RpsFunctionTypeReqType_e{
+        RpsFunctionTypeReq_None = 0; //No RPS function open in APP
+        RpsFunctionTypeReq_RPA_In = 1; //RPA-In function is open in APP
+        RpsFunctionTypeReq_NBS = 2; //NBS function is open in APP
+        RpsFunctionTypeReq_RPA_Out = 3; //RPA-Out function is open in App
+    }
+    optional RpsFunctionTypeReqType_e RpsFunctionTypeReq = 34;                       //@Channel:CHASSIS @Message:0x10C @Signal:RpsFunctionTypeReq
+
+    enum NBSSideDetectionReqType_e{
+        NBSSideDetectionReq_On = 0; //NBS side obstacle detection is on
+        NBSSideDetectionReq_Off = 1; //NBS side obstacle detection is off
+        NBSSideDetectionReq_Reserved = 2; //Reserved
+        NBSSideDetectionReq_Invalid = 3; //Invalid
+    }
+    optional NBSSideDetectionReqType_e NBSSideDetectionReq = 35;                         //@Channel:CHASSIS @Message:0x10C @Signal:NBSSideDetectionReq
+    optional bool VehSpdMaxLimOnOff = 36;                                                //@Channel:CHASSIS @Message:0x2EE @Signal:VehSpdMaxLimOnOff
+    optional uint32 RpsComSts = 37;                                                      //@Channel:CHASSIS @Message:0x10C @Signal:RpsComSts
+
+    optional uint32 RSOptical1Raw = 38;                                                  //@Channel:ADAS @Message:0x34B @Signal:RS_Optical1_Raw
+    optional uint32 RSOptical2Raw = 39;                                                  //@Channel:ADAS @Message:0x34B @Signal:RS_Optical2_Raw
+    optional uint32 RSOptical1BaseData = 40;                                             //@Channel:ADAS @Message:0x34B @Signal:RS_Optical1_BaseData
+    optional uint32 RSOptical2BaseData = 41;                                             //@Channel:ADAS @Message:0x34B @Signal:RS_Optical2_BaseData
+    enum RSRawDataFlag_e{
+        RawData_Invalid = 0; //rain sensor raw data is not valid
+        RawData_Valid = 1; //rain sensor raw data is valid
+    }
+    optional RSRawDataFlag_e RSRawDataFlag = 42;                                         //@Channel:ADAS @Message:0x34B @Signal:RainRawDataFlag
+    optional bool ECOPlusPlusModSts = 43;                                                //@Channel:ADAS @Message:0x2AD @Signal:ECOPlusPlusModSts
+
+    enum RpsReqSrc_e{
+        RpsReqSrc_None = 0; //No request
+        RpsReqSrc_NIO_Phone = 1; //Rps request from NIO Phone
+        RpsReqSrc_IOS = 2; //Rps request from IOS Phone
+        RpsReqSrc_Android = 3; //Rps request from Android Phone
+        RpsReqSrc_Others = 4; //Rps request from others, it including IOS and Android currently
+    }
+    optional RpsReqSrc_e RpsReqSrc = 44;                                                 //@Channel:ADAS @Message:0x1E6 @Signal:RpsReqSrc
+
+        enum RpsRemoteMovReq_e{
+        RpsRemoteMov_Standstill    = 0; //Standstill
+        RpsRemoteMov_Fordward = 1; //Move Forward
+        RpsRemoteMov_BackWard = 2; //Move Backward
+        RpsRemoteMov_ParallelOutLeft = 3; //Parallel Parking Out in Left Orientation
+        RpsRemoteMov_ParallelOutRight = 4; //Parallel Parking Out in Right Orientation
+        RpsRemoteMov_ParkIn = 5; //Parking In
+        RpsRemoteMov_SuperParkIn = 6; //super rpa-in using nio phone
+        RpsRemoteMov_VerticalOutStraightLine = 7; //Vertical parking out straight linescope
+        RpsRemoteMov_VerticalOutLeft = 8; //Vertical parking out in left orientation
+        RpsRemoteMov_VerticalOutRight = 9; //Vertical parking out in right orientation
+    }
+	optional RpsRemoteMovReq_e RpsRemoteMovReq = 45;                   //@Channel:CHASSIS @Message:0x10C @Signal:RpsRemoteMovReq
+
+    enum ADCExitLowCap_e{
+        ADCExitLowCap_NoRequest=0; //No Request
+        ADCExitLowCap_RequestForRPA=1; //Request For RPA
+        ADCExitLowCap_RequestForSCAP=2; //Request For SCAP(Swarm Compute Acceleration Provider)
+        ADCExitLowCap_Reserved=3; //Reserved
+    }
+    optional ADCExitLowCap_e ADCExitLowCap = 46;                   //@Channel:ADAS @Message:0x1E6 @Signal:ADCExitLowCap
+    repeated uint32 Dk_device_type = 47;           //@linescope: NT3 DkSessionDetailsList.DkSessionList.session_list.dk_info.dk_device_type
+    optional bool CCU_SyncLampReq   = 48;            //@Channel:ADAS @Message:0x310 @Signal:CCU_SyncLampReq
+    optional bool CCU_RecircLampReq = 49;            //@Channel:ADAS @Message:0x310 @Signal:CCU_RecircLampReq
+    optional bool CCU_FreModLampReq = 50;            //@Channel:ADAS @Message:0x310 @Signal:CCU_FreModLampReq
+
+    repeated uint32 EDRSlotSts =  51;               //@Channel:CHASSIS @Message:0x20F @Signal:EDRSlot1Sts
+                                                    //@Channel:CHASSIS @Message:0x20F @Signal:EDRSlot2Sts
+                                                    //@Channel:CHASSIS @Message:0x20F @Signal:EDRSlot3Sts                                                         
+}

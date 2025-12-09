@@ -1,0 +1,91 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+import "np/apps/ehy_rme_road_base.proto";
+import "np/apps/ehy_obj_lm_relation_base.proto";
+
+message RmeMapGP{
+  optional float gp_distance = 1;
+  optional uint32 gp_type = 2;
+  optional float recom_speed = 3;  
+  optional float link_length = 4;
+  optional uint32 recom_lane_idx = 5;
+  optional uint32 recom_speed_id = 6;
+  optional uint32 recom_speed_src = 7;
+  optional uint32 recom_speed_conf = 8;
+  optional bool spd_unit = 9;
+  optional int32 sup_sign_typ = 10;
+  optional int32 sup_sign_attr = 11;
+}
+
+message RmeHDMap{
+  repeated RmeMapGP ngp_list = 1;
+}
+
+message RmeSpdLmt{
+  optional uint32 spd_lmt_value = 1;
+  optional int32 spd_lmt_attr = 2;
+  optional int32 sup_sign_type = 3;
+  optional int32 sup_sign_attr = 4;
+  optional bool spd_uint = 5;
+}
+
+message RmeIntp{
+  optional RmePoint point = 1;
+  optional int32 id = 2;
+  optional LMIntPClass intp_class = 3;
+  optional LMSource source = 4;
+  optional LMRole role = 5;
+  optional LMLaneMarkClass far_markclass = 6;
+  optional LMColor far_color = 7;
+  optional uint32 far_spd = 8;
+
+  enum LMRole{
+    kLMRole_NONE = 0;
+    kLMRole_HOST_LANE = 16;
+    kLMRole_HOST_LANE_LEFT = 17;
+    kLMRole_HOST_LANE_RIGHT = 18;
+    kLMRole_LE_LANE = 32;
+    kLMRole_LE_LANE_LEFT = 33;
+    kLMRole_LE_LANE_RIGHT = 34;
+    kLMRole_RI_LANE = 48;
+    kLMRole_RI_LANE_LEFT = 49;
+    kLMRole_RI_LANE_RIGHT = 50;
+  }
+
+  enum LMIntPClass{
+    kLMIntPClass_UNDECIDED = 0;
+    kLMIntPClass_SPLIT = 1;
+    kLMIntPClass_MERGE = 2;
+    kLMIntPClass_SPD = 3;
+    kLMIntPClass_MARKCLASS = 4;
+    kLMIntPClass_COLOR = 5;
+  }
+}
+
+message EHYRmeOutputs{
+  optional RmeLine road_edge_left = 1;
+  optional RmeLine road_edge_right = 2;
+  optional RmeLane host_lane = 3;
+  optional RmeLane left_lane = 4;
+  optional RmeLane right_lane = 5;
+  optional RmeHDMap hdmap_info = 6;
+  repeated RmeIntp interest_point = 7;
+  optional float road_start = 8;
+  optional float road_end = 9;
+  optional uint32 total_lane_num = 10;
+  optional uint32 num_lane_id = 11;
+  optional uint32 road_type = 12;
+  optional uint32 status = 13;
+  optional ObjLMRel obj_lm_rel = 14;
+
+  optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+  optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+  optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909; // uuid of the publisher
+  optional uint64 counter = 536870910;         // message counter
+  optional uint64 publish_ts = 536870911;    // publish utc timestamp; unit : nanosecond
+}

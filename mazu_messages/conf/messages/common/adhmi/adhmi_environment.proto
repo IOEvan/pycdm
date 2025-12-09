@@ -1,0 +1,613 @@
+// 该Proto主要用于传输AD感知以及融合后的内容，是已经处理过的数据，主要包括车道线、感知物体灯内容。
+// 初步规划为高频通信链路，以20Hz的频率传输（待讨论和拉齐是否合适）
+
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+    // 点链中单个点的类型，用于决定整条车道线或者单个线段的车道线类型
+    enum Hmi_LinePointType {
+        LPT_Unknown = 0;
+        LPT_Solid = 1;
+        LPT_Dash = 2;
+        LPT_Solid_Dash = 3;
+        LPT_Dash_Solid = 4;
+        LPT_Solid_Solid = 5;
+        LPT_Deceleration_Dash = 6;
+        LPT_Deceleration_Solid = 7;
+        LPT_Guide = 8;                 // 导流线
+        LPT_Dash_Dash = 9;             // 双虚线
+        LPT_Direct = 10;               // 可变导向线
+        LPT_Solid_Four = 11;
+    }
+    
+    // 归一化的颜色，所有能够用来表示的颜色都应该在这些类型里面
+    enum Hmi_Color {
+        Color_Unknown = 0;
+        Color_White = 1;
+        Color_Black = 2;
+        Color_Grey = 3;
+        Color_Red = 4;
+        Color_Yellow = 5;
+        Color_Blue = 6;
+        Color_Orange = 7;
+        Color_Green = 8;
+        Color_Reserved = 9;
+        
+        // 50以上是组合颜色
+        Color_Yellow_White = 50;
+        Color_White_Yellow = 51;
+        
+        // 100以上是一些特殊类型的颜色，比如半蓝
+        Color_Left_Half_Blue = 100;
+        Color_Right_Half_Blue = 101;
+        Color_Enhance_Yellow = 102;  //功能激活车道线标黄
+    }
+
+    // 路沿方向枚举
+    // 这里有一个比较复杂的路沿贴图方向的计算，是为了区分路沿的阴影面和渐变面所需要的数据
+    // 约定为感知不区分相关方向，由AD HMI模块做计算处理，告知DC实际的阴影面和渐变面区分。
+    // 采用当前的接口模式，注意，以路沿点链中的点传输过来的排布方向为起始位置，Left代表左边
+    // 是高度面，右边是渐变面，Right代表右边是高度面，左边是渐变面。
+    enum Hmi_RoadEdgeSide {
+        RES_Unknown = 0;
+        RES_Left = 1;
+        RES_Right = 2;
+    }
+    
+
+    // 地面标识类型枚举
+    enum Hmi_RoadSignClass {
+        RoadSignClass_Unknown = 0;
+        // RoadSignClass_StopLine = 100;
+        RoadSignClass_RoadArrow = 200;
+        RoadSignClass_RoadArrow_Left = 201;
+        RoadSignClass_RoadArrow_Right = 202;
+        RoadSignClass_RoadArrow_Left_Right = 203;
+        RoadSignClass_RoadArrow_Straight = 204;
+        RoadSignClass_RoadArrow_Straight_Right = 205;
+        RoadSignClass_RoadArrow_Straight_Left = 206;
+        RoadSignClass_RoadArrow_Only_Turn = 207;
+        RoadSignClass_RoadArrow_Left_Turn = 208;
+        RoadSignClass_RoadArrow_Straight_Turn = 209;
+        RoadSignClass_RoadArrow_Left_Merge = 210;
+        RoadSignClass_RoadArrow_Right_Merge = 211;
+        RoadSignClass_RoadArrow_Forbid_Sign = 212;
+        RoadSignClass_RoadArrow_Forbid_Only_Sign = 213;
+        RoadSignClass_RoadArrow_Forbid_Left_Sign = 214;
+        RoadSignClass_RoadArrow_Forbid_Right_Sign = 215;
+        RoadSignClass_RoadArrow_Forbid_Straight_Sign = 216;
+        RoadSignClass_RoadArrow_Forbid_Turn_Sign = 217;
+        RoadSignClass_RoadArrow_Forbid_Left_Merge_Sign = 218;
+        RoadSignClass_RoadArrow_Forbid_Right_Merge_Sign = 219;
+        RoadSignClass_RoadArrow_Forbid_Left_And_Turn_Sign = 220;
+        // RoadSignClass_ZebraCross = 300;
+        RoadSignClass_NoParkingArea = 400;
+        RoadSignClass_SlowZone = 500;
+        RoadSignClass_SpeedBump = 600;
+        RoadSignClass_PolePillar = 700;
+        RoadSignClass_LimitSpd_Max = 801;
+        RoadSignClass_LimitSpd_Min = 802;
+        RoadSignClass_TextPattern = 900;
+        RoadSignClass_TextPattern_Yield = 901;
+        RoadSignClass_TextPattern_Stop = 902;
+        RoadSignClass_TextPattern_Variable = 903;
+        RoadSignClass_TextPattern_Reversible = 904;
+        RoadSignClass_TextPattern_Bike = 905;
+        RoadSignClass_TextPattern_Bus = 906;
+        RoadSignClass_TextPattern_HOV = 907;
+        RoadSignClass_TextPattern_TIME = 908;
+        RoadSignClass_TextPattern_WALK = 909;
+    }
+
+    // 红绿灯单灯的类型枚举
+    enum Hmi_TrafficLightType{
+        TLT_Unknown = 0;
+        TLT_Circle = 1;
+        TLT_Left = 2;
+        TLT_Right = 3;
+        TLT_Up = 4;
+        TLT_U_Turn = 5;
+        TLT_Pedestrian = 6;
+        TLT_Bicycle = 7;
+        TLT_Straight_Up = 8;
+        TLT_Forbid = 9;
+        TLT_Straight_Down = 10;
+        TLT_Warning = 11;
+        TLT_Railway = 12;
+        TLT_U_Turn_Right = 13;
+        TLT_U_Turn_Left = 14;
+        TLT_Timer = 100;
+    }
+
+    // 感知物体类型枚举
+    enum Hmi_OBJObjectClass{
+        OBJObjectClass_Unknown = 0;
+        OBJObjectClass_SmallVehicle = 100;
+        OBJObjectClass_Car = 101;                           // 七座以下家用小车
+        OBJObjectClass_SUV = 102;                           // SUV+MPV
+        OBJObjectClass_PickUp = 103;                        // 皮卡
+        OBJObjectClass_MPV_VAN = 104;                       // 此处仅指代VAN厢式货车,MPV归类到SUV
+        OBJObjectClass_BigVehicle = 200;
+        OBJObjectClass_Truck = 201;                         // 卡车，清扫车，洒水车
+        OBJObjectClass_BUS = 202;                           // 公交车，包含各种有轨电车和无轨电车，以及双层公交车、载客大巴车
+        OBJObjectClass_Special_Truck = 203;                 // 工程车，异型车
+        OBJObjectClass_Trailer = 204;
+
+        // 新增
+        OBJObjectClass_Middle_Truck = 205;                  // 中型卡车
+        OBJObjectClass_Middle_BUS = 206;                    // 中型巴士
+
+        OBJObjectClass_Tricycle = 300;                      // 三轮车，三轮的老年代步车，四轮的老年代步车归属于car
+        OBJObjectClass_Two_wheels_vehicle = 400;            // without Pedestrian
+        OBJObjectClass_Motorbike = 401;                     // without Pedestrian
+        OBJObjectClass_Ebike = 402;                         // without Pedestrian
+        OBJObjectClass_Bicycle = 403;                       // without Pedestrian
+        OBJObjectClass_Two_wheels_vehicle_P = 410;          // with Pedestrian
+        OBJObjectClass_Motorbike_P = 411;                   // with Pedestrian
+        OBJObjectClass_Ebike_P = 412;                       // with Pedestrianw
+        OBJObjectClass_Bicycle_P = 413;                     // with Pedestrian
+        OBJObjectClass_Pedestrian = 500;
+        OBJObjectClass_Adult = 501;
+        OBJObjectClass_Child = 502;
+        OBJObjectClass_Animal = 600;
+        OBJObjectClass_Cat = 601;
+        OBJObjectClass_Dog = 602;
+        OBJObjectClass_Special = 700;
+        OBJObjectClass_Pram = 701;                          // 婴儿车
+        OBJObjectClass_ShoppingCart = 702;                  // 购物车
+        
+        // 新增，主要是特种车辆
+        // 需要校准清楚扩展的类型
+        OBJObjectClass_PoliceCar_Sedan = 801;           // 轿车警车
+        OBJObjectClass_PoliceCar_Suv = 802;             // SUV警车
+        OBJObjectClass_Ambulance = 810;                 // 救护车
+        OBJObjectClass_FireTruck = 820;                 // 消防车
+        OBJObjectClass_RoadMaintenanceVehicle = 830;    // 工程抢险、道路养护车
+        OBJObjectClass_WateringCar = 840;               // 洒水车
+        OBJObjectClass_RidePolice = 850;                // 骑警
+        OBJObjectClass_Police = 860;                    // 警察
+    }
+
+    // 感知车模转向灯、刹车灯灯态，后续可以覆盖为其他灯态
+    enum Hmi_OBJLightStatus {
+        OBJLight_Invalid = 0;
+        OBJLight_On = 1;
+        OBJLight_Off = 2;
+    }
+    
+    // 运动状态，用于表征物体运动情况，可以配合行人做走路动画，同时也可拓展出车辆的一些动作。
+    enum Hmi_OBJMotionStatus{
+        OBJMotionStatus_Undefined = 0;
+        OBJMotionStatus_Stopped = 1;
+        OBJMotionStatus_Moving = 2;
+        OBJMotionStatus_Oncoming = 3;
+        OBJMotionStatus_Static = 4;
+        OBJMotionStatus_RearMoving = 5;
+    }
+    
+    // 预留为红绿灯朝向
+    enum Hmi_Direction {
+        None = 0;
+        Horizontal = 1;
+        Vertical = 2;
+    }  
+    
+    // 感知静态物体枚举类型
+    // 当前仅包含原有的静态物体，暂时没有把墙面和立柱等纳入进来
+    // 第一阶段Parking相关的内容(PSAP/SAPA)只是原样迁移，仅需改变链路传输接口。
+    enum Hmi_ObsType {
+        ObsType_Invalid = 0;
+        ObsType_Barrel = 1;                                     // 圆桶
+        ObsType_Cone = 2;                                       // 锥桶
+        ObsType_ShortPole = 3;                                  // 交通短柱
+        ObsType_ObstructionBW = 4;                              // 水马
+        ObsType_ObstructionUP = 5;                              // 预留，上-导向标识牌
+        ObsType_ObstructionLeft = 6;                            // 预留，斜左-导向标识牌
+        ObsType_ObstructionRight = 7;                           // 预留，斜右-导向标识牌
+        ObsType_RedWarningSign = 8;                             // 三角警示牌
+        ObsType_FishboneLeft = 9;                               // 预留，向左-导向标识牌
+        ObsType_FishboneRight = 10;                             // 预留，向右-导向标识牌
+        ObsType_OverheadObject = 11;                            // 预留，空中障碍物
+        ObsType_ObsType_Indicator_Arrow_Left = 12;              // 预留，左-箭头导向牌
+        ObsType_ObsType_Indicator_Arrow_Right = 13;             // 预留，右-箭头导向牌
+        ObsType_ObsType_Indicator_Arrow_Both = 14;              // 预留，左右-箭头导向牌
+        ObsType_ObsType_Indicator_Arrow_Left_Up = 15;           // 预留，左上-箭头导向牌
+        ObsType_ObsType_Indicator_Arrow_Left_Down = 16;         // 预留，左下-箭头导向牌
+        ObsType_ObsType_Indicator_Arrow_Right_Up = 17;          // 预留，右上-箭头导向牌
+        ObsType_ObsType_Indicator_Arrow_Right_Down = 18;        // 预留，右下-箭头导向牌
+        ObsType_MetalFence = 19;                                // 金属栅栏
+        ObsType_WarningPole = 20;                               // 警示隔离杆
+        ObsType_CircularColumn =21;                             // 低矮杆类柱状物
+        ObsType_StoneColumn =22;                                // 低矮石头类柱状物
+        // 下面两个类型不会发出来，因为GOD的内容已经抽出来给到GOD专门的结构体进行输出
+        // ObsType_OtherImpermanentObject = 23;                    // Including other impermanent object that class is not included above, such as debris, tire, dropped object
+        // ObsType_OtherPermanentObject = 24;                      // Including other permanent object that class is not included above, such as building, traffic light, fire hydrant and parterre
+        ObsType_Pillar = 25;                                    // 立柱
+        ObsType_SquarePillar = 26;                              // 方形立柱
+        ObsType_CirclePillar = 27;                              // 圆形立柱
+        ObsType_WallPillar = 28;                                // 墙柱
+        ObsType_GateMachine = 29;                               // 闸机
+        ObsType_ParkLockOpen = 30;                              // 开地锁
+    }
+    
+    // 感知静态物体标注类型，需要将传统的npFeature内的数据抽象出来，直接标注到物体属性中
+    // 当前仅包含正常态和高亮态，后续可以支持按需扩展。
+    enum Hmi_ObjectStatus {
+        OS_Normal = 0;
+        OS_Highlight = 1;
+        OS_Reserved = 2;
+    }
+
+    
+    enum Hmi_LaneStatus {
+        Normal = 0;
+        Accelerate = 1;
+        Decelerate = 2;
+        Special = 3;
+        Reserve = 4;
+    }
+    
+    // 车道线角色枚举
+    enum Hmi_LineRole{
+        LR_Unknown = 0;
+        LR_Host_Left = 1;
+        LR_Host_Right = 2;
+        LR_Adjacent_Left_Left = 3;
+        LR_Adjacent_Left_Right = 4;
+        LR_Adjacent_Right_Left = 5;
+        LR_Adjacent_Right_Right = 6;
+        LR_LeftLeft_Left = 7;
+        LR_LeftLeft_Right =8;
+        LR_RightRight_Left = 9;
+        LR_RightRight_Right = 10;
+        LR_Fourth_Left = 11;
+        LR_Fourth_Right = 12;
+    }
+
+    // VOCC FreeSpace对象类型 
+    enum Hmi_FSPointType {
+        HMI_OCC_TYPE_VEHICLE = 0;         // Vehile
+        HMI_OCC_TYPE_VRU = 1;             // VRU
+        HMI_OCC_TYPE_WALKGROUND = 2;      // Walkable ground
+        HMI_OCC_TYPE_CURB = 3;            // Curb
+        HMI_OCC_TYPE_OTHERS = 4;          // Others
+        HMI_OCC_TYPE_PEDESTRIAN = 5;      // Pedestrian
+        HMI_OCC_TYPE_CYCLIST = 6;         // Cylist
+        HMI_OCC_TYPE_VEGETATION = 7;      // Vegetation
+        HMI_OCC_TYPE_WALL = 8;            // Wall
+        HMI_OCC_TYPE_FENCE = 9;           // Fence
+        HMI_OCC_TYPE_POLE = 10;           // Pole
+        HMI_OCC_TYPE_UPRIGHTPOST = 11;    // Upright post
+        HMI_OCC_TYPE_FIVESOD = 12;        // 5 SOD
+        HMI_OCC_TYPE_GROUND = 13;         // Ground
+        HMI_OCC_TYPE_IMPERMANENT = 14;    // Other impermanent objects
+        HMI_OCC_TYPE_PERMANENT = 15;      // Other permanent objects
+    }
+
+    // VOCC FreeSpace Boundary Type
+    enum Hmi_FSBoundaryType {
+        HMI_OCC_OUTER_BOUNDARY = 0;       // outmost boundary of driving area
+        HMI_OCC_INNER_BOUNDARY = 1;       // barrier boundary inside OUTER_BOUNDARY
+    }
+
+// 分割线以上为枚举类型
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// 分割线以下为具体数据结构
+
+    // 用于描述object位置，float类型
+    message Hmi_Vector3f {
+        optional float x = 1;
+        optional float y = 2;
+        optional float z = 3;
+    }
+
+    // 用于描述object位置，double类型    
+    message Hmi_Vector3d {
+        optional double x = 1;
+        optional double y = 2;
+        optional double z = 3;
+    }
+
+    // 用于描述object位姿，四元数表达，double类型
+    message Hmi_Quaternion4d {
+        optional double x = 1;
+        optional double y = 2;
+        optional double z = 3;
+        optional double w = 4;
+    }
+
+    // 用于描述object尺寸
+    message Hmi_ObjSize {
+        optional float length = 1;  // unit:m
+        optional float width = 2;   // unit:m
+        optional float height = 3;  // unit:m
+    }
+    
+    // 点链中点的数据结构
+    message Hmi_Point {
+        optional Hmi_LinePointType point_type = 1;      // 车道线的类型，主要是用来绘制不同类型的线，如双实线，双虚线等
+        optional Hmi_Color         point_color = 2;     // 感知的颜色，注意区分功能侧点亮车道线的颜色
+        optional Hmi_Vector3f      point_position = 3;  // 车道线点链中点的位置，里面的高程暂时没用到，可以不传输
+    }
+    
+    // FDS: https://nio.feishu.cn/docx/OeucdrsleonUenxcNpNc5feBnrb
+    message Hmi_LaneLine {
+        optional uint32         ll_id = 1;           // 车道线唯一ID, track id，用于debug和区分
+        optional Hmi_LineRole   ll_role = 2;
+        optional Hmi_Color      ll_color = 3;        // 标注整条车道线的颜色，主要用于主动安全标注车道线等功能，注意区分感知识别的内化于点链中的颜色
+        repeated Hmi_Point      ll_points = 4;       // 构成车道线的点链，是车道线的主体构成物，正常按照1M一个点的间隔发送数据，极限情况也需保证小于100个点的数据！
+    }
+
+    // FDS: https://nio.feishu.cn/docx/ER7gdaih6oFRPSxiwwFcc6sTnjf
+    message Hmi_RoadEdge {
+        optional uint32             re_id = 1;        // 路沿唯一ID
+        optional Hmi_RoadEdgeSide   re_side = 2;      // 路沿方向，用于识别路沿贴图是向左渐变还是向右渐变，属于UI形式上的校对，阴影朝向哪儿
+        repeated Hmi_Vector3f       re_points = 3;    // 路沿点链，复用Point数据结构，但其中的点类型和点颜色无需用到，不传对应数据。点的数量也应该有限制，正常按照1M一个点的间隔发送数据，极限情况也需要保证小于100个点的数据。 
+    }
+
+    // 停止线数据，设计思路为采用两点确定一直线的方案
+    // 感知和高精地图下都有停止线的显示，但应该在AD HMI模块中抽象，给出来的停止线不care是感知的还是地图的
+    // FDS: https://nio.feishu.cn/docx/PPsXdL8uQoEoy0xMPP3cRvOlnqc
+    message Hmi_StopLine {
+        optional uint32         sl_id = 1;            // 停止线的唯一ID
+        optional Hmi_Vector3f   sl_left_point = 2;    // 停止线左侧的点，该点数据只需要x,y位置信息，无需属性信息
+        optional Hmi_Vector3f   sl_right_point = 3;   // 停止线右侧的点，该点数据只需要x,y位置信息，无需属性信息
+        optional Hmi_Color      sl_color = 4;         // 停止线高亮表示
+    }
+
+    // 斑马线数据
+    // 斑马线的逻辑很复杂，需要迁移到AD HMI中，同时也要注意降帧，DC内部转发等
+    // FDS: https://nio.feishu.cn/docx/PPsXdL8uQoEoy0xMPP3cRvOlnqc
+    message Hmi_ZebraCross {
+        optional uint32         zb_id = 1;                  // 斑马线唯一ID
+        optional Hmi_Vector3f   zb_center_point = 2;        // 斑马线中心点位置
+        optional float          zb_length = 3;              // 斑马线长度，与斑马线朝向平行的边，单位m
+        optional float          zb_Width = 4;               // 斑马线宽度，与斑马线朝向垂直的边，单位m
+        optional float          zb_heading = 5;             // 斑马线朝向，单位是角度，应该是针对自车坐标系，0度为向前，90度为向右，180度向后，270度向左。
+        optional float          zb_crossbar_direction = 6;  // 斑马线里面的白线的朝向，该值对照的是斑马线长边
+    }
+
+    // 路面标识数据，包含路面箭头，标识等
+    // FDS: https://nio.feishu.cn/docx/PPsXdL8uQoEoy0xMPP3cRvOlnqc
+    message Hmi_RoadSign {
+        optional uint32             road_sign_id = 1;
+        optional Hmi_RoadSignClass  road_sign_class = 2;
+        optional Hmi_Vector3f       road_sign_position = 3;
+        optional float              road_sign_heading_degree = 4;   // 路面标识朝向，应该转化为角度而不是弧度，便于Debug和接口统一性
+        optional float              road_sign_length = 5;           // 路面标识长度,单位m
+        optional float              road_sign_width = 6;            // 路面标识宽度，单位m
+    }
+
+    // 减速带数据
+    message Hmi_SpeedBump {
+        optional uint32         sb_id = 1;                  // 减速带唯一ID
+        optional Hmi_Vector3f   sb_left_point = 2;          // 减速带左端中心点位置（废弃）
+        optional Hmi_Vector3f   sb_right_point = 3;         // 减速带右端中心点位置（废弃）       
+        optional float          sb_width = 4;               // 减速带宽度，单位m
+        optional float          sb_length = 5;              // 减速带长度，单位m
+        repeated Hmi_Vector3f   sb_corner_points = 6;       // 减速带4个角点坐标
+        optional float          sb_heading = 7;             // 减速带角度，deg
+        optional Hmi_Vector3f   sb_center_point = 8;        // 减速带中心点坐标
+    }
+
+    // 红绿灯单灯数据
+    // FDS: https://nio.feishu.cn/docx/UuS0dfZHPo8LCyxyYkFcJb2Rn5f
+    message Hmi_Light{
+        optional uint32                 tl_id = 1;
+        optional Hmi_Color              tl_color = 2;
+        optional Hmi_TrafficLightType   tl_type = 3;
+        optional uint32                 tl_status = 4;       // 灯态，0：常亮，1：闪烁
+    }
+
+    // 红绿灯数据，也需要考虑2D红绿灯的诉求
+    // FDS: https://nio.feishu.cn/docx/UuS0dfZHPo8LCyxyYkFcJb2Rn5f
+    message Hmi_TrafficLight3D {
+        optional uint32             tl_id = 1;
+        optional Hmi_Vector3f       tl_position = 2;
+        optional Hmi_Light          tl_first_light = 3;
+        optional Hmi_Light          tl_second_light = 4;
+        optional Hmi_Light          tl_third_light = 5;
+        optional float              tl_heading_degree = 6;   // 红绿灯朝向，是角度不是弧度
+    }
+    
+    message Hmi_ObjectSpeed {
+        optional float speed_x = 1;
+        optional float speed_y = 2;
+    }
+    
+    // 单个移动物体，并且能够支持一定的动画
+    // FDS：https://nio.feishu.cn/docx/K91idZLfzoKKJxx3mjHcDffnn1d
+    message Hmi_DynamicObject {
+        optional uint32                 object_id = 1;                 // 感知物体唯一ID
+        optional Hmi_OBJObjectClass     object_class = 2;              // 物体类型, 特殊物体的种类也需要完整考虑进去，不应该单独列出来，需要重点考量
+        optional Hmi_Vector3f           object_position = 3;           // 物体位置
+        optional float                  object_heading = 4;            // 物体朝向，应该转化为角度，而非弧度
+        optional Hmi_OBJLightStatus     object_left_light_status = 5;  // 左转灯状态
+        optional Hmi_OBJLightStatus     object_right_light_status = 6; // 右转灯状态
+        optional Hmi_OBJLightStatus     object_brake_light_status = 7; // 刹车灯状态
+        optional Hmi_OBJMotionStatus    object_motion_status = 8;      // 感知车辆运动状态
+        optional Hmi_Color              object_color = 9;              // 物体颜色
+        optional Hmi_Vector3f           object_Dimension = 10;         // 物体尺寸，需确认后续还是否需要动态伸缩车模，以此来看是否还需要传尺寸数据
+        optional Hmi_ObjectSpeed        object_speed = 11;             // 物体速度，unit:m/s
+        optional Hmi_Vector3f           object_acc = 12;               // 物体加速度，unit:m/s^2
+        optional float                  object_heading_rate = 13;      // 物体转向速度 ，应该转换成角度/s
+    }
+
+    // 单个静态物体
+    // FDS：https://nio.feishu.cn/docx/K91idZLfzoKKJxx3mjHcDffnn1d
+    message Hmi_StaticObject {
+        optional uint32                 object_id = 1;                   // 静态物唯一ID
+        optional Hmi_ObsType            object_type = 2;                 // 静态物体类型
+        optional float                  object_heading = 3;              // 静态物体朝向，这里需要做好抽象，所有的物体都要按照同一坐标系维度，同一方向和起始位置去做，比如水马的特殊性，还需要转换成角度，而非弧度
+        optional Hmi_Vector3f           object_position = 4;             // 静态物体所在位置
+        optional Hmi_ObjectStatus       object_status = 5;               // 静态物体状态
+        optional Hmi_ObjSize            object_size = 6;                 // 静态物体尺寸，当前仅闸机可视化使用
+        optional uint32                 gate_machine_status = 7;         // 闸机类物体专属状态，Unknown = 0; closed = 1; opening = 2; open = 3
+    }
+
+    // GOD物体展示
+    // FDS：https://nio.feishu.cn/docx/K91idZLfzoKKJxx3mjHcDffnn1d
+    message Hmi_GeneralObject {
+        optional uint32                 god_id = 1;                // 唯一ID，可以讨论是否需要？
+        repeated Hmi_Vector3f           god_polygon = 2;           // 采用不定数量的点去围起一个GOA区域，复用点链的点数据结构，但其中的点属性是用不到的，并且应该只是二维平面的点，不会有高程
+                                                                   // 高程采用固定高度，另外即使是不定数量的点，也应该做好保护，避免出现不可控状态，需要定好规则，当前暂定最多20个点
+        optional float                  god_height = 3;            // GOD高度
+        optional Hmi_ObjectStatus       god_status = 4;            // 代表GOD的状态，当前仅需要红色高亮态以及正常态，复用static obj的状态枚举
+    }
+	
+	// 高亮路面显示，一般用于表示变道状态
+	message Hmi_HighLightLane {
+        optional Hmi_Color        lane_color = 1;                    // 车道面的点亮状态, 主要是颜色
+        repeated Hmi_Vector3f     left_laneline_segment = 2;         // 夹出高亮点亮面左车道线
+        repeated Hmi_Vector3f     right_laneline_segment = 3;        // 夹出高亮点亮面左右道线
+        optional Hmi_LaneStatus   lane_status = 4;                   // 包含车道点亮的状态，有加速、减速态以及一些特殊效果
+        optional uint32           highlight_lane_id = 5;             // 车道高亮面ID
+    }
+
+	// 高亮车道线显示
+	message Hmi_HighLightLine {
+        optional Hmi_Color        line_color = 1;                    // 车道线的颜色
+        repeated Hmi_Vector3f     line_segment = 2;                  // 高亮的车道线
+        optional uint32           highlight_line_id = 3;             // 车道高亮面ID
+    }
+
+    // 感知物体检测
+    // FDS：https://nio.feishu.cn/docx/K91idZLfzoKKJxx3mjHcDffnn1d
+    message Hmi_ObjectsDetection {
+        repeated Hmi_DynamicObject      dynamic_obj = 1;                  // 动态感知物体，限制为最多50个
+        repeated Hmi_StaticObject       static_obj = 2;                   // 静态感知物体，限制为最多50个
+        repeated Hmi_TrafficLight3D     traffic_light_3d = 3;             // 3D红绿灯数据，最多限制为10个
+        repeated Hmi_GeneralObject      gernal_object = 4;                // GOD物体数据，限制为最多64个
+    }
+    
+    // 道路检测
+    message Hmi_RoadDetection {
+        // optional uint64 timestamp = 1; 道路检测的时间戳，需判断是否还需要？
+        repeated Hmi_LaneLine   		lane_line = 1;                          // 车道线具体数据，最多限制为40条车道线
+        repeated Hmi_RoadEdge   		road_edge = 2;                          // 路沿的具体数据，最多限制为10条路沿
+        repeated Hmi_StopLine   		stop_line = 3;                          // 停止线数据，限制为最多4条停止线
+        repeated Hmi_ZebraCross 		zebra_cross = 4;                        // 斑马线数据，限制为最多4条停止线
+        repeated Hmi_RoadSign   		road_sign = 5;                          // 车信数据，限制为最多20个车信
+        optional float          		current_lane_width = 6;                 // 当前车道宽度
+        repeated Hmi_HighLightLane		highlight_lane = 7;                     // 会有几个点亮的面片
+        repeated Hmi_SpeedBump  		speed_bump = 8;                         // 减速带数据
+        repeated Hmi_HighLightLine		highlight_line = 9;                     // 高亮的车道线
+    }
+
+    message Hmi_ParkingArea{
+        optional uint64 pa_id = 1;
+        // The surface of parking area.
+        repeated Hmi_Vector3f pa_polygon = 2;
+        enum MarkingType {
+            PARKING_AREA_PARA = 40001;      // 平行停车位
+            PARKING_AREA_VERTICAL = 40002;  // 垂直停车位
+            PARKING_LEAN = 40003;           // 斜向停车位
+            POWER_SWAP_STATION = 41000;     // 换电站 // BL140
+        };
+        optional MarkingType marking_type = 3;
+
+        enum ParkingType {
+            SOCIAL_VEHICLE_PARKING_AREA = 1;  // 社会车辆停车位
+            BATTERY_SWAP_PARKING_AREA = 2;    // 换电车位（换电定位框）
+            NIO_DEDICATED_PARKING_AREA = 3;   // 蔚来专用停车位
+            CART_PARKING_AREA = 4;            // 大车停车位
+            POWER_SWAP_STATION_PARKING_AREA = 5;  // 换电站 //BL140
+        };
+        optional ParkingType parking_type = 4;
+
+        // 航向角
+        optional double heading = 5;
+        // 换电车位固定编号
+        optional string device_id = 9;
+
+        // 换电定位框位置关系
+        // 1: 左侧
+        // 2: 右侧
+        optional uint32 station_position = 11;
+
+    }
+
+    message Hmi_RoadSpacePolygons{
+        repeated Hmi_Vector3f points =1;            // polygons
+        optional RoadSpaceSemanticClass type = 2;   //类型
+
+        enum RoadSpaceSemanticClass{
+        SEMANTIC_UNKNOWN                = 0;  // unknown
+        SEMANTIC_GUIDE                  = 1;  // guide
+        SEMANTIC_SAFE_AREA              = 2;  // safe area
+        SEMANTIC_UNSAFE_AREA            = 3;  // unsafe area
+        }
+    
+    }
+
+    message Hmi_RoadSpace {
+        repeated Hmi_RoadSpacePolygons Safe_Area = 1; 
+        repeated Hmi_RoadSpacePolygons Unsafe_Area = 2;   
+    }
+
+    //泊车场景下车辆和车位显示绑定关系
+    message Hmi_ObjectSlotPair {
+        optional uint32 od_id = 1;    // 绑定关系里的车辆Object ID
+        optional uint32 slot_id = 2;  // 绑定关系里的车位ID
+    }
+
+
+    // VOCC Freespace Boundary数据结构
+    message Hmi_FSBoundary {
+        repeated uint64 points = 1;      // 00-09 bit, row_idx
+                                         // 10-19 bit, col_id
+                                         // 20-27 bit, hmax_idx
+                                         // 28-35 bit, hmin_idx
+                                         // 36-43 bit, FSPointType
+                                         // 44-51 bit, Confidence
+                                         // 52-52 bit, 1-imaginative object, 0-real object
+        optional Hmi_FSBoundaryType boundary_type = 2;
+        optional Hmi_FSPointType boundary_class_type = 3;  // voted boundary class type
+        optional int32 boundary_min_z = 4;                 // Boundary maps点链中的最小高度，default: -40cm, unit: cm, e.g. 5cm
+    }
+
+    // VOCC Freespace数据结构
+    message Hmi_VOccFreeSpace {
+        optional float resolution = 1;                      // 占据栅格分辨率, 单位：m, 行车场景为0.2, 泊车场景元素为0.05
+        optional uint32 rows = 2;                           // 占据栅格总行数, 行车场景为512, 泊车场景为480
+        optional uint32 cols = 3;                           // 占据栅格总列数, 行车场景为256, 泊车场景为448
+        optional uint32 heights = 4;                        // 占据栅格总高度, 行车场景为12, 泊车场景为48
+        optional float bottom_right_veh_x = 5;              // 自车坐标系下，最右下角栅格中心点的x坐标，单位m, 行车为-25.6+resolution/2，泊车为-10.4+resolution/2
+        optional float bottom_right_veh_y = 6;              // 自车坐标系下，最右下角栅格中心点的y坐标，单位m, 行车为-25.6+resolution/2，泊车为-11.2+resolution/2
+        optional float bottom_right_veh_z = 7;              // 自车坐标系下，最右下角栅格中心点的z坐标，单位m, -0.4
+        repeated Hmi_FSBoundary boundary_maps = 8;          // boundaries from vision occ freeSpace
+    }
+
+    message Hmi_VOCC {
+        optional Hmi_VOccFreeSpace Parking_VOCC = 1;        // 泊车VOCC数据
+        optional bool Parking_VOCC_Scenario = 2;            // 指示自车是否处于泊车VOCC显示场景，TRUE-显示泊车OCC，FALSE-不显示泊车OCC
+
+        optional uint64 timestamp = 100;                    // VOCC数据timestamp, 单位: nanosec
+    }
+
+
+message Hmi_AdHmi{
+    reserved 999;                                                   //删除的字段
+    
+    optional Hmi_RoadDetection    Road_Detection = 1;               // 感知道路数据
+    optional Hmi_ObjectsDetection Objects_Detection = 2;            // 感知物体数据
+    repeated Hmi_ParkingArea      Parking_Area_Detection = 3;       // 换电站相关数据
+    repeated Hmi_ObjectSlotPair   Object_Slot_Pair = 4;             // 车辆与车位绑定关系
+    optional Hmi_RoadSpace        Road_Space = 5;                   // road space的输出内容 
+    optional Hmi_VOCC             VOCC_FreeSpace = 6;               // VOCC数据，同时包含行车和泊车
+
+
+    
+    optional string hmi_version = 1000 [default = "1.0.21"] ;       // proto version 
+    optional string hmi_update_date = 1001 [default = "20250228"] ; // proto updated date
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    optional SensorTSHeader sensor_original_ts = 536870906;    // sensor original ts
+    optional string publisher_id = 536870909;                  // uuid of the publisher
+    optional uint64 publish_ptp_ts = 536870907;                // publish ptp timestamp, uint in nanosec
+    optional uint64 counter = 536870910;                       // message counter
+    optional uint64 publish_ts = 536870911;                    // publish timestamp; unit : nanosecond
+}

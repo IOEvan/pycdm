@@ -1,0 +1,27 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+import "np/apps/parking/par_semantic_map.proto";
+import "np/apps/parking/par_gridmap.proto";
+import "np/apps/parking/par_trajectory.proto";
+import "np/apps/parking/par_planning.proto";
+import "np/apps/parking/par_location.proto";
+import "np/apps/parking/par_objmap.proto";
+import "np/apps/parking/par_collision_dst.proto";
+import "common/pnc/par_state_machine.proto";
+
+
+message ParkLowSpeedDebug {
+  optional ParSemanticMap par_semantic_map = 1;
+  optional ParGridMap par_grid_map = 2;
+  // not used
+  optional ParkingTrajectory parking_trajectory = 3 [deprecated = true];
+  optional ParFusedLocation par_fused_location = 4;
+  optional ParObjMap par_obj_map = 5;
+  optional ParCollisionDst par_collision_dst = 6;
+  optional ParkStateMachine par_state_machine = 7;
+  optional ParkingTrajectory par_planning = 8;
+}

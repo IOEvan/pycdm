@@ -1,0 +1,39 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+import "common/perf/sensor_ts_header.proto";
+
+message AABaseAlgorithmsStatus{
+    enum AABaseAlgorithmsModeType {	// indicates current state or target state
+            READYFOROFF 	= 0;	// ok to kill app
+            MANUAL	        = 1;	// AABaseAlgorithms for forward looking NCAP Functions // no side cams
+            ADAS		    = 2;	// AABaseAlgorithms for Drive Assist // all cams
+            NAD		    = 3;	    // all redundancies for NAD // reserved for later
+    }    
+
+    //main AABaseAlgorithms modes:
+    optional AABaseAlgorithmsModeType AABaseAlgorithms_mode = 1;
+
+    optional bool manual_mode_avl	= 2;
+    optional bool adas_mode_avl		= 3;
+    optional bool nad_mode_avl		= 4; // reserved for later
+    optional AABaseAlgorithmsModeChangeResult last_AABaseAlgorithms_mode_change_result = 5; 
+     
+    // referring to last requested change
+    // can be used for feedback to driver, e.g. NAD activation not possible when switch to NAD mode failed
+    enum AABaseAlgorithmsModeChangeResult {
+        SUCCESSFUL	    = 0; 
+        INPROCESS	    = 1;
+        FAILEDREASON1	= 2;
+        FAILEDREASON2	= 3;
+    } 
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts   = 536870907;   //publish ptp timestamp, uint in nanosec
+    optional string publisher_id     = 536870909;   // uuid of the publisher 
+    optional uint64 counter	         = 536870910;	// message counter
+    optional uint64 publish_ts	     = 536870911;	// publish timestamp; unit : nanosecond
+}

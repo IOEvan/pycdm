@@ -1,0 +1,39 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message SideFeatObjs {
+    optional sint32 long_pos_obj_1 = 1;         // Objects are referenced by ego front bumper middle point (ego origin);
+    optional sint32 lat_pos_obj_1 = 2;          // Left is negative, right is positive. No height information;
+    optional sint32 long_vel_obj_1 = 3;
+    optional sint32 lat_vel_obj_1 = 4;
+    optional sint32 long_pos_obj_2 = 5;
+    optional sint32 lat_pos_obj_2 = 6;
+    optional sint32 long_vel_obj_2 = 7;
+    optional sint32 lat_vel_obj_2 = 8;
+}
+
+message RctbObjInfo {
+    optional float vcs_long_pos = 1;
+    optional float vcs_lat_pos = 2;
+    optional float vcs_long_rel_vel = 3;
+    optional float vcs_lat_rel_vel = 4;
+    optional float cta_ttc_long = 5;
+    optional float cta_ttc_lat = 6;
+    optional uint32 obj_id = 7;                // RCTB target tracker ID;
+}
+
+message SideFeatObj {
+    repeated SideFeatObjs hmi_objs = 1;        // 10 messages involved; BSDLCAleft, BSDLCAright, DOWleft, DOWright
+                                               //  RCTAleft, RCTAright, RCTBleft, RCTBright, FCTAleft, FCTAright
+    optional RctbObjInfo rctb_obj = 2;         // one rctb target is sent when brake request is sent;
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin 
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907; // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909;   // uuid of the publisher
+    optional uint64 counter = 536870910;        // message counter
+    optional uint64 publish_ts = 536870911;     // publish utc timestamp; unit : nanosecond
+}

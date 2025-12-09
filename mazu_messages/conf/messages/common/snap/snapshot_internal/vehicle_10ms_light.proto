@@ -1,0 +1,92 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/vehicle_in/veh_dyn.proto";
+import "common/vehicle_in/veh_ctrl_if.proto";
+import "common/vehicle_in/brk_sys.proto";
+import "common/vehicle_in/veh_pt.proto";
+import "common/vehicle_in/veh_whl.proto";
+import "common/vehicle_in/str_sys.proto";
+import "common/vehicle_in/veh_enum_type.proto";
+
+message StrSysInfo_light {
+	required StrAgFailStsType_e StrAgFailSts = 1 ;
+	required StrAgCalStsType_e StrAgCalSts   = 2 ;
+	required float  StrWhlAgSAE 			 = 3 ;
+	required float  StrWhlAgSpdSAE			 = 4 ;
+	required QfZeroAsVld_e PnnAgVld			 = 5 ;
+	required float  PnnAgSAE				 = 6 ;
+	required QfZeroAsVld_e TorsBarTqVld		 = 13;
+	required float  TorsBarTqSAE			 = 14;
+	required EPSStsType_e EPSSts			 = 15;
+	required EpsDrvModType_e DrvngMod		 = 16;
+	optional StrSysInfo.HOSts_e  HOSts  = 33;
+	optional StrSysInfo.OverRideDetn_e OverRideDetn			 = 34;
+
+	optional float  EpsTargetAngSAE   = 62;
+	optional uint32 EpsTargetAngSts   = 63;
+	optional uint32	StfAssiMod        = 64;
+	optional uint32 EpsAssiMod        = 65;
+	optional float  VehSpdStr         = 66;
+	optional uint32	VehSpdStrSts      = 67;
+}
+message BrkPdlInfo_light{
+	required BrkPdlCalStsType_e TrvlCalSts = 1;
+	required float              Trvl = 2;    
+	required BrkPdlStsType_e    BrkPedlSts = 3; 
+}
+message BrkSysInfo_light {
+	required BrkPdlInfo_light BrkPdl = 1;
+	required BrkSysInfo.BrkFunInfo BrkFunSt = 12;
+}
+message AccrPedalInfo_light{
+	required QfZeroAsVld_e 	EfcPosnVld = 1;
+	required float 	EfcPosn			   = 2;
+	required QfZeroAsVld_e 	ActPosnVld = 3;										
+	required float 	ActPosn			   = 4;	
+	required bool 	PedlOvrd		   = 5;
+}
+message GearInfo_light{
+	required QfZeroAsVld_e SlctrPosnVld = 1;	
+	required QfZeroAsVld_e ActGearVld 	= 3;				
+	required QfZeroAsVld_e TrgtGearVld	= 5;
+	optional PtInfo.GearInfo.ActGear_e ActGear				= 8;	
+}
+message PtInfo_light {
+	required AccrPedalInfo_light AccrPedal = 1;
+	required GearInfo_light Gear = 2;
+	required PtInfo.VcuCruiseStType_e CruiseStatus = 8;
+	required PtInfo.VcuEpbReqType_e VCUEPBReq = 9;
+}
+message WhlInfos_light{
+	repeated WhlInfos.WhlDynInfo WhlDyn = 1;
+}
+message VehSpdInfos_light{		
+	required QfZeroAsVld_e VehSpdSts = 1;	
+	required VehDynInfo.VehSpdInfos.VehMovDirType_e VehMovgDir = 2;											
+	required float  VehSpdkph = 3;  
+	required float  VehSpdmps = 4;
+	required float  VehFiltLngAcc = 5;
+	required QfZeroAsVld_e VehSpdASILDSts = 6;
+	required float  VehSpdASILD = 7;
+	required float  VehDispSpd = 8;	
+}
+message VehDynInfo_light {
+	required VehSpdInfos_light VehSpd = 1;
+	required float  LgtSAEAg = 4;
+	required float  LatSAEAg = 7;
+	required float  YawRateSAERps = 10;
+	required float  YawRateSAEDps = 11;	
+	required float  VehOdom = 12;
+}
+message VEH10ms_light {
+	required StrSysInfo_light StrSys = 1;
+	required BrkSysInfo_light	BrkSys = 2;
+	required PtInfo_light PT = 3;
+	required WhlInfos_light Whl = 4;
+	required VehDynInfo_light VehDyn = 5;
+	required VehCtrlIfInfo VehCtrlIf = 6;
+	optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+	optional uint64 publish_ptp_ts   = 536870907; 
+}

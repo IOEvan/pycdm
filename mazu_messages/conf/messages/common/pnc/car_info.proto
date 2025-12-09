@@ -1,0 +1,402 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+import "common/pnc/car_state.proto";
+import "common/pnc/hmi_state.proto";
+import "common/perf/sensor_ts_header.proto";
+import "common/vehicle_in/brk_sys.proto";
+import "common/vehicle_in/pwrswapstn_can.proto";
+import "common/vehicle_in/str_sys.proto";
+import "common/vehicle_in/veh_pt.proto";
+import "common/vehicle_in/veh_ctrl_if.proto";
+import "common/vehicle_in/veh_whl.proto";
+import "common/vehicle_in/veh_dyn.proto";
+import "common/vehicle_in/veh_body.proto";
+import "common/vehicle_in/veh_drv.proto";
+import "common/vehicle_in/veh_upa.proto";
+
+message CarInfo {
+  // in ns
+  optional uint64 time_meas = 1;
+
+  // 50hz
+  optional SteerReport steer_report = 2;
+
+  // 20hz
+  optional ShiftReport shift_report = 3;
+
+  // 50hz
+  optional ThrottleReport throttle_report = 4;
+  // 100hz
+  optional ThrottleInfo throttle_info = 5;
+
+  // 50hz
+  optional BrakeReport brake_report = 6;
+  optional BrakeInfo brake_info = 7;
+
+  // 20hz
+  optional Misc misc = 8;
+
+  // 10hz, -0.00108696 to 1
+  optional double fuel_level = 9;
+
+  // 2hz
+  optional TirePressure tire_pressure = 10;
+
+  // Vehicle speed from CAN bus, in m/s, also exitst in car_state.
+  optional double speed = 11;
+
+  enum DriverOverrideSource {
+    NO_OVERRIDE = 0;
+    STEER = 1;
+    SHIFT = 2;
+    THROTTLE = 3;
+    BRAKE = 4;
+  }
+  optional DriverOverrideSource driver_override_source = 12;
+
+  optional bool override = 13;
+
+  enum DriverOverrideBrake {
+    NO_CHANGE_BRAKE = 0;
+    M_TO_AUTO_BRAKE = 1;
+    OVERRIDE_BRAKE = 2;
+    TO_M_BRAKE = 3;
+  }
+  optional DriverOverrideBrake driver_override_brake = 14;
+
+  enum DriverOverrideSteer {
+    NO_CHANGE_STEER = 0;
+    M_TO_AUTO_STEER = 1;
+    OVERRIDE_STEER = 2;
+    TO_M_STEER = 3;
+  }
+  optional DriverOverrideSteer driver_override_steer = 15;
+
+  enum VehicleMode {
+    VEHICLE_MANUAL = 0;
+    VEHICLE_AUTO = 1;
+    // To get back to AUTO from override, must set to MANUAL first,
+    // then AUTO
+    VEHICLE_OVERRIDE = 2;
+    VEHICLE_INVALID = 3;
+  }
+  optional VehicleMode vehicle_mode = 16;
+
+  optional VehichleModeRequest vehichle_mode_request = 17;
+
+  optional LateralInformSts lat_info_sts = 18;
+
+  optional bool lateral_ctrl_status = 19;
+
+  optional bool longitudinal_ctrl_status = 20;
+
+  optional ButtonReport button_report = 21;
+
+  optional DAInhibitReq da_inhibit_req = 22;
+
+  optional FunctionRequest function_req = 23;
+
+  optional ALCConfirmReq acl_confirm_req = 24;
+
+  optional VLCModeReq vlc_mode_req = 25;
+
+  optional bool takeover_req = 26;
+
+  optional SpeedSourceTypeReq speed_source_type_req = 27;
+
+  optional LaneChangeSuppression lane_change_suprs = 28;
+  enum LLCFunctionRequst {
+    LLC_INITION = 0;    // Init
+    LLC_STANDBY = 1;    // Standby
+    LLC_ACTIVE = 2;     // Active
+    LLC_INTERRUPT = 3;  // Interruption
+    LLC_ERROR = 4;      // Error
+    LLC_OTHERS = 5;     // Reserved
+  }
+  optional LLCFunctionRequst llc_function_req = 29;
+
+  // veh10ms
+  optional StrSysInfo np_steering_info = 30;
+  optional BrkSysInfo np_brake_info = 31;
+  optional PtInfo np_powertrain_info = 32;
+  optional WhlInfos np_wheel_info = 33;
+  optional VehDynInfo np_vehicle_dyn_info = 34;
+  optional VehCtrlIfInfo np_Vehicle_ctrl_info = 35;
+
+  // veh50ms
+  optional VehBodyInfo np_vehicle_body_info = 36;
+  optional UPAInfo np_upa_info = 37;
+  optional DrvInfo np_drv_info = 38;
+  optional PsapStationCan np_psap_can_info = 40;
+
+  // TurnIndctrPos
+  optional uint32 turn_indctr_pos = 39;
+
+  optional uint64 veh10ms_time_pub = 100;
+  optional uint64 veh50ms_time_pub = 101;
+
+  optional uint64 timestamp = 1000; // ptp time, nanosec, for cosine bundle timestamp
+  optional SensorTSHeader sensor_original_ts = 1001;  // sensor original ts, last field of msg
+  optional uint64 publish_ptp_ts =536870907;  // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909;  // uuid of the publisher
+  optional uint64 counter = 536870910;       // message counter
+  optional uint64 publish_ts = 536870911;  // publish utc timestamp; unit : nanosecond
+}
+
+message LateralInformSts {
+  optional bool eps_states = 1;  // 0:not failed 1:failed
+  optional int32 eps_mod_sts = 2;
+  optional bool angle_ctrl_abort_fb = 3;
+  optional bool angle_ctrl_req_fb = 4;
+  optional bool angle_ctrl_sts = 5;
+  optional int32 torque_ctrl_sts = 6;
+}
+
+message VehichleModeRequest {
+  optional bool vehicle_auto_request =
+      1;  // true: requet for entering auto driving mode, false: no request
+  optional bool vehicle_manual_request =
+      2;  // true: requet for entering manual driving mode, false: no request
+}
+
+message SteerReport {
+  // Steering wheel angle in rad, -8.20305(left) to 8.20305(right)
+  optional double actual_angle = 1;
+  // Steering wheel angle in rad, -8.20305(left) to 8.20305(right)
+  optional double requested_angle = 2;  // in rad
+
+  //(moved to car_state.proto) optional double vehicle_speed = 3;  // in m/s, 0
+  // to 182.041667
+  optional double torque = 3;  // Nm, -8.0000 fto 7.9375
+  optional bool steer_cmd_enabled = 4;
+  optional bool steer_override = 5;
+  optional bool driver_activity = 6;
+  optional double wheel_speed = 7;
+  optional bool steer_overlay = 8;
+  optional double override_counter = 9;
+}
+
+message ShiftReport {
+  optional CarState.GearStatus actual_gear = 1;
+  optional CarState.GearStatus requested_gear = 2;
+}
+
+message ThrottleReport {
+  optional double requested_pedal_physical = 1;  // 0 to 1
+  optional double requested_pedal_cmd = 2;       // 0 to 1
+  // max of above
+  optional double actual_pedal = 3;  // 0 to 1
+
+  optional bool pedal_cmd_enabled = 4;
+
+  optional bool driver_activity = 5;
+
+  optional bool throttle_override = 6;
+
+  optional bool actual_bool = 7;
+}
+
+message ThrottleInfo {
+  optional double engine_rpm = 1;  // unit rpm, 0 to 16383.75
+  // 0 to 0.999
+  optional double accel_pedal_percent = 2;
+  // 1/s, -51.2 to 50.8
+  optional double accel_pedal_rate = 3;
+}
+
+message BrakeReport {
+  optional double requested_pedal_physical = 1;  // 0 to 1
+  optional double requested_pedal_cmd = 2;       // 0 to 1
+  // max of above two
+  optional double actual_pedal = 3;  // 0 to 1
+
+  // Brake light status
+  optional bool bool_physical_request = 4;
+  optional bool bool_cmd_request = 5;
+  // max of above
+  optional bool actual_bool = 6;
+
+  // watchdog is applying brakes
+  optional bool dog_brake = 7;
+
+  optional bool pedal_cmd_enabled = 8;
+
+  optional bool driver_activity = 9;
+
+  optional bool brake_override = 10;
+}
+
+message BrakeInfo {
+  // unit Nm, 0 to 16380
+  optional int32 requested_brake_torque = 1;
+  enum HillAssist {
+    INACTIVE = 0;
+    FINDING_GRADIENT = 1;
+    ACTIVE_PRESSED = 2;
+    ACTIVE_RELEASED = 3;
+    FAST_RELEASE = 4;
+    SLOW_RELEASE = 5;
+    FAILED = 6;
+    UNDEFINED_HILL_STATUS = 7;
+  }
+  optional HillAssist hill_status = 2;
+
+  // vehicle stationary: move(0), stationary(1)
+  optional bool car_stationary = 3;
+
+  optional int32 actual_brake_torque = 4;  // unit Nm, 0 to 16380
+
+  enum HillMode {
+    HILL_MODE_OFF = 0;
+    AUTO = 1;
+    MANUAL = 2;
+    UNDEFINED_HILL_MODE = 3;
+  }
+  optional HillMode hill_mode = 5;
+
+  enum ParkingBrakeStatus {
+    PARKING_BRAKE_STATUS_OFF = 0;
+    TRANSITION = 1;
+    PARKING_BRAKE_STATUS_ON = 2;
+    FAULT = 3;
+  }
+  optional ParkingBrakeStatus parking_brake_status = 6;
+
+  optional int32 actual_wheel_torque = 7;  // unit Nm, -32768 to 32764
+
+  // unit m/s^2, -17.92 to 17.885
+  optional double acceleration_over_ground = 8;
+
+  optional bool abs_active = 9;
+  optional bool abs_enabled = 10;
+
+  optional bool stab_ctrl_active = 11;
+  optional bool stab_ctrl_enabled = 12;
+
+  optional bool traction_ctrl_active = 13;
+  optional bool traction_ctrl_enabled = 14;
+}
+
+message Misc {
+  enum Beam {
+    HIGH_BEAM_NULL = 0;
+    FLASH_TO_PASS = 1;
+    HIGH = 2;
+    LOW = 3;
+  }
+  optional Beam beam = 1;
+
+  enum Wiper {
+    WIPER_OFF = 0;
+    AUTO_OFF = 1;
+    OFF_MOVING = 2;
+    MANUAL_OFF = 3;
+    MANUAL_ON = 4;
+    MANUAL_LOW = 5;
+    MANUAL_HIGH = 6;
+    MIST_FLIT = 7;
+    WASH = 8;
+    AUTO_LOW = 9;
+    AUTO_HIGH = 10;
+    COURTESY_WIPE = 11;
+    AUTO_ADJUST = 12;
+    RESERVED = 13;
+    STALLED = 14;
+    WIPER_NO_DATA = 15;
+  }
+  optional Wiper wiper = 2;
+
+  // ambient light
+  enum AmbientSignal {
+    DARK = 0;
+    LIGHT = 1;
+    TWILIGHT = 2;
+    TUNNEL_ON = 3;
+    TUNNEL_OFF = 4;
+    AMBIENT_SIGNAL_NO_DATA = 5;
+  }
+  optional AmbientSignal ambient_signal = 3;
+
+  // acc(accessories) control:
+  // acc on button, pressed or not
+  optional bool acc_on = 4;
+  // acc off button
+  optional bool acc_off = 5;
+  // acc resume button
+  optional bool acc_resume = 6;
+  // acc cancel button
+  optional bool acc_cancel = 7;
+  // acc on/off button
+  optional bool acc_on_off = 8;
+  // acc resume/cancel button
+  optional bool acc_resume_cancel = 9;
+  // acc increment set speed
+  optional bool acc_incre_speed = 10;
+  // acc decrement set speed
+  optional bool acc_decre_speed = 11;
+  // acc increment following gap
+  optional bool acc_incre_gap = 12;
+  // acc decrement following gap
+  optional bool acc_decre_gap = 13;
+
+  // lane keeping assisst on/off button
+  optional bool lane_keep = 14;
+
+  // doors
+  // driver door open(1) or not(0)
+  optional bool driver_door = 15;
+  // passenger door open(1) or not(0)
+  optional bool passen_door = 16;
+  // left rear door
+  optional bool rear_l_door = 17;
+  // right rear door
+  optional bool rear_r_door = 18;
+
+  // hood open(1) or not(0)
+  optional bool hood = 19;
+  // trunk open(1) or not(0)
+  optional bool trunk = 20;
+
+  // passenger detection
+  optional bool passen_detect = 21;
+  // passenger airbag, abled (1)
+  optional bool passen_airbag = 22;
+  // driver seat belt, buckled(1)
+  optional bool driver_belt = 23;
+  // passenger seat belt, buckled(1)
+  optional bool passen_belt = 24;
+
+  optional bool horn = 25;
+}
+
+message TirePressure {
+  // kPa, 0 to 65535
+  optional double front_left = 1;
+  optional double front_right = 2;
+  optional double rear_left = 3;
+  optional double rear_right = 4;
+}
+
+message ButtonReport {
+  optional bool le_center_button_status = 1 [default = false];
+
+  optional bool le_up_button_status = 2 [default = false];
+  optional bool le_up_button_trigger = 3 [default = false];
+
+  optional bool le_down_button_status = 4 [default = false];
+  optional bool le_down_button_trigger = 5 [default = false];
+
+  optional bool le_left_button_status = 6 [default = false];
+  optional bool le_left_button_trigger = 7 [default = false];
+
+  optional bool le_right_button_status = 8 [default = false];
+  optional bool le_right_button_trigger = 9 [default = false];
+
+  optional double reference_speed = 10 [default = 0.0];
+  optional double reference_time_distance = 11 [default = 0.0];
+  optional double raw_reference_speed = 12 [default = 0.0];
+}

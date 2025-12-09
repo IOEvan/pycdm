@@ -1,0 +1,71 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+import "common/pnc/geometry.proto";
+
+message CameraConfig {
+  optional bytes name = 1;  // for nio camera ["front30","front120"]
+  optional bytes serial_number = 2;
+  optional int32 image_width = 3 [default = 3848];
+  optional int32 image_height = 4 [default = 2168];
+  optional float frame_rate =
+      5;  // frame_rate <= 0 means triggered by hardware.
+
+  // camera extrinsic params
+  optional Transformation3f sensing_to_camera = 6;
+  optional Transformation3f vehicle_to_camera = 7;
+
+  // based on https://en.wikipedia.org/wiki/Camera_resectioning
+  // focal length
+  optional float fx = 8;
+  optional float fy = 9;
+
+  // principal point
+  optional float ox = 10;
+  optional float oy = 11;
+
+  // based on https://en.wikipedia.org/wiki/Distortion_(optics)
+  repeated float radial_distortion = 12;  // [k_1, k_2, ...]
+
+  optional int32 exposure_time_min = 13 [default = 50];     // in us
+  optional int32 exposure_time_max = 14 [default = 20000];  // in us
+
+  optional bool reverse_x = 15 [default = false];
+  optional bool reverse_y = 16 [default = false];
+
+  optional int32 image_height_offset = 17 [default = 0];
+
+  optional bytes image_encoding = 18 [default = "bayer_rggb8"];
+
+  optional string parameter_str = 19;  // nio camera parameter string
+  optional string protocol = 20;       // nio camera transmit protocol
+}
+
+message CameraArray {
+  repeated CameraConfig cameras = 1;
+  optional Transformation3f vehicle_to_sensing = 2;
+  optional bytes image_directory =
+      3;  // If given, driver will write jpg files therein.
+}
+
+message CameraToolConfig {
+  required string name = 1;
+  optional bool need_encode = 2 [default = false];
+  optional bool file_writer = 3 [default = false];
+  optional string file_directory = 4;
+  optional bool rtsp_writer = 5 [default = false];
+  optional int32 encoded_width = 6;
+  optional int32 encoded_height = 7;
+  optional int32 frame_rate = 8 [default = 30];
+  optional string encoded_parameter = 9;
+  optional string rtsp_ip = 10 [default = "10.42.0.21"];
+  optional int32 rtsp_port = 11 [default = 8554];
+  optional int32 debug_level = 12;
+}
+
+message CameraToolConfigs {
+  repeated CameraToolConfig camera_tool_config = 1;
+}

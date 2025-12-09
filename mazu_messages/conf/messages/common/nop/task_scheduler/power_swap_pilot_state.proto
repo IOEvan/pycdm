@@ -1,0 +1,53 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message PowerSwapPilotState {
+  enum TaskState {
+    FINISH = 0;
+    NAV_TO_QUEUE_AREA = 1;
+    NAV_TO_PSAP_LOC_BOX = 2;
+    IN_QUEUE_AREA = 3;
+    IN_PSAP_LOC_BOX = 4;
+    ON_POWER_SWAP_PARKING = 5;
+    ON_POWER_SWAPING = 6;
+    NAV_TO_HIGHWAY = 7;
+    PREPARE = 8;
+  }
+  enum OrderState {
+    NONE_ORDER = 0;
+    ON_BOOK = 1;
+    ON_ORDER = 2;
+  }
+  enum Result {
+    NONE_RESULT = 0;
+    SUCCESS = 1;
+    FAIL_FOR_ROUTING_FAIL = 2;
+    FAIL_FOR_PLANNING_FAIL = 3;
+    FAIL_FOR_CANCEL = 4;
+    FAIL_FOR_NO_PC_MAP = 5; // no point cloud map of service area
+    FAIL_FOR_PSAP_FAIL = 6;
+    FAIL_FOR_ROUTING_TIMEOUT = 7;
+    FAIL_FOR_PC_MAP_RESPONSE_TIMEOUT = 8;
+    FAIL_FOR_CANCEL_BOOK = 9; // 取消预下单
+    FAIL_FOR_ORDER_FAIL = 10; // 下单失败
+    FAIL_FOR_ROUTE_PROGRESS_EVENT_TIMEOUT = 11;
+  }
+
+  optional uint64 timestamp = 1;   // in ns
+  optional TaskState task_state = 2;
+  optional OrderState order_state = 3;
+  optional Result task_result = 4;
+  optional string power_swap_station_uid = 5;
+  optional uint32 power_swap_station_type = 6; //0-未知类型，1-一代站，2-二代站
+  optional double distance_to_queue_area_start_point = 7; // 自车后轴跟虚拟排队区沿routing方向的距离，单位m。如果进入了虚拟排队，该值会持续保持0.0，大于等于2000.0为无效值
+  optional string power_swap_station_uid_request = 8; // 换电站id所对应的服务区查询请求
+
+  optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+  optional uint64 publish_ptp_ts = 536870907; // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909;  // uuid of the publisher
+  optional uint64 counter = 536870910;       // message counter
+  optional uint64 publish_ts = 536870911;    // publish utc timestamp; unit : nanosecond
+}

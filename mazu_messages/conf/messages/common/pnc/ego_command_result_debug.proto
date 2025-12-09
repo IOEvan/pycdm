@@ -1,0 +1,69 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+// string长度不允许超过50字节，长了截断
+// repeated允许使用，最长为10，长了截断。不允许嵌套repeated。
+// 通过infra审核，构建时自动化检查，publish前自动截断来保证以上规则实施
+
+enum LonConstrainType {
+  LonConstrain_NO_TYPE = 0; LonConstrain_KEEP = 1; LonConstrain_MERGE = 2; LonConstrain_CROSS = 3;
+  LonConstrain_ALIGN = 4;
+  LonConstrain_LANECHANGING = 5;
+}
+enum SlotType {
+  SlotType_NO_TYPE = 0; SlotType_LANE_CHANGE = 1; SlotType_MERGE = 2; SlotType_CROSS = 3;
+  SlotType_ALIGN = 4;
+}
+
+message StatePoint {
+  optional float time_stamp = 1;  // unit is second
+  optional float position_x = 2;
+  optional float position_y = 3;
+  optional float angle = 4;
+  optional float velocity = 5;
+  optional float acceleration = 6;
+  optional float s_distance = 7;
+}
+
+message LonConstrainInfo {
+  optional int32 obs_id = 1;
+  optional LonConstrainType lon_type = 2;
+  optional float constrain_s = 3;
+  optional float constrain_v = 4;
+  optional float constrain_a = 5;
+  optional float constrain_t = 6;
+}
+
+message EgoCommandSlotInfo {
+  repeated int32 front_obstacle_ids = 1;
+  repeated int32 back_obstacle_ids = 2;
+  repeated LonConstrainInfo slot_constrains = 3;
+}
+
+message EgoCommandScenario {
+  optional double user_set_speed = 1;
+  optional int32 ego_lat_interactive_scene_array_size = 2;
+}
+
+message EgoCommandDev {
+  optional bool is_lc_scene = 1;
+  repeated EgoCommandSlotInfo candidate_slots = 2;
+}
+
+message EgoCommandOut {
+  repeated StatePoint ego_out_heuristic_traj = 1;
+  repeated StatePoint ego_out_max_dec_traj = 2;
+  repeated LonConstrainInfo ego_out_lon_constrains = 3;
+  optional EgoCommandSlotInfo ego_out_slot_info = 4;
+}
+
+message EgoCommandFault { optional uint64 falut_return_bf = 1; }
+
+// main message
+message EgoCommandResult {
+  optional EgoCommandScenario ego_command_scenario_debug = 1;
+  optional EgoCommandDev ego_command_dev_debug = 2;
+  optional EgoCommandOut ego_command_out_debug = 50;
+  optional EgoCommandFault ego_command_fault_debug = 100;
+}

@@ -1,0 +1,171 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+message ParPoint {
+    optional float x = 1;
+    optional float y = 2;
+    optional float z = 3;
+}
+
+message ParQuaternion {
+    optional float x = 1;
+    optional float y = 2;
+    optional float z = 3;
+    optional float w = 4;
+}
+
+message ParEulerAngle {
+    optional float roll = 1;  // Rotation angle around the x-axis. [radian]
+    optional float pitch = 2; // Rotation angle around the y-axis. [radian]
+    optional float yaw = 3;   // Rotation angle around the z-axis. [radian] [counterclockwise positive]
+}
+
+message ParPose {
+    optional ParPoint position = 1;
+    optional ParQuaternion orientation = 2;
+}
+
+enum NodeStatus {
+    Node_Off = 0;
+    Node_Standby = 1;
+    Node_Running = 2;
+    Node_Fault = 3;
+    Node_Finished = 4;
+}
+
+enum FeatureType {
+    PARKINGFEATURE_UNKNOWN = 0;
+
+    PARKINGFEATURE_SAPA_IN = 1;
+    PARKINGFEATURE_SAPA_OUT = 2;
+
+    PARKINGFEATURE_SAPA_REMOTE_IN = 3;
+    PARKINGFEATURE_SAPA_REMOTE_OUT = 4;
+
+    PARKINGFEATURE_PSAP_IN = 5;
+    PARKINGFEATURE_PSAP_OUT = 6;
+
+    PARKINGFEATURE_AVP = 7;
+    PARKINGFEATURE_HZP = 8;
+    PARKINGFEATURE_PSSA = 9;
+    
+    PARKINGFEATURE_NBS = 10;
+
+    PARKINGFEATURE_RPSAP_IN = 11;
+    PARKINGFEATURE_RPSAP_OUT = 12;
+
+    PARKINGFEATURE_REVERSE_ASSIST = 13;
+
+    PARKINGFEATURE_P2P_LOWSPEED = 14;
+    PARKINGFEATURE_VLN_LOWSPEED = 15;
+
+// p2p feature type
+    P2PFEATURE_UNKNOWN = 100;
+    P2PFEATURE_SAPA_IN = 101;
+    P2PFEATURE_SAPA_OUT = 102;
+    P2PFEATURE_SAPA_REMOTE_IN = 103;
+    P2PFEATURE_SAPA_REMOTE_OUT = 104;
+    P2PFEATURE_URBAN_STARTUP = 105;
+    P2PFEATURE_URBAN_UTURN = 106;
+    P2PFEATURE_BLOCK_FREE = 107;
+    P2PFEATURE_PSP_TOQUEUEAREA = 108;
+    P2PFEATURE_PSP_TOPOWERAREA= 109; 
+    P2PFEATURE_PSP_TOPOWERLOC = 110;
+    P2PFEATURE_PSP_OUTPOWERCABINET = 111;
+    P2PFEATURE_PSP_BLOCK = 112;
+}
+
+message NodeInfo {
+    optional NodeStatus node_status = 1;
+    optional FeatureType feature_type = 2;
+    optional string fault_reason = 3;
+    optional uint64 counter = 4; // message counter,start:1
+    optional uint64 timestamp = 5; // timestamp; unit : nanosecond
+    optional string info = 6;
+    repeated uint32 buffer = 7;
+}
+message SlotProperty {
+    optional bool is_narrow = 1;
+    optional bool has_parklock = 2;
+    optional bool reserved1 = 3;
+    optional bool reserved2 = 4;
+    optional bool reserved3 = 5;
+    optional bool reserved4 = 6;
+}
+message SlotBase {
+    optional int32 hmi_index = 1;
+    optional int32 svc_index = 2;
+    optional int32 uss_index = 3;
+    optional ParPoint pt1 = 4;
+    optional ParPoint pt2 = 5;
+    optional ParPoint pt3 = 6;
+    optional ParPoint pt4 = 7;
+    enum Type {
+        None = 0;
+        LeftParallelParkIn = 1;
+        RightParallelParkIn = 2;
+        LeftCrossParkIn = 3;
+        RightCrossParkIn = 4;
+        LeftCrossParkOut = 5;
+        RightCrossParkOut = 6;
+        LeftAngledParkIn = 7;
+        RightAngledParkIn = 8;
+        LeftOtherParkIn = 9;
+        RightOtherParkIn = 10;
+        LeftParallelParkOut = 11;
+        RightParallelParkOut = 12;
+        LeftAngleParkOut = 13;
+        RightAngleParkOut = 14;
+        Reserved5 = 15;
+
+        Left_PSAP_In = 30;
+        Right_PSAP_In = 31;
+
+        Left_PSAP_Out = 32;
+        Right_PSAP_Out = 33;
+    }
+    optional Type type = 8 [default = None];
+    enum Source {
+        UNCERTAIN = 0;
+        USS_SLOT = 1;
+        SVC_SLOT = 2;
+        FUSION_SLOT = 3;
+    }
+    optional Source source = 9 [default = UNCERTAIN];
+    optional float size_x = 10;
+    optional float size_y = 11;
+    optional ParPoint VehPos = 12; // Position of vehicle w.r.t detected slot
+    optional float VehPsi = 13; // Yaw angle of vehicle w.r.t detected slot
+
+    enum Status {
+        PSNone = 0;
+        PSUNSUITABLE = 1;
+        PSOK = 2;
+        PSOkPOSOK = 3;
+        PSOkPOSOKSELECT = 4; // : selectable
+        PSOkPOSOKSELECTED = 5;
+        RESERVED1 = 6;
+        RESERVED2 = 7;
+        RESERVED3 = 8;
+    }
+    optional Status status = 14;
+
+    enum FOV {
+        FOV_UNKNOWN = 0;
+        FOV_INACTIVE = 1; // not in active zone
+        FOV_ACTIVE = 2; // in active zone
+    }
+    optional FOV fov = 15;
+
+    enum PlanningResult {
+        PLANNING_UNKNOWN = 0;
+        PLANNING_IN_PROGRESS = 1;
+        PLANNING_NOT_OK = 2;
+        PLANNING_OK = 3;
+    }
+    optional PlanningResult planning_result = 16;
+    optional float slot_angle = 17;
+    optional SlotProperty property = 18;
+}

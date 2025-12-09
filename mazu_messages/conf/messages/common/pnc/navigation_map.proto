@@ -1,0 +1,123 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/pnc/road_map.proto";
+import "common/map_engine/global_hd_routes.proto";
+import "common/map_engine/fence_odd_list.proto";
+import "common/map_engine/hd_link_info.proto";
+import "np/apps/road_model_adasmap.proto";    // For NavLaneNrInfo
+
+message NaviMap {
+  optional RoadMap map = 1;       // do not contain geometry info
+  optional double map_range = 2;  // m
+  optional uint64 current_link_id = 3;
+  optional uint64 current_lane_id = 4;
+
+  optional LongRangeRoadInfo long_range_info = 5;
+  optional GlobalRouting global_routing =
+      6;  // same as NOP+ hdmap global routing, maybe remove later
+
+  enum ReliableState {
+    RS_NONE = 0;  // default value, e.g. received nothing from the cdc
+    UNRELIABLE = 1;
+    UNRELIABLE_ROUTING = 2;  // indicate now is in cruise mode
+    UNRELIABLE_YAWING = 3;
+    UNRELIABLE_SWITCHING = 4;
+    UNRELIABLE_UNKNOWN = 5;
+    UNRELIABLE_MAX = 6;  // reserved field
+    RELIABLE = 7;        // indicate the navigation status is reliable
+  }
+  optional ReliableState reliable_state = 7;
+
+  enum NavigationState {
+    NS_NONE = 0;         // default value, e.g. received nothing from the cdc
+    ROUTE_CRUISING = 1;  // cruise mode
+    ROAMING = 2;         // when calculating route or no avalibale sd data
+    NAVIGATING = 3;      // navigation mode
+  }
+
+  optional NavigationState navigation_state = 8;
+
+  repeated FenceODD fence_odds = 9;
+
+  repeated uint64 navi_routing_link_ids =
+      10;  // link_ids for navigation path, only valid for localmap mode
+}
+
+message NaviInfo {
+  optional uint64 dist_to_first_turn = 1;
+  optional uint64 first_turn_info = 2;
+  optional uint64 dist_to_second_turn = 3;
+  optional uint64 second_turn_info = 4;
+  repeated NavLaneNrInfo multi_lane_info = 5;
+}
+
+message LongRangeRoadInfo {
+  // 限速信息，只有起点
+  message SpeedLimit {
+    enum SpeedUnit {
+      UNKNOWN = 0;
+      KPH = 1;
+      MPH = 2;
+    }
+    optional double distance = 1;                // m
+    optional double min_speed_limit = 2;         // legacy speed limit
+    optional double max_speed_limit = 3;         // legacy speed limit
+    optional double max_camera_speed_limit = 4;  // electronic eye speed limit
+    optional double max_advisory_speed_limit = 5;
+    optional SpeedUnit speed_unit = 6;
+    optional uint64 speed_id = 7;
+
+    optional uint32 speed_gp_type = 8;  // SDMap/HDMap/Camera
+    optional double recom_speed = 9;
+    optional uint32 recom_speed_src = 10;  // map/camera etc;
+    optional uint32 speed_conf = 11;       // camera confidence
+    optional int32 sup_sign_typ = 12;
+    optional int32 sup_sign_attr = 13;
+  }
+  repeated SpeedLimit speed_limits = 1;  // 可能有多个，由近及远排列
+  repeated NaviStub navi_stub = 2;       // 路口信息, 由近及远排列
+  repeated RoadClass road_class = 3;
+  optional NaviInfo navi_info = 4;  //导航给出的TBT以及lanenr信息
+  optional uint64 speed_limit_status = 5;  // 表示限速来源或融合状态
+}
+
+message RoadClass {
+  optional double distance = 1;
+  optional HdLinkInfo.PriorityRoadClass road_class = 2;
+}
+
+message NaviStub {
+  enum StubType {
+    UNKNOWN_TYPE = 0;
+    JUNCTION = 1;  // 城区复杂路口，十字、T字、多分叉
+    MERGE_IN = 2;
+    SPLIT_OUT = 3;
+  }
+  enum TurnDirection {
+    UNKNOWN_DIRECTION = 0;
+    STRAIGHT = 1;
+    LEFT = 2;
+    RIGHT = 3;
+    TURN_AROUND = 4;
+  }
+  enum StubSubType {
+    NORMAL = 0;
+    T_MERGE = 1;
+    T_SPLIT = 2;
+  }
+  optional uint64 id = 1;
+  optional StubType type = 2;
+  optional bool is_controlled_by_traffic_light = 3;
+  optional double distance_to_intersection_center = 4;
+
+  optional TurnDirection turn_direction = 5;
+
+  optional double distance_to_intersection_entry = 6;
+  optional bool is_controlled_access = 7;
+  optional StubSubType sub_type = 8;
+  optional bool is_covered_by_hdmap = 9;
+  optional bool is_able_to_ad = 10;
+  repeated uint64 event_type = 11;
+}

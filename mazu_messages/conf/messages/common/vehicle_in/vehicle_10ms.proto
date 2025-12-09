@@ -1,0 +1,30 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+import "common/vehicle_in/brk_sys.proto";
+import "common/vehicle_in/str_sys.proto";
+import "common/vehicle_in/veh_pt.proto";
+import "common/vehicle_in/veh_ctrl_if.proto";
+import "common/vehicle_in/veh_whl.proto";
+import "common/vehicle_in/veh_dyn.proto";
+
+
+message VEH10ms{
+	required StrSysInfo StrSys = 1;
+	required BrkSysInfo	BrkSys = 2;
+	required PtInfo PT = 3;
+	required WhlInfos Whl = 4;
+	required VehDynInfo VehDyn = 5;
+	required VehCtrlIfInfo VehCtrlIf = 6;
+
+	optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+	optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+	optional string publisher_id = 536870909; // uuid of the publisher
+	optional uint64 counter = 536870910;         // message counter
+	optional uint64 publish_ts = 536870911;    // publish utc timestamp; unit : nanosecond
+
+} 

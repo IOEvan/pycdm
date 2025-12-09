@@ -1,0 +1,248 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages.debug;
+// import "common/perf/sensor_ts_header.proto";
+
+import "np/apps/parking/par_base.proto";
+import "np/apps/parking/par_planning.proto";
+import "np/apps/parking/par_location.proto";
+
+message ReplanDbgOut {
+    optional ParPoint replan_start_pt = 1;
+    optional ParPoint replan_end_pt = 2;
+    optional float replan_start_pt_theta = 3;
+    optional float replan_end_pt_theta = 4;
+    optional string replan_reason = 5;
+    optional bool is_replan_fail = 6;
+    optional string failed_segment = 7;
+    optional string failed_point = 8;
+    enum ReplanFailReason {
+        ReplanFailReason_Unknown = 0;
+        ReplanFailReason_OutBound = 1;
+        ReplanFailReason_CollisionCheckFailed = 2;
+        ReplanFailReason_PointAXLarge = 3;
+        ReplanFailReason_PointBAngleWrong = 4;
+        ReplanFailReason_Cnt4Collide = 5;
+        ReplanFailReason_RadiusBCTooSmall = 6;
+        ReplanFailReason_RadiusBCTooLarge = 7;
+    }
+    optional ReplanFailReason fail_reason = 9;
+    enum ExceedWhichBound {
+        ExceedWhichBound_Unknown = 0;
+        ExceedWhichBound_Outside = 1;
+        ExceedWhichBound_InsideLeft = 2;
+        ExceedWhichBound_InsideRight = 3;
+    }
+    optional ExceedWhichBound exceeded_bound = 10;
+    enum CollisionPoint {
+        CollisionPoint_Unknown = 0;
+        CollisionPoint_FrontLeft = 1;
+        CollisionPoint_RearLeft = 2;
+        CollisionPoint_FrontRight = 3;
+        CollisionPoint_RearRight = 4;
+    }
+    optional CollisionPoint collide_pt = 11;
+}
+
+message TrajCropDbgOut {
+    optional ParPoint traj_start_pt = 1;
+    optional ParPoint traj_end_pt = 2;
+    optional float traj_start_pt_theta = 3;
+    optional float traj_end_pt_theta = 4;
+    optional string traj_segment = 5;
+    optional float cur_index = 6;
+    optional bool is_start_cropped = 7;
+    optional bool is_end_cropped = 8;
+    optional bool is_estop = 9;
+    enum CropReason {
+        CropReason_Unknown = 0;
+        CropReason_WalkOver = 1;
+        CropReason_InCollision = 2;
+        CropReason_LocationChange = 3;
+    }
+    optional CropReason crop_reason = 10;
+    optional ParLocation curr_location = 11;
+}
+
+message InputSignalDbgOut {
+    optional bool has_state_machine = 1;
+    optional bool has_veh10ms = 2;
+    optional bool has_veh50ms = 3;
+    optional bool has_location = 4;
+    optional bool has_collision_dst = 5;
+    optional bool has_obj_map = 6;
+    optional bool has_ads = 7;
+}
+
+message OutputSignalDbgOut {
+    optional bool exist_geo_traj = 1;
+    optional bool exist_cropped_traj = 2;
+    optional bool exist_tx_traj = 3;
+    optional ParkingTrajectory geo_traj = 4;
+    optional ParkingTrajectory cropped_traj = 5;
+    optional ParkingTrajectory tx_traj = 6;
+}
+
+message ParkingFinishDbgOut {
+    optional bool is_finish = 1;
+    optional ParPoint finished_pt = 2;
+    optional float finished_pt_theta = 3;
+    enum FinishError {
+        FinishError_Unknown = 0;
+        FinishError_ControlNotReached = 1;
+        FinishError_ControlWentTooFar = 2;
+        FinishError_OnLeftSide = 3;
+        FinishError_OnRightSide = 4;
+    }
+    optional FinishError finish_error = 4;
+}
+
+message ParkingStatusDbgOut {
+    optional ParPoint cur_pt = 1;
+    optional float cur_pt_theta = 2;
+    enum PlanningAppStatus {
+        PlanningAppStatus_Unknown = 0;
+        PlanningAppStatus_NoNewTraj = 1;
+        PlanningAppStatus_HasNewTraj = 2;
+        PlanningAppStatus_Finished = 3;
+        PlanningAppStatus_Reset = 4;
+    }
+    optional PlanningAppStatus status = 3;
+}
+
+message ReservedPlanningDbgOut {
+    optional double dbg_planning_reserved_1 = 1;
+    optional double dbg_planning_reserved_2 = 2;
+    optional double dbg_planning_reserved_3 = 3;
+    optional double dbg_planning_reserved_4 = 4;
+    optional double dbg_planning_reserved_5 = 5;
+    optional double dbg_planning_reserved_6 = 6;
+    optional double dbg_planning_reserved_7 = 7;
+    optional double dbg_planning_reserved_8 = 8;
+    optional double dbg_planning_reserved_9 = 9;
+    optional double dbg_planning_reserved_10 = 10;
+    optional double dbg_planning_reserved_11 = 11;
+    optional double dbg_planning_reserved_12 = 12;
+    optional double dbg_planning_reserved_13 = 13;
+    optional double dbg_planning_reserved_14 = 14;
+    optional double dbg_planning_reserved_15 = 15;
+    optional double dbg_planning_reserved_16 = 16;
+    optional double dbg_planning_reserved_17 = 17;
+    optional double dbg_planning_reserved_18 = 18;
+    optional double dbg_planning_reserved_19 = 19;
+    optional double dbg_planning_reserved_20 = 20;
+    optional double dbg_planning_reserved_21 = 21;
+    optional double dbg_planning_reserved_22 = 22;
+    optional double dbg_planning_reserved_23 = 23;
+    optional double dbg_planning_reserved_24 = 24;
+    optional double dbg_planning_reserved_25 = 25;
+    optional double dbg_planning_reserved_26 = 26;
+    optional double dbg_planning_reserved_27 = 27;
+    optional double dbg_planning_reserved_28 = 28;
+    optional double dbg_planning_reserved_29 = 29;
+    optional double dbg_planning_reserved_30 = 30;
+    optional double dbg_planning_reserved_31 = 31;
+    optional double dbg_planning_reserved_32 = 32;
+    optional double dbg_planning_reserved_33 = 33;
+    optional double dbg_planning_reserved_34 = 34;
+    optional double dbg_planning_reserved_35 = 35;
+    optional double dbg_planning_reserved_36 = 36;
+    optional double dbg_planning_reserved_37 = 37;
+    optional double dbg_planning_reserved_38 = 38;
+    optional double dbg_planning_reserved_39 = 39;
+    optional double dbg_planning_reserved_40 = 40;
+    optional double dbg_planning_reserved_41 = 41;
+    optional double dbg_planning_reserved_42 = 42;
+    optional double dbg_planning_reserved_43 = 43;
+    optional double dbg_planning_reserved_44 = 44;
+    optional double dbg_planning_reserved_45 = 45;
+    optional double dbg_planning_reserved_46 = 46;
+    optional double dbg_planning_reserved_47 = 47;
+    optional double dbg_planning_reserved_48 = 48;
+    optional double dbg_planning_reserved_49 = 49;
+    optional double dbg_planning_reserved_50 = 50;
+    optional double dbg_planning_reserved_51 = 51;
+    optional double dbg_planning_reserved_52 = 52;
+    optional double dbg_planning_reserved_53 = 53;
+    optional double dbg_planning_reserved_54 = 54;
+    optional double dbg_planning_reserved_55 = 55;
+    optional double dbg_planning_reserved_56 = 56;
+    optional double dbg_planning_reserved_57 = 57;
+    optional double dbg_planning_reserved_58 = 58;
+    optional double dbg_planning_reserved_59 = 59;
+    optional double dbg_planning_reserved_60 = 60;
+    optional double dbg_planning_reserved_61 = 61;
+    optional double dbg_planning_reserved_62 = 62;
+    optional double dbg_planning_reserved_63 = 63;
+    optional double dbg_planning_reserved_64 = 64;
+    optional double dbg_planning_reserved_65 = 65;
+    optional double dbg_planning_reserved_66 = 66;
+    optional double dbg_planning_reserved_67 = 67;
+    optional double dbg_planning_reserved_68 = 68;
+    optional double dbg_planning_reserved_69 = 69;
+    optional double dbg_planning_reserved_70 = 70;
+    optional double dbg_planning_reserved_71 = 71;
+    optional double dbg_planning_reserved_72 = 72;
+    optional double dbg_planning_reserved_73 = 73;
+    optional double dbg_planning_reserved_74 = 74;
+    optional double dbg_planning_reserved_75 = 75;
+    optional double dbg_planning_reserved_76 = 76;
+    optional double dbg_planning_reserved_77 = 77;
+    optional double dbg_planning_reserved_78 = 78;
+    optional double dbg_planning_reserved_79 = 79;
+    optional double dbg_planning_reserved_80 = 80;
+    optional string dbg_planning_reserved_81 = 81;
+    optional string dbg_planning_reserved_82 = 82;
+    optional string dbg_planning_reserved_83 = 83;
+    optional string dbg_planning_reserved_84 = 84;
+    optional string dbg_planning_reserved_85 = 85;
+    optional string dbg_planning_reserved_86 = 86;
+    optional string dbg_planning_reserved_87 = 87;
+    optional string dbg_planning_reserved_88 = 88;
+    optional string dbg_planning_reserved_89 = 89;
+    optional string dbg_planning_reserved_90 = 90;
+    optional string dbg_planning_reserved_91 = 91;
+    optional string dbg_planning_reserved_92 = 92;
+    optional string dbg_planning_reserved_93 = 93;
+    optional string dbg_planning_reserved_94 = 94;
+    optional string dbg_planning_reserved_95 = 95;
+    optional string dbg_planning_reserved_96 = 96;
+    optional string dbg_planning_reserved_97 = 97;
+    optional string dbg_planning_reserved_98 = 98;
+    optional string dbg_planning_reserved_99 = 99;
+    optional string dbg_planning_reserved_100 = 100;
+
+}
+
+message PlanningDebugOut {
+    optional ReplanDbgOut dbg_replan = 1;
+    optional TrajCropDbgOut dbg_traj_crop = 2;
+    optional InputSignalDbgOut dbg_input_sig = 3;
+    optional OutputSignalDbgOut dbg_output_sig = 4;
+    optional ParkingFinishDbgOut dbg_finish = 5;
+    optional ParkingStatusDbgOut dbg_status = 6;
+    optional ReservedPlanningDbgOut dbg_planning_rsvd = 7;
+    optional ParkingSlotInfoDbgOut dbg_planning_slot_info = 8;
+
+    // optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909;   // uuid of the publisher
+    optional uint64 counter = 536870910;        // message counter
+    optional uint64 publish_ts = 536870911;     // publish utc timestamp; unit : nanosecond
+}
+
+message ParkingSlotInfoDbgOut {
+    optional ParPoint curb_internal_pt1 = 1;
+    optional ParPoint curb_internal_pt2 = 2;
+    optional ParPoint wall_internal_pt1 = 3;
+    optional ParPoint wall_internal_pt2 = 4;
+    optional ParPoint left_corner_pt1 = 5;
+    optional ParPoint left_corner_pt2 = 6;
+    optional ParPoint right_corner_pt1 = 7;
+    optional ParPoint right_corner_pt2 = 8;
+    optional ParPoint dbg_planning_reserved_9 = 9;
+    optional ParPoint dbg_planning_reserved_10 = 10;
+    optional ParPoint dbg_planning_reserved_11 = 11;
+    optional ParPoint dbg_planning_reserved_12 = 12;
+}

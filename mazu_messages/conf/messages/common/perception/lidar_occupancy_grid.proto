@@ -1,0 +1,93 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+import "common/perception/lidar_cluster_output.proto";
+
+message LidarOccupancyGrid {  // Used for lidar local mapping
+    optional LOGSemanticClass lidar_grid_class = 1;
+    repeated float lidar_grid_probability = 2;  // Includes some class probability. Default lidar_grid_probability has 20 score and each score class id is in order by LOGSemanticClass.
+                                                // If lidar_grid_probability len < 20, lidar_grid_probability is TopK score and lidar_grid_class_list is TopK class.
+    optional LOGVelocity lidar_grid_velocity = 3;
+    optional LOGMotionStatus lidar_grid_motion_state = 4;
+    // Some grid features
+    optional uint32 lidar_grid_points_num = 5;
+    optional float lidar_grid_points_height_max = 6;  // W.R.T local ground. 
+                                                      // Local ground refers to the corresponding ground height of the grid
+    optional float lidar_grid_points_height_min = 7;  // W.R.T local ground
+                                                      // Local ground refers to the corresponding ground height of the grid
+    optional float lidar_grid_points_height_ground = 8;  // Grid ground height in vehicle coordinate system
+    optional uint32 lidar_grid_center_x_index      = 9;  // Grid 2D center x index. Index origin x0 is front location 0m, y0 is left location -38.4m.
+    optional uint32 lidar_grid_center_y_index      = 10; // Grid 2D center y index. Index origin x0 is front location 0m, y0 is left location -38.4m.
+    optional LidarPoint2D lidar_grid_gravity_coord  = 11;  // Average 2D coord of points that in same grid. Coord is in vehicle coordinate system
+    optional uint64 lidar_grid_mean_timestamp = 12;  // The mean timestamp of the lidar points within the lidar grid (unit: ns).
+    repeated uint32 lidar_grid_class_list = 13;       // The list of class id which is corresponds to each one of lidar_grid_probability. Each class is defined in LOGSemanticClass.
+                                                     // If lidar_grid_probability len < 20, lidar_grid_probability is TopK score and lidar_grid_class_list is TopK class.
+    optional float lidar_grid_size = 14;             // The size of each square grid (unit: m).
+    optional float lidar_grid_center_x = 15;         // Grid 2D center x in vehicle coordinate.
+    optional float lidar_grid_center_y = 16;         // Grid 2D center y in vehicle coordinate.
+    optional float lidar_grid_range = 17;            // The range of grid center to lidar coordinate.
+    optional float lidar_grid_azimuth_angle = 18;    // The azimuth angle of grid center to lidar coordinate.
+    optional float lidar_grid_elevation_angle = 19;  // The elevation angle of grid center to lidar coordinate.
+    optional float lidar_grid_second_return_ration = 20;    // Mean second return ration of grid points
+    optional float lidar_grid_high_reflection_ration = 21;  // Mean high reflection ration of grid points
+    optional float lidar_grid_filterable_ratio = 22;  // Filterable mask ratio of grid points
+    optional float lidar_grid_occupied_ratio = 23;  // Occupied mask ratio of grid points
+
+    enum LOGMotionStatus{
+        LOG_MOTION_STATUS_UNKNOWN = 0;
+        LOG_MOTION_STATUS_STATIC  = 1;
+        LOG_MOTION_STATUS_MOVING  = 2;
+    }
+
+    enum LOGSemanticClass{
+        LSC_VEHICLE                   = 0;  // Including small_vehicle, large_vehicle, three_wheel_vehicle, trailer, emergency_vehicle and other vehicles
+        LSC_PEDESTRIAN                = 1;  // Including adult, child and other pedestrian
+        LSC_PEDESTRIAN_OBJECT         = 2;  // Including stroller, wheelchair and other pedestrain object 
+        LSC_CYCLIST                   = 3;  // Including motorcyclist, ebicyclist, bicyclist and other two wheel vhicle and its riders
+        LSC_CYCLE                     = 4;  // Including bicycle, ebicycle, motorcycle and other two wheel vhicle without riders
+        LSC_ANIMAL                    = 5;  // Including dog, cat and other animal
+        LSC_CONE                      = 6;  // Including all kinds of cone bucket
+        LSC_CONSTRUCTION_POLE         = 7;  // Including warning post in construction or warning area
+        LSC_BARRIER                   = 8;  // Including temporal barrier and drum objects
+        LSC_VEGETATION                = 9;  // Including vegetation without tree trunk
+        LSC_CURB                     = 10;  // Including all kinds of curb
+        LSC_POLE_TREETRUNK           = 11;  // Including pole, tree trunk and other cylindrical objects
+        LSC_SIGN                     = 12;  // Including all kinds of sign, such as traffic sign, construction sign
+        LSC_GROUND                   = 13;  // Including all kinds of road surface and road marker
+        LSC_WALEABLE_GROUND          = 14;  // Including all kinds of walkable surface, such as sidewalk and lawn 
+        LSC_BUMP                     = 15;  // Including bump, cateye
+        LSC_HOLLOW                   = 16;  // Including all kinds of holes
+        LSC_FILTERABLE               = 17;  // Including all filterable objects, such as spray, rooster tail, dust, rain, snow and other noise or filterable ojbect 
+        LSC_OTHER_IMPERMANENTOBJECT  = 18;  // Including other impermanent object that class is not included above, such as debris, tire, dropped object
+        LSC_OTHER_PERMANENTOBJECT    = 19;  // Including other permanent object that class is not included above, such as building, traffic light, fire hydrant and parterre
+        LSC_OBW                      = 20;  // Including instance of water horse when there are one or two water horse
+        LSC_ANTI_COLLISION_BUCKET    = 21;  // Including instance of anti-collision_bucket when there are one or two anti-collision_bucket
+        LSC_HIGH_HANG_SIGN           = 22;  // Including signs that are high and suspended and will not affect the driving of the car
+        LSC_LIFTING_ROD              = 23;  // Including lift rod that in horizontal state, and the rod is suspended
+        LSC_LIFTING_FENCE_ROD        = 24;  // Including the lifting rod that is grid shaped, and the grid is basically in a grounded state
+        LSC_ROOF                     = 25;  // Including roof, the bottom of the viaduct
+    }
+
+    message LOGVelocity {
+        optional float lidar_grid_long_velocity = 1;  // ISO coordinate system, x axis points to the forward direction of the vehicle, unit: m/s
+        optional float lidar_grid_lat_velocity  = 2;  // ISO coordinate system, y axis points to the left direction of the vehicle, unit: m/s
+    }
+
+}
+
+message LidarOccupancyGrids {  // Used for lidar local mapping
+    optional uint64 timestamp_utc_ns               = 1;  // Global defined utc time, record the starting time of lidar first point (ns). Currently used as a reserved field
+    optional uint64 timestamp_ptp_ns               = 2;  // Global defined ptp time, record the starting time of lidar first point (ns)
+
+    repeated LidarOccupancyGrid lidar_occupancy_grid_list = 3;
+    optional uint64 timestamp = 4; // sensor time
+
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;   // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909;     // uuid of the publisher
+    optional uint64 counter = 536870910;          // message counter
+    optional uint64 publish_ts = 536870911;       // publish utc timestamp; unit : nanosecond
+}

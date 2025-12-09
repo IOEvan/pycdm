@@ -1,0 +1,80 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+import "common/localization/geometry.proto";
+
+message LocalizationStatus {
+  optional double timestamp_utc_ns = 1; // Globally defined time. [nano second]
+  optional uint64 timestamp_ptp_ns = 2; // Globally defined ptp time. [nano second]
+  
+  // Debug information for hdmap matching
+  message HDMapMatchingLocInfo {
+    optional int32 status = 1;                   // = 0 locate failed because the car isn't in area covered by hdmap
+                                                 // = 1 locate succeded by fine matcher,effective to lateral, yaw;
+                                                 // = 2 locate failed in hdmap covered area;
+                                                 // = 3 locate succeded by correlative matcher;
+                                                 // = 4 locate succeded of fine matcher, effective to lateral,longitudinal, yaw;
+    optional LocVector3 position = 2;            // Longitude [degree], latitude [degree], and altitude [m], camera coordinate is body frame;
+    optional LocVector3 init_position = 3;       // Longitude [degree], latitude [degree], and altitude [m], imu-rbd coordinate is body frame;
+    optional LocQuaternion quaternion = 4;       // 3 DoFs attitude under local ENU frame, expressed using quaternion.
+    optional LocQuaternion init_quaternion = 5;  // 3 DoFs attitude under local ENU frame, expressed using quaternion.
+    repeated double attitude_cov = 6;
+    repeated double init_attitude_cov = 7;
+    
+    enum Consistentcy {
+      kUnknown = 0;
+      kConsistent = 1;
+      kNotConsistent = 2;
+      kWrongLane = 3;
+    }
+    optional Consistentcy consistentcy = 8;
+    optional Consistentcy init_consistentcy = 9;
+    
+    enum RejectReason {
+      kNoError = 0;
+      kNoHdmapData = 1;
+      kNotInHdmap = 2;
+      kBadPerceptionData = 3;
+      kGeometricError = 4;
+      kLaneError = 5;
+    }
+    optional RejectReason reject_reason = 10;
+  }
+  optional HDMapMatchingLocInfo mm_loc_info = 3;
+
+  // Potential failure information
+  optional int32 failure_info = 4;             // 0 - no failure  1~n failure modes that will be defined offline.
+  optional string failure_message = 5;
+  //status for checker in in_car_mapping
+  optional string mm_status_for_checker = 6;
+  
+  message ReLocInfo{
+    optional int32 module_status = 1; // = 0 normal operation
+                                      // 1 non-triggered;
+    optional int32 result_status = 2; // = 0 success
+                                      // 1 Failed due to out-of-distance;
+                                      // 2 Failed due to out-of-time;
+                                      // 3 Failed due to hdmap covered;
+                                      // 4 Failed due to lack of perception;
+    optional int32 trigger_reason = 3; // Modules that issue triggers
+    optional string module_type = 4; // Defaults to "reloc_info"
+    optional uint64 trigger_time_ptp = 5; // trigger time, Globally defined ptp time. [nano second]
+    optional uint64 success_time_ptp = 6; // success time, Globally defined ptp time. [nano second]
+    optional LocVector3 trigger_position = 7; // trigger_position, Longitude [degree], latitude [degree], and altitude [m].
+    optional LocQuaternion trigger_quaternion = 8; // trigger_quaternion, 3 DoFs attitude under local ENU frame, expressed using quaternion.
+    optional LocVector3 position = 9; // Longitude [degree], latitude [degree], and altitude [m].
+    optional LocQuaternion quaternion = 10; // 3 DoFs attitude under local ENU frame, expressed using quaternion.
+    optional double match_score = 11; // Indicates match quality, range 0-1.
+  }
+  optional ReLocInfo reloc_info = 7;
+
+  optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin 
+  optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+  optional uint64 publish_ptp_ts = 536870907;   // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909;     // uuid of the publisher
+  optional uint64 counter = 536870910;          // message counter
+  optional uint64 publish_ts = 536870911;       // publish utc timestamp, unit : nanosecond
+}

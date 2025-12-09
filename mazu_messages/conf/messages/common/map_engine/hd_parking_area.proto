@@ -1,0 +1,72 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+import "common/map_engine/map_geometry.proto";
+import "common/map_engine/hd_link_info.proto";
+
+message HdParkingArea {
+  optional uint64 id = 1;
+
+  // The surface of parking area.
+  optional MapPolygon surface = 2;
+
+  enum MarkingType {
+    PARKING_AREA_PARA = 40001;      // 平行停车位
+    PARKING_AREA_VERTICAL = 40002;  // 垂直停车位
+    PARKING_LEAN = 40003;           // 斜向停车位
+    POWER_SWAP_STATION = 41000;     // 换电站
+  };
+  optional MarkingType marking_type = 3;
+
+  enum ParkingType {
+    SOCIAL_VEHICLE_PARKING_AREA = 1;  // 社会车辆停车位
+    BATTERY_SWAP_PARKING_AREA = 2;    // 换电车位（换电定位框）
+    NIO_DEDICATED_PARKING_AREA = 3;   // 蔚来专用停车位(NIO充电车位)
+    CART_PARKING_AREA = 4;            // 大车停车位
+    POWER_SWAP_STATION_PARKING_AREA = 5;  // 换电站
+    PRIVATE_PARKING_AREA = 6;         // 用户专用车位
+  };
+  optional ParkingType parking_type = 4;
+
+  // 航向角
+  optional double heading = 5;
+
+  // link_feature_points和link_ids仅对换电车位生效
+  // 关联道路特征点（与换电车位短边有相交的link）
+  repeated LinkFeaturePoint link_feature_points = 6;
+  // 关联道路（与换电车位长边相交，或者与换电车位不相交的link）
+  repeated uint64 link_ids = 7;
+
+  // The lane ids which touch this parking area.
+  repeated uint64 lane_ids = 8;
+
+  // 换电车位固定编号
+  optional string device_id = 9;
+
+  // 停车位实际的编号，用于停车场，例如，B205
+  optional string ps_name = 10;
+
+  // 换电定位框位置关系
+  // 1: 左侧
+  // 2: 右侧
+  optional uint32 station_position = 11;
+  // 无图服务区中，定位框关联的link
+  repeated LinkOverlap link_overlap = 12;
+
+  // 专用停车位所有者的用户ID
+  optional string parking_user_id = 13;
+}
+
+message HdParkingAreaList {
+  repeated HdParkingArea parking_area_list = 1;
+
+  optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin 
+  optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+  optional uint64 publish_ptp_ts = 536870907; // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909;  // uuid of the publisher
+  optional uint64 counter = 536870910;       // message counter
+  optional uint64 publish_ts = 536870911;    // publish utc timestamp; unit : nanosecond
+}

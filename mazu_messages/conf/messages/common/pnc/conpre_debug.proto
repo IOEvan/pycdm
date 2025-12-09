@@ -1,0 +1,136 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+import "common/pnc/path.proto";
+
+message ConpreDebug {
+  optional bool is_in_conditional_predictor = 1 [default = false];
+  optional ScenarioDebug scenario_debug = 2;
+  optional SearchDebug search_debug = 3;
+  optional ResultDebug result_debug = 4;
+  optional TimeStatistics time_statistics = 100;
+}
+
+message FeasibleRegion {
+  message BoundaryPoint {
+    optional double s = 1;
+    optional double left = 2;
+    optional double right = 3;
+  }
+  repeated BoundaryPoint boundary_points = 1;
+}
+
+message ScenarioDebug {
+  message SingleAgentInfo {
+    optional string id = 1;
+    optional FeasibleRegion feasible_region = 2;
+    repeated string cost_types = 3;
+    map<string, double> cost_coeff = 4;
+  }
+  optional string scenario_type = 1;
+  repeated string interactive_object_ids = 2;
+  repeated string non_interactive_object_ids = 3;
+  repeated SingleAgentInfo agent_infos = 4;
+}
+
+message TimeStatistics {
+  map<string, double> time_consuming = 1;
+}
+
+message NudgeDecision {
+  enum NudgeType {
+    UNKNOWN = 0;
+    LEFT_NUDGE = 1;
+    RIGHT_NUDGE = 2;
+  }
+  optional bool is_valid = 1 [default = false]; 
+  optional NudgeType nudge_type = 2 [default = UNKNOWN];
+  optional double min_nudge_time  = 3 [default = 0];
+  optional double max_nudge_time  = 4 [default = 0];
+}
+
+message YieldDecision {
+  enum YieldType {
+    UNKNOWN = 0;
+    NORMAL_YIELD = 1;
+  }
+  optional bool is_valid = 1 [default = false]; 
+  optional YieldType yield_type = 2 [default = UNKNOWN];
+}
+
+message ConpreDecision {
+  // In the current framework, multiple decisions may coexist.
+  optional NudgeDecision nudge_decision = 1;
+  optional YieldDecision yield_decision = 2;
+}
+
+message ObjectResult {
+  optional string object_id = 1;
+  repeated PathPointNop discretized_path = 2;
+  optional ConpreDecision conpre_decision = 3;
+}
+
+message EgoResult {
+  repeated PathPointNop discretized_path = 1;
+}
+
+message ResultDebug {
+  optional bool is_valid = 1 [default = true];
+  repeated ObjectResult interactive_object_results = 2;
+  repeated ObjectResult non_interactive_object_results = 3;
+  optional EgoResult ego_result = 4;
+}
+
+message SearchDebug {
+  enum SearchType {
+    BEAM_SEARCH = 0;
+    MCTS_SEARCH = 1;
+  }
+  optional SearchType search_type = 1 [default = BEAM_SEARCH];
+  oneof search_tag {
+    BeamSearchDebug beam_search_debug = 2;
+  }
+}
+
+message Action {
+  optional string action_name = 1;
+  repeated PathPointNop discretized_path = 2;
+}
+
+message CostData {
+  // The first element is cost type, and the second is value.
+  map<string, double> cost = 1;
+}
+
+message ConpreEdge {
+  message SingleAgentInfo {
+    optional string id = 1;
+    optional Action action = 2;
+    optional CostData cost_data = 3;
+  }
+  optional int32 id = 1;
+  repeated SingleAgentInfo agent_infos = 2;
+}
+
+message ConpreNode {
+  message SingleAgentInfo {
+    optional string id = 1;
+    optional CostData cost_data = 2;
+  }
+  optional int32 id = 1;
+  optional int32 depth = 2;
+  optional double time = 3;
+  repeated SingleAgentInfo agent_infos = 4;
+  optional double total_cost = 5 [default = 0.0];
+  optional ConpreEdge parent_edge = 6;
+}
+
+
+message BeamSearchDebug {
+  optional int32 node_num = 1 [default = 0];
+  optional int32 edge_num = 2 [default = 0];
+  repeated ConpreNode optimal_node_sequence = 3;
+}

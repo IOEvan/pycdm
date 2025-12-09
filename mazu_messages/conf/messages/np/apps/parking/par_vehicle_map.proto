@@ -1,0 +1,25 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+import "np/apps/parking/par_semantic_map.proto";
+import "np/apps/parking/par_objmap.proto";
+import "np/apps/parking/par_location.proto";
+
+message ParVehicleMap{
+    repeated ParkSlot slots = 1;
+    repeated ParSingleObject objs = 2;
+    optional ParLocation loc_odom = 3;
+    repeated ParDynamicObject dyn_objs = 4;
+    
+    optional string vid = 10000; // vid of target vehicle
+    
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin    
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909; // uuid of the publisher
+    optional uint64 counter = 536870910; // message counter
+    optional uint64 publish_ts = 536870911; // publish utc timestamp; unit : nanosecond
+}

@@ -1,0 +1,72 @@
+// @owner: bruce.wu@nio.com
+// @filescope: NT3
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/cfgclient/cfg_info.proto";
+import "common/perf/sensor_ts_header.proto";
+
+
+message NewConfigNotify {
+    optional FileType file_type = 1;
+    optional string version = 2;
+}
+
+message ConfigItemResponse {
+enum Result {
+    RESULT_OK                       = 0;
+    RESULT_INVALID_PARAM            = 1;
+    RESULT_FAIL                     = 2;
+}
+    optional Result result          = 1;
+    optional bytes file_content     = 2;
+    optional string md5             = 3;
+    optional FileType file_type     = 4;
+    optional string version         = 5;
+    optional string uuid            = 6;    // message uuid
+}
+
+message UpgradeSwtichCmd {
+enum UpgradeSwtich {
+    WTI_CONFIG_DEFAULT              = 0;   //don't upgrade
+    UPDATE_CONFIG_IMMEDIATE         = 1;   //upgrade immediately
+    STOP_UPDATE_CONFIG              = 2;   //stop upgrade
+    SWITCH_DEFAULT_CONFIG           = 3;   //switch default config
+}
+    optional UpgradeSwtich upgrade_swtich = 1;
+    optional string version = 2;
+    optional FileType file_type = 3;
+}
+
+message ManagerUpgradeStatusNotify {
+enum UpgradeStatus {
+    DEFAULT_STS        = 0;
+    GET_FILE_SUCCESS   = 1;
+    GET_FILE_UNSUCCESS = 2;
+    PARSE_OK           = 3;
+    PARSE_NOTOK        = 4;
+    UPDATE_SUCEESS     = 5;
+    UPDATE_UNSUCEESS   = 6;
+    SWITCH_DEFAULT_SUCCESS   = 7;
+    SWITCH_DEFAULT_UNSUCCESS = 8;
+}
+    optional UpgradeStatus upgrade_status = 1;
+    optional FileType file_type = 2;
+
+}
+
+
+message WtiClientResponse {
+    repeated NewConfigNotify new_config_notify                      = 1;
+    optional ConfigItemResponse config_response                     = 2;
+    repeated UpgradeSwtichCmd upgrade_swtich_cmd                    = 3;
+    optional ManagerUpgradeStatusNotify upgrade_status_notify       = 4;
+    
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    optional SensorTSHeader sensor_original_ts                      = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts                                  = 536870907;   // publish ptp timestamp, uint in nanosec
+    optional string publisher_id                                    = 536870909;   // uuid of the publisher
+    optional uint64 counter                                         = 536870910;   // message counter
+    optional uint64 publish_ts                                      = 536870911;   // publish utc timestamp; unit : nanosecond
+}

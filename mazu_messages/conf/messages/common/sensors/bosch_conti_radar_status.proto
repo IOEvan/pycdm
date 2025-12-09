@@ -1,0 +1,107 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+
+message ContiRadarDiagnoseCAN {
+                                                // All error status, 0-No failure, 1-Failure exists;
+  optional bool RAD_FC_VBAT_High = 1;
+  optional bool RAD_FC_VBAT_Low = 2;
+  optional bool RAD_FC_EOL_ALN_Undone = 3;
+  optional bool RAD_FC_EOL_ALN_FAILURE = 4;
+  optional bool LostComWithBGW_02 = 5;
+  optional bool RAD_FC_SVE_ALN_FAILURE = 6;
+  optional bool RAD_FC_POS_FAILURE = 7;
+  optional bool RAD_FC_HW_Defect = 8;
+  optional bool RAD_FC_OVER_TEMPMON_FAILURE = 9;
+  optional bool RAD_FC_UNDER_TEMPMON_FAILURE = 10;
+  optional bool RAD_FC_Blockage = 11;
+  optional bool RAD_FC_VDY_Exception = 12;
+  optional bool RAD_FC_Pau__FAILURE = 13;
+  optional bool RAD_FC_BusOff = 14;
+  optional bool RAD_FC_NVM_Error = 15;
+  optional bool ErrorCheckSumWithBCU_01 = 16;
+  optional bool ErrorCheckSumWithBCU_02 = 17;
+  optional bool ErrorCheckSumWithBCU_04 = 18;
+  optional bool ErrorCheckSumWithACM_02 = 19;
+  optional bool ErrorCheckSumWithACM_03 = 20;
+  optional bool ErrorCheckSumWithSCM_01 = 21;
+  optional bool ErrorCheckSumWithVCU_05 = 22;
+  optional bool ErrorCheckSumWithRAD_FC_CFG_Para = 23;
+  optional bool LostComWithBCU_01 = 24;
+  optional bool LostComWithBCU_02 = 25;
+  optional bool LostComWithBCU_04 = 26;
+  optional bool LostComWithACM_02 = 27;
+  optional bool LostComWithACM_03 = 28;
+  optional bool LostComWithSCM_01 = 29;
+  optional bool LostComWithVCU_05 = 30;
+  optional bool LostComWithRAD_FC_CFG_Parameters = 31;
+  optional bool AxAyYrsUncalibrated = 32;
+  optional bool SASUncalibrated = 33;
+  optional bool Msg_Counter_Error_BCU_01 = 34;
+  optional bool Msg_Counter_Error_BCU_02 = 35;
+  optional bool Msg_Counter_Error_BCU_04 = 36;
+  optional bool Msg_Counter_Error_ACM_02 = 37;
+  optional bool Msg_Counter_Error_ACM_03 = 38;
+  optional bool Msg_Counter_Error_SCM_01 = 39;
+  optional bool Msg_Counter_Error_VCU_05 = 40;
+  optional bool Counter_Error_RAD_FC_CFG_Para = 41;
+  optional bool WhlSpdFrntLeStsValidityFault = 42;
+  optional bool WhlSpdFrntRiStsValidityFault = 43;
+  optional bool WhlSpdReLeStsValidityFault = 44;
+  optional bool WhlSpdReRiStsValidityFault = 45;
+  optional bool LatAValStsValidityFault = 46;
+  optional bool YawRateValStsValidityFault = 47;
+  optional bool LgtAValStsValidityFault = 48;
+  optional bool VehStateValidityFault = 49;
+  optional bool VehicleParameterValidityFault = 50;
+  optional bool Time_Syn_Fail = 51;
+  optional bool VCUActualGearValidityFault = 52;
+  optional bool SteerWhlAgAndSpdValidityFault = 53;
+  optional bool VehSpdValidityFault = 54;
+  optional bool FrontRAD_CAN_LossCom = 55;
+}
+
+message BoschRadarDiagnoseCAN {
+                                                // All error status, 0-No failure, 1-Failure exists;
+  optional bool Temp_high_fault = 1;
+  optional bool Blocked_fault = 2;
+  optional bool Misalignment_fail_fault = 3;
+  optional bool Voltage_high_low_fault = 4;
+  optional bool Loss_comm_with_ADC_fault = 5;
+  optional bool Internal_fault = 6;
+  optional bool HW_fault = 7;
+  optional bool SW_fault = 8;
+  optional bool Production_mode_fault = 9;
+  optional bool Timesync_fail_fault = 10;
+  optional bool ADC_routing_signal_invalid_fault = 11;
+  optional bool SideRAD_CAN_LossCom = 12;
+}
+
+message BoschRadarSDKActiveFaults {
+                                                 // Radar SDK active fault bits;
+                                                 // One bit for one active fault;
+  optional uint64 sdk_fault_1 = 1;
+  optional uint64 sdk_fault_2 = 2;
+  optional uint64 sdk_fault_3 = 3;
+  optional uint64 sdk_fault_4 = 4;
+  optional uint32 sdk_fault_id = 5;
+}
+
+message BoschContiRadarFaultStatus {
+  optional ContiRadarDiagnoseCAN rad_fc_fail = 1;
+  optional BoschRadarDiagnoseCAN rad_fl_fail = 2;
+  optional BoschRadarDiagnoseCAN rad_fr_fail = 3;
+  optional BoschRadarDiagnoseCAN rad_rl_fail = 4;
+  optional BoschRadarDiagnoseCAN rad_rr_fail = 5;
+  optional BoschRadarSDKActiveFaults rad_sdk_act_fault = 6;
+
+  optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin 
+  optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+  optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909; // uuid of the publisher
+  optional uint64 counter = 536870910;           // message counter
+  optional uint64 publish_ts = 536870911;        // publish utc timestamp; unit : nanosecond
+}

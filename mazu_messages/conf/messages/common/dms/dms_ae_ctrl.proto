@@ -1,0 +1,21 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message DMS_AE {
+    optional bool exposure_valid    = 1;
+    optional float exposure         = 2;       // Unit: us
+    optional bool gain_valid        = 3;
+    optional float gain             = 4;       // Unit: none
+    optional uint64 ae_counter      = 5;
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin 
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;    // publish ptp timestamp unit : nanosecond
+    optional string publisher_id   = 536870909;    // uuid of the publisher
+    optional uint64 counter        = 536870910;    // message counter
+    optional uint64 publish_ts     = 536870911;    // publish timestamp; unit : nanosecond
+}

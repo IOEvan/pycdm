@@ -1,0 +1,61 @@
+syntax = "proto2"; 
+option cc_enable_arenas = true;
+       
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message FunctionInfo{
+        optional FunctionFimInfo aeb_fim_info = 1; 
+        optional FunctionFimInfo elk_fim_info = 2;
+        optional FunctionFimInfo lka_fim_info = 3;
+        optional FunctionFimInfo ldw_fim_info = 4;
+        optional FunctionFimInfo ahc_fim_info = 5;
+        optional FunctionFimInfo fcw_fim_info = 6;
+        optional FunctionFimInfo rear_aeb_fim_info = 7;
+        optional FunctionFimInfo mai_fim_info = 8;
+        optional FunctionFimInfo oaa_fim_info = 9;      // Fault2WTI_Sts = 1(all function not avaialble); = 2(only brake not avaialble)
+        optional FunctionFimInfo eas_fim_info = 10;
+        optional FunctionFimInfo psp_fim_info = 11;     // Fault2Functional_Sts = 1(PSP_AD_TrajectoryStop); = 2(PSP_TD_TrajectoryStop); = 3(PSP_BlindStop); = 4(PSP_BlindStop_Arb)
+        optional FunctionFimInfo dynamic_4D_fim_info = 12;
+        optional FunctionFimInfo SPSAP_fim_info = 13;
+        optional FunctionFimInfo RPSAP_fim_info = 14;
+        optional FunctionFimInfo rear_oaa_fim_info = 15;
+        optional FunctionFimInfo rear_mai_fim_info = 16;
+        optional FunctionFimInfo BSD_LCA_fim_info = 17; // @linescope: NT3
+        optional FunctionFimInfo SDOW_fim_info = 18;    // @linescope: NT3
+        optional FunctionFimInfo FCTA_fim_info = 19;    // @linescope: NT3
+        optional FunctionFimInfo RCTA_fim_info = 20;    // @linescope: NT3
+        optional FunctionFimInfo FCTAB_fim_info = 21;   // @linescope: NT3
+        optional FunctionFimInfo RCTAB_fim_info = 22;   // @linescope: NT3
+        optional FunctionFimInfo sapa_fim_info = 23;
+        optional FunctionFimInfo rps_fim_info = 24;
+        optional FunctionFimInfo nbs_fim_info = 25;
+        optional FunctionFimInfo psap_fim_info = 26;
+        optional FunctionFimInfo aes_fim_info = 27;
+        optional FunctionFimInfo oaa_steer_fim_info = 28;
+        optional FunctionFimInfo rcm_fim_info = 29;
+        optional FunctionFimInfo urban_weaving_fim_info = 30;
+        optional FunctionFimInfo highway_fim_info = 31;
+        optional FunctionFimInfo urban_fim_info = 32;
+        optional FunctionFimInfo privateroad_fim_info = 33;
+        optional FunctionFimInfo ad_restart_fim_info = 34;
+        optional FunctionFimInfo vla_fim_info = 35;
+        optional FunctionFimInfo p2p_lowspeed_fim_info = 36;
+
+
+
+        optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+        optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+        optional uint64 publish_ptp_ts = 536870907;   // publish ptp timestamp, uint in nanosec
+        optional string publisher_id   = 536870909; // uuid of the publisher
+        optional uint64 counter        = 536870910;         // message counter
+        optional uint64 publish_ts     = 536870911;    // publish utc timestamp; unit : nanosecond
+
+} 
+
+message FunctionFimInfo{
+        optional uint32 Fault2Light_Sts = 1; //0: No Light, 1: Light1，...
+        optional uint32 Fault2WTI_Sts = 2; //0: No WTI, 1: WTI1, 2: WTI2...
+        optional uint32 Fault2Functional_Sts = 3; // 0: No Inhibit, 1: Inhibit, ...
+}

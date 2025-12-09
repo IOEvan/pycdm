@@ -1,0 +1,104 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+// 1Hz; ADC status information to DC in ummaned psap
+
+message AdcUmannedPsapStatusToDc {
+  
+  optional bool is_station_detected_vehicle = 1;
+  
+  enum DriverOffVehRdyState_e{
+        DriverOffVehRdyState_Unknown = 0;
+        DriverOffVehRdyState_Ready = 1;
+        DriverOffVehRdyState_Not_Ready= 2;
+    }
+  optional DriverOffVehRdyState_e driver_off_vehicle_ready = 2;
+
+  enum FeatureTypeForDC {
+    PARKINGFEATURE_NONE = 0;
+    PARKINGFEATURE_RPSAP_IN = 1; 
+    PARKINGFEATURE_RPSAP_OUT = 2;
+    }
+  optional FeatureTypeForDC feature_type_dc = 3;
+
+    enum FeatureStatusForDC {
+      PARKINGFEATURE_Off = 0;
+      PARKINGFEATURE_Standby = 1;// include standby/search/preguidance/remote prepare
+      PARKINGFEATURE_GuidanceActive = 2;//include active/suspend
+      PARKINGFEATURE_Abort = 3;//include Irreversible_Abort/TakeOver_Abort
+      PARKINGFEATURE_Finish = 4;
+      PARKINGFEATURE_Fault = 5;
+    }
+  optional FeatureStatusForDC feature_status_dc = 4;
+
+    enum PSAPAbortReason_e  {
+      PSAPAb_None=0;
+      PSAPAb_VelocityTooHigh=1;
+      PSAPAb_VehDynIntervention=2;
+      PSAPAb_DoorOpen=3;
+      PSAPAb_HandsOnDetected=4;
+      PSAPAb_EPSFault=5;
+      PSAPAb_Manual_Abort=6;
+      PSAPAb_Service_system=7;
+      PSAPAb_System_Disabled=8;
+      PSAPAb_Localization_fail=9;
+      PSAPAb_InternalCode10=10;
+      PSAPAb_InternalCode11=11;
+      PSAPAb_InternalCode12=12;
+      PSAPAb_InternalCode13=13;
+      PSAPAb_InternalCode14=14;
+      PSAPAb_InternalCode15=15;
+      PSAPAb_InternalCode16=16;
+      PSAPAb_InternalCode17=17;
+      PSAPAb_InternalCode18=18;
+      PSAPAb_InternalCode19=19;
+      PSAPAb_InternalCode20=20;
+      PSAPAb_InternalCode21=21;
+      PSAPAb_InternalCode22=22;
+      PSAPAb_InternalCode23=23;
+      PSAPAb_InternalCode24=24;
+      PSAPAb_InternalCode25=25;
+      PSAPAb_InternalCode26=26;
+      PSAPAb_InternalCode27=27;
+      PSAPAb_InternalCode28=28;
+      PSAPAb_InternalCode29=29;
+      PSAPAb_InternalCode30=30;
+      PSAPAb_InternalCode31=31;
+      PSAPAb_VCU_LLC_module_inactive=32;
+      PSAPAb_Suspend_over_time=33;
+      PSAPAb_Gearshift_over_time=34;
+      PSAPAb_Distance_control_over_time=35;
+      PSAPAb_Unexpected_EPB_apply=36;
+      PSAPAb_Path_plan_fail=37;
+      PSAPAb_Process_over_time=38;
+      PSAPAb_Internal_code_08=39;
+      PSAPAb_Vehilce_moves_during_handshake=40;
+      PSAPAb_ADC_internal_fault=41;
+      PSAPAb_Unable_to_enter_preguidance=42;
+      PSAPAb_Driver_absence=43;
+      PSAPAb_Surround_view_camera_fault=44;
+      PSAPAb_Localization_failed=45;
+      PSAPAb_LLC_EPB_failure=46;
+      PSAPAb_Vehicle_blocked=47;
+      PSAPAb_ICS_fault=48;
+      PSAPAb_station_fault=49;
+      PSAPAb_Station_Msgs_Losscomm=50;
+      PSAPAb_Unexpected_Rearview_Mirror_Sts=51;
+      PSAPAb_Localization_Datas_Wrong=52;
+    }
+  optional PSAPAbortReason_e  PSAPAbortReason = 5;
+
+  optional string dc_request_id = 6; // 导航每次请求会带上id，AD发送消息时带上最后一次id
+  optional string vid = 10000; // vid of source vehicle
+
+  optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin   
+  optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+  optional uint64 publish_ptp_ts = 536870907; // publish ptp timestamp; unit : nanosecond
+  optional string publisher_id = 536870909;   // uuid of the publisher
+  optional uint64 counter = 536870910;        // message counter
+  optional uint64 publish_ts = 536870911;     // publish utc timestamp; unit : nanosecond
+}

@@ -1,0 +1,194 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+
+message UssInfo{
+    enum SensorSts {
+        NO_FAILURE        = 0;
+        PERMANENT_FAILURE = 1;
+        TEMPORAY_FAILURE  = 2;
+        RESERVED3         = 3;
+    }
+    enum UpaSysSts {
+        OFF               = 0;
+        STANDBY           = 1;
+        ACTIVE            = 2;
+        REAR_FAILURE      = 3;
+        FRONT_FAILURE     = 4;
+        SYSTEM_FAILURE    = 5;
+        UPA_STS_RESERVED6 = 6;
+        UPA_STS_RESERVED7 = 7;
+    }
+    enum SdwSts {
+        DISABLE_SDW = 0;
+        STANDBY_SDW = 1;
+        ACTIVE_SDW  = 2;
+        FAILURE_SDW = 3;
+    }
+    enum ApaSts {
+        DISABLE_APA       = 0;
+        STANDBY_APA       = 1;
+        SEARCHING_APA     = 2;
+        TRACKING_APA      = 3;
+        FAILURE_APA       = 4;
+        COMPLETE_APA      = 5;
+        APA_STS_RESERVED6 = 6;
+        APA_STS_RESERVED7 = 7;
+    }
+    enum UssMode {
+        NONE      = 0;
+        SAPA      = 1;
+        PSAP      = 2;
+        ACC       = 3;
+        RESERVED4 = 4;
+        RESERVED5 = 5;
+        RESERVED6 = 6;
+        RESERVED7 = 7;
+    }
+
+    message UssSts {
+        optional SensorSts front_snsr_fault = 1;
+        optional SensorSts rear_snsr_fault  = 2;
+        optional bool sys_disable           = 3;
+        optional UpaSysSts upa_sys_sts      = 4;
+        optional SdwSts sdw_sts             = 5;
+        optional ApaSts apa_sts             = 6;
+        optional bool sys_service           = 7;
+        optional UssMode uss_mode           = 8;
+    }
+
+    message UssDst {  // cm
+        optional uint32 regn_dst_fl  = 1;
+        optional uint32 regn_dst_flm = 2;
+        optional uint32 regn_dst_fm  = 3;
+        optional uint32 regn_dst_frm = 4;
+        optional uint32 regn_dst_fr  = 5;
+        optional uint32 regn_dst_rl  = 6;
+        optional uint32 regn_dst_rlm = 7;
+        optional uint32 regn_dst_rm  = 8;
+        optional uint32 regn_dst_rrm = 9;
+        optional uint32 regn_dst_rr  = 10;
+        optional uint32 sdw_dst_fl   = 11;
+        optional uint32 sdw_dst_fml  = 12;
+        optional uint32 sdw_dst_fmr  = 13;
+        optional uint32 sdw_dst_fr   = 14;
+        optional uint32 sdw_dst_rl   = 15;
+        optional uint32 sdw_dst_rml  = 16;
+        optional uint32 sdw_dst_rmr  = 17;
+        optional uint32 sdw_dst_rr   = 18;
+        optional uint64 regn_dst_ts  = 19;  // regn dst timestamp
+        optional uint64 sdw_dst_ts   = 20;  // sdw dst timestamp
+    }
+
+    enum ObjHeightType {
+        OBJ_HEIGHT_NONE    = 0;
+        OBJ_HEIGHT_LOW     = 1;    // < 30cm
+        OBJ_HEIGHT_HIGH    = 2;    // higher than probe height
+        OBJ_HEIGHT_UNKNOW  = 3;
+        OBJ_HEIGHT_MAX     = 4;
+    }
+
+    enum ObjType {
+        OT_NONE             = 0;
+        OT_POINT            = 1;
+        OT_STRAIGHT_0C      = 2;
+        OT_STRAIGHT_1C      = 3;
+        OT_STRAIGHT_2C      = 4;
+        OT_MAX              = 5;
+    }
+
+    enum ParkingSlotType {
+        PST_NONE            = 0;
+        PST_PARALLEL        = 1;
+        PST_CROSS           = 2;
+        PST_DIAGONAL        = 3;
+        PST_MAX             = 4;
+    }
+
+    enum ParkingSlotSide {
+        PSS_LEFT            = 0;
+        PSS_RIGHT           = 1;
+    }
+
+    enum ParkingSlotBoundary {
+        PSB_NONE            = 0;
+        PSB_VIRTUAL         = 1;
+        PSB_REAL            = 2;
+        PSB_MAX             = 3;
+    }
+
+    enum ParkingSlotDepthRef {
+        PSD_NONE            = 0;
+        PSD_CURB            = 1;
+        PSD_WALL            = 2;
+        PSD_VIRTUAL         = 3;
+        PSD_LOW             = 4;
+        PSD_HIGH            = 5;
+        PSD_UNKNOWN         = 6;
+        PSD_MAX             = 7;
+    }
+
+    message MapObj {
+        optional uint32 id                   = 1;
+        optional uint32 cfd                  = 2;  // confidence: 0-255
+        optional ObjHeightType height_type   = 3;
+        optional ObjType obj_type            = 4;
+        optional uint32 err_x                = 5;  // cm
+        optional uint32 err_y                = 6;  // cm
+        optional int32 x1                    = 7;  // cm
+        optional int32 y1                    = 8;
+        optional int32 x2                    = 9;
+        optional int32 y2                    = 10;
+        optional uint32 state                = 11;
+    }
+
+    message Point {
+        optional int32 x     = 1;  // cm
+        optional int32 y     = 2;
+    }
+
+    message SlotInfo {
+        optional uint32 id                      = 1;
+        optional ParkingSlotType pst            = 2;
+        optional ParkingSlotSide pss            = 3;
+        optional ParkingSlotBoundary psb_lgt1   = 4;
+        optional ParkingSlotBoundary psb_lgt2   = 5;
+        optional ParkingSlotBoundary psb_lat    = 6 [deprecated=true];
+        optional uint32 depth                   = 7;  // cm
+        optional uint32 length                  = 8;  // cm
+        optional uint32 orient                  = 9;
+        optional uint32 slope                   = 10;
+        optional uint32 curvature               = 11;
+        optional uint32 obj_a_orient            = 12;
+        optional uint32 obj_b_orient            = 13;
+        repeated Point psps                     = 14;  // tbd: 6points:ABCDEF
+        optional ParkingSlotDepthRef psdr       = 15;
+    }
+
+    message FreeSpace {
+        repeated Point freespace_left           = 1;    // size: 100
+        repeated Point freespace_right          = 2;   // size: 100
+        optional uint64 freespace_ts            = 3;
+    }
+
+    optional UssSts uss_sts                = 1;                // 20ms  // FROM STRUCT- gType_UssSts_st
+    optional UssSts uss_sts_from_zone      = 2;
+    optional UssDst uss_dst                = 3;                // 20ms  // FROM STRUCT- gType_UssPDCFrame_st
+    repeated SlotInfo slots                = 4;                // 40ms   // FROM STRUCT- gType_UssPsFrame_st
+    optional SlotInfo chosen_slot          = 5;                // 40ms   // FROM STRUCT- gType_UssPsFrame_st
+    repeated MapObj map_objs               = 6;                // 20ms  //FROM STRUCT- gType_UssObjFrame_st
+    optional uint64 map_obj_ts             = 7;                // 20ms  //FROM STRUCT- gType_UssObjFrame_st
+    optional FreeSpace fs                  = 8;
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin 
+    optional SensorTSHeader sensor_original_ts = 536870906;      // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;      // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909;      // uuid of the publisher
+    optional uint64 counter = 536870910;          // message counter
+    optional uint64 publish_ts = 536870911;          // publish utc timestamp; unit : nanosecond
+}
+

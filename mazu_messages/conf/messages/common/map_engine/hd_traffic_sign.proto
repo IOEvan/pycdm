@@ -1,0 +1,52 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+import "common/map_engine/map_geometry.proto";
+
+
+message HdTrafficSign {
+  optional uint64 id = 1;
+
+  // A four-point box which describes the front surface of traffic sign.
+  optional MapPolygon surface = 2;
+
+  enum Type {
+    GENERAL_HAZARD = 0;
+    ROAD_WORKS = 6;
+    YIELD = 32;
+    STOP = 33;
+    NO_OVERTAKING = 46;
+    NO_OVERTAKING_END = 47;
+    PRIORITY_OVER_ONCOMING = 81;
+    SPEED_LIMIT = 87;
+    SPEED_LIMIT_END = 88;
+    ADVISORY_SPEED_LIMIT = 104;
+    MINIMUM_SPEED = 106;
+    VARIABLE_SPEED_LIMIT = 107;
+    VARIABLE = 108;
+    DO_NOT_ENTER = 139;
+  }
+  optional Type type = 3;
+
+  // The heading of front surface.
+  // e.g. 0° stand for north.
+  //      90° stand for east.
+  optional double heading = 4;
+
+  // The lanes which are controlled by this traffic sign.
+  repeated uint64 lane_id = 5;
+
+  optional MapPoint center = 6;
+
+  repeated uint32  value = 7;
+  
+  optional uint64 parent_id = 8;
+
+  repeated uint64 child_id = 9;
+}
+
+message HdTrafficSignList {
+  repeated HdTrafficSign traffic_sign_list = 1;
+}

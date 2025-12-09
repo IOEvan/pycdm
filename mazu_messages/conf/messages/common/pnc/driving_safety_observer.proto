@@ -1,0 +1,29 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+// driving safety observer interface
+message NDSObserverOutput {
+  optional double OBSOUT_YROYawrateHat_radps = 1;
+  optional double OBSOUT_YROSideSlipAngleHat_rad = 2;
+  optional bool OBSOUT_YROValid_flg = 3;
+  optional uint64 OBSOUT_YROPublishTime_ns = 4;
+  optional double OBSOUT_OldYROYawrateHat_radps = 5;
+  optional double OBSOUT_OldYROSideSlipAngleHat_rad = 6;
+  optional bool OBSOUT_OldYROValid_flg = 7;
+  optional uint64 OBSOUT_OldYROPublishTime_ns = 8;
+}
+
+message NDSObserverInput {
+  optional NDSObserverOutput former_output = 1;
+  optional double OBSIN_PinionAngle_rad = 2 [default = 0.0];
+  optional double OBSIN_VxcogMeas_mps = 3 [default = 0.0];
+  optional double OBSIN_YawrateMeasChss_radps = 4 [default = 0.0];
+  optional double OBSIN_YawrateMeasIMU_radps = 5 [default = 0.0];
+  optional double OBSIN_AycogMeas_mps2 = 6 [default = 0.0];
+  optional double OBSIN_FrontWheelAngle_rad = 7 [default = 0.0];
+  optional bool OBSIN_CarstateTimeOut_flg = 8 [default = false];
+  optional bool OBSIN_Veh10msTimeOut_flg = 9 [default = false];
+}

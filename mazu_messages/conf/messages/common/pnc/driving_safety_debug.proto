@@ -1,0 +1,646 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+import "common/pnc/geometry.proto";
+import "common/pnc/path.proto";
+import "common/pnc/planner_debug.proto";
+import "common/pnc/hmi_state.proto";
+import "common/pnc/perception_object.proto";
+import "common/function_arb/function_arb_in.proto";
+import "common/vehicle_out/ads_actu.proto";
+import "common/pnc/road_map.proto";
+
+import "common/diagnostic/fim/fim_software.proto";
+import "common/diagnostic/fim/fim_mcu_system.proto";
+import "common/localization/relative_localization.proto";
+import "common/pnc/driving_safety_observer.proto";
+import "common/pnc/driving_safety_mp_type.proto";
+import "common/perf/sensor_ts_header.proto";
+
+message NDSObserverDebug {
+  optional NDSObserverOutput obs_out = 1;
+  optional NDSObserverInput obs_in = 2;
+}
+
+message DrivingSafetyPath {
+  // in ns
+  optional uint64 time_meas = 1;
+
+  message ReferencePose {
+    optional Vector3d position = 1;
+    optional Vector3d euler_angle = 2;
+  }
+  // reference cordinate
+  optional ReferencePose reference_pose = 2;
+  //
+  optional ReplanType replan_type = 3 [default = NO_REPLAN];  // replan type
+  // the whole path include several path points
+  repeated PathPointNop path_points = 4;
+
+  optional Transformation3d reference_frame = 5;
+}
+
+message Fim {
+  optional McuSystemFimInfo mcu_sys_fim_info = 1;
+  optional FimSoftwareInfo fim_software_info = 2;
+}
+
+message VehicleStateNop {
+  optional uint64 time_meas = 1;
+  // px,py,pz, meter
+  optional Vector3d position = 2;
+  // vx,vy,vz, meter/s
+  optional Vector3d velocity = 3;
+  // ax,ay,az, meter^2/s
+  optional Vector3d linear_acc = 4;
+  // wx,wy,wz, rad/s
+  optional Vector3d angular_vel = 5;
+  // roll,pith,yaw, radium
+  optional Vector3d euler_angle = 6;
+
+  optional double front_wheel_angle_rad = 7;
+
+  // observer output
+  optional NDSObserverOutput obs_out = 8;
+
+  // localization status
+  optional RelativeLocalization.Status status = 9;
+  optional double disp_spd_mps = 10;
+
+  optional double current_s_m = 11;
+
+  optional uint64 timestamp = 536870905;     // ptp time, nanosec, for cosine bundle timestamp
+  optional SensorTSHeader sensor_original_ts = 536870906;  // sensor original ts
+  optional uint64 publish_ptp_ts = 536870907;  // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909;  // uuid of the publisher
+  optional uint64 counter = 536870910;       // message counter
+  optional uint64 publish_ts = 536870911;  // publish utc timestamp; unit : nanosecond
+}
+
+enum DrivingSafetyMode {
+  EMERGENCY_BRAKE = 0;
+  EMERGENCY_STEERING = 1;
+  STITCH_NAD = 2;
+  COMFORTABLE_PILOT = 3;
+  MODE_NUM = 4;
+}
+
+message SmDebug {}
+
+message McDebug {
+  // lateral debug info [1000 ~ 2000]
+  // lateral common debug info [1000 ~ 1499]
+  optional double lat_nearest_lateral_error_raw_m = 1000;
+  optional double lat_nearest_lateral_error_filt_m = 1001;
+  optional double lat_nearest_heading_error_raw_rad = 1002;
+  optional double lat_nearest_heading_error_filt_rad = 1003;
+  optional double lat_preview_ref_kappa_raw_1pm = 1004;
+  optional double lat_preview_ref_kappa_filt_1pm = 1005;
+  optional PathPointNop lat_nearest_point = 1006;
+  optional PathPointNop lat_preview_point = 1007;
+  optional double lat_vehicle_speed_raw_mps = 1008;
+  optional double lat_vehicle_speed_filt_mps = 1009;
+  optional double lat_yaw_rate_raw_radps = 1010;
+  optional double lat_yaw_rate_filt_radps = 1011;
+  optional VehicleStateNop lat_vehicle_state = 1014;
+  optional uint64 lat_start_cal_timestamp_ns = 1015 [default = 0];
+  optional uint64 lat_end_cal_timestamp_ns = 1016 [default = 0];
+  optional double lat_preview_dist_m = 1017;
+
+  // lateral kin debug info [1500 ~ 1699]
+  optional double lat_kin_c1_term = 1500;
+  optional double lat_kin_c2_term = 1501;
+  optional double lat_kin_c3_term = 1502;
+  optional double lat_kin_lateral_error_integration_m = 1503;
+  optional double lat_kin_s_value = 1504;
+  optional double lat_kin_s_surface = 1505;
+  optional double lat_kin_ueq_known_req_radps = 1506;
+  optional double lat_kin_ueq_known_req_steer_deg = 1507;
+  optional double lat_kin_feedforward_req_radps = 1508;
+  optional double lat_kin_feedforward_req_steer_deg = 1509;
+  optional double lat_kin_feedback_req_radps = 1510;
+  optional double lat_kin_feedback_req_steer_deg = 1515;
+  optional double lat_kin_total_req_radps = 1512;
+  optional double lat_kin_total_req_steer_deg = 1513;
+
+  // lateral dyn debug info [1700 ~ 1899]
+  optional double lat_dyn_yaw_rate_req_raw_radps = 1700;
+  optional double lat_dyn_yaw_rate_req_acc_limit_radps = 1711;
+  optional double lat_dyn_yaw_rate_req_filt_radps = 1712;
+  optional double lat_dyn_feedforward_req_rad = 1713;
+  optional double lat_dyn_yaw_rate_error_raw_radps = 1714;
+  optional double lat_dyn_yaw_rate_error_smooth_radps = 1715;
+  optional double lat_dyn_yaw_rate_error_integration_radps = 1716;
+  optional double lat_dyn_yaw_rate_error_limit_radps = 1717;
+  optional double lat_dyn_feedback_req_zpk_rad = 1718;
+  optional double lat_dyn_feedback_req_integral_rad = 1719;
+  optional double lat_dyn_feedback_req_rad = 1720;
+  optional double lat_dyn_total_req_rad = 1721;
+
+  // lateral others debug info [1900 ~ 2000]
+  optional double lat_front_wheel_angle_req_raw_rad = 1900;
+  optional double lat_front_wheel_angle_acc_limit_rad = 1901;
+  optional double lat_front_wheel_angle_cmd_filt_rad = 1903;
+  optional double lat_front_wheel_angle_cmd_final_rad = 1904;
+
+  // lon debug info [2001 ~ 3000]
+  optional PathPointNop lon_cur_time_target_point = 2001;
+  optional double lon_position_error_raw_m = 2002;
+  optional double lon_speed_error_raw_mps = 2003;
+  optional double lon_acc_error_raw_mps2 = 2004;
+  optional double lon_speed_feedforward_raw_mps = 2005;
+  optional double lon_speed_feedback_raw_mps = 2006;
+  optional double lon_speed_request_raw_mps = 2007;
+  optional double lon_accel_feedforward_raw_mps2 = 2008;
+  optional double lon_accel_feedback_raw_mps2 = 2009;
+  optional double lon_accel_request_raw_mps2 = 2010;
+  optional double lon_cur_speed_raw_mps = 2011;
+  optional double lon_cur_acc_raw_mps2 = 2012;
+  optional double lon_position_error_filt_m = 2013;
+  optional double lon_speed_error_filt_mps = 2014;
+  optional VehicleStateNop lon_vehicle_state = 2015;
+  optional double lon_cur_speed_filt_mps = 2016;
+  optional double lon_cur_acc_filt_mps2 = 2017;
+  optional double lon_position_error_smooth_m = 2018;
+  optional double lon_speed_error_smooth_mps = 2019;
+  optional uint64 lon_start_cal_timestamp_ns = 2020 [default = 0];
+  optional uint64 lon_end_cal_timestamp_ns = 2021 [default = 0];
+
+  repeated StatusInfo mc_error_info = 4000;
+}
+
+message MpDebug {
+  // lon mpc debug
+  message MpLonMpcDebug {
+    message MPC_Traj {
+      optional double s = 1;
+      optional double v = 2;
+      optional double a = 3;
+      optional double u = 4;
+      optional double du = 5;
+      optional double t = 6;
+    }
+    repeated MPC_Traj mpc_predict = 1;
+    repeated MPC_Traj mpc_reference = 2;
+    optional double runtime_acc_cmd = 3;
+    message Obs_Boundary {
+      optional double bnd_s = 1;
+      optional double bnd_s_buffer = 2;
+      optional double bnd_v = 3;
+      optional double ttc = 4;
+      optional double ttc_weight = 5;
+      optional double thw = 6;
+      optional double thw_weight = 7;
+      optional double t = 8;
+      optional int32 obs_id = 9;
+      optional double bnd_s_buffer_ttc = 10;
+      optional double bnd_s_buffer_thw = 11;
+    }
+    repeated Obs_Boundary obs_boundary = 4;
+    repeated int32 lk_risk_obs_id = 5;
+    repeated int32 lk_yield_obs_id = 6;
+    repeated int32 nad_yield_obs_id = 7;
+    optional bool is_stopped_flg = 8;
+    optional bool drive_off_req_flg = 9;
+  }
+
+  // lat nmpc debug
+  message MpLatNmpcDebug {
+    optional PathPointNop original_point_local = 1;
+    repeated PathPointNop local_path = 2;
+    repeated PathPointNop ref_line = 3;
+    repeated double dKappa = 4;
+    repeated double acc_ref = 5;
+    optional double kappa_limit = 6;
+    optional double dkappa_limit = 7;
+    optional LatNmpcBoundaryDebug boundary_segment = 8;
+    optional double lat_nmpc_time_consuming_millisecond = 9;
+    optional bool replan_flg = 10 [default = false];
+    optional LatNmpcCorridorDebug corridors = 20;
+  }
+
+  message LatNmpcBoundaryDebug {
+    repeated BoundarySegment fa_segment = 1;
+    repeated BoundarySegment ra_segment = 2;
+  }
+
+  message LatNmpcCorridorDebug {
+    message Corridor {
+      optional double x_lb = 1;
+      optional double x_ub = 2;
+      optional double y_lb = 3;
+      optional double y_ub = 4;
+    }
+    repeated Corridor front_corridor = 1;
+    repeated Corridor rear_corridor = 2;
+  }
+
+  message MockDeciderDebug {
+    optional MpReflineSource ref_line_source = 1;
+    optional VehicleStateNop delta_pose = 2;
+    optional bool stitch_sts = 3;
+    repeated LaneRoadMap lanes = 4;
+    repeated LaneBoundaryRoadMap lane_boundaries = 5;
+  }
+
+  message ReferenceLineSmootherDebug {
+    optional NDSRawPath raw_reference_line = 1;
+    optional NDSRawPath smoothed_reference_line = 2;
+  }
+
+  optional MpLonMpcDebug mp_lon_mpc_debug = 1;
+  optional MpLatNmpcDebug mp_lat_nmpc_debug = 2;
+  optional DrivingSafetyPath mp_pub_path = 3;
+
+  optional MockDeciderDebug mock_decider_debug = 5;
+  optional ReferenceLineSmootherDebug reference_line_smoother_debug = 6;
+
+  optional PathPointNop stitch_point = 7;
+
+  optional MpEvaluation module_eval = 100;
+
+  optional string scenario_status = 3998;
+  optional bool MpFallbackFlg = 3999 [default = false];
+  repeated StatusInfo mp_error_info = 4000;
+}
+
+message MapperDebug {
+  // lane map
+  optional SceneMode scene_mode = 1;
+  repeated MapperLane lane = 2;
+  optional int32 max_lane_id = 3;
+  optional int32 ego_lane_id = 4;
+  optional Transformation3d map_transformation = 5;
+  repeated ObstacleInfo objects_set = 6;
+  repeated ObjectsRelation objects_relation = 7;
+  repeated int32 key_objects_set = 8;
+
+  repeated MapperReferLine refer_line = 15;
+  repeated LaneView lane_view = 16;
+}
+
+message ObstacleInfo {
+  optional int32 obs_id = 1;
+  optional double confidence = 2;
+  optional PerceptionObject.Type obs_type = 3;
+  optional double type_confidence = 4;
+  optional PerceptionObject.Source obs_source = 5;
+  optional double trackingTime = 6;
+  optional Vector3d position = 7;  // x, y
+  optional Vector3d velocity = 8;
+  optional Vector3d acceleration = 9;  // acc_x, acc_y, acc_z
+  optional double heading = 10;
+  optional double heading_rate = 11;
+  optional Vector3d bounding_box = 12;
+}
+
+message ObjectsRelation {
+  optional int32 obs_id = 1;
+  repeated int32 same_front_obstacle_id_array = 2;
+  repeated int32 same_back_obstacle_id_array = 3;
+  repeated int32 left_front_obstacle_id_array = 4;
+  repeated int32 left_back_obstacle_id_array = 5;
+  repeated int32 right_front_obstacle_id_array = 6;
+  repeated int32 right_back_obstacle_id_array = 7;
+}
+
+message MapperLane {
+  optional int32 lane_id = 1;
+  optional MapperLaneBoundary left_boundary = 2;
+  optional MapperLaneBoundary right_boundary = 3;
+  optional MapperLaneRole lane_role = 4;
+  optional CenterLineMap center_line = 5;
+  optional int32 left_lane_id = 6;
+  optional int32 right_lane_id = 7;
+}
+
+message MapperReferLine {
+  optional int32 ref_line_role = 1;
+  repeated MapperReferenceLinePoint ref_line_points = 2;
+}
+
+message LaneView {
+  optional int64 obstacle_id = 1;
+  optional int32 current_lane_id = 2;
+  optional int32 left_lane_id = 3;
+  optional int32 right_lane_id = 4;
+}
+
+message MapperReferenceLinePoint {
+  // optional double s = 1;
+  optional double x = 2;
+  optional double y = 3;
+  optional double heading = 4;
+  optional double k = 5;
+  optional double dk = 6;
+  optional double lateral_bound = 7;
+  optional double offset_l = 8;  // offset to center line point
+}
+
+enum SceneMode {
+  INVALID_SCENE = 0;
+  LANE_SCENE = 1;
+  PURSUIT_FRONT = 2;
+  FREE_SPACE = 3;
+}
+
+enum MapperLaneRole {
+  ROLE_UNKNOWN = 0;
+  ROLE_HOST = 1;
+  ROLE_LEFT = 2;
+  ROLE_RIGHT = 3;
+  ROLE_LEFT_LEFT = 4;
+  ROLE_RIGHT_RIGHT = 5;
+
+  MAX_INDEX = 11;
+}
+
+message CenterLineMap {
+  optional Coeff center_coeff = 1;
+  optional Polyline polyline = 2;
+  repeated double headings = 3;
+  repeated double left_width = 4;
+  repeated double right_width = 5;
+}
+
+message Coeff {
+  optional float line_c0 = 1;
+  optional float line_c1 = 2;
+  optional float line_c2 = 3;
+  optional float line_c3 = 4;
+}
+
+message MapperLaneBoundary {
+  optional uint32 boundary_id = 1;
+  optional Coeff boundary_coeff = 2;
+  optional Polyline boundary_Points = 3;
+
+  optional float boundary_start = 4;
+  optional float boundary_end = 5;
+
+  optional LDEndReason boundary_end_reason = 6;
+  optional float boundary_TypeConfidence = 7;
+  optional float boundary_ColorConfidence = 8;
+  optional bool Line_Is_Virtual = 9;
+  optional LDType boundary_type = 10;
+  optional LDColor boundary_color = 11;
+
+  enum LDType {
+    LDType_Unknown = 0;
+    LDType_Solid = 1;
+    LDType_Dash = 2;
+    LDType_Solid_Dash = 3;
+    LDType_Dash_Solid = 4;
+    LDType_Solid_Solid = 5;
+    LDType_Deceleration_Dash = 6;
+    LDType_Deceleration_Solid = 7;
+    LDType_Guide = 8;      //
+    LDType_Dash_Dash = 9;  //
+    LDType_Direct = 10;    //
+    LDType_Solid_Four = 11;
+  };
+  enum LDColor {
+    LDColor_Unknown = 0;
+    LDColor_White = 1;
+    LDColor_Yellow = 2;
+    LDColor_Orange = 3;
+    LDColor_Blue = 4;
+    LDColor_Others = 5;
+    LDColor_Green = 6;
+    LDColor_Yellow_White = 7;
+    LDColor_White_Yellow = 8;
+  };
+
+  enum LDEndReason {
+    LDEndReason_Unknown = 0;
+    LDEndReason_Loss = 1;      // The lane line disapprears in the view
+    LDEndReason_Occluded = 2;  // The lane line is occluded
+    LDEndReason_Intersection =
+        3;  // The lane line is ended when approaching a intersection
+  };
+}
+
+enum StateManagerStatus {
+  SM_OFF = 0;
+  SM_READY = 1;
+  SM_ACTIVE = 2;
+  SM_SUSPEND = 3;
+  SM_PASSIVE = 4;
+  SM_MRM = 5;
+  SM_FAUILURE = 6;
+  SM_INIT = 7;
+}
+
+enum AESStatus {
+  AES_OFF = 0;
+  AES_Passive = 1;
+  AES_Standby = 2;
+  AES_Active = 3;
+  AES_Failure = 4;
+}
+
+enum AEBStatus {
+  AEB_OFF = 0;
+  AEB_Passive = 1;
+  AEB_Standby = 2;
+  AEB_Active = 3;
+  AEB_Failure = 4;
+}
+
+enum LaneKeepStatus {
+  LK_OFF = 0;
+  LK_APPROACH = 1;
+  LK_FOLLOW = 2;
+}
+
+enum ESStatus {
+  ES_Passive = 0;
+  ES_Standby = 1;
+  ES_Active = 2;
+  ES_Failure = 3;
+}
+
+enum NPAStatus {
+  NPA_Passive = 0;
+  NPA_Standby = 1;
+  NPA_Active = 2;
+  NPA_Failure = 3;
+}
+
+enum DOPStatus {
+  DOP_Passive = 0;
+  DOP_Standby = 1;
+  DOP_LK_Ready = 2;
+  DOP_LK_Active = 3;
+  DOP_LC_Preparing = 4;
+  DOP_LC_Inprogress = 5;
+  DOP_LC_Reverse = 6;
+  DOP_LC_Finish = 7;
+  DOP_Failure = 8;
+}
+
+enum FeatureErrorCode {
+  // OK = 0;
+
+  // Lane keep feature
+  LK_ERROR = 0;
+
+  // Lane change feature
+  LC_ERROR = 1;
+}
+enum DrivingSafetyFuncMode {
+  NDS_NoReq = 0;
+  NDS_ES = 1;
+  NDS_DOP = 2;
+  NDS_AEB = 3;
+  NDS_AES = 4;
+  NDS_Reserved1 = 5;
+  NDS_Reserved2 = 6;
+  NDS_Reserved3 = 7;
+}
+
+message DataManagerDebug {
+  optional bool isModuleInit = 1;
+  optional bool isDataReady = 2;
+  optional bool isADInternalFault = 3;
+  optional bool isNADStateEnable = 4;
+  optional bool isESFeatureFinish = 5;
+  optional bool isESFeatureEnable = 6;
+  optional bool isReginEnable = 7;
+  optional bool isTakeOver = 8;
+  optional bool isCrashed = 9;
+  optional bool isBrakingSysFault = 10;
+  optional bool isSteerSysFault = 11;
+  optional bool isDrivingSafeFault = 12;
+  optional bool isInputPathfill = 13;
+  optional bool isActrIfActv = 14;
+  optional bool isDOPFeatureEnable = 15;
+  optional bool isNADStateActv = 16;
+  optional bool isOtherAssociaSysActv = 17;
+  optional bool isVehBodySuppr = 18;
+  optional bool isDriverSeatOccpSuppr = 19;
+  optional bool isDriverSeatBeltSuppr = 20;
+  optional bool isGearStSuppr = 21;
+  optional bool isVehSpdSuppr = 22;
+  optional bool isCAFuncActv = 23;
+  optional bool isHazardLightActv = 24;
+  optional bool isBrkPdlPressed = 25;
+  optional bool isVLCNotAvl = 26;
+  optional bool isAVHActv = 27;
+  optional bool isDriverTorqSuppr = 28;
+  optional bool isStrWhlAnglSpdSuppr = 29;
+  optional bool isYawRateSuppr = 30;
+  optional bool isCtrlSafetyPathOk = 31;
+  optional bool isActuatorActv = 32;
+  optional bool isLaneChangeReq = 33;
+  optional bool isLaneChangeCancel = 34;
+  optional bool isLaneChangeActv = 35;
+  optional bool isLaneChangeReverse = 36;
+  optional bool isLaneChangeFinish = 37;
+  optional uint64 isDopSuppress = 38;
+  optional bool isPassiveHolding = 39;
+  optional bool isNADStateDisable = 40;
+  optional bool isAdsTimeOut = 41;
+}
+
+message StatusInfo {
+  optional uint64 status_code = 1 [default = 0];
+  optional string status_msg = 2;
+}
+
+message PredTrajPoint {
+  optional double time_stamp = 1;
+  optional double x = 2;
+  optional double y = 3;
+  optional double velocity = 4;
+  optional double heading = 5;
+  optional double acceleration = 6;
+  optional double yawrate = 7;
+  optional double curvature = 8;
+}
+
+message ObjPredictInfo {
+  optional uint64 id = 1;
+  optional uint64 predictorType = 2;
+  optional uint64 lateral_behavior = 3;
+  optional double probability = 4;
+  repeated PredTrajPoint pred_traj = 5;
+}
+
+message PredictorDebug {
+  repeated ObjPredictInfo pred_info = 1;
+}
+
+message DrivingSafetyStatus {
+  message FeatureStatus {
+    optional AEBStatus aeb_status = 1;
+    optional AESStatus aes_status = 2;
+    optional LaneKeepStatus lane_keep_status = 3;
+    optional ESStatus es_status = 4;
+    optional FeatureErrorCode error_code = 99;
+    optional DOPStatus npa_status = 5;
+    optional DOPStatus dop_status = 6;
+  }
+  // in ns
+  optional uint64 time_meas = 1;
+  optional StateManagerStatus state_manager_status = 2;
+  optional FeatureStatus feature_status = 3;
+  // repeated FunctionXstatus feature_status_output = 4
+  optional DrivingSafetyFuncMode driving_safety_func_mode = 5;
+  // optional FunctionRequest driving_safety_req = 98;
+  optional DataManagerDebug data_manager = 99;
+}
+
+enum LatActionType {
+  LANE_CHANGE_LEFT = 0;
+  LANE_KEEP = 1;
+  LANE_CHANGE_RIGHT = 2;
+  EMERGENCY_STEERING_LEFT = 3;
+  EMERGENCY_STEERING_RIGHT = 4;
+  MAX_NUM = 5;
+}
+
+message DrivingSafetyDeciderTask {
+  enum LateralTaskType {
+    PULL_OVER_RIGHT = 0;
+    PULL_OVER_LEFT = 1;
+    HMI_LANE_CHANGE_RIGHT = 2;
+    HMI_LANE_CHANGE_LEFT = 3;
+    EMERGENCY_STEERING_RIGHT = 4;
+    EMERGENCY_STEERING_LEFT = 5;
+    SUCCEEDING = 6;
+  };
+  enum LateralDeciderCancelReason {
+    NOT_CANCEL = 0;
+    INTERNAL_ERROR = 1;
+    COLLISION_RISK = 2;
+    DRIVER_INTENTION = 3;
+    REFERENCE_LINE = 4;
+  };
+
+  optional LateralTaskType taks_type = 1;
+  optional LateralDeciderCancelReason lateral_decider_reason = 2;
+}
+
+message DecisionDebug {
+  repeated PredTrajPoint ego_traj = 1;
+}
+
+message DrivingSafetyDebug {
+  optional uint64 time_meas = 1 [default = 0];
+  optional uint64 time_pub = 2 [default = 0];
+  optional DrivingSafetyMode mode = 3;
+  optional DrivingSafetyPath path = 4;
+  optional DrivingSafetyStatus driving_safety_status = 5;
+  optional NDSObserverDebug obs_debug = 6;
+
+  optional SmDebug sm_debug = 10;
+  optional McDebug mc_debug = 11;
+  optional MpDebug mp_debug = 12;
+  optional MapperDebug mapper_debug = 13;
+  optional PredictorDebug predictor_debug = 14;
+  optional DecisionDebug decision_debug = 15;
+}

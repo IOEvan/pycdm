@@ -1,0 +1,51 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message FourdEventInfo{
+    optional uint32 Fourdtype    = 1;
+
+    enum FourdSubtype_e{
+        Subtype_default       = 0;
+        Upward_path           = 1;    //Upward connecting path
+        Downward_path         = 2;    //Downward connecting path
+        Speed_bump            = 3;    //Vehicle speed bumps
+        Pit                   = 4;    //Pit
+        Small_undulations     = 5;    //Small undulations
+        Middle_undulations    = 6;    //Middle undulations
+        Lagre_undulations     = 7;    //large undulations
+        Manhole_Cover         = 8;    //manhole_cover
+        Fourdsubrsvd          = 9;    //Reserved
+
+        Continuous_turbulence = 100;  //Continuous turbulence
+        Continuous_undulation = 101;  //Continuous undulation
+        Warn_Pit              = 102;  //WARN_PIT
+    }
+    optional FourdSubtype_e FourdSubtype = 2;
+    optional uint32 ObjAttr0     = 3; //Reserved
+    optional uint32 ObjAttr1     = 4; //Continuous bumpy index / Undulating elevation
+    optional float  ObjAttr2     = 5; //Duration of turbulence
+    optional float  ObjAttr3     = 6; //The frequency of continuous bumps / The height of speed bumps / The degree of impact on the upper and lower bridges
+    optional int32  Distance     = 7;
+    
+    message PointInfo{
+        optional double Latitude  = 1;
+        optional double Longitude = 2;
+        optional double Heading   = 3;
+    }
+    repeated PointInfo Point     = 8;
+}
+
+message FourdPredictEvents{
+
+    repeated FourdEventInfo FourdEvent = 1;
+
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;               // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909;                 // uuid of the publisher
+    optional uint64 counter = 536870910;                      // message counter
+    optional uint64 publish_ts = 536870911;                   // publish timestamp; unit : nanosecond
+}

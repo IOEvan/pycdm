@@ -1,0 +1,72 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+import "common/perception/manner_map.proto";
+import "common/perception/perception_objects.proto";
+
+message ImageIndex {
+    optional int32 camera_id = 1;              // camera sensor id
+    optional uint64 image_ts = 2;              // 图片时间戳
+}
+
+message PromptData {
+    optional string system_prompt = 1;         // 系统提示词
+    optional string image_prompt = 2;          // 图像序列说明
+    optional string user_prompt = 3;           // 自定义prompt
+    optional int32 mode = 4;                   // 图像预处理的模式
+    optional int32 max_decode_iterator = 5;    // llm 最大解码次数
+    optional bool return_thumbnail = 6;        // 是否返回缩略图
+    repeated ImageIndex camera_info_list = 7;  // 图像序列
+}
+
+message ResponseData {
+    optional string response = 1;             // 模型推理返回的明文
+    repeated bytes response_token_ids = 2;    // 模型推理的token id 序列
+    optional uint64 latency = 3;              //当帧任务总体推理latency
+    optional uint64 scheduling_latency = 4;   // 当帧任务调度latency
+}
+
+message ObjSLDist {
+    optional float s_dist = 1;   // 纵向距离
+    optional float l_dist = 2;   // 横向距离
+}
+
+message ImgPoint {
+    optional uint32 u = 1;   // 纵向距离
+    optional uint32 v = 2;   // 横向距离
+}
+
+message SelectedObjInfo {
+    optional DynamicObj obj = 1;    // 目标信息
+    optional ObjSLDist sl_dist = 2; // SL距离
+    repeated ImgPoint bbox_pts = 3; // 投影框点（在fw图像上）
+    optional string debug_info = 4; // 其他信息
+}
+
+message DeadCarDebugInfo {
+    optional CenterLine ref_line = 1;   // 参考线
+    repeated SelectedObjInfo objs = 2;  // 选中的目标
+    optional string debug_info = 3;     // 其他信息
+}
+
+message MlmPromptInfo {
+    repeated PromptData requests = 1;           // 推理引擎输入的prompt
+    repeated ResponseData responses = 2;        // 推理引擎的输出
+
+    optional uint64 request_ts = 3;             // prompts 送入推理引擎的时间
+    optional uint64 response_ts = 4;            // 从推理引擎取到结果的时间
+
+    optional DeadCarDebugInfo dead_car_debug_info = 5;  // 死车debug信息
+
+    optional uint64 mlm_frame_id = 6;           // mlm推理frame_id信息
+
+    optional uint64 timestamp = 536870905;          // ptp timestamp, nanosecond，used for data bundle readin
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909;       // uuid of the publisher
+    optional uint64 counter = 536870910;            // message counter
+    optional uint64 publish_ts = 536870911;         // publish utc timestamp; unit : nanosecond
+}

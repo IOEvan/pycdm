@@ -1,0 +1,318 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+import "common/perception/uss_base.proto";
+import "common/perception/radar_base.proto";
+import "common/perception/lidar_cluster_output.proto";
+import "common/perception/lidar_prediction_output.proto";
+
+
+message ObjLaneLoc {
+  optional uint32 lane_index = 1;  // lane index from LM
+  optional ObjLaneNO lane_id = 2;   // no debounced lane loc no :current /left/right
+  optional ObjLaneNO lane_id_debounced =3;   // has debounced lane loc no :current /left/right
+  optional uint32 debounced_cnt = 4;
+  optional float vx_ccs = 5;
+  optional float vy_ccs = 6;
+  optional float dy_ccs = 7;
+  optional float hd_angle_2_lane = 8;
+  optional float dy_min = 9;
+  optional float dy_max = 10;
+
+  enum ObjLaneNO {
+    kLaneNO_DEFAULT = 0;
+    kLaneNO_CURRENT_LANE = 1;
+    kLaneNO_LEFT_LINE = 2;
+    kLaneNO_RIGHT_LINE = 3;
+    kLaneNO_LEFT_LANE = 4;
+    kLaneNO_RIGHT_LANE = 5;
+    kLaneNO_NEXT_LEFT_LINE = 6;
+    kLaneNO_NEXT_RIGHT_LINE = 7;
+    kLaneNO_NEXT_LEFT_LANE = 8;
+    kLaneNO_NEXT_RIGHT_LANE = 9;
+  }
+}
+
+message ObfClassification{
+  optional ObjClass obj_main_class = 1;
+  optional uint32 obj_sub_class = 2;
+}
+
+message RadarObjSup{
+  optional ObjRadarSource radar_src = 1;
+  optional float start_dx = 2;
+  optional float rcs = 3;
+
+  //bitwise signal:0x0:None, 0x1:MRR, 0x2:SRR_FL, 0x4:SRR_FR, 0x8:SRR_RL,
+  // 0x10:SRR_RR, 0x3:MRR+SRR_FL, 0x5:MRR+SRR_FR, ...
+  enum ObjRadarSource{
+    kNoneRadar = 0;
+    kFrntCent = 1;
+    kFrntLeft = 2;
+    kFrntCent_And_FrntLeft = 3;
+    kFrntRight = 4;
+    kFrntCent_And_FrntRight = 5;
+    kFrntLeft_And_FrntRight = 6;
+    kFrntCent_And_FrntRight_And_FrntLeft = 7;
+    kRearLeft = 8;
+    kFrntLeft_And_RearLeft = 10;
+    kRearRight = 16;
+    kFrntRight_And_RearRight = 20;
+    kRearLeft_And_RearRight = 24;
+  }
+}
+
+
+message CameraObjSup{
+  optional float mature_to_coast_lon_dst = 1; //the lon pos when obj changes from mature to cost 
+  optional float start_dx = 2; //the lon pos when obj appear 
+  optional uint32 age_frame = 3;
+  optional uint32 age_second = 4;
+  optional uint32 color = 5;
+  optional bool is_very_close = 6;
+  optional float ttc_inverse = 7;
+  optional bool is_blocked_parts = 8;
+  optional bool is_blocked_left = 9;
+  optional bool is_blocked_right = 10;
+  optional HBStatus hb_status = 11;
+  optional float cut_angle = 12;
+  optional float cut_distance = 13;//cut in distance_long
+  optional MeasuringStatus measuring_status = 25;
+  optional uint32 blocked_parts = 26;
+  optional float cut_lat_distance = 27;//cut in distance_lat
+  repeated uint32 obj_lane_id_from_perception = 28;
+  optional OBJLaneAssignment obs_lane_assignment_from_perception = 29;
+  optional float obj_missing_age_second = 30; // object missed tracking time in seconds
+  optional float dst_from_left_line_from_perception = 31;// frenet lat dst from left line from perception
+  optional float dst_from_right_line_from_perception = 32;// frenet lat dst from right line from perception
+  optional float perception_moving_consistency = 33;
+
+  
+  enum OBJLaneAssignment{
+       OBJLaneAssignment_Unknown = 0;
+        OBJLaneAssignment_Host = 1;
+        OBJLaneAssignment_Left = 2;
+        OBJLaneAssignment_Right = 3;
+        OBJLaneAssignment_Left_Left = 4;
+        OBJLaneAssignment_Right_Right = 5;
+        OBJLaneAssignment_Host_Left_Line = 6;//OD压线的Role,Role的定义与vision_road_detection.proto中LDRole一致
+        OBJLaneAssignment_Host_Right_Line = 7;
+        OBJLaneAssignment_Adjacent_Left_Left_Line = 8;
+        OBJLaneAssignment_Adjacent_Left_Right_Line = 9;
+        OBJLaneAssignment_Adjacent_Right_Left_Line = 10;
+        OBJLaneAssignment_Adjacent_Right_Right_Line = 11;
+        OBJLaneAssignment_LeftLeft_Left_Line = 12;
+        OBJLaneAssignment_LeftLeft_Right_Line = 13;
+        OBJLaneAssignment_RightRight_Left_Line = 14;
+        OBJLaneAssignment_RightRight_Right_Line = 15;
+  }
+
+  enum MeasuringStatus{
+    MeasuringStatus_Unknown = 0;
+    MeasuringStatus_Init = 1;
+    MeasuringStatus_Update = 2;
+    MeasuringStatus_Predict = 3;
+    MeasuringStatus_Lost_Obj = 4;
+    MeasuringStatus_Unstable_Obj = 5;
+  }
+    
+  enum HBStatus{
+    HBStatus_Off = 0;
+    HBStatus_On = 1;
+    HBStatus_Blink = 2;
+  }
+}
+
+message MatchInfo{
+  optional uint32 id = 1;
+  optional uint32 idx = 2;
+  optional uint32 loose_match_cnt = 3;
+}
+
+message FusObjSup{
+  repeated uint32 track_cnt = 1; // The counter to indicate how many frame the object has been associated to the sensor. idx 1 is radar, 2 is camera
+  optional uint32 moving_cnt = 2; // Frame number count of object moving status
+  optional bool fsp_cam_obj_disagree = 3; //Object position disagreement between camera position and freespace position
+  repeated MatchInfo radar_match_list = 4; //Fused object can be associated with multiple radar object, so it is repeated
+  optional MatchInfo vision_match = 5;  // Only one vision object can be associated with one fused object, no need to repeat
+  repeated ObjMotion meas_motion = 6; // measurement motion info,idx 0 is radar, 1 is camera
+  repeated int32 merged_idx = 7; //Object index which has been merged to another one. For example idx 3 is merged into idx 5 object, then merge_idx is 3.
+  optional uint32 debug_reserved = 8;
+}
+
+message PredictionPathPoint{
+  optional float x = 1;     // unit:m   in SAE coordinate, origin is at mid of rear axel, forward is positive 
+  optional float y = 2;     // unit:m   in SAE coordinate, right is positive
+  optional int32 time_delta = 3; //in us
+  optional float speed = 4;
+  optional float heading =5;
+}
+
+message PredictionTrajectory{
+  repeated PredictionPathPoint trajectory =1;
+  optional float probability = 2;
+}
+
+message ObstacleIntent{
+  enum Type {
+    kUnknown = 0;
+    kStop = 1;
+    kStationary = 2;
+    kMoving = 3;
+    kCjangeLane = 4;
+    kLowAcceleration = 5;
+    kHighAcceleration = 6;
+    kLowDecceleration = 7;
+    kHighDeceleration = 8;
+  }
+  optional Type type = 1;  //default = kUknown
+}
+
+message Point3D{
+  optional float x = 1;  // unit:m   in SAE coordinate, origin is at mid of rear axel, forward is positive 
+  optional float y = 2;  // unit:m   in SAE coordinate, right is positive
+  optional float z = 3;  // unit:m   in SAE coordinate, downwards is positive
+
+  }
+
+message FusObject{
+  optional uint32 id = 1;
+  optional ObjPos pos_vcs = 2;
+  optional ObjPos pos_ccs = 3;
+  optional ObjVel vel_vcs = 4;
+  optional ObjVel vel_ccs = 5;
+  optional ObjAcc acc = 6;
+  optional ObjStatus object_status = 7; // moving information
+  optional ObjValidStatus valid_status = 8;
+  optional ObfClassification type = 9;
+  optional ObjBlinkerInfo blinker_info = 10; // deprecated
+  optional ObjBrakeLightInfo brake_info = 11;
+  optional uint32 age = 12;
+  optional uint32 age_ms = 42; // object age in millisecond
+  optional ObjSize size = 13;
+  optional float heading = 14;
+  optional float heading_rate = 15;
+  optional float dist_from_left_lane = 16;  // deprecated
+  optional float dist_from_right_lane = 17; // deprecated
+  optional uint32 tracklet_match_list_len = 18;
+  repeated uint32 tracklet_match_list = 19; //32
+  repeated uint32 tracket_loss_match_cnt_list = 20; //32
+  optional uint32 vision_match_id = 21;
+  optional uint32 vision_match_idx = 22;
+  optional uint32 fusion_source = 23; //fusion souce is in bitwise. Bit 0= lidar, bit 1= radar, bit 2 = vision. example: value 0b0100 is camer only, 0b0111, is object with lidar， camera, and radar source 
+  optional uint32 lost_cnt = 24;
+  optional float angle = 25;
+  optional uint32 moving_cnt = 26;
+  optional uint32 merged_obj_idx_list_length = 27;
+  repeated uint32 merged_obj_idx_list = 28;
+  optional uint32 motion_category = 29;
+  optional uint32 fusion_source_his = 30;
+  optional float vision_exist_prob = 31;
+  optional uint32 vision_match_cnt = 32;
+  optional uint32 radar_match_cnt = 33;
+  optional uint32 move_status = 34;
+  optional ObjLaneLoc lane_location = 35;
+  optional float confidence = 36;
+  repeated float type_prob = 37;
+  repeated PredictionTrajectory pred_traj = 38;
+  optional ObstacleIntent intent = 39;
+  repeated Point3D polygon_point = 40; 
+  optional bool is_predicted_cutin = 41;
+  optional LidarClusterObject lidar_cluster_object = 43; // 2d polygen for GOD from lidar 
+  optional uint32 obj_filtered_flg = 44; // flg for ADHMI/Control etc
+  optional LidarTrajectoryPrediction lidar_traj_prediction = 45;
+  optional LidarObjectDetectionSource lidar_object_detection_source = 46;
+  optional float moving_prob = 47;
+  optional uint32 aeb_flag = 48;
+  optional ObjLightStatus left_indicator = 49;
+  optional ObjLightStatus right_indicator = 50;
+  optional float brake_light_probability = 51;
+  optional float left_indicator_probability = 52;
+  optional float right_indicator_probability = 53;
+  optional float moving_consistency = 54;
+  optional float common_confidence = 55;
+  optional OBJObjectSpecialClass special_class = 56;
+  optional ObjUss Uss_inf = 57;
+
+  enum OBJObjectSpecialClass{
+    OBJObjectSpecialClass_Unknown = 0;
+    OBJObjectSpecialClass_PoliceCar = 101; // 警车
+    OBJObjectSpecialClass_Ambulance = 102; // 救护车
+    OBJObjectSpecialClass_FireTruck = 103; // 消防车
+    OBJObjectSpecialClass_RoadMaintenanceVehicle = 104; // 工程抢险、道路养护车
+    OBJObjectSpecialClass_WateringCar = 105; // 洒水车
+    OBJObjectSpecialClass_RidePolice = 201; // 骑警
+    OBJObjectSpecialClass_Police = 301; // 警察
+  }
+
+  enum ObjStatus{
+    kObjStatus_Undefined = 0;
+    kObjStatus_Standing = 1;
+    kObjStatus_Stopped = 2;
+    kObjStatus_Moving = 3;
+    kObjStatus_Oncoming = 4;
+    kObjStatus_Parked = 5;
+  }
+
+  enum ObjValidStatus{
+    kObjValidStatus_Invalid = 0;
+    kObjValidStatus_New = 1;
+    kObjValidStatus_Mature = 2;
+    kObjValidStatus_Coast = 3;
+  }
+
+  enum ObjBlinkerInfo{
+    kObjBlinkerInfo_OFF = 0;
+    kObjBlinkerInfo_Left = 1;
+    kObjBlinkerInfo_Right = 2;
+    kObjBlinkerInfo_DoubleFlash = 3;
+  }
+
+  enum ObjLightStatus{
+    kObjLightStatus_Invalid = 0;
+    kObjLightStatus_ON = 1;
+    kObjLightStatus_OFF = 2;
+  }
+
+  enum ObjBrakeLightInfo{
+    kObjBrakeLightInfo_Invalid = 0;
+    kObjBrakeLightInfo_ON = 1;
+    kObjBrakeLightInfo_OFF = 2;
+  }
+  
+}
+
+message ObfObject{
+  optional FusObject fuseobj = 1;
+  optional CameraObjSup cam_sup_info = 2;
+  optional RadarObjSup rdr_sup_info = 3;
+  optional FusObjSup fus_sup_info = 4;
+}
+
+message EHYObfOutputs{
+  repeated ObfObject obf_objects = 1;
+  optional SensorMgrSt obf_status = 2;
+  optional bool obf_rear_object_detected = 3;
+  optional uint64 timestamp = 4;              // timestamp of fused object, uint in nanosec
+  optional uint64 timestamp_perception = 5;   // timestamp of perception(vision/lidar) detection, uint in nanosec
+  optional uint64 timestamp_radar = 6;        // timestamp of radar detection, uint in nanosec
+
+  optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+  optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909; // uuid of the publisher
+  optional uint64 counter = 536870910;         // message counter
+  optional uint64 publish_ts = 536870911;    // publish utc timestamp; unit : nanosecond
+
+  
+  enum SensorMgrSt{
+    kSensorMgrSt_Uninit = 0;   // not initialized
+    kSensorMgrSt_OK = 1;   // normal status
+    kSensorMgrSt_Error = 2;   // error in OBF
+    kSensorMgrSt_RadarOnly = 3;   // no perception input
+    kSensorMgrSt_RdarOnlyTimeOut = 4;   // not used
+    kSensorMgrSt_PerceptionOnly = 5;  // no radar input
+  }
+}

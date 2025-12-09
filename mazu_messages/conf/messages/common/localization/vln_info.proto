@@ -1,0 +1,76 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message VlnInfo {
+
+    optional uint64 timestamp = 1;
+    repeated VlnGoalPoint vln_goal_point_info = 2;  //在线建图GoalPoint信息
+    repeated VlnOcrInfo vln_ocr_info = 3;   //在线建图3D OCR信息
+    optional uint32 indoor_parking_area = 4;  //地下停车场状态信息， 0-非地下停车场，1-indoor_parking_area_by_rule，2-indoor_parking_area_by_fusion
+    optional uint32 vln_cruise_status = 5;  //vln巡航状态管理 0-none,1-cruise_normal,2-cruise_time_out
+    optional string current_floor_info = 6;  //自自车当前楼层语义信息，如:地下一层，B2等
+    optional string current_area_info = 7;  //自车当前区号信息
+    optional string current_floor_ner_info = 8;  //融合楼层计转译后的自车楼层信息
+    optional uint32 cross_layer_info = 9;  //楼层计跨层信息,0-unknown,1-平层，2-向上跨层，3-向下跨层
+
+
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;   // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909;     // uuid of the publisher
+    optional uint64 counter = 536870910;          // message counter
+    optional uint64 publish_ts = 536870911;       // publish utc timestamp, unit : nanosecond
+
+message VlnGoalPoint {
+    optional uint32 id = 1;
+    optional double point_x = 2;  //goal_point 自车坐标系下的x坐标信息
+    optional double point_y = 3;  //goal_point 自车坐标系下的y坐标信息
+    optional double yaw = 4;     //goal_point 自车坐标系下的heading坐标信息
+    optional uint32 point_direction = 5;  //goal_point的转向信息,0-unknown;1-left;2-right;3-uturn;4-straight
+    optional uint32 point_status = 6;  // goal_point的状态信息,0-unknown;1-Start point;1-单层通行;2-跨层通行;3-出口点
+}
+
+message VlnOcrInfo {
+    optional uint32 ocr_id = 1;
+    optional OcrBox3D ocr_box_3d = 2;  //ocr 3d几何信息
+    optional uint32 poi_type = 3;  //ocr类型信息 当前默认出口，0-unkown;1-floor;2-area;3-exit;4-entrance;5-traffic_sign
+    optional vector3d poi_indication_info = 4; //当前POI guidence方向向量信息
+    optional uint32 poi_turn_indication = 5;  //poi转向指引信息 0 - unknwon 1- 直行 2- 右转 3- 左转 4 -掉头 5- stop
+    repeated OcrBox2D ocr_box_2d_info = 6;  //当前3d ocr box的update 2d source信息
+}
+
+message OcrBox3D {
+    optional float x = 1;  //车体坐标系，centerpoint x
+    optional float y = 2;  //车体坐标系，centerpoint y
+    optional float z = 3;  //车体坐标系，centerpoint z，当前不填
+    optional float h = 4;  // hight
+    optional float w = 5;  //width
+    optional float l = 6;  // 不填
+    optional float rotaion = 7;  // 不填
+    optional float pitch = 8; // 不填
+    optional float yaw = 9; // 车体坐标系yaw
+    optional float alpha= 10;// 不填
+}
+message OcrBox2D {
+    optional uint32 box_id = 1;  //mlm 2d目标id透传
+    optional uint32 sensor_id = 2; // fw/fn相机sensor id
+    optional uint64 sensor_timestamp = 3; //sensor时间戳信息
+    repeated uint32 box = 4;  // 实例ocr 2bbox PV坐标信息(x1,y1,x2,y2)
+    repeated PoiOcrInfo poi_ocr_info = 5;  // OCR语义信息
+
+message PoiOcrInfo {
+    optional uint32 poi_type = 1; //0-unkown;1-floor;2-area;3-exit;4-entrance;5 - traffic_sign
+    optional string poi_indication_info =2;  //用于描述ocr的方向指引信息，填写规则："当前区位""转向信息" "目标区号"
+    }
+}
+
+message vector3d {
+    optional float x = 1;
+    optional float y = 2;
+    optional float z = 3;
+}
+
+
+}

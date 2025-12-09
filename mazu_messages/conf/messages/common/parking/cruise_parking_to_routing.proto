@@ -1,0 +1,83 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+import "common/map_engine/sd_map.proto";
+
+message CruiseParkingToRouting {
+  enum Type {
+    RouteToDest = 0;
+    CancelRoute = 1;
+  }
+
+  enum DestinationType {
+    HighwayToSAPA = 0;
+    HighWayToPSAP = 1;
+    SAPAToPSAP = 2;
+    PSAPToHighway = 3;
+    CurLocToHighway = 4;
+    SAPAToHighway = 5;
+
+    // new interface for future, will only use destination, keep the definition above just for compatibility
+    PowerSwapStationLocBox = 20;
+    ParkingZone = 21;
+    QueueArea = 22;
+    ToHighway = 23;
+    NoAvpRouting = 24;
+
+    // new interface for parking navigation feature, keep the definition above just for compatibility
+    Destination_ParkingSlot = 40;    // routing to parking lot
+    Destination_POI = 41;            // routing to POI
+    Destination_EntryLane = 42;  // routing to lane next to the entry 
+    Destination_ExitLane = 43;  // routing to lane next to the exit
+    Destination_NoPnRouting = 44;  // end of routing task
+  }
+
+  enum StartPointType {
+    // new interface for parking navigation feature, used for entry or the routing start point
+    Start_Point_ParkingSlot = 50;   // routing start from parking lot
+    Start_Point_POI = 51;           // routing start from POI
+    Start_Point_EntryLane = 52; // routing start from lane next to the entry 
+    Start_Point_ExitLane = 53; // routing start from lane next to the  exit
+    Start_Point_CurrVehLoc = 54;    // routing start from current vehicle location =lane id
+    Start_Point_NoRouting = 55;     // no routing
+  }
+
+  optional Type type = 1;
+  
+  optional Point2d power_swap_station_loc = 2;
+
+  // The following fields are used in "RouteToDest" request.
+  optional DestinationType dest_type = 3;
+
+  optional string power_swap_station_id = 4;
+  optional Point3d current_loc = 5; // current loc of the vehicle
+
+  // the first one (index 0) is the current lane id, the following is used as routing constraint, 0 means invalid
+  repeated uint64 current_lane_id_sequence = 6;
+
+  // timestamp when sending out the request
+  optional uint64 timestamp = 7; // in ns
+
+  // routing request id. change when destination change, or active rerouting request
+  optional uint64 request_id = 8;
+
+  optional Point2d charging_station_loc = 9;
+  optional string charging_station_id = 10;
+  optional StartPointType start_type = 11;
+  
+  // poi id and parking lot id. 
+  optional string poi_id = 12;
+
+  // poi ids, number can be one or more
+  repeated string poi_ids = 13;
+
+  optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+  optional uint64 publish_ptp_ts = 536870907; // publish ptp timestamp; unit : nanosecond
+  optional string publisher_id = 536870909;   // uuid of the publisher
+  optional uint64 counter = 536870910;        // message counter
+  optional uint64 publish_ts = 536870911;     // publish utc timestamp; unit : nanosecond
+}

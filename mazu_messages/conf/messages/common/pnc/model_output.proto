@@ -1,0 +1,24 @@
+// @ownerL tiancheng.li@nio.com
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/pnc/model_input.proto";
+import "common/perf/sensor_ts_header.proto";
+
+message ModelOutput {
+  optional uint64 id = 1;
+  repeated Tensor output_tensor = 2;
+  optional uint64 req_publish_ptp_ts = 3;
+  optional uint64 req_recieve_ptp_ts = 4;
+
+  optional uint64 timestamp = 536870905;     // ptp time, nanosec, for cosine bundle timestamp
+  optional SensorTSHeader sensor_original_ts = 536870906;  // sensor original ts
+  optional uint64 publish_ptp_ts =
+      536870907;  // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909;  // uuid of the publisher
+  optional uint64 counter = 536870910;       // message counter
+  optional uint64 publish_ts =
+      536870911;  // publish timestamp; unit : nanosecond
+}

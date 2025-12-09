@@ -1,0 +1,49 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages.trigger;
+
+enum DcpLonAction {
+  kAccelerate = 0;
+  kDecelerate = 1;
+  kFallBack = 2;
+  kMaxIndex = 3;
+}
+
+enum TriggerType {
+  DRIVER = 0;
+  EMERGENCY_AVOIDANCE = 1;
+  SPLIT = 2;
+  OFF_RAMP = 3;
+  LANE_KEEP_SPLIT = 4;
+  RAMP_TO_ROAD = 5;
+  PRIORITY = 6;
+  MERGE = 7;
+  AVOID_CONSTRUCTION_ZONE = 8;
+  PREFERED_LANE = 9;
+  SPEED = 10;
+  AVOID_MERGE_LANE = 11;
+  RISK_OBSTACLE = 12;
+  OVERTAKE = 13;
+  RESERVED = 14;
+  AVOID_STATIC_VEHICLE = 15;
+  AVOID_VEHICLE_IN_JUNCTION = 16;
+  AVOID_BUS_LANE = 17;
+  AVOID_NON_MOTOR_LANE = 18;
+  NONE = 99;
+}
+
+enum LaneType {
+  ROAD_LANE = 0;
+  DECE_LANE = 1;
+  RAMP_LANE = 2;
+  ACCE_LANE = 3;
+}
+
+enum LatDecision {
+  IGNORE = 0;
+  LEFT = 1;
+  RIGHT = 2;
+  YIELD = 3;
+}

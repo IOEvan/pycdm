@@ -1,0 +1,85 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+// 改动该proto 前请阅读：https://nio.feishu.cn/wiki/wikcnpg49NvHACdA8lqQaEyvtDd
+// 关于该proto 各个字段的描述，请参考：https://nio.feishu.cn/wiki/wikcnpg49NvHACdA8lqQaEyvtDd
+
+import "common/map_engine/sd_hd_info.proto";
+import "common/map_engine/sd_map.proto";
+import "common/parking/cruise_parking_to_routing.proto";
+
+message CruiseParkingResponse {
+    optional Point2d power_swap_station_loc = 1;
+    optional CruiseParkingToRouting.DestinationType dest_type = 2;
+    optional string power_swap_station_id = 3;
+    optional Point3d current_loc = 4; // current loc of the vehicle when send request
+    repeated uint64 current_lane_id_sequence = 5;
+    optional int32 routing_status = 6; // 0: normal; 1: failed & fallback; 2: no request; 3: routing in progress
+    optional uint64 request_timestamp = 7; // in ns, timestamp when sending request
+    optional uint64 request_id = 8;
+    optional uint64 last_route_change_timestamp = 9; // changed when routing/rerouting
+    optional string selected_destination_id = 10; // the best POI calculated by Routing, the shortest one
+}
+
+message ParkingNavigationResponse {
+    optional Point2d parking_spot_loc = 1;
+    optional int32 dest_type = 2; // DestinationType
+    optional Point3d current_loc = 3; // current loc of the vehicle when send request
+    repeated uint64 current_link_id_sequence = 4; // current link, reserve for now
+    optional int32 routing_status = 5; // 0: normal; 1: failed & fallback; 2: no request; 3: routing in progress
+    optional uint64 request_timestamp_ns = 6; // in ns, timestamp when sending request
+    optional uint64 request_id = 7;
+    optional string parking_spot_id = 8; // destination POI/parking spot ID, reserve for now
+    optional uint64 last_route_change_timestamp = 9; // changed when routing/rerouting
+    optional string selected_destination_id = 10; // the best POI calculated by Routing, the shortest one
+}
+
+message GlobalRouting {
+    optional int32 route_match_state = 1; // 0:未进入导航状态, 1:已进入导航状态
+    optional bool is_full_routes = 2; // 是否是完整路径
+    optional uint64 current_hd_link_id = 3; // 当前hd_link_id
+    optional uint64 current_sd_link_id = 4; // 当前sd_link_id
+
+    optional uint64 last_match_time_ns = 5; // 最近一次重新计算匹配的时间，单位为ns
+    optional uint64 global_routing_counter = 6; // GlobalRouting 信息计算的计数器， 用于下游判断路线信息是否有更新
+    repeated SdLinkInfo sd_link_info_list = 7; // sd发起请求时传入的link info列表
+    repeated SdMatchedInfo sd_matched_info_list = 8; // 匹配后的sd链路信息列表，元素个数与hd_link_segments相等
+    repeated HdLinkSegment hd_link_segments = 9; // hd_link_segments 表示九宫格内路线的前进方向上的每段连续的hd路段
+    optional TrafficCongestionInfo traffic_congestion_info = 10; // 包含拥堵等的路况信息以及拥堵信息更新时间
+
+    optional bytes extended_info = 11; // 方便紧急情况下不被ccb给block的扩展
+
+    optional CruiseParkingResponse cruise_parking_response = 12;
+    optional uint64 current_sd_link_index= 13; // 当前SDlink 在SDRoute的索引, 来自DC的透传消息
+    optional uint64 current_hd_link_index= 14; // 根据current_sd_link_index计算的在HDroute上的当前hdlink的索引，只是用于解决重复路问题， 不能用于定位，由于精度问题可能会不准确
+
+    optional ParkingNavigationResponse parking_navigation_response = 15;
+    repeated TbtSegment tbt_segments = 16; // 和hd_link_segments 相对应的每个segment的TBT信息
+    repeated HdRoutingLinkRange hd_routing_link_ranges = 17;
+    optional NavigationStatus navigation_state = 18;
+    optional uint64 current_sd_link_offset= 19; // 当前SDlink 的偏移量
+
+    optional float routing_remaining_length = 20; //routing 规划剩余距离, 目前仅PN功能使用
+    repeated uint64 filtered_match_hd_links = 21; // 匹配结果中由于白名单或黑名单被过滤掉的link有序排列
+    optional uint32 distance_to_sd_end_m = 22; // 慎用!!：距离sd匹配终点的距离, 该消息来自sd nav map loc， 消息频率为1hz， 存在定位不准确(可能存在百米的误差)，以及sd绑路失败，导致结果不可用等问题
+
+    repeated HdLinkSegment nad_link_segments = 23; // nad_link_segments 表示nad map(hd map+内化sd map)匹配结果
+    repeated NaviPoint navipoints = 24; // sd route上的途经点/终点
+    repeated NaviTrafficEvent navitrafficevents =25; // 来自sd的动态事件
+    optional uint64 current_nad_link_id = 26; // 当前在nad_link_segments上的hd_link_id
+    optional uint64 current_nad_link_index = 27; // 根据current_sd_link_index计算的在nad segments上的当前hdlink的索引，只是用于解决重复路问题， 不能用于定位，由于精度问题可能会不准确
+    repeated SDTBTSegmentAction tbt_segment_action_list = 28; // 从DC转发的SD-TBT信息，目前只包含途径点和终点
+
+    optional uint64 hd_map_version = 100;
+    optional uint64 sa_map_version = 101;
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin 
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907; // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909; // uuid of the publisher
+    optional uint64 counter = 536870910;         // message counter
+    optional uint64 publish_ts = 536870911;    // publish timestamp,uint in nanosec;
+}

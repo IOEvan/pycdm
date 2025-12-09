@@ -1,0 +1,45 @@
+syntax = "proto2"; 
+option cc_enable_arenas = true;
+       
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message CameraFaultInfoFromSOC{ // Detected by cameral sal
+        optional SOCCameraFaultType front120_fault_info = 1;
+        optional SOCCameraFaultType front30_fault_info = 2;
+        optional SOCCameraFaultType rear_fault_info = 3;
+        optional SOCCameraFaultType dms_fault_info = 4;
+        optional SOCCameraFaultType svc_front_fault_info = 5;
+        optional SOCCameraFaultType svc_rear_fault_info = 6;
+        optional SOCCameraFaultType svc_left_fault_info = 7;
+        optional SOCCameraFaultType svc_right_fault_info = 8;
+        optional SOCCameraFaultType side_fl_fault_info =9;
+        optional SOCCameraFaultType side_fr_fault_info =10;
+        optional SOCCameraFaultType side_rl_fault_info =11;
+        optional SOCCameraFaultType side_rr_fault_info =12;
+        optional SOCCameraFaultType oms_fault_info =13;
+        optional bool fsync_get_error = 14;   // 0: no fault, 1: has fault; 
+        
+        optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+        optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+        optional uint64 publish_ptp_ts = 536870907;   // publish ptp timestamp, uint in nanosec
+        optional string publisher_id   = 536870909; // uuid of the publisher
+        optional uint64 counter        = 536870910;         // message counter
+        optional uint64 publish_ts     = 536870911;    // publish utc timestamp; unit : nanosecond
+}
+
+message SOCCameraFaultType{
+        optional bool CameraInitialFailed = 1;
+        optional bool SOCGetFrameError = 2;
+        optional bool CameraSerDesError = 3;
+        optional bool CameraOvertemperature = 4;
+        optional bool ProducerSenderTimeout = 5;
+        optional bool ProducerFrameDrop = 6;
+        optional bool CameraModuleError = 7;
+        optional bool SerError = 8;
+        optional bool DesError = 9;
+        optional bool PipelineError = 10;
+        optional bool CameraUnlock = 11;
+        // 0: no fault, 1: has fault;
+}

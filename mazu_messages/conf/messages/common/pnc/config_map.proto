@@ -1,0 +1,32 @@
+
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+import "common/pnc/geometry.proto";
+
+message ConfigMapJunctions {
+  message Rectangle {
+    optional bytes name = 1;
+    optional float x_min = 2;
+    optional float y_min = 3;
+    optional float x_max = 4;
+    optional float y_max = 5;
+  }
+  repeated Rectangle junction_rec = 1;
+  optional Transformation3f vehicle_to_sensing = 2;
+}
+
+message ConfigMap {
+  repeated bytes pcd_files_path = 1;
+  repeated bytes poses_file_path = 2;
+  optional bytes database_path = 3;
+  optional bytes map_type = 4;
+  optional bytes map_layer_name = 5;
+  optional float tile_size = 6;
+  optional float grid_size = 7;
+  optional float sensor_noise_stdev = 8;
+  optional Transformation3d origin = 99;
+}

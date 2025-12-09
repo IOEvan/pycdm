@@ -1,0 +1,93 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message RoadSign {
+    optional uint32 RoadSign_ID = 1;
+    optional uint32 RoadSign_Age = 2;
+    optional RoadSignClass RoadSign_Class = 3;
+    repeated Point_3d RoadSign_3DList = 4;
+    reserved 5;
+    optional float RoadSign_Confidence = 6;
+    optional LaneAssign RoadSign_Lane_Assign = 7;
+    optional float RoadSign_Lane_Assign_Prob = 8;
+    optional MeasureStatus RoadSign_Measure_Status = 9;
+    optional RoadSignColor RoadSign_Color = 10;
+    optional float RoadSign_Value = 11;
+    optional float RoadSign_Heading =12;
+    optional float RoadSign_Center_x =13;
+    optional float RoadSign_Center_y =14;
+    optional float RoadSign_Center_z =15;
+    optional float RoadSign_Length =16;
+    optional float RoadSign_Width =17;
+
+    enum RoadSignClass {
+        RoadSignClass_Unknown = 0;
+        RoadSignClass_StopLine = 100;
+        RoadSignClass_RoadArrow = 200;
+        RoadSignClass_RoadArrow_Left = 201;
+        RoadSignClass_RoadArrow_Right = 202;
+        RoadSignClass_RoadArrow_Left_Right = 203;
+        RoadSignClass_RoadArrow_Straight = 204;
+        RoadSignClass_RoadArrow_Straight_Right = 205;
+        RoadSignClass_RoadArrow_Straight_Left = 206;
+        RoadSignClass_RoadArrow_Only_Turn = 207;
+        RoadSignClass_RoadArrow_Left_Turn = 208;
+        RoadSignClass_RoadArrow_Straight_Turn = 209;
+        RoadSignClass_RoadArrow_Left_Merge = 210;
+        RoadSignClass_RoadArrow_Right_Merge = 211;
+        RoadSignClass_RoadArrow_Forbid_Sign = 212;
+        RoadSignClass_ZebraCross = 300;
+        RoadSignClass_NoParkingArea = 400;
+        RoadSignClass_SlowZone = 500;
+        RoadSignClass_SpeedBump = 600;
+        RoadSignClass_PolePillar = 700;
+        RoadSignClass_LimitSpd_Max = 801;
+        RoadSignClass_LimitSpd_Min = 802;
+    }
+
+    enum LaneAssign {
+        LaneAssign_Unknown = 0;
+        LaneAssign_Host_Lane = 1;
+        LaneAssign_Left_Lane = 2;
+        LaneAssign_Right_Lane = 3;
+        LaneAssign_Left_Left_Lane = 4;
+        LaneAssign_Right_Right_Lane = 5;
+        LaneAssign_Reserve2 = 6;
+    }
+
+    enum MeasureStatus {
+        TSRFilterType_Predict = 0;
+        TSRFilterType_Measured = 1;
+    }
+
+    enum RoadSignColor {
+        RoadSignColor_Unknown = 0;
+        RoadSignColor_White = 1;
+        RoadSignColor_Yellow  = 2;
+        RoadSignColor_Red = 3;
+        RoadSignColor_Green = 4;
+        RoadSignColor_Reserve = 5;
+    }
+}
+
+message Point_3d{
+    optional float Point_y_3d = 1; // Lateral distance of the point in the world
+    optional float Point_x_3d = 2; // Longitudinal distance of the point in the world
+    optional float Point_z_3d = 3; // Altitude distance of the point in the world
+}
+
+message RoadSignDetection{
+    required uint64 timestamp = 1;//Timestamp_Receive_Image
+    repeated RoadSign roadsign = 2;
+    optional uint32 roadsign_num = 3;//total numbers of sign
+
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909; // uuid of the publisher
+    optional uint64 counter = 536870910;         // message counter
+    optional uint64 publish_ts = 536870911;    // publish utc timestamp; unit : nanosecond
+}

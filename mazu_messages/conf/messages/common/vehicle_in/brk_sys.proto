@@ -1,0 +1,302 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+import "common/vehicle_in/veh_enum_type.proto";
+
+enum BrkPdlCalStsType_e{
+    BrkPdl_NotClbrt  = 0; //Not calibrated
+    BrkPdl_Clbrted   = 1; //Calibrated
+    BrkPdl_Rsrvd2    = 2; //Reserved
+    BrkPdl_SgnlNtAvl = 3; //Signal not available
+}
+
+enum BrkPdlStsType_e{
+    BrkPdlSt_NotPrssd  = 0; //Not pressed
+    BrkPdlSt_Prssd     = 1; //Pressed
+    BrkPdlSt_Rsrvd2    = 2; //Reserved
+    BrkPdlSt_Invld     = 3; //Invalid (Error)
+}
+
+enum WhlPrsRlbltType_e{
+    WhlPrs_NotRlbl = 0; //Not reliable
+    WhlPrs_Rlbl = 1;    //Reliable
+}
+
+message BrkSysInfo{
+
+    reserved 25,26;
+
+	message BrkPdlInfo{
+		required BrkPdlCalStsType_e TrvlCalSts = 1;	        //@Channel:CHASSIS @Message:0x5B @Signal:BrkPedlTrvlCalSts
+                                                                //@Channel:CHASSIS2 @Message:0x5B @Signal:BrkPedlTrvlCalSts
+		required float              Trvl = 2;               //@Channel:CHASSIS @Message:0x5B @Signal:BrkPedlTrvl
+                                                                //@Channel:CHASSIS2 @Message:0x5B @Signal:BrkPedlTrvl
+		required BrkPdlStsType_e    BrkPedlSts = 3;         //@Channel:CHASSIS @Message:0x5B @Signal:BrkPedlSts
+                                                                //@Channel:CHASSIS2 @Message:0x5B @Signal:BrkPedlSts
+        optional bool               BrkpedlOvrd = 4;        //@Channel:CHASSIS @Message:0x66 @Signal:BrkpedlOvrd
+                                                                //@Channel:CHASSIS2 @Message:0x66 @Signal:BrkpedlOvrd
+        optional uint64             timestamp_ptp_ns = 5;   //@Channel:CHASSIS @Message:0x66
+                                                                //@Channel:CHASSIS2 @Message:0x66
+	}
+	required BrkPdlInfo  BrkPdl = 1;
+
+	message BrkPrsInfos{
+        reserved 5,6;
+		required QfZeroAsVld_e BrkPrsVld = 1;  	            //@Channel:CHASSIS @Message:0x5B @Signal:BrkPressValid
+                                                                //@Channel:CHASSIS2 @Message:0x5B @Signal:BrkPressValid
+		required float  BrkPrs = 2;			                //@Channel:CHASSIS @Message:0x5B @Signal:BrkPress
+                                                                //@Channel:CHASSIS2 @Message:0x5B @Signal:BrkPress
+		required QfZeroAsVld_e BrkPrsOffsetVld = 3;         //@Channel:CHASSIS @Message:0x5B @Signal:BrkPressOffsetValid
+                                                                //@Channel:CHASSIS2 @Message:0x5B @Signal:BrkPressOffsetValid
+		required float  BrkPrsOffset = 4;  	                //@Channel:CHASSIS @Message:0x5B @Signal:BrkPressOffset
+                                                                //@Channel:CHASSIS2 @Message:0x5B @Signal:BrkPressOffset
+        optional uint64 timestamp_ptp_ns = 7;               //@Channel:CHASSIS @Message:0x5B
+                                                                //@Channel:CHASSIS2 @Message:0x5B
+	}
+	required BrkPrsInfos BrkPrsInfo = 2;
+
+    enum EpbSwtStType_e{
+        EpbSw_NotPrssd  = 0; //Not pressed
+        EpbSw_Prssd     = 1; //Pressed
+        EpbSw_Rsrvd2    = 2; //Reserved
+        EpbSw_Invld     = 3; //Invalid
+    }
+
+    enum EptStsType_e{
+        EpbSt_Unknown   = 0;  //Unknown
+        EpbSt_Applied   = 1;  //EPB applied
+        EpbSt_Rlsing    = 2;  //EPB releasing
+        EpbSt_Rlsed     = 3;  //EPB released
+        EpbSt_Applying  = 4;  //EPB applying
+        EpbSt_Rsrvd5    = 5;  //Reserved
+        EpbSt_Rsrvd6    = 6;  //Reserved
+        EpbSt_Rsrvd7    = 7;  //Reserved
+    }
+
+    enum EpbModType_e{
+        EpbMd_Normal = 0;       //Normal
+        EpbMd_Mntnc = 1;        //Maintenance Mode
+        EpbMd_RllrBnch = 2;     //Roller Bench Test
+        EpbMd_Tow = 3;          //Slope over  30%
+        EpbMd_SlpOvr30 = 4;     //Tow Mode
+        EpbMd_HydBrkFail = 5;   //Hydraulic Brake Support Failure
+        EpbMd_SlpOvr8 = 6;      //Slope over 8%
+        EpbMd_Rsrvd7 = 7;       //Reserved
+    }
+
+    enum EPBFailLampReqType_e{
+        EPB_Fail_Lamp_Off = 0;       //EPB fail lamp Off
+        EPB_Fail_Lamp_On = 1;        //EPB fail lamp On
+        EPB_Fail_Lamp_Blinking = 2;     //EPB fail lamp blinking
+        Invalid = 3;          //Invalid
+    }
+
+    enum EPB2ActiveType_e{
+        EPB2_Not_Active = 0;
+        EPB2_Active = 1;
+        EPB2_Rsrvd2 = 2;
+        EPB2_Rsrvd3 = 3;
+        EPB2_Rsrvd4 = 4;
+        EPB2_Rsrvd5 = 5;
+        EPB2_Rsrvd6 = 6;
+        EPB2_Rsrvd7 = 7;
+    }
+
+	message PrkBrkInfos{
+        reserved 6,7,9;
+		optional EpbSwtStType_e EPBSwtSts = 1;              //@Channel:CHASSIS @Message:0x7A @Signal:EPB1_SwtSts
+                                                                //@Channel:CHASSIS2 @Message:0x7B @Signal:EPB2_SwtSts
+		required EptStsType_e EPBSts = 2;                   //@Channel:CHASSIS @Message:0x7A @Signal:EPB1_EPBSts
+                                                                //@Channel:CHASSIS2 @Message:0x7B @Signal:EPB2_EPBSts
+		optional EpbModType_e EPBMod = 3;                   //@Channel:CHASSIS @Message:0x7A @Signal:EPB1_Mod  
+                                                                //@Channel:CHASSIS2 @Message:0x7B @Signal:EPB2_Mod 
+        optional bool CDPReq = 4;                           //@Channel:CHASSIS @Message:0x7A @Signal:EPB1_CDPReq
+                                                                //@Channel:CHASSIS2 @Message:0x7B @Signal:EPB2_CDPReq    
+        optional uint64 timestamp_ptp_ns = 5;               //@Channel:CHASSIS @Message:0x7A
+                                                            //@Channel:CHASSIS2 @Message:0x7B
+        optional uint32 EPBInfo = 8;                            //@Channel:CHASSIS @Message:0x35D @Signal:EPBInfo
+        optional EPBFailLampReqType_e EPBFailLampReq = 10;      //@Channel:CHASSIS @Message:0x7A @Signal:EPB1_FailLampReq
+                                                                //@Channel:CHASSIS2 @Message:0x7B @Signal:EPB2_FailLampReq
+    } 
+	required PrkBrkInfos PrkBrk = 3;
+
+    enum  BrkOvrHtType_e{
+        BrkTmpNotToHigh = 0; // Brake temperature not high
+        BrkTmpToHigh = 1;    // Brake temperature too high
+    }
+	required BrkOvrHtType_e BrkOverHeat = 4;                //@Channel:CHASSIS @Message:0x5B @Signal:BrkOverHeat
+                                                                //@Channel:CHASSIS2 @Message:0x5B @Signal:BrkOverHeat
+
+    enum BrkHazReqType_e{
+        BrkHaz_NoReq = 0; //Hazard warning no request
+        BrkHaz_Req   = 1; //Hazard warning request
+    }
+	required BrkHazReqType_e BrkHAZReq = 5;                 //@Channel:CHASSIS @Message:0x5B @Signal:HAZReq
+                                                                //@Channel:CHASSIS2 @Message:0x5B @Signal:HAZReq
+
+    enum BcuBrkLiReqType_e{
+        BrkLi_NoBcuReq  = 0;    //No request 
+        BrkLi_BcuReq    = 1;    //Request
+        BrkLi_BcuRsrvd2 = 2;    //Reserved
+        BrkLi_BcuInvld  = 3;    //Invalid
+    }
+	required BcuBrkLiReqType_e BCUBrkLiReq = 6;             //@Channel:CHASSIS @Message:0x5B @Signal:BCUBrkLiReq
+                                                                //@Channel:CHASSIS2 @Message:0x5B @Signal:BCUBrkLiReq
+	required uint32 StstSts = 7;		                    //@Channel:CHASSIS @Message:0x56 @Signal:StandstillSts
+                                    		                    //@Channel:CHASSIS2 @Message:0x56 @Signal:StandstillSts
+
+    enum BcuBrkFType_e{
+        BcuNoBrkF   = 0; //No brake force applied
+        BcuBrkF     = 1; // Brake force applied
+    }
+
+	optional BcuBrkFType_e NoBrkF = 8;                      //@Channel:CHASSIS @Message:0x5B @Signal:BCU_NoBrkF
+                                                                 //@Channel:CHASSIS2 @Message:0x5B @Signal:BCU_NoBrkF
+
+    enum BcuSupInfoType_e{
+        Bcu_BEG_91  = 0; //BEG (ESP 9.1)
+        BCU_CC_93   = 1; //CC (ESP 9.3)
+        Bcu_Mando   = 2; //Mando
+        Bcu_Unknown = 3; //Unknown
+    }
+	optional BcuSupInfoType_e SupInfo = 9;                  //@Channel:CHASSIS @Message:0x5B @Signal:BCU_SupInfo
+                                                                  //@Channel:CHASSIS2 @Message:0x5B @Signal:BCU_SupInfo
+
+    enum BrkFldLvlType_e{
+        BrkFldLvl_Nrml  = 0; //Level normal    
+        BrkFldLvl_Low   = 1; //Level low    
+        BrkFldLvl_Rsrvd2= 2; //Reserved   
+        BrkFldLvl_Invld = 3; //Invalid    
+    }
+	required BrkFldLvlType_e BrkFldLvl = 10;		            //@Channel:ADAS @Message:0x39A @Signal:BrkFldLvl
+
+    enum BrkPdWrStsType_e{
+        BrkPd_Nrml  = 0; //Normal
+        BrkPd_Worn  = 1; //Pad worn
+        BrkPd_Rsrvd2= 2; //Reserved
+        BrkPd_Invld = 3; //Invalid
+    } 
+
+	required BrkPdWrStsType_e BrkPadWearSts = 11;		    //@Channel:ADAS @Message:0x39A @Signal:BrkPadWearSts
+
+	message BrkFunInfo{
+		required bool BDWActv = 1;		                    //@Channel:CHASSIS @Message:0x5E @Signal:BDWActv
+                                                            //@Channel:CHASSIS2 @Message:0x5E @Signal:BDWActv
+		required bool ABAAvl  = 2;		                    //@Channel:CHASSIS @Message:0x5E @Signal:ABAAvl
+                                		                    //@Channel:CHASSIS2 @Message:0x5E @Signal:ABAAvl
+		required bool ABAActv = 3;		                    //@Channel:CHASSIS @Message:0x5E @Signal:ABAActv
+                                		                    //@Channel:CHASSIS2 @Message:0x5E @Signal:ABAActv
+		required bool ABPAvl  = 4;		                    //@Channel:CHASSIS @Message:0x5E @Signal:ABPAvl
+                                		                    //@Channel:CHASSIS2 @Message:0x5E @Signal:ABPAvl
+		required bool ABPActv = 5;		                    //@Channel:CHASSIS @Message:0x5E @Signal:ABPActv
+                                		                    //@Channel:CHASSIS2 @Message:0x5E @Signal:ABPActv
+		required bool ABSActv = 6;		                    //@Channel:CHASSIS @Message:0x5E @Signal:ABSActv
+                                		                    //@Channel:CHASSIS2 @Message:0x5E @Signal:ABSActv
+
+        enum AvhStsType_e{
+            Avh_Fail = 0; //Failure(AVH lamp on with yellow color)
+            Avh_Stdby= 1; //Standby(AVH lamp off)
+            Avh_Actv = 2; //Active(AVH lamp on with green color)
+            Avh_Off  = 3; //Off(F101 config disable or Switch off)
+        }
+		required AvhStsType_e AVHSts = 7;		            //@Channel:CHASSIS @Message:0x5E @Signal:AVHSts
+                                                                //@Channel:CHASSIS2 @Message:0x5E @Signal:AVHSts
+		required bool DTCActv = 8;                          //@Channel:CHASSIS @Message:0x5E @Signal:DTCActv
+                                                                //@Channel:CHASSIS2 @Message:0x5E @Signal:DTCActv		
+		required bool DWTActv = 9;                          //@Channel:CHASSIS @Message:0x5E @Signal:DWTActv
+                                                                //@Channel:CHASSIS2 @Message:0x5E @Signal:DWTActv
+		required bool EBAAvl  = 10;                         //@Channel:CHASSIS @Message:0x5E @Signal:EBAAvl
+                                                                //@Channel:CHASSIS2 @Message:0x5E @Signal:EBAAvl
+		required bool EBAActv = 11;                         //@Channel:CHASSIS @Message:0x5E @Signal:EBAActv
+                                                                //@Channel:CHASSIS2 @Message:0x5E @Signal:EBAActv
+		required bool EBDActv = 12;                         //@Channel:CHASSIS @Message:0x5E @Signal:EBDActv
+                                                                //@Channel:CHASSIS2 @Message:0x5E @Signal:EBDActv
+		required bool HBAActv = 13;                         //@Channel:CHASSIS @Message:0x5E @Signal:HBAActv
+                                                                //@Channel:CHASSIS2 @Message:0x5E @Signal:HBAActv
+
+        enum HdcStsType_e{
+            Hdc_Off  = 0; //Off(F101 config disable or Switch off)
+            Hdc_Fail = 1; //Failure
+            Hdc_Stdby= 2; //Standby
+            Hdc_Actv = 3; //Active
+        }
+		required HdcStsType_e HDCSts= 14; 	                //@Channel:CHASSIS @Message:0x5E @Signal:HDCSts
+                                            	                //@Channel:CHASSIS2 @Message:0x5E @Signal:HDCSts
+		required bool HHCAvl        = 15; 	                //@Channel:CHASSIS @Message:0x5E @Signal:HHCAvail
+                                                                //@Channel:CHASSIS2 @Message:0x5E @Signal:HHCAvail
+		required bool HHCActv       = 16;                   //@Channel:CHASSIS @Message:0x5E @Signal:HHCActv
+                                                                //@Channel:CHASSIS2 @Message:0x5E @Signal:HHCActv
+		required bool TCSActv       = 17;                   //@Channel:CHASSIS @Message:0x5E @Signal:TCSActv
+                                                                //@Channel:CHASSIS2 @Message:0x5E @Signal:TCSActv
+		required bool TCSDeactv     = 18;                   //@Channel:CHASSIS @Message:0x5E @Signal:TCSDeactv
+                                                                //@Channel:CHASSIS2 @Message:0x5E @Signal:TCSDeactv
+		required bool VDCActv       = 19;                   //@Channel:CHASSIS @Message:0x5E @Signal:VDCActv
+                                                                //@Channel:CHASSIS2 @Message:0x5E @Signal:VDCActv
+		required bool VDCDeactv     = 20;                   //@Channel:CHASSIS @Message:0x5E @Signal:VDCDeactv
+                                                                //@Channel:CHASSIS2 @Message:0x5E @Signal:VDCDeactv
+		required bool EBDFailLampReq    = 21;               //@Channel:CHASSIS @Message:0x24F @Signal:EBDFailLampReq
+		required bool VDCTCSLampInfo    = 22;               //@Channel:CHASSIS @Message:0x24F @Signal:VDCTCSLampInfo
+		required bool VDCTCSFailLampReq = 23;               //@Channel:CHASSIS @Message:0x24F @Signal:VDCTCSFailLampReq
+		required bool ABSFailLampReq    = 24;               //@Channel:CHASSIS @Message:0x24F @Signal:ABSFailLampReq
+		required bool VDCTCSOnOfflampReq= 25;               //@Channel:CHASSIS @Message:0x24F @Signal:VDCTCSOnOfflampReq
+        optional bool AWBActv= 26;                          //@Channel:CHASSIS @Message:0x5E  @Signal:AWBActv
+                                                                //@Channel:CHASSIS2 @Message:0x5E  @Signal:AWBActv
+        optional bool AWBAvl= 27;                           //@Channel:CHASSIS @Message:0x5E  @Signal:AWBAvl
+                                                                //@Channel:CHASSIS2 @Message:0x5E  @Signal:AWBAvl
+        optional bool EBPActv= 28;                          //@Channel:CHASSIS @Message:0x5E  @Signal:EBPActv
+                                                                //@Channel:CHASSIS2 @Message:0x5E  @Signal:EBPActv
+        optional bool HBCActv= 29;                          //@Channel:CHASSIS @Message:0x5E  @Signal:HBCActv
+                                                                //@Channel:CHASSIS2 @Message:0x5E  @Signal:HBCActv
+        enum ARPCfgSts_e{
+            ARPCfg_Enable  = 0;//Enable
+            ARPCfg_Disable = 1;//Disable
+        }
+        optional ARPCfgSts_e ARPCfgSts = 30;                //@Channel:CHASSIS @Message:0x5E  @Signal:ARPCfgSts
+                                                                //@Channel:CHASSIS2 @Message:0x5E  @Signal:ARPCfgSts
+        optional bool CDPActv= 31;                          //@Channel:CHASSIS @Message:0x5E  @Signal:CDPActv
+                                                                //@Channel:CHASSIS2 @Message:0x5E  @Signal:CDPActv
+        optional bool CDPAvail= 32;                         //@Channel:CHASSIS @Message:0x5E  @Signal:CDPAvail
+                                                                //@Channel:CHASSIS2 @Message:0x5E  @Signal:CDPAvail
+        optional bool ARPActv= 33;                          //@Channel:CHASSIS @Message:0x5E  @Signal:ARPActv
+                                                                //@Channel:CHASSIS2 @Message:0x5E  @Signal:ARPActv
+        optional bool DTCAvl= 34;                           //@Channel:CHASSIS @Message:0x5E  @Signal:DTCAvl
+                                                                //@Channel:CHASSIS2 @Message:0x5E  @Signal:DTCAvl
+        optional uint64 timestamp_ptp_ns = 35;              //@Channel:CHASSIS @Message:0x5E
+                                                                //@Channel:CHASSIS2 @Message:0x5E
+        enum BascBrkFailLampReq_e{
+            Lamp_Off  = 0;
+            Lamp_On = 1;
+            Rsrvd1= 2; //Reserved
+            Rsrvd2= 3; //Reserved
+        }
+        optional BascBrkFailLampReq_e BascBrkFailLampReq= 36; //@Channel:CHASSIS @Message:0x24F @Signal:BascBrkFailLampReq
+	}
+	required BrkFunInfo BrkFunSt = 12;                      
+    optional bool       ExtBrkActv = 13;		            //@Channel:CHASSIS @Message:0x66 @Signal:ExtBrkActv
+    optional float      ExtBrkCp = 14;		                //@Channel:CHASSIS @Message:0x66 @Signal:ExtBrkCp
+    optional uint32     ExtBrkSts = 15;		                //@Channel:CHASSIS @Message:0x66 @Signal:ExtBrkSts
+    optional float      MbRegenFrntAxleTar = 16;	        //@Channel:CHASSIS @Message:0x66 @Signal:MbRegenFrntAxleTar
+    optional uint32     MbRegenFrntAxleTarQ = 17;	        //@Channel:CHASSIS @Message:0x66 @Signal:MbRegenFrntAxleTarQ
+    optional float      MbRegenReAxleTar = 18;	            //@Channel:CHASSIS @Message:0x66 @Signal:MbRegenReAxleTar
+    optional uint32     MbRegenReAxleTarQ = 19;	            //@Channel:CHASSIS @Message:0x66 @Signal:MbRegenReAxleTarQ
+    optional uint32     StabyMagin = 20;	                //@Channel:CHASSIS @Message:0x66 @Signal:StabyMagin
+    optional uint32     StabyMaginQ = 21;	                //@Channel:CHASSIS @Message:0x66 @Signal:StabyMaginQ
+    enum BrkFldWarnReq_e{
+        BrkFldWarnReq_NoWarning = 0;
+        BrkFldWarnReq_Warning   = 1;
+        BrkFldWarnReq_Reserved  = 2;
+        BrkFldWarnReq_Invld     = 3;
+    }
+    optional BrkFldWarnReq_e BrkFldWarnReq = 22;            //@Channel:ADAS @Message:0x39A @Signal:BrkFldWarnReq
+    enum BrkPadWearWarnReq_e{
+        BrkPadWearWarnReq_NoWarning = 0;
+        BrkPadWearWarnReq_Warning   = 1;
+        BrkPadWearWarnReq_Reserved  = 2;
+        BrkPadWearWarnReq_Invld     = 3;
+    }
+    optional BrkPadWearWarnReq_e BrkPadWearWarnReq = 23;    //@Channel:ADAS @Message:0x39A @Signal:BrkPadWearWarnReq
+    optional uint32 FCC1_StandstillStatus           =24;    //@Channel:CHASSIS @Message:0xD5 @Signal:FCC1_StandstillStatus
+}

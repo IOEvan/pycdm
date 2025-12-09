@@ -1,0 +1,74 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+enum DMS_DrowsinessLevel_DLB {
+    DMS_DrowsinessLevel_ADC03_No_Warning           = 0;
+    DMS_DrowsinessLevel_ADC03_Light_Fatigue        = 1;
+    DMS_DrowsinessLevel_ADC03_Midium_Fatigue       = 2;
+    DMS_DrowsinessLevel_ADC03_Heavey_Fatigue_lvl1  = 3;
+    DMS_DrowsinessLevel_ADC03_Heavey_Fatigue_lvl2  = 4;
+}
+
+enum DMS_DrowsinessSts_DLB {
+    DMS_DrowsinessSts_ADC03_Initial                = 0;
+    DMS_DrowsinessSts_ADC03_Off                    = 1;
+    DMS_DrowsinessSts_ADC03_On                     = 2;
+    DMS_DrowsinessSts_ADC03_Failure                = 3;
+}
+
+enum DMS_DistractionLevel_DLB {
+    DMS_DistractionLevel_ADC03_No_Warning          = 0;
+    DMS_DistractionLevel_ADC03_Lvl1                = 1;
+    DMS_DistractionLevel_ADC03_Lvl2                = 2;
+}
+
+enum DMS_DistractionSts_DLB {
+    DMS_DistractionSts_ADC03_Initial               = 0;
+    DMS_DistractionSts_ADC03_Off                   = 1;
+    DMS_DistractionSts_ADC03_On                    = 2;
+    DMS_DistractionSts_ADC03_Failure               = 3;
+}
+enum DMS_DistractionSts_DA_DLB {
+    DMS_DistractionSts_DA_On                       = 0;
+    DMS_DistractionSts_DA_Failure                  = 1;
+}
+
+enum DMS_DistractionLevel_DA_DLB {
+    DMS_DistractionLevel_DA_No_Warning             = 0;
+    DMS_DistractionLevel_DA_Attention_Demand       = 1;
+    DMS_DistractionLevel_DA_Takeover_Demand        = 2;
+    DMS_DistractionLevel_DA_MRM                    = 3; // Reserved
+}
+
+enum DMS_DrowsinessSts_DA_DLB {
+    DMS_DrowsinessSts_DA_On                        = 0;
+    DMS_DrowsinessSts_DA_Failure                   = 1;
+}
+
+enum DMS_DrowsinessLevel_DA_DLB {
+    DMS_DrowsinessLevel_DA_No_Warning              = 0;
+    DMS_DrowsinessLevel_DA_Attention_Demand_Light  = 1;
+    DMS_DrowsinessLevel_DA_Attention_Demand_Medium = 2;
+    DMS_DrowsinessLevel_DA_Attention_Demand_Heavy  = 3;
+    DMS_DrowsinessLevel_DA_Takeover_Demand         = 4;
+    DMS_DrowsinessLevel_DA_MRM                     = 5; // Reserved
+}
+
+enum DMS_DistractionLevel_SDK_DLB {
+    DMS_SDK_DISTRACTION_LEVEL_NONE                 = 0;   /** driver is not distracted*/
+    DMS_SDK_DISTRACTION_LEVEL_LIGHT                = 1;  /** driver is not distracted in light level*/
+    DMS_SDK_DISTRACTION_LEVEL_MEDIUM               = 2; /** driver is not distracted in medium level*/
+    DMS_SDK_DISTRACTION_LEVEL_HEAVY                = 3;  /** driver is not distracted in heavy level*/
+    DMS_SDK_DISTRACTION_LEVEL_INVALID              = 4; /** can not judge if driver is distracted*/
+};
+
+enum DMS_DrowsinessLevel_SDK_DLB {
+    DMS_SDK_DROWSINESS_LEVEL_NONE                  = 0;   /** not drowsy */
+    DMS_SDK_DROWSINESS_LEVEL_LIGHT                 = 1;  /** driver is drowsy in light level */
+    DMS_SDK_DROWSINESS_LEVEL_MEDIUM                = 2; /** driver is drowsy in medium level */
+    DMS_SDK_DROWSINESS_LEVEL_HEAVEY                = 3; /** driver is drowsy in heavy  level*/
+    DMS_SDK_DROWSINESS_LEVEL_INVALID               = 4; /** can not judge if driver is drowsy */
+};

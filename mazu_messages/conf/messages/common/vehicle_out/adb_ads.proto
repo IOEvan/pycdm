@@ -1,0 +1,55 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+import "common/vehicle_in/adb_enum_type.proto";
+
+package nio.ad.messages;
+
+
+message AdbSysStatus{
+    optional ADBSysType_e ADBSysErStatu   = 1;                 //@Channel:ADAS @Message:0x224 @Signal:ADBSysErrorSts 
+}
+
+enum ADBModeType_e{
+    ADB_OFF 	= 0; 
+    GFHB        = 1; 
+    PREGFHB   	= 2;
+    HB          = 3; 
+}
+
+enum ADBAvgLuxClsC2Type_e{
+    ADBCLS_OFF 	     = 0; 
+    ADBcLSC2_ON      = 1; 
+    ADBCLSC2_REVERD  = 2; 
+    ADBCLSC2_INVALID = 3; 
+}
+
+message ADBModeToBGW{
+   optional  ADBModeType_e AdbEnbModeStatus = 1;  //@Channel:ADAS @Message:0x224 @Signal:GFA_Enable_2_BGW 
+}
+
+message ADBAvgLuxClsC2{
+   optional  ADBModeType_e AdbAvgLuxClsC2 = 1 ;  //@Channel:ADAS @Message:0x224 @Signal:AvgLuxClsC2
+}
+
+// @begin segscope: NT3
+enum ADBWkstsType_e{
+    ADB_WORK_STS_OFF 	     = 0; 
+    ADB_WORK_STS_ENABLE      = 1; 
+    ADB_WORK_STS_WTI         = 2; 
+    ADB_WORK_STS_ACTIVE      = 3; 
+}
+
+message ADBWkSts{
+   optional  ADBWkstsType_e AdbWkSts = 1 ; 
+}
+// @end segscope: NT3
+
+message ADBCurStatus{
+    optional AdbSysStatus adbSymSta         = 1;
+    optional ADBModeToBGW adbEnbModToBGW    = 2;
+    optional ADBAvgLuxClsC2 adbAvgLuxClsC2  = 3;
+    optional ADBWkSts       adbWkSts        = 4;    // @linescope: NT3
+ 
+}

@@ -1,0 +1,85 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message psapUiPoint{
+    optional float x = 1;
+    optional float y = 2;
+}
+
+message psapMapObject{     
+	enum psapMapObjectType_e{
+		psapMap_None=0;
+		psapMap_LANE=1;
+		psapMap_DOUBLE_ARROW=2;
+		psapMap_LOGO = 3;
+		psapMap_LSHAPE =4;
+		psapMap_TAG = 5;
+		psapMap_VSLOT = 6;
+		psapMap_STATION = 7;
+		psapMap_RESERVED1 = 8;
+		psapMap_RESERVED2 = 9;
+		psapMap_RESERVED3 = 10;
+	}
+	optional psapMapObjectType_e psapMapObjectType=1; //psapMapObjectType in psap.fidl
+	optional bool psapMapObjectValid=2; // NOT_VALID = 0x00，VALID = 0x01,psapMapObjectValid in psap.fidl
+	optional float psapMapObjectPointX1=3; //psapMapObjectPointX in psap.fidl
+	optional float psapMapObjectPointY1=4;//psapMapObjectPointY in psap.fidl
+	optional float psapMapObjectPointX2=5;//psapMapObjectPointX in psap.fidl
+	optional float psapMapObjectPointY2=6;//psapMapObjectPointY in psap.fidl
+	optional float psapMapObjectPointX3=7;//psapMapObjectPointX in psap.fidl
+	optional float psapMapObjectPointY3=8;//psapMapObjectPointY in psap.fidl
+	optional float psapMapObjectPointX4=9;//psapMapObjectPointX in psap.fidl
+	optional float psapMapObjectPointY4=10;//psapMapObjectPointY in psap.fidl
+}
+
+message psapUiStopLine{
+    optional psapUiPoint point1 = 1;
+    optional psapUiPoint point2 = 2;
+    optional bool isValid = 3;
+}
+
+message psapPillarUi{
+	optional psapUiPoint psapPillarUiPoint1 = 1;
+	optional psapUiPoint psapPillarUiPoint2 = 2;
+	optional psapUiPoint psapPillarUiPoint3 = 3;
+	optional psapUiPoint psapPillarUiPoint4 = 4;
+	optional bool pillarIsValid = 5;
+}
+
+message psapTrajectory{
+	repeated psapUiPoint trajectoryPoint = 1;
+	optional psapUiStopLine stopLine = 2;
+}
+
+message psapStaticObject{
+  repeated psapUiPoint objPoint = 1;
+  enum psapStaticObjectType_e {
+    STATIC_TYPE_UNKNOWN = 0;
+    STATIC_TYPE_BUSH = 1;
+    STATIC_TYPE_CONE = 2;
+    STATIC_TYPE_CURB = 3;
+    STATIC_TYPE_FLOORSIGN = 4;
+    STATIC_TYPE_SPEEDBUMP = 5;
+    STATIC_TYPE_WALL = 6;
+  }
+  optional psapStaticObjectType_e type = 2;
+}
+
+message psapObjectInfo{
+	repeated psapMapObject psapObject=1;
+	repeated psapPillarUi psapPillarUiResults = 2; // max to 10
+  	repeated psapTrajectory psapTrajectoryResults = 3; // multi cnt in preguidance!
+  	repeated psapStaticObject psapStaticObjectResults = 4; //
+  	optional float psapProgressPercentage = 5; // [0,1]
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+	optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+	optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+	optional string publisher_id = 536870909; // uuid of the publisher
+	optional uint64 counter = 536870910;         // message counter
+	optional uint64 publish_ts = 536870911;    // publish utc timestamp; unit : nanosecond
+}

@@ -1,0 +1,52 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+message ConfigObserver {
+  message YawRateObserver {
+    repeated double noise_matrix_q = 1;
+    repeated double noise_matrix_r_chassis = 2;
+    repeated double noise_matrix_r_imu = 3;
+    repeated double init_p = 4;
+    optional double road_tire_friction_coefficient = 5 [default = 1.0];
+    optional double lf = 6;
+    optional double lr = 7;
+  }
+
+  message AccObserver {
+    optional bool enable_acc_observer_flg = 1 [default = false];
+    optional double acc_imu_cut_off_freq_hz = 2 [default = 0.6];
+    optional double acc_imu_high_pass_freq_hz = 3 [default = 0.2];
+    optional double speed_diff_cut_off_freq_hz = 4 [default = 0.2];
+  }
+  // acc dob proto
+  message AccDob {
+    optional double speed_lower_cut_off_freq_hz = 1 [default = 0.2];
+    optional double speed_upper_cut_off_freq_hz = 2 [default = 10];
+    optional double min_speed_protected_mps = 3 [default = 0.2];
+    optional double acc_dob_kp = 4 [default = 3.0];
+    optional double acc_model_cut_off_freq_hz = 5 [default = 1.0];
+    optional double td_cut_off_freq_hz = 6 [default = 1.0];
+    optional double start_up_lower_jerk_mps3 = 7 [default = 1.5];
+    optional double start_up_upper_jerk_mps3 = 8 [default = 10.0];
+    optional double min_acc_td_mps2 = 9 [default = -0.3];
+    optional double max_acc_td_mps2 = 10 [default = 0.3];
+    optional double max_acc_dob_working_speed_mps = 11 [default = 0.5];
+  }
+
+  oneof type {
+    YawRateObserver yaw_rate_observer = 1;
+    AccObserver acc_observer = 2;
+    AccDob acc_dob = 3;
+  }
+
+  optional string name_tag = 100001;
+  optional double ts_sec = 100002;
+}
+
+message ConfigObserverManager {
+  optional double base_sample_time_sec = 1;
+  repeated ConfigObserver config_observer = 2;
+}

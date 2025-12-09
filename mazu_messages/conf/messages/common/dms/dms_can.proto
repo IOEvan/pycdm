@@ -1,0 +1,80 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+enum DrowsinessLevel_ADC03 {
+    DrowsinessLevel_ADC03_No_Warning                = 0;
+    DrowsinessLevel_ADC03_Light_Fatigue             = 1;
+    DrowsinessLevel_ADC03_Midium_Fatigue            = 2;
+    DrowsinessLevel_ADC03_Heavey_Fatigue_lvl1       = 3;
+    DrowsinessLevel_ADC03_Heavey_Fatigue_lvl2       = 4;
+}
+
+enum DrowsinessSts_ADC03 {
+    DrowsinessSts_ADC03_Initial                     = 0;
+    DrowsinessSts_ADC03_Off                         = 1;
+    DrowsinessSts_ADC03_On                          = 2;
+    DrowsinessSts_ADC03_Failure                     = 3;
+}
+
+enum DistractionLevel_ADC03 {
+    DistractionLevel_ADC03_No_Warning               = 0;
+    DistractionLevel_ADC03_Lvl1                     = 1;
+    DistractionLevel_ADC03_Lvl2                     = 2;
+}
+
+enum DistractionSts_ADC03 {
+    DistractionSts_ADC03_Initial                    = 0;
+    DistractionSts_ADC03_Off                        = 1;
+    DistractionSts_ADC03_On                         = 2;
+    DistractionSts_ADC03_Failure                    = 3;
+}
+
+enum DistractionLevel_short_ADC03 {    
+    DistractionLevel_short_ADC03_No_Warning         = 0;    
+    DistractionLevel_short_ADC03_Lvl1               = 1;    
+    DistractionLevel_short_ADC03_Lvl2               = 2;
+}
+
+enum DistractionSts_short_ADC03 {    
+    DistractionSts_short_ADC03_Initial              = 0;    
+    DistractionSts_short_ADC03_Off                  = 1;    
+    DistractionSts_short_ADC03_On                   = 2;    
+    DistractionSts_short_ADC03_Failure              = 3;
+}
+
+enum SmartDrvYrsDetSts {
+    SmartDrvYrsDetSts_Young                         = 0;
+    SmartDrvYrsDetSts_Old                           = 1;
+    SmartDrvYrsDetSts_Not_Determined                = 2;
+    SmartDrvYrsDetSts_Invalid                       = 3;
+}
+
+enum DMStelltaleLevel {
+    DMStelltaleLevel_No_Warning                     = 0;
+    DMStelltaleLevel_Level_1                        = 1;
+    DMStelltaleLevel_Level_2                        = 2;
+    DMStelltaleLevel_Fault_Longterm                 = 3;
+    DMStelltaleLevel_Fault_Shortterm                = 4;
+}
+
+message DMS_CAN {
+    optional DrowsinessLevel_ADC03 drowsiness_lvl               = 1;
+    optional DrowsinessSts_ADC03 drowsiness_sts                 = 2;
+    optional DistractionLevel_ADC03 distraction_lvl             = 3;
+    optional DistractionSts_ADC03 distraction_sts               = 4;
+    optional DistractionLevel_short_ADC03 distraction_lvl_short = 5;    
+    optional DistractionSts_short_ADC03 distraction_sts_short   = 6;
+    optional SmartDrvYrsDetSts smart_drv_yrs_det_sts            = 7;
+    optional DMStelltaleLevel dms_telltale_level                = 8;
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin 
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907; // publish ptp timestamp unit : nanosecond
+    optional string publisher_id   = 536870909; // uuid of the publisher
+    optional uint64 counter        = 536870910; // message counter
+    optional uint64 publish_ts     = 536870911; // publish timestamp; unit : nanosecond
+}

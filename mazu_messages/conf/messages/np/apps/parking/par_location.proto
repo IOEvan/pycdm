@@ -1,0 +1,83 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+import "np/apps/parking/par_base.proto";
+import "common/perception/svc_power_swap.proto";
+
+message ParLocation{
+    optional uint64 timestamp = 1;          // 时间戳， unit: nanosecond
+    optional bool location_valid = 2;       // 置信度， unit: bool, 0为不可信，1为可信
+    optional ParPoint position = 3;         // 位置 {x, y, z}, unit: m
+    optional ParQuaternion orientation = 4; // 角度 {w, x, y, z}， unit: Quartenion
+    optional float easting = 5;             // 正东方向（x）， unit: m
+    optional float northing = 6;            // 正北方向（y）， unit: m
+    optional float height = 7;              // 高度， unit: m
+    optional float speed = 8;               // 速度， unit: m/s
+    optional float sum_s = 9;               // 绝对距离， unit: m
+    optional ParEulerAngle euler_angle = 10;
+}
+
+message ParFusedLocation{
+    reserved 7;
+
+    optional ParLocation loc_odom = 1;  // odometry结果
+    optional ParLocation loc_slot = 2;  // slot坐标系定位结果
+    optional ParLocation loc_fused = 3; // 融合后结果
+
+    enum InputStatus{           // Input信号的状态
+        NOT_USED = 0;           // 未使用
+        IN_USE = 1;             // 使用中
+        LOST_COM = 2;           // 使用中丢失信号
+        BAD_INPUT = 3;          // 信号输入数值有问题
+        STATUS_RESERVED1 = 4;
+        STATUS_RESERVED2 = 5;
+    }
+
+    optional InputStatus wheel_odom_status = 4; // wheel encoder odometry信号状态
+    optional InputStatus imu_status = 5;        // imu信号状态
+    optional InputStatus svc_status = 6;        // svc perception localization信号状态
+    optional InputStatus lidar_status = 8;      // lidar perception localization信号状态
+
+    optional NodeInfo node_info = 9;
+
+    optional InputStatus slot_status = 10;      // slot localization信号状态
+    optional InputStatus psap_station_info_status = 11;  // psap站端信号状态
+
+    enum PsapStationEntranceType{
+        TYPE_ENTRANCE_NONE = 0;
+        TYPE_ENTRANCE_RIGHT = 1;
+        TYPE_ENTRANCE_LEFT = 2;
+    }
+    optional PsapStationEntranceType psap_station_entrance_type = 12;
+    
+    optional PSAPResult psap_result=13;
+
+    // Altitude reference data, only roll and pitch is effective. [radian]
+    optional ParEulerAngle altitude_ref = 14;
+
+    // Determine whether the vehicle is currently indoors or outdoors
+    enum EnviromentInfo {
+        ENV_INFO_UNKNOWN = 0;
+        ENV_INFO_INDOOR = 1;
+        ENV_INFO_OUTDOOR = 2;
+        ENV_INFO_RESERVED1 = 3;
+        ENV_INFO_RESERVED2 = 4;
+        ENV_INFO_RESERVED3 = 5;
+    }
+    optional EnviromentInfo env_info = 15;
+    optional ParLocation loc_odom_in_rel_loc = 16;
+
+    optional string vid = 10000; // vid of target vehicle
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909; // uuid of the publisher
+    optional uint64 counter = 536870910;    // message counter
+    optional uint64 publish_ts = 536870911; // publish utc timestamp; unit : nanosecond
+
+}

@@ -1,0 +1,23 @@
+// @owner: ben.wang@nio.com
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+
+package nio.ad.messages;
+
+
+// template message for each function in the FunctionStatusBook
+
+message APPState {
+
+    optional string APPName = 1;	        // name	of APP     // redundant to IC
+    optional int32 APPID    = 2;          	// ID of APP, redundant to name
+
+    enum APPStatestatus {	       //  app status
+          DeepSleep	    = 0;	        //  app is Deepsleep
+          Idle	= 1;	             // app is IDLE
+          Running 	= 2;	        // app is runnning
+    }
+      optional APPStatestatus APPSts = 3;
+}

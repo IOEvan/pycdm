@@ -1,0 +1,133 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/pnc/geometry.proto";
+import "common/pnc/road_map.proto";
+
+enum MotionTaskType {
+  LON_MPC_PLANNING = 1;
+  LAT_NMPC_PLANNING = 2;
+  MPC_CORRIDOR = 3;
+  REFLINE_IMPC_PLANNING = 4;
+  REFERENCE_LINE_SMOOTHER = 5;
+  MOCK_DECIDER = 6;
+  ESCAPE_TOWER = 7;
+}
+
+message MpEvaluation {
+  optional uint64 time_meas = 1;
+  optional bool lon_plan_success = 2;
+  optional bool lat_plan_success = 3;
+  optional double lon_mpc_time_cost = 4;
+  optional double lat_mpc_time_cost = 5;
+}
+
+message NDSRawPathPoint {
+  optional Vector3d position = 1;
+  optional double kappa_1pm = 2;
+  optional double theta_rad = 3;
+  optional double s = 4;
+}
+
+enum NDSPathMode {
+  NDS_LaneKeep = 0;
+  NDS_LaneChange = 1;
+  NDS_EmergencySteering = 2;
+}
+
+message NDSRawPath {
+  optional uint64 pub_time_ns = 1;
+  repeated NDSRawPathPoint path_points = 2;
+  optional NDSPathMode path_mode = 3;
+  optional double path_width_m = 4;
+  optional uint64 meas_time_ns = 5;
+  optional Transformation3d reference_frame =
+      6;  // transformation method in relative localization
+}
+
+enum MpReflineSource {
+  DECIDER = 1;
+  TPP = 2;
+  NOP_PATH = 3;
+}
+
+// obstacle interface:
+enum NDSObsAction {
+  NDSACTION_NONE = 0;
+  NDSACTION_YIELD = 1;
+  NDSACTION_NOT_YIELD = 2;
+  NDSACTION_SLOT_YIELD = 3;
+  NDSACTION_SLOT_NOT_YIELD = 4;
+  NDSACTION_MERGE_YIELD = 5;
+  NDSACTION_MERGE_OVERTAKE = 6;
+  NDSACTION_ALIGN_YIELD = 7;
+  NDSACTION_ALIGN_NOT_YILED = 8;
+  NDSACTION_VRU_YIELD = 9;
+  NDSACTION_VRU_NOT_YIELD = 10;
+  NDSACTION_RISK = 11;
+  NDSACTION_CROSS_YIELD = 12;
+  NDSACTION_LEFT_NUDGE = 13;
+  NDSACTION_RIGHT_NUDGE = 14;
+}
+
+message NDSObsState {
+  optional double dt_sec = 1;
+  optional Vector3d position = 2;
+  optional double speed_mps = 3;
+  optional double theta_rad = 4;
+  optional double acc_mps2 = 5;
+  optional double yawrate_radps = 6;
+  optional double x_dot_mps = 7;
+  optional double y_dot_mps = 8;
+}
+
+message NDSObsInfo {
+  optional int32 id = 1;           // usually between 0 and 9999
+  optional Vector3d position = 2;  // in the map frame
+  optional Vector3d velocity =
+      3;  // east/north/up with respect to the map frame
+  optional Vector3d acceleration =
+      4;  // east/north/up with respect to the map frame
+
+  // heading of object in range [-pi, pi), (east = 0, north = pi/2, west = -pi,
+  // south = -pi/2)
+  optional double heading = 5;
+  optional Vector3d bounding_box = 6;  // length/width/height
+  optional Polygon polygon = 7;  // object corner points, 2D, in the map frame
+  optional NDSObsAction action = 8;
+  repeated NDSObsState pred_states = 9;
+
+  enum Type {
+    UNKNOWN = 0;
+    UNKNOWN_STATIC = 1;
+    UNKNOWN_DYNAMIC = 2;
+    PEDESTRIAN = 3;
+    BIKE = 4;
+    CAR = 5;
+    TRUCK = 6;
+    CONE = 7;
+  };
+  optional Type type = 10;
+  optional double heading_rate = 11;
+}
+
+// NDS decider create convex space for planner
+message NDSPlannerInputs {
+  optional uint64 pub_time_ns = 1;
+  optional NDSRawPath raw_path = 2;
+  repeated NDSObsInfo key_obs = 3;
+  repeated LaneRoadMap lanes = 4;
+  repeated LaneBoundaryRoadMap lane_boundaries = 5;
+}
+
+message BoundarySegment {
+  optional double s = 1;
+  optional Vector2d left_norm_vec = 2;
+  optional double left_cutoff_dist = 3;
+  optional Vector2d right_norm_vec = 4;
+  optional double right_cutoff_dist = 5;
+  optional Vector2d left_raw_point = 6;
+  optional Vector2d right_raw_point = 7;
+}

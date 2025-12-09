@@ -1,0 +1,22 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+message ServiceIdInfo
+{
+    optional string task_name  = 1;
+    optional uint64 process_id = 2;
+    optional uint64 thread_id  = 3;
+}
+
+message ServiceIdInfoRequest
+{
+    repeated ServiceIdInfo id_info_list = 1;
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin   
+    optional uint64 publish_ptp_ts = 536870907;   // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909;     // uuid of the publisher
+    optional uint64 counter = 536870910;          // message counter
+    optional uint64 publish_ts = 536870911;       // publish utc timestamp; unit : nanosecond
+}

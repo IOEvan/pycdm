@@ -1,0 +1,31 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message AebEndtoEndParam {
+  optional bool override_ics            = 1;
+  optional bool end_to_end_onoff        = 2;
+  optional uint32 large_vehicle_param   = 3;
+  optional uint32 small_vehicle_param   = 4;
+  optional uint32 bicycle_param         = 5;
+  optional uint32 motorbike_param       = 6;
+  optional uint32 pedestrian_param      = 7;
+  optional uint32 rear_aeb_param1       = 8;
+  optional uint32 rear_aeb_param2       = 9;
+}
+
+message AebParamConfig {
+
+  optional uint32 param = 1; // aeb switching group
+  optional AebEndtoEndParam e2e_param = 2;  //aeb end to end param config
+
+  optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+  optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+  optional uint64 publish_ptp_ts   = 536870907;   //publish ptp timestamp, uint in nanosec
+  optional string publisher_id     = 536870909;   // uuid of the publisher
+  optional uint64 counter           = 536870910;  // message counter
+  optional uint64 publish_ts      = 536870911;  // publish timestamp; unit : nanosecond
+
+}

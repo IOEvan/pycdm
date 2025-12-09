@@ -1,0 +1,438 @@
+//AD Actuator control request to Vehicle
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+import "common/vehicle_in/veh_enum_type.proto";
+import "common/vehicle_out/fourd_chs3_opt.proto";
+
+message LngLwSpdCtrlIf{
+    reserved 11;
+    enum LlcActvIfType_e{
+        LlcActvIf_Default= 0 ;//Default
+        LlcActvIf_SAPA   = 1 ;//SAPA
+        LlcActvIf_VPPS   = 2 ;//VPPS
+        LlcActvIf_NBS    = 3 ;//NBS
+        LlcActvIf_RPA_In = 4 ;//RPA-in
+        LlcActvIf_Rsrvd5 = 5 ;//Reserved
+        LlcActvIf_Rsrvd6 = 6 ;//Reserved
+        LlcActvIf_Rsrvd7 = 7 ;//Reserved
+        LlcActvIf_Rsrvd8 = 8 ;//Reserved
+        LlcActvIf_Rsrvd9 = 9 ;//Reserved
+        LlcActvIf_Rsrvd10= 10;//Reserved
+        LlcActvIf_Rsrvd11= 11;//Reserved
+        LlcActvIf_Rsrvd12= 12;//Reserved
+        LlcActvIf_Rsrvd13= 13;//Reserved
+        LlcActvIf_Rsrvd14= 14;//Reserved
+        LlcActvIf_Rsrvd15= 15;//Reserved
+    }
+    required LlcActvIfType_e FctSeln   = 1;                 //@Channel:CHASSIS @Message:0x6D @Signal:ADC1_LLC_FctSeln
+
+    enum CtrlModType_e{
+        CtrlMod_NoReq = 0;//No request
+        CtrlMod_Dstnc = 1;//Distance control
+        CtrlMod_Spd   = 2;//Speed control
+        CtrlMod_Rsrvd3= 3;//Reserved
+    }
+    required CtrlModType_e CntrlModReq = 2;                 //@Channel:CHASSIS @Message:0x6D @Signal:ADC1_LLC_CntrlModReq
+
+    enum LlcStType_e{
+        LlcSt_Init   = 0;//Init
+        LlcSt_Stdby  = 1;//Standby
+        LlcSt_Actv   = 2;//Active
+        LlcSt_Suspend= 3;//Suspend
+        LlcSt_Abort  = 4;//Abort
+        LlcSt_Rsrvd5 = 5;//Reserved
+        LlcSt_Rsrvd6 = 6;//Reserved
+        LlcSt_Rsrvd7 = 7;//Reserved
+    }
+    required LlcStType_e LLCSt = 3;                         //@Channel:CHASSIS @Message:0x6D @Signal:ADC1_LLC_FctSt
+
+    enum TarGrReqType_e{
+        TarGr_NoReq = 0;//No request
+        TarGr_Drv   = 1;//Driving
+        TarGr_Rvrs  = 2;//Reverse
+        TarGr_Park  = 3;//Parking
+    }
+    required TarGrReqType_e TarGearReq = 4;                 //@Channel:CHASSIS @Message:0x6D @Signal:ADC1_TarGearReq
+    required float TarSpdKph           = 5;                 //@Channel:CHASSIS @Message:0x6D @Signal:ADC1_LLC_TarSpd
+    required float StopDst             = 6;                 //@Channel:CHASSIS @Message:0x6D @Signal:ADC1_LLC_StopDst
+
+    enum LlcShtDwnModType_e{
+       LlcShtDwn_NoReq   = 0;//No request
+       LlcShtDwn_CmftBrk = 1;//Comfort brake
+       LlcShtDwn_HardBrk = 2;//Emergency brake
+       LlcShtDwn_RlsTkOvr= 3;//Release to take over
+       LlcShtDwn_NormalBrk = 4;//Normal brake
+    }
+    required LlcShtDwnModType_e ShutdownModReq = 7;         //@Channel:CHASSIS @Message:0x6D @Signal:ADC1_LLC_ShutdownModReq
+    enum EpbReqType_e{
+        EpbReq_UnDtrmnd = 0;//Undetermined
+        EpbReq_NoReq    = 1;//No request
+        EpbReq_Apply    = 2;//Apply request
+        EpbReq_Rsrvd3   = 3;//Reserved
+    }
+    required EpbReqType_e EPBReq = 8;                       //@Channel:CHASSIS @Message:0x6D @Signal:ADC1_EPBReq
+                                                                //@Channel:CHASSIS2 @Message:0x6E @Signal:ADCs_EPBReq
+    optional float VehDstToVSlot=9;                        //@Channel:CHASSIS @Message:0x190 @Signal:VehDstToVSlot
+    optional float SlopeDstOffset=10;                      //@Channel:CHASSIS @Message:0x190 @Signal:SlopeDstOffset
+
+    enum VCU_ObjModTyp_e {
+        VCU_ObjModTyp_off=0;
+        VCU_ObjModTyp_Vslot=1;
+        VCU_ObjModTyp_Speed_bump=2;
+        VCU_ObjModTyp_pit=3;
+        VCU_ObjModTyp_up_hill=4;
+        VCU_ObjModTyp_down_hill=5;
+        VCU_ObjModTyp_reserved1=6;
+        VCU_ObjModTyp_reserved2=7;
+    }
+    optional VCU_ObjModTyp_e VCU_ObjModTyp=12;  //@Channel:CHASSIS @Message:0x190 @Signal:VCU_ObjModTyp
+    optional float VCU_ObjModLonDst=13;      //@Channel:CHASSIS @Message:0x190 @Signal:VCU_ObjModLonDst
+    optional float VCU_ObjModLatDst=14;   //@Channel:CHASSIS @Message:0x190 @Signal:VCU_ObjModLatDst
+
+    enum PowerStationGen_e{
+        none= 0;
+        generation_one    = 1;
+        generation_two    = 2;
+        generation_three  = 3;
+        generation_four   = 4;
+    }
+    optional PowerStationGen_e PowerStationGen = 15;             //@Channel:CHASSIS @Message:0x190 @Signal:PowerStationGen
+
+    enum ADC_VehAutoHoldReq_e{
+        No_request = 0;
+        Request = 1;
+    }
+    optional ADC_VehAutoHoldReq_e ADC_VehAutoHoldReq = 16;      //@Channel:CHASSIS @Message:0x190 @Signal:ADC_VehAutoHoldReq
+}
+
+message LatCtrlIf{
+reserved 11,12;
+    optional QfZeroAsVld_e ACIReqVld    = 1;                //@Channel:CHASSIS @Message:0x70 @Signal:ADC1_EPSACIReqVal
+                                                                //@Channel:CHASSIS2 @Message:0x54 @Signal:ADCs_EPSACIReqVal
+    optional float  ACIReqSAE           = 2;                //@Channel:CHASSIS @Message:0x70 @Signal:ADC1_EPSACIReq
+                                                            //@Comment:ADC1_EPSACIReq * -1
+                                                                //@Channel:CHASSIS2 @Message:0x54 @Signal:ADCs_EPSACIReq
+                                                                //@Comment:ADCs_EPSACIReq * -1
+    optional float  ACISafLimAngDyn     = 3;                //@Channel:CHASSIS @Message:0x70 @Signal:ADC1_EPSACISafLim_AngDyn
+                                                                //@Channel:CHASSIS2 @Message:0x54 @Signal:ADCs_EPSACISafLim_AngDyn
+    optional uint32 ACISafLimAngRM      = 4;                //@Channel:CHASSIS @Message:0x70 @Signal:ADC1_EPSACISafLim_AngRM
+                                                                //@Channel:CHASSIS2 @Message:0x54 @Signal:ADCs_EPSACISafLim_AngRM
+    optional float ACISafLimAngDynOffs  = 5;                //@Channel:CHASSIS @Message:0x70 @Signal:ADC1_EPSACISafLim_AngDynOffs
+                                                                //@Channel:CHASSIS2 @Message:0x54 @Signal:ADCs_EPSACISafLim_AngDynOffs
+    optional uint32 ACISafLimRate       = 6;                //@Channel:CHASSIS @Message:0x70 @Signal:ADC1_EPSACISafLim_Rate
+                                                                //@Channel:CHASSIS2 @Message:0x54 @Signal:ADCs_EPSACISafLim_Rate
+    optional uint32 ACIRampRate         = 7;                //@Channel:CHASSIS @Message:0x70 @Signal:ADC1_EPSACIRampRate
+                                                                //@Channel:CHASSIS2 @Message:0x54 @Signal:ADCs_EPSACIRampRate
+    optional uint32 ACISafLimAngLM      = 8;                //@Channel:CHASSIS @Message:0x70 @Signal:ADC1_EPSACISafLim_AngLM
+                                                                //@Channel:CHASSIS2 @Message:0x54 @Signal:ADCs_EPSACISafLim_AngLM
+    optional uint32 ACISafLimMode       = 9;                //@Channel:CHASSIS @Message:0x70 @Signal:ADC1_EPSACISafLim_Mode
+                                                                //@Channel:CHASSIS2 @Message:0x54 @Signal:ADCs_EPSACISafLim_Mode
+    optional QfZeroAsVld_e CTIReqVal    = 10;               //@Channel:CHASSIS @Message:0x71 @Signal:ADC1_EPSCTIReqVal
+                                                                //@Channel:CHASSIS2 @Message:0x55 @Signal:ADCs_EPSCTIReqVal
+    optional float  CTIReqSAE           = 13;               //@Channel:CHASSIS @Message:0x71 @Signal:ADC1_EPSCTIReq
+                                                            //@Comment:ADC1_EPSCTIReq * -1
+                                                                //@Channel:CHASSIS2 @Message:0x55 @Signal:ADCs_EPSCTIReq
+                                                                //@Comment:ADCs_EPSCTIReq * -1
+
+    enum StrIfReqType_e{
+        StrIf_NoReq     = 0;//no request
+        StrIf_AciOvrL   = 1;//ACI with overlay request
+        StrIf_AciOvrLHvi= 2;//ACI with overlay request & HVI request
+        StrIf_AciOvrD   = 3;//ACI with override request
+        StrIf_AciOvrDHvi= 4;//ACI with override request & HVI request
+        StrIf_Cti       = 5;//CTI request
+        StrIf_VmcMti    = 6;//MTI request (VMC)
+        StrIf_Hvi       = 7;//HVI request
+    }
+    optional StrIfReqType_e StrIFReq    = 14;                //@Channel:CHASSIS @Message:0x71 @Signal:ADC1_EPSReqTyp
+                                                                //@Channel:CHASSIS2 @Message:0x55 @Signal:ADCs_EPSReqTyp
+    optional uint32 HVIReq              = 15;                //@Channel:CHASSIS @Message:0x71 @Signal:ADC1_EPSHVIReq
+                                                                //@Channel:CHASSIS2 @Message:0x55 @Signal:ADCs_EPSHVIReq
+    optional QfZeroAsVld_e HVIReqVld    = 16;                //@Channel:CHASSIS @Message:0x71 @Signal:ADC1_EPSHVIReqVal
+                                                                //@Channel:CHASSIS2 @Message:0x55 @Signal:ADCs_EPSHVIReqVal
+    enum ACITsuSup_e{
+        ACITsuSup_set1=0;
+        ACITsuSup_set2=1;
+        ACITsuSup_set3=2;
+        ACITsuSup_set4=3;
+        ACITsuSup_set5=4;
+        ACITsuSup_set6=5;
+        ACITsuSup_set7=6;
+        ACITsuSup_set8=7;
+    }
+    optional  ACITsuSup_e ACITsuSup           = 17;               //@Channel:CHASSIS @Message:0x71 @Signal:ADC1_EPSACITsuSup
+                                                                      //@Channel:CHASSIS2 @Message:0x55 @Signal:ADCs_EPSACITsuSup
+    enum ACIOvrdThr_e{
+        ACIOvrdThr_threshold_1 =0;
+        ACIOvrdThr_threshold_2 =1;
+        ACIOvrdThr_threshold_3 =2;
+        ACIOvrdThr_threshold_4 =3;
+        ACIOvrdThr_threshold_5 =4;
+        ACIOvrdThr_threshold_6 =5;
+        ACIOvrdThr_threshold_7 =6;
+        ACIOvrdThr_threshold_8 =7;
+    }
+    optional ACIOvrdThr_e ACIOvrdThr          = 18;               //@Channel:CHASSIS @Message:0x71 @Signal:ADC1_EPSACIOvrThr
+                                                                        //@Channel:CHASSIS2 @Message:0x55 @Signal:ADCs_EPSACIOvrThr
+    // @begin segscope: NT3
+    enum SrcTyp_e {
+        ADF_Primary   = 0;
+        ADF_Redundant = 1;
+        Chassis_Main  = 2;
+        Src_Not_Know  = 8;
+    }
+    optional SrcTyp_e SrcTyp              = 19;
+    optional uint32 acp_req_typ           = 20;     //SbW 0:Full COPY 1:SMALL COPY 2:NO COPY 3:RESERVED  
+    // @end segscope: NT3
+}
+
+message SafeStateInfo{
+    required uint32 SafetyState1 = 1;                      //@Channel:CHASSIS @Message:0x6D @Signal:ADC1_SafeState1
+                                                                //@Channel:CHASSIS2 @Message:0x6E @Signal:ADCs_SafeState1
+}
+
+
+message LngCtrlEmrgIf{
+    reserved 1,2;
+
+    required bool   AEBDecelReq = 3 ;                       //@Channel:CHASSIS @Message:0x7D @Signal:AEBDecelReq
+    required float  AEBTarDecel = 4 ;                       //@Channel:CHASSIS @Message:0x7D @Signal:AEBTarDecel
+    required bool   EBADecelReq = 5 ;                       //@Channel:CHASSIS @Message:0x7D @Signal:EBADecelReq
+    required bool   ABPReq      = 6 ;                       //@Channel:CHASSIS @Message:0x7D @Signal:ABPReq
+    required uint32 AWBSnvtyLvl = 7 ;                       //@Channel:CHASSIS @Message:0x7D @Signal:AWBSnvtyLvl
+    required bool   AWBReq      = 8 ;                       //@Channel:CHASSIS @Message:0x7D @Signal:AWBReq
+    required uint32 ABASnvtyLvl = 9 ;                       //@Channel:CHASSIS @Message:0x7D @Signal:ABASnvtyLvl
+    required bool   ABAReq      = 10;                       //@Channel:CHASSIS @Message:0x7D @Signal:ABAReq
+    optional bool   AEBDecelReq_DummyForDVR    =11;         //@Channel:CHASSIS @Message:0x7E @Signal:AEBDecelReq_DummyForDVR
+    optional bool   TqRmpLimReq = 12;                       //@Channel:CHASSIS @Message:0x190 @Signal:TqRmpLimReq
+    optional bool   MAI_WarnReq = 13;                       //@Channel:ADAS @Message:0x275 @Signal:MAI_WarnReq
+    optional uint32 MAISts      = 14;                       //@Channel:ADAS @Message:0x275 @Signal:MAISts
+    optional uint32 MAI_WarnReq_new = 15;                   //@Channel:ADAS @Message:0x275 @Signal:MAI_WarnReq_new
+
+
+}
+message LngctrlCmfrtIf{
+    reserved 9 ;
+    enum VlcReqFctType_e{
+        VlcReqFct_Off       = 0;//Off
+        VlcReqFct_DA        = 1;//Drive Assist
+        VlcReqFct_FCTA      = 2;//FCTA_B
+        VlcReqFct_RCTA      = 3;//RCTA_B
+        VlcReqFct_SSD       = 4;//NAD_SSD
+        VlcReqFct_USD       = 5;//NAD_USD
+        VlcReqFct_EAS       = 6;//EAS
+        VlcReqFct_PSP       = 7;//PSP
+    }
+    required VlcReqFctType_e VLCReqFct = 1;                 //@Channel:CHASSIS @Message:0x151 @Signal:VLC_ReqFct
+                                                                //@Channel:CHASSIS2 @Message:0x154 @Signal:VLC_ReqFct_s
+    required VLCStType_e VLCMode   = 2;                     //@Channel:CHASSIS @Message:0x151 @Signal:VLC_Mode
+                                                                //@Channel:CHASSIS2 @Message:0x154 @Signal:VLC_Mode_s
+    required float VLCTarA        = 3;                      //@Channel:CHASSIS @Message:0x151 @Signal:VLC_TarA
+                                                                //@Channel:CHASSIS2 @Message:0x154 @Signal:VLC_TarA_s
+    required float VLCMinJerkA    = 4;                      //@Channel:CHASSIS @Message:0x151 @Signal:VLC_MinJerkA
+                                                                //@Channel:CHASSIS2 @Message:0x154 @Signal:VLC_MinJerkA_s
+    required float VLCMaxJerkA    = 5;                      //@Channel:CHASSIS @Message:0x151 @Signal:VLC_MaxJerkA
+                                                                //@Channel:CHASSIS2 @Message:0x154 @Signal:VLC_MaxJerkA_s
+    required bool VLCDrvOffReq    = 6;                      //@Channel:CHASSIS @Message:0x151 @Signal:VLC_DriveOffReq
+                                                                //@Channel:CHASSIS2 @Message:0x154 @Signal:VLC_DriveOffReq_s
+    required bool VLCDecToStopReq = 7;                      //@Channel:CHASSIS @Message:0x151 @Signal:VLC_DecelToStopReq
+                                                                //@Channel:CHASSIS2 @Message:0x154 @Signal:VLC_DecelToStopReq_s
+    enum VLCShtDwnModType_e{
+        VLCShtDwn_Soft = 0;//Soft Off
+        VLCShtDwn_Fast = 1;//Fast Off
+        VLCShtDwn_Imdt = 2;//Immediate Off
+        VLCShtDwn_Init = 3;//No request
+    }
+    required VLCShtDwnModType_e VLCShutdownModReq = 8;      //@Channel:CHASSIS @Message:0x151 @Signal:VLC_ShutdownModReq
+                                                                //@Channel:CHASSIS2 @Message:0x154 @Signal:VLC_ShutdownModReq_s
+    enum VLC_Fctseln_e{
+        VLC_Fctseln_Off       = 0;//Off
+        VLC_Fctseln_DA        = 1;//Drive Assist
+        VLC_Fctseln_FCTA      = 2;//FCTA_B
+        VLC_Fctseln_RCTA      = 3;//RCTA_B
+        VLC_Fctseln_SSD       = 4;//NAD_SSD
+        VLC_Fctseln_USD       = 5;//NAD_USD
+        VLC_Fctseln_EAS       = 6;//EAS
+        VLC_Fctseln_PSP       = 7;//PSP
+        VLC_Fctseln_SAPA      = 8;//SAPA
+        VLC_Fctseln_VPPS      = 9;//PSAP VPPS
+        VLC_Fctseln_NBS       = 10;//NBS
+        VLC_Fctseln_RPA_in    = 11;//RPA_in RPSAP_out
+        VLC_Fctseln_ODS       = 12;//ODS
+        VLC_Fctseln_RPSAP_in  = 13;//RPSAP_in
+        VLC_Fctseln_RCM       = 14;//RCM
+        VLC_Fctseln_Reserved  = 15;// reserved
+    }
+    optional VLC_Fctseln_e VLC_Fctseln =10;                            //@Channel:CHASSIS @Message:0x151 @Signal:VLC_Fctseln
+                                                                       //@Channel:CHASSIS2 @Message:0x154 @Signal:VLC_Fctseln_s
+    optional float VLC_xTarA        = 11;                              //@Channel:CHASSIS @Message:0x151 @Signal:VLC_xTarA
+                                                                       //@Channel:CHASSIS2 @Message:0x154 @Signal:VLC_xTarA_s
+    enum PowStation_OutReq_e{
+        PowStation_OutReq_no_request       = 0;//no request
+        PowStation_OutReq_request       = 1;//request
+    }
+    optional PowStation_OutReq_e PowStation_OutReq    = 12;                           //@Channel:CHASSIS @Message:0x151 @Signal:PowStation_OutReq
+                                                                                      //@Channel:CHASSIS2 @Message:0x154 @Signal:PowStation_OutReq_s
+    enum VLC_ObstCrossReq_e{
+        VLC_ObstCrossReq_no_request     =0;  //no request
+        VLC_ObstCrossReq_no_crossing    =1;  //no crossing
+        VLC_ObstCrossReq_need_to_cross  =2;  //need to cross
+        VLC_ObstCrossReq_Rsrvd3         =3;  //reserved
+        VLC_ObstCrossReq_Rsrvd4         =4;  //reserved
+        VLC_ObstCrossReq_Rsrvd5         =5;  //reserved
+        VLC_ObstCrossReq_Rsrvd6         =6;  //reserved
+        VLC_ObstCrossReq_Rsrvd7         =7;  //reserved
+    }
+    optional VLC_ObstCrossReq_e VLC_ObstCrossReq     = 13;                           //@Channel:CHASSIS @Message:0x151 @Signal:VLC_ObstCrossReq
+    // @begin segscope: NT3
+    optional bool SlideintoSlotReq = 14;                                 //@Channel:CHASSIS @Message:0x151 @Signal:VLC_SlideintoSlotReq
+    optional bool VLC_OvrdAllowed  = 15;                                 //@Service:VehLgtCtrl @Interface:IfLgtCmd
+    
+    enum VLC_CmdSrc_e {
+        VlcCmdSrc_Invalid = 0;
+        VlcCmdSrc_Main    = 1;
+        VlcCmdSrc_Rant    = 2;
+    }
+    optional VLC_CmdSrc_e VLC_CmdSrc = 16;                               //@Service:VehLgtCtrl @Interface:IfLgtCmd
+    // @end segscope: NT3
+}
+
+message VehModMngIfInfo{
+    enum ADDrvModReqType_e{
+        ADDrvMod_NoReq   = 0 ;//No Request
+        ADDrvMod_RmtDrv  = 1 ;//RMD Request
+        ADDrvMod_AtDrv   = 2 ;//AD Request
+        ADDrvMod_Rsrvd4  = 3 ;//Reserved
+        ADDrvMod_Rsrvd5  = 4 ;//Reserved
+        ADDrvMod_Rsrvd6  = 5 ;//Reserved
+        ADDrvMod_Rsrvd7  = 6 ;//Reserved
+        ADDrvMod_Rsrvd8  = 7 ;//Reserved
+        ADDrvMod_Rsrvd9  = 8 ;//Reserved
+        ADDrvMod_Rsrvd10 = 9;//Reserved
+        ADDrvMod_Rsrvd11 = 10;//Reserved
+        ADDrvMod_Rsrvd12 = 11;//Reserved
+        ADDrvMod_Rsrvd13 = 12;//Reserved
+        ADDrvMod_Rsrvd14 = 13;//Reserved
+        ADDrvMod_Rsrvd15 = 14;//Reserved
+        ADDrvMod_Rsrvd16 = 15;//Invalid
+    }
+    required ADDrvModReqType_e ADDrvTypReq = 1;             //@Channel:ADAS @Message:0x266 @Signal:ADDrvTypReq
+
+    enum DdmReqType_e{
+        DDM_NoReq = 0;//No request
+        DDM_Req   = 1;//Request
+        DDM_Rsrvd2= 2;//Reserved
+        DDM_InVLd = 3;//Invalid
+    }
+    required DdmReqType_e DDMReq = 2;                       //@Channel:ADAS @Message:0x266 @Signal:DDMReq
+}
+
+message BodyCtrlIfInfo{
+    enum MirrFoldUnfoldExtReq_e{
+        MirrFoldUnfoldExtReq_None = 0;//No request
+        MirrFoldUnfoldExtReq_Fold = 1;//Request to fold
+        MirrFoldUnfoldExtReq_Unfold = 2;//Request to unfold
+        MirrFoldUnfoldExtReq_Invld = 3;//Invalid
+    }
+
+    optional MirrFoldUnfoldExtReq_e MirrFoldUnfoldExtReq = 1; //@Channel:ADAS @Message:0x1E5 @Signal:MirrFoldUnfoldExtReq
+
+    enum WiperCtrl_e{
+        WiperCtrl_None = 0;//No request
+        WiperCtrl_Off = 1;//Service not request
+        WiperCtrl_LowSpd = 2;//Service request low
+        WiperCtrl_HighSpd = 3;//Service request high
+    }
+
+    optional WiperCtrl_e ADCWiperCtrl = 2;  //@Channel:ADAS @Message:0x1E5 @Signal:ADCWiperCtrl
+    optional bool WSHeatReq = 3;            //@Channel:ADAS @Message:0x266 @Signal:WSHeatReq
+    optional bool WSHeatReqValid = 4;       //@Channel:ADAS @Message:0x266 @Signal:WSHeatReqValid
+
+    enum ADCPosnLightReqType_e{
+        ADCPosnLightReq_None = 0; //No request
+        ADCPosnLightReq_Front = 1; //Front position light request
+        ADCPosnLightReq_Rear = 2; //Rear position light request
+        ADCPosnLightReq_FrontAndRear = 3; //Front and reat position light request
+    }
+    optional ADCPosnLightReqType_e ADCPosnLightReq = 5; //@Channel:ADAS @Message:0x1E5 @Signal:ADCPosnLightReq
+
+    enum ADVisonRainFall_e{
+        NoRain = 0;
+        Rain = 1;
+        Reserved = 2;
+        Invalid = 3;
+    }
+    optional ADVisonRainFall_e ADVisionRainFall = 6;                                   //@Channel:ADAS @Message:0x266 @Signal:RainFall
+    enum ADVisonRainLevel_e{
+        Level0 = 0;
+        Level1 = 1;
+        Level2 = 2;
+        Level3 = 3;
+        Level4 = 4;
+        Level5 = 5;
+        Level6 = 6;
+        Level_Invalid = 7;
+    }
+    optional ADVisonRainLevel_e ADVisonRainLevel = 7;                                   //@Channel:ADAS @Message:0x266 @Signal:RainFallLevel
+    // @begin segscope: NT3
+    optional uint32 ASBReq = 8;                                                         //@Service:ActvSftyBlt @Interface:ReqActvSftyBlt
+    optional bool FasPreCrashReq = 9;                                                   //@Service:FasCtrlSrv @Interface:IfFasPreCrashSet
+    optional bool HVPreCrashReq = 10;                                                   //@Service:HeatPumpMgr @Interface:HpExtendCtrl
+
+    enum TelescopeCmdType_e{
+       TELESCOPE_No_Active  = 0;
+       TELESCOPE_In         = 1;
+       TELESCOPE_Out        = 2;
+    }
+    optional TelescopeCmdType_e Telescope_endur_cmd = 11;    //@Service:SteerColAdjMgr @Interface:SteerColAdjEndurCmd
+
+    enum TiltCmdType_e{
+       Tilt_No_Active = 0;
+       Tilt_Up        = 1;
+       Tilt_Down      = 2;
+    }
+    optional TiltCmdType_e Tilt_endur_cmd = 12;              //@Service:SteerColAdjMgr @Interface:SteerColAdjEndurCmd
+    // @end segscope: NT3
+}
+
+// @begin segscope: NT3
+message VehRwsCtrlIf {
+    enum RwsReqTyp_e {
+        VlatcRwsReqTyp_No_Request           = 0;
+        VlatcRwsReqTyp_Rpi_Request          = 1;
+        VlatcRwsReqTyp_Signal_Unavailable   = 7;  //Not available
+    }
+    optional RwsReqTyp_e RwsReqTyp        = 1;
+    optional float RwsAciReq              = 2;
+    optional bool RwsAciReqVld            = 3;
+    optional float RwsAciSafLimAnglm      = 4;
+    optional float RwsAciSafLimAngrm      = 5;
+    optional float RwsAciSafLimRate       = 6;
+    
+    enum SrcTyp_e {
+        ADF_Primary   = 0;
+        ADF_Redundant = 1;
+        Chassis_Main  = 2;
+        Src_Not_Know  = 8;
+    }
+    optional SrcTyp_e SrcTyp              = 7;
+}
+// @end segscope: NT3
+
+message ActuatorIf{
+    reserved 3;
+    required LngLwSpdCtrlIf  LngLwSpdCtrl = 1;
+    required LatCtrlIf       LatCtrl      = 2;
+    required LngCtrlEmrgIf   LngCtrlEmrgnc= 4;
+    required LngctrlCmfrtIf  LngCtrlCmfrt = 5;
+    required VehModMngIfInfo VehModMng    = 6;
+    required SafeStateInfo   SafetyState  = 7;
+    optional BodyCtrlIfInfo  BodyCtrlIf   = 8;
+    optional VehFourdCtrlIf  VehFourdCmd  = 9;
+    optional VehRwsCtrlIf    VehRwsCtrlCmd= 10;        // @linescope: NT3  //RWS interface only for NT3 Prime
+    optional FasCtrlIf       FourdFasCmd  = 11;        // @linescope: NT3  //FAS interface only for NT3 Prime
+}

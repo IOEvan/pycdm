@@ -1,0 +1,24 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+
+
+message TimeCamRequest{
+    enum TimeCamReqCmd {
+        INVALID                    = 0; // invalid value
+        DEFAULT                    = 1; // default value
+        CAMERA_REQ                 = 3; // request for fw & fl & fr images（yuv） 
+        RESERVED                   = 4; // reserved
+    }
+
+    optional TimeCamReqCmd  time_cam_req_cmd = 1;
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    optional uint64 publish_ptp_ts = 536870907;   // publish ptp timestamp unit : nanosecond
+    optional string publisher_id = 536870909;    // uuid of the publisher
+    optional uint64 counter = 536870910;         // message counter
+    optional uint64 publish_ts = 536870911;     // publish utc timestamp; unit : nanosecond
+}

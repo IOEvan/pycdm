@@ -1,0 +1,85 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/vehicle_in/veh_drv.proto";
+import "common/vehicle_in/veh_body.proto";
+import "common/vehicle_in/veh_enum_type.proto";
+
+message AdFunCfgInfo_light {
+	required AdFunOnOffType_e AEBOnOffReq = 3;
+	required AdFunOnOffType_e FCTAOnOffCmd = 6;
+	required DrvInfo.AdFunCfgInfo.FcwSetType_e FCWSetReq = 7;
+	required AdFunOnOffType_e LCAOnOff = 10;
+	required AdFunOnOffType_e LCATctlWarnOnOff = 11;
+	required AdFunOnOffType_e RCTAReq = 12;
+	required DrvInfo.AdFunCfgInfo.HmaOnOffType_e SetHMA = 13;
+	required LnAssistAidType_e SetLnAssiAidTyp = 14;
+	required LnAssistSnvtyType_e SetLaneAssiSnvty = 15;
+	required AdFunOnOffType_e RCTABReq = 17;
+	required DrvInfo.AdFunCfgInfo.SapaPrkModType_e SAPAPrkgModReq = 19; 
+	optional DrvInfo.AdFunCfgInfo.SetDA_ALCSType_e SetDA_ALCS = 25;
+	optional DrvInfo.AdFunCfgInfo.SetDA_SpdAssType_e SetDA_SpeedAssist = 26;
+	optional DrvInfo.AdFunCfgInfo.SetDA_StrAssType_e SetDA_SteerAssist = 27;
+	optional DrvInfo.AdFunCfgInfo.SetSWFType_e SetSWF = 32;
+	optional DrvInfo.AdFunCfgInfo.SdowOnOffReq_e SdowOnOffReq = 34;
+	optional FuncActvSts_e DrowsinessSwtSts = 36;
+	optional FuncActvSts_e DistractionSwtSts = 38;
+	optional DrvInfo.AdFunCfgInfo.SetSpeedCtrlSts_e SetSpeedCtrlSts = 40;
+	optional bool AESOnOffSts = 44;
+	optional bool SwtichDA_NOP = 45;
+	optional DrvInfo.AdFunCfgInfo.SetDA_NOPALC_e SetDA_NOPALC = 46;
+	optional bool ManHornSwtSts = 47;
+	optional OAASetSts_e OAASetReq =55;
+	optional DrvInfo.AdFunCfgInfo.MAISetReq_e MAISetReq =60;
+	optional bool SetDA_PSP                              = 63;
+	optional bool SetDA_OAA                              = 65;
+	optional DrvInfo.AdFunCfgInfo.SetAEBTypeReq_e SetAEBTypeReq              =77;
+}
+message StrWhlSwtchInfo_light{
+	repeated DrvInfo.StrWhlSwtchInfo.SwcSwStType_e AdUpSwtSts = 1;
+}
+message SVCFncInfo_light{
+	optional DrvInfo.SVCFncInfo.RaebOnOffReq_e RaebOnOffReq    = 13;
+	optional DrvInfo.SVCFncInfo.RMAISetReq_e RMAISetReq    = 14; 
+}
+message DrvInfo_light {
+	required StrWhlSwtchInfo_light StrWhlSwtch = 1;
+	required AdFunCfgInfo_light AdFunCfg = 2;
+	required DrvInfo.WiprSwtStType_e FrntWiprSwtSts = 5;
+	required DrvInfo.TrnIndcrSwStType_e TurnIndcrSwtSts = 7; 
+	optional SVCFncInfo_light SVCInfo = 24;
+	optional DrvInfo.VehEgyMngtMod_e VehEgyMngtMod      = 25;
+	optional DrvInfo.DriverPSAPRequest_e DriverPSAPRequest=10001;
+	optional uint32 DriverSAPAReq = 10006;
+    optional uint32 DriverSAPASlotSelection = 10007;
+}
+message LightsInfo_light{
+	required VehBodyInfo.LightsInfo.HzrdLiStsType_e HzrdWarnSts = 3; 
+}
+message VehStatusInfo_light{
+	required VehBodyInfo.VehStatusInfo.VehStType_e VehState = 1;
+}
+message WipperInfo_light{
+	required VehBodyInfo.WipperInfo.WiprStType_e FrntWiprSts = 1;
+}
+message VehBodyInfo_light{
+	required VehBodyInfo.VehStatusInfo VehStatus = 1;
+	repeated VehBodyInfo.SeatOcupStType_e SeatOccpSts = 3;
+	repeated uint32 SeatBltSts = 4;
+	required LightsInfo_light LightSts = 5;
+	required WipperInfo_light WipperSts = 6;
+	required VehBodyInfo.NbsDrvStType_e NBSDrvrSts = 17;
+	required bool 	CrashDetd     = 19;
+	optional VehBodyInfo.RpsRemoteMovReq_e RpsRemoteMovReq = 45;
+}
+message VEH50ms_light {
+	// required SuspensionInfo Suspension = 1;
+	required VehBodyInfo_light VehBody = 2;
+	required DrvInfo_light DrvIn = 3;
+	// required UPAInfo  UPA   = 4;
+	// optional PsapStationCan PsapCan=10000;
+	// optional AdbActvSts AdbActvStatus    = 5;
+	optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+	optional uint64 publish_ptp_ts   = 536870907; 
+}

@@ -1,0 +1,187 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message FourdInfo{
+
+    message BodyAzInfo{
+        optional float BdyAz_FL=1;         //@Channel:CHS3_CANFD @Message:0x16E @Signal:BdyAz_FL
+        optional float BdyAz_FR=2;         //@Channel:CHS3_CANFD @Message:0x16E @Signal:BdyAz_FR
+        optional float BdyAz_RL=3;         //@Channel:CHS3_CANFD @Message:0x16E @Signal:BdyAz_RL
+        optional float BdyAz_RR=4;         //@linescope: NT3
+        repeated float BdyAzSnsr_FL=5;     //@Channel:CHS3_CANFD @Message:0x16E @Signal:BdyAzSnsr_FL01
+                                           //@Channel:CHS3_CANFD @Message:0x16E @Signal:BdyAzSnsr_FL02
+                                           //@Channel:CHS3_CANFD @Message:0x16E @Signal:BdyAzSnsr_FL03
+                                           //@Channel:CHS3_CANFD @Message:0x16E @Signal:BdyAzSnsr_FL04
+                                           //@Channel:CHS3_CANFD @Message:0x16E @Signal:BdyAzSnsr_FL05
+        repeated float BdyAzSnsr_FR=6;     //@Channel:CHS3_CANFD @Message:0x16E @Signal:BdyAzSnsr_FR01
+                                           //@Channel:CHS3_CANFD @Message:0x16E @Signal:BdyAzSnsr_FR02
+                                           //@Channel:CHS3_CANFD @Message:0x16E @Signal:BdyAzSnsr_FR03
+                                           //@Channel:CHS3_CANFD @Message:0x16E @Signal:BdyAzSnsr_FR04
+                                           //@Channel:CHS3_CANFD @Message:0x16E @Signal:BdyAzSnsr_FR05
+        repeated float BdyAzSnsr_RL=7;     //@Channel:CHS3_CANFD @Message:0x16E @Signal:BdyAzSnsr_RL01
+                                           //@Channel:CHS3_CANFD @Message:0x16E @Signal:BdyAzSnsr_RL02
+                                           //@Channel:CHS3_CANFD @Message:0x16E @Signal:BdyAzSnsr_RL03
+                                           //@Channel:CHS3_CANFD @Message:0x16E @Signal:BdyAzSnsr_RL04
+                                           //@Channel:CHS3_CANFD @Message:0x16E @Signal:BdyAzSnsr_RL05
+        optional uint32 AzSnsrTimeNSec=8;  //@Channel:CHS3_CANFD @Message:0x16E @Signal:AzSnsr_TmeNSec
+        optional uint32 AzSnsrTimeSec=9;   //@Channel:CHS3_CANFD @Message:0x16E @Signal:AzSnsr_TimeSec
+    }
+
+    message AsdmLvlInfo{
+        optional int32 FrntLeLvl=1;        //@Channel:CHS3_CANFD @Message:0xCC @Signal:FrntLeLvl
+        optional int32 FrntRiLvl=2;        //@Channel:CHS3_CANFD @Message:0xCC @Signal:FrntRiLvl
+        optional int32 ReLeLvl=3;          //@Channel:CHS3_CANFD @Message:0xCC @Signal:ReLeLvl
+        optional int32 ReRiLvl=4;          //@Channel:CHS3_CANFD @Message:0xCC @Signal:ReRiLvl
+        optional bool RearRiLvlAdjm=5;     //@Channel:CHS3_CANFD @Message:0xCC @Signal:RearRiLvlAdjm
+        optional bool RearLeLvlAdjm=6;     //@Channel:CHS3_CANFD @Message:0xCC @Signal:RearLeLvlAdjm
+        optional bool FrntRiLvlAdjm=7;     //@Channel:CHS3_CANFD @Message:0xCC @Signal:FrntRiLvlAdjm
+        optional bool FrntLeLvlAdjm=8;     //@Channel:CHS3_CANFD @Message:0xCC @Signal:FrntLeLvlAdjm
+        optional bool LvlCalCmptl=9;       //@Channel:CHS3_CANFD @Message:0xCC @Signal:LvlCalCmptl
+        repeated float FrLeAgSnsr=10;      //@Channel:CHS3_CANFD @Message:0xCC @Signal:FrLeAgSnsr01
+                                           //@Channel:CHS3_CANFD @Message:0xCC @Signal:FrLeAgSnsr02
+                                           //@Channel:CHS3_CANFD @Message:0xCC @Signal:FrLeAgSnsr03
+                                           //@Channel:CHS3_CANFD @Message:0xCC @Signal:FrLeAgSnsr04
+                                           //@Channel:CHS3_CANFD @Message:0xCC @Signal:FrLeAgSnsr05
+        repeated float FrRiAgSnsr=11;      //@Channel:CHS3_CANFD @Message:0xCC @Signal:FrRiAgSnsr01
+                                           //@Channel:CHS3_CANFD @Message:0xCC @Signal:FrRiAgSnsr02
+                                           //@Channel:CHS3_CANFD @Message:0xCC @Signal:FrRiAgSnsr03
+                                           //@Channel:CHS3_CANFD @Message:0xCC @Signal:FrRiAgSnsr04
+                                           //@Channel:CHS3_CANFD @Message:0xCC @Signal:FrRiAgSnsr05
+        repeated float ReLeAgSnsr=12;      //@Channel:CHS3_CANFD @Message:0xCC @Signal:ReLeAgSnsr01
+                                           //@Channel:CHS3_CANFD @Message:0xCC @Signal:ReLeAgSnsr02
+                                           //@Channel:CHS3_CANFD @Message:0xCC @Signal:ReLeAgSnsr03
+                                           //@Channel:CHS3_CANFD @Message:0xCC @Signal:ReLeAgSnsr04
+                                           //@Channel:CHS3_CANFD @Message:0xCC @Signal:ReLeAgSnsr05
+        repeated float ReRiAgSnsr=13;      //@Channel:CHS3_CANFD @Message:0xCC @Signal:ReRiAgSnsr01
+                                           //@Channel:CHS3_CANFD @Message:0xCC @Signal:ReRiAgSnsr02
+                                           //@Channel:CHS3_CANFD @Message:0xCC @Signal:ReRiAgSnsr03
+                                           //@Channel:CHS3_CANFD @Message:0xCC @Signal:ReRiAgSnsr04
+                                           //@Channel:CHS3_CANFD @Message:0xCC @Signal:ReRiAgSnsr05
+        optional uint32 AgSnsrTimeNSec=14; //@Channel:CHS3_CANFD @Message:0xCC @Signal:AgSnsr_TimeNSec
+        optional uint32 AgSnsrTimeSec=15;  //@Channel:CHS3_CANFD @Message:0xCC @Signal:AgSnsr_TimeSec
+    }
+
+    message NVMSnsrInfo{
+        repeated float NVMAgSnsrDeg=1;     //@Channel:CHS3_CANFD @Message:0x4A0 @Signal:NVM_AgSnsrDegFrLe
+                                           //@Channel:CHS3_CANFD @Message:0x4A0 @Signal:NVM_AgSnsrDegFrRi
+                                           //@Channel:CHS3_CANFD @Message:0x4A0 @Signal:NVM_AgSnsrDegReLe
+                                           //@Channel:CHS3_CANFD @Message:0x4A0 @Signal:NVM_AgSnsrDegReRi
+        repeated int32 NVMPosnWhlDe=2;     //@Channel:CHS3_CANFD @Message:0x4A0 @Signal:NVM_PosnWhlDeFrLe
+                                           //@Channel:CHS3_CANFD @Message:0x4A0 @Signal:NVM_PosnWhlDeFrRi
+                                           //@Channel:CHS3_CANFD @Message:0x4A0 @Signal:NVM_PosnWhlDeReLe
+                                           //@Channel:CHS3_CANFD @Message:0x4A0 @Signal:NVM_PosnWhlDeReRi
+    }
+
+    message DmprInfo{
+        optional uint32 DmprCrntSts_Le = 1;          //@Channel:CHS3_CANFD @Message:0x1DA @Signal:DmprCrntSts_Le
+        optional uint32 DmprCrntSts_Ri = 2;          //@Channel:CHS3_CANFD @Message:0x1DA @Signal:DmprCrntSts_Ri
+        optional int32 EstRdRelDpl_Le =  3;          //@Channel:CHS3_CANFD @Message:0x1DA @Signal:EstRdRelDpl_Le
+        optional int32 EstRdRelDpl_Ri = 4;           //@Channel:CHS3_CANFD @Message:0x1DA @Signal:EstRdRelDpl_Ri
+
+        enum DmprCtrlEve_e{
+            Dmpr_None=0;
+            Speed_Bump_Type1=1;
+            Speed_Bump_Type2=2;
+            Speed_Bump_Type3=3;
+            Speed_Bump_Type4=4;
+            Wave_Type1=5;
+            Wave_Type2=6;
+            Wave_Type3=7;
+            Wave_Type4=8;
+            Joint_Type1=9;
+            Joint_Type2=10;
+            Joint_Type3=11;
+            Joint_Type4=12;
+            DMPR_Rsrvd13=13;    //Reserved13
+            DMPR_Rsrvd14=14;    //Reserved14
+            DMPR_Rsrvd15=15;    //Reserved15
+        }
+        optional DmprCtrlEve_e DmprCtrlEve = 5;      //@Channel:CHS3_CANFD @Message:0x1DA @Signal:DmprCtrlEve
+        optional uint32 FourdChsUpStrDev01 = 6;      //@Channel:CHS3_CANFD @Message:0x1DA @Signal:FourdChsUpStrDev01
+        optional uint32 FourdChsUpStrDev02 = 7;      //@Channel:CHS3_CANFD @Message:0x1DA @Signal:FourdChsUpStrDev02
+        optional uint32 FourdChsUpStrDev03 = 8;      //@Channel:CHS3_CANFD @Message:0x1DA @Signal:FourdChsUpStrDev03
+        optional uint32 FourdChsUpStrDev04 = 9;      //@Channel:CHS3_CANFD @Message:0x1DA @Signal:FourdChsUpStrDev04
+    }
+
+// @begin segscope: NT3
+    message DmprCtrlInfo{
+        optional float CDC_BdyPitchA = 1;       //CDC
+        optional float CDC_BdyPitchRate = 2;
+        optional float CDC_BdyRollA = 3;
+        optional float CDC_BdyRollRate = 4;
+        optional float CDC_BdyAZ = 5;
+        optional float CDC_BdyVZ = 6;
+        optional float Veh_PitchAng = 7;        //FAS
+        optional uint32 Veh_PitchAngVld = 8;    //0:Invaild 1:Valid
+        optional float Veh_RollAng = 9;
+        optional uint32 Veh_RollAngVld = 10;    //0:Invaild 1:Valid
+        optional float Veh_PitchRate = 11;
+        optional uint32 Veh_PitchRateVld = 12;    //0:Invaild 1:Valid
+        optional float Veh_RollRate = 13;
+        optional uint32 Veh_RollRateVld = 14;    //0:Invaild 1:Valid
+    }
+
+    message SusPosSnsrInfo{
+        optional float sus_pos_snsr_fl = 1;
+        optional float sus_pos_snsr_fr = 2;
+        optional float sus_pos_snsr_rl = 3;
+        optional float sus_pos_snsr_rr = 4;
+    }
+
+    message ResvSigInfo{
+        optional float resv_sig_i   = 1;
+        optional float resv_sig_ii  = 2;
+        optional float resv_sig_iii = 3;
+        optional float resv_sig_iv  = 4;
+    }
+
+    message FasForceHmi{
+        optional float fas_corner_force_fl_hmi = 1;
+        optional float fas_corner_force_fr_hmi = 2;
+        optional float fas_corner_force_rl_hmi = 3;
+        optional float fas_corner_force_rr_hmi = 4;
+        optional float fas_corner_power_fl_hmi = 5;
+        optional float fas_corner_power_fr_hmi = 6;
+        optional float fas_corner_power_rl_hmi = 7;
+        optional float fas_corner_power_rr_hmi = 8; 
+    }
+// @end segscope: NT3
+
+    message MUEDataIn{
+        optional uint32 MUEDataS1 = 1;                //@Channel:CHASSIS2 @Message:0x2DF @Signal:MUEDataS1
+        optional uint32 MUEDataS2 = 2;                //@Channel:CHASSIS2 @Message:0x2DF @Signal:MUEDataS2
+        optional uint32 MUEDataS3 = 3;                //@Channel:CHASSIS2 @Message:0x2DF @Signal:MUEDataS3
+        optional uint32 MUEDataS4 = 4;                //@Channel:CHASSIS2 @Message:0x2DF @Signal:MUEDataS4
+        optional uint32 MUEDataS5 = 5;                //@Channel:CHASSIS2 @Message:0x2DF @Signal:MUEDataS5
+        optional uint32 MUEDataS6 = 6;                //@Channel:CHASSIS2 @Message:0x2DF @Signal:MUEDataS6
+        optional uint32 MUEDataS7 = 7;                //@Channel:CHASSIS2 @Message:0x2DF @Signal:MUEDataS7
+        optional uint32 MUEDataS8 = 8;                //@Channel:CHASSIS2 @Message:0x2DF @Signal:MUEDataS8
+        optional uint32 RdEvtS1   = 9;                //@Channel:CHASSIS2 @Message:0x2DF @Signal:RdEvtS1
+    }
+
+    optional BodyAzInfo BodyAzIf = 1;
+    optional AsdmLvlInfo AsdmLvlIf = 2;
+    optional DmprInfo DmprIf = 3;
+
+// @begin segscope: NT3
+    optional DmprCtrlInfo DmprCtrlIf = 4;
+    repeated BodyAzInfo BdyAzSnsr = 5;
+    repeated SusPosSnsrInfo SusPosSnsrIf = 6;
+    repeated ResvSigInfo ResvSigIf = 7;
+    repeated uint32 SnsrValid = 8;
+    optional FasForceHmi FasForceHmiIf = 9;
+// @end segscope: NT3
+
+    optional MUEDataIn MUEDataInIf = 10;
+    optional NVMSnsrInfo NVMSnSrIf = 11;
+
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909;       // uuid of the publisher
+    optional uint64 counter = 536870910;            // message counter
+    optional uint64 publish_ts = 536870911;         // publish timestamp; unit : nanosecond
+}

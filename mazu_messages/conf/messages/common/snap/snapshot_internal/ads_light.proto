@@ -1,0 +1,115 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+import "common/vehicle_out/ads_actu.proto";
+import "common/vehicle_out/ads_ls_if.proto";
+import "common/vehicle_out/ads_drv_if.proto";
+
+message NpIfInfo_light {
+    required uint32 Textinfo             = 9;
+    required LnAsstStType_e LnAssistSts        = 16; 
+	optional NpIfInfo.DANADStType_e DANADSts   = 17;
+    required LnLineDispStType_e AdasLeLine     = 27;
+    required LnLineDispStType_e AdasRiLine     = 28; 
+    required NpIfInfo.TrnLghtReqType_e TurnLightReq     = 36; 
+    optional uint32 DisplaySetSpd              = 42;
+    optional NpIfInfo.LatCtrlTar_e LatCtrlTarLe         = 45; 
+    optional NpIfInfo.LatCtrlTar_e LatCtrlTarRi         = 46;
+	optional NpIfInfo.HODsymbol_e HODsymbol    =54;
+    optional NpIfInfo.ELKSts_e ELKSts          =55; 
+    optional ESFWarningSts_e ESFWarningSts     =56; 
+    optional NpIfInfo.EASWarnLevel_e EASWarningLevel    =58; 
+    optional NpIfInfo.DA_NOP_Avl_e DA_NOP_Avl        = 62;
+    optional NpIfInfo.DA_SetSpdAnmt_e DA_SetSpeedAnimation         =69;
+}
+message SdowBsdIfInfo_light {
+    repeated SdowBsdIfInfo.SdowWarnStType_e SDOWWarnSts = 4; 
+    repeated SdowBsdIfInfo.BsdLcaReWarnType_e BSDLCAReWarnReq = 8;
+    repeated SdowBsdIfInfo.RsdsDispType_e FrntRSDSDisp = 9;
+    
+}
+message CTAWarnIfInfo_light {
+    required CTAWarnIfInfo.RCTABStType_e RCTABrkSts   = 4; 
+    repeated CTAWarnIfInfo.CtaFrntWarnType_e CTAFrntWarnReq = 5;
+    repeated CTAWarnIfInfo.CtaReWarnType_e CTAReWarnReq = 6; 
+}
+message SpdDispAndCfgInfo_light {
+    optional SpdDispAndCfgInfo.SAS_SLIFSts_e SAS_SLIF_State        = 7;
+    optional SpdDispAndCfgInfo.SAS_SLIFWarnTrgSts_e SAS_SLWF_WarnTrigger        = 8;
+    optional SpdDispAndCfgInfo.SAS_SpdLmtAttr_e SAS_SpeedLimitAttribute        = 9; 
+    optional SpdDispAndCfgInfo.SAS_SpdLmtTkOv_e SAS_SpeedLimitTakeover        = 10;
+    optional uint32 SAS_SpeedLimitValue        = 12;
+}
+message LngWarnSafetyIfInfo_light{
+    required LngWarnSafetyIfInfo.FcwCnfgType_e    FCWSetSts      = 1;      
+    required LngWarnSafetyIfInfo.AEBStType_e      AEBSts         = 2; 
+    required LngWarnSafetyIfInfo.PcwWarnType_e    PcwWarnReq     = 3; 
+    optional LngWarnSafetyIfInfo.RearAEBSts_new_e RearAEBSts_new = 11;
+    optional LngWarnSafetyIfInfo.RearGOASts_e     RearGOASts     = 12;
+    optional LngWarnSafetyIfInfo.RearMAISts_e     RearMAISts     = 13;
+}
+message ADIcsInfo_light{
+    // optional bool ShowSwtichDA_NOP           =1;   
+    optional bool ADC_VehDisp_Warn                 =12;
+}
+message LightIfInfo_light{
+    required BodyIfInfo.LightIfInfo.HmaStType_e HMASts = 2;
+}
+message BodyIfInfo_light{
+    required LightIfInfo_light LightIf = 1; 
+}
+message ADSysInfo_light {
+    optional ADSysInfo.SnsrSts_e LidarSts                      = 6; 
+}
+message DrvIntractInfo_light {
+    optional SpdDispAndCfgInfo_light   SpdDispAndCfg= 1;
+    optional SdowBsdIfInfo_light       SdowBSD      = 2;
+    optional CTAWarnIfInfo_light       CTAWarn      = 3;
+    optional BodyIfInfo_light          BodyCtrl     = 4;
+    optional LngWarnSafetyIfInfo_light LngWarnSafe  = 5;
+    optional NpIfInfo_light      NpDrvIF      = 6;
+    // optional CAMCInfo            CAMCSts      = 7;
+    optional ADSysInfo_light           ADSysSts     = 8;
+    // optional DMSInfo             DMSIF        = 9;
+    optional ADIcsInfo_light           ADIcsIF      = 10;
+    // optional FuncEDRInfo         FuncEDR      = 11;
+    // optional ADCsInfo           ADCsIF       = 12;
+}
+message ParkStInfo_light {
+    optional ParkStInfo.SapaStType_e SApaStatus = 3;
+    optional ParkStInfo.SapaInstrctnType_e SApaInstruction = 22;
+    optional uint32 SApaAbortReason    = 25;
+    optional ParkStInfo.PSAPInstruction_e PSAPInstruction=10001;
+    optional ParkStInfo.PSAPAbortReason_e  PSAPAbortReason=10003;
+    optional ParkStInfo.PSAPHMIStatus_e PSAPHMIStatus=10004;
+    optional ParkStInfo.PrkgActvFeatureTyp_e PrkgActvFeatureTyp = 10009;
+    optional bool is_PSP_connection_area_available = 10012;
+}
+message SummonStInfo_light {
+    optional SummonStInfo.RpsSts_e RpsSts = 13;
+    optional uint32 RpsAbortReason = 16;
+}
+message LowSpdFunInfo_light {
+	optional ParkStInfo_light	 ParkSt = 1;
+	optional SummonStInfo_light SummonSt = 2; //including RPA and NBS
+}
+message BodyCtrlIfInfo_light{
+    optional BodyCtrlIfInfo.WiperCtrl_e ADCWiperCtrl = 2;
+}
+message ActuatorIf_light{
+    required LngLwSpdCtrlIf  LngLwSpdCtrl = 1;
+    required LatCtrlIf       LatCtrl      = 2;
+    required LngCtrlEmrgIf   LngCtrlEmrgnc= 4;
+    required LngctrlCmfrtIf  LngCtrlCmfrt = 5;
+    required VehModMngIfInfo VehModMng    = 6;
+    required SafeStateInfo   SafetyState  = 7;
+    optional BodyCtrlIfInfo_light  BodyCtrlIf   = 8;
+}
+message ADS_light{
+	required LowSpdFunInfo_light  LowSpdFun = 1;
+	required ActuatorIf_light     Actuator  = 2;
+	required DrvIntractInfo_light DrvrIF    = 3;
+    optional uint64 publish_ptp_ts   = 536870907; 
+}

@@ -1,0 +1,118 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+import "common/adhmi/adhmi_function_from_dc.proto";
+
+// 20Hz 信号，ADHMI接收DC发送的信号，提取AD域内模块所需信号，向AD域内转发
+
+message MlmOutput {
+    enum mlm_type {
+        DEFAULT_VALUE = 0;
+        TIDALFLOW_LANE          = 1; //潮汐车道
+        BUS_LANE                = 2; //公交车道
+        REVERSIBLE_LANE         = 3; //可变车道
+        WEATHER                 = 4; //天气
+        ONBRIDGE_JUAGE          = 5; //桥上桥下判断
+        MAINROAD_JUAGE          = 6; //主副路判断
+        VLN_SCENARIO            = 7; //VLN场景提示
+    }
+    
+    message DynamicText {
+        enum TextLanguage {
+            RESERVED    = 0;
+            ZH          = 1;    //华语
+            EN          = 2;    //英语
+            NO          = 3;    //挪威语
+            DE          = 4;    //德语
+            NL          = 5;    //荷兰语
+            DA          = 6;    //丹麦语
+            SV          = 7;    //瑞典语
+            AE          = 8;    //阿拉伯语
+            HE          = 9;    //希伯来语
+
+
+            // @begin segscope: NT3
+            FR          = 100;   //法语
+            ES          = 101;   //西班牙语
+            PT          = 102;   //葡萄牙语
+            // @end segscope: NT3
+        }
+        optional TextLanguage text_language     = 1  [default = ZH];
+        optional string ic_text_line_1          = 2;
+        optional string ics_text_line_1         = 4;
+        optional string ics_text_line_2         = 5;
+        optional string hud_text_line_1         = 6;
+    }
+
+    optional mlm_type type                  = 1; 
+    optional DynamicText dtext              = 2;
+}
+
+message HmiMlmInteraction{
+    optional bool mlmoutput_enable = 1 [default = false];
+    optional MlmOutput mlm = 2;  
+}
+
+message HmiSmartWiper{
+    enum SmartWiperLevel_T{
+        UNKNOWN = 0;
+        LOW = 1;
+        MIDDLE = 2;
+        HIGH = 3;
+    }
+
+    optional bool smart_wiper_enable = 1 [default = false];
+    optional SmartWiperLevel_T smart_wiper_level = 2;
+}
+
+message HmiMlmOutputCan{
+    optional HmiSmartWiper hmi_smart_wiper = 1;
+}    
+
+message HmiInteractionInternal{
+    enum HmiInternalTrigger_T{
+        RESERVED = 0;
+        ODD_NOP_TO_NP = 1;
+        ODD_NOP_TO_PARKING =2;
+        ODD_NOP_END_APPROACHING = 3;
+        
+    }
+    optional HmiInternalTrigger_T hmi_interal_trigger = 1;
+
+}
+
+message HmiOddDistance{
+    optional float nop_distance_to_odd_boundary_smooth = 1;     // 距离NOP+功能退出点距离，平滑曲线
+    optional float nop_distance_to_odd_boundary_step = 2;       // 距离NOP+功能退出点距离，阶梯曲线        
+    optional float nop_distance_to_odd_boundary_max = 3;        // 距离NOP+功能退出点距离的初始值
+
+}
+
+message Hmi_FuncToAlgorithm {
+    optional Hmi_CustomPark custom_park_info = 1;                    // 拖框泊车, NT2VDR-102488
+    optional uint32 driver_slot_park_direction = 2;                  // 车辆泊入车位的方向，NT2VDR-102488
+    optional HmiMlmInteraction hmi_mlm_interaciton = 3;              // MLM 输出到交互区info
+    optional HmiMlmOutputCan hmi_mlm_output_can = 4;                 // MLM 输出到CAN总线info
+    optional Hmi_ReverseAssist ReverseAssistInfo = 5;                // 一键返回交互数据输入
+    optional Hmi_LeavePark leave_park_info = 6;                      // 离车泊交互数据输入
+    optional HmiInteractionInternal hmi_adhmi_to_interaction = 7;    // adhmi给到ad交互区的信号
+    optional Hmi_PtpNaviPark ptp_navipark_info = 8;                  // 点到点园区/室内停车场领航DC输入
+    optional bool hmi_indoor_park_area = 9;                          // ADHMI对于室内停车场的环境判断结果
+    optional Hmi_NomiInput hmi_nomi_input = 10;                      // 经Nomi处理后给到AD的功能指令
+    optional HmiOddDistance hmi_odd_distance = 11;                   // ODD倒计时距离输出到AD交互区
+
+
+
+    optional string hmi_version = 1000 [default = "1.0.9"] ;         // proto version
+    optional string hmi_update_date = 1001 [default = "20250323"] ;  // proto updated date
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    optional SensorTSHeader sensor_original_ts = 536870906;    // sensor original ts
+    optional string publisher_id = 536870909;                  // uuid of the publisher
+    optional uint64 publish_ptp_ts = 536870907;                // publish ptp timestamp, uint in nanosec
+    optional uint64 counter = 536870910;                       // message counter
+    optional uint64 publish_ts = 536870911;                    // publish timestamp; unit : nanosecond
+}

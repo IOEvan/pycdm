@@ -1,0 +1,56 @@
+syntax = "proto2"; 
+option cc_enable_arenas = true;
+       
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message SWFaultInfo{// Detected by MW
+        optional ProcessFaultInfo s1_process_fault_info = 1;
+        optional ProcessFaultInfo s2_process_fault_info = 2;
+        optional ProcessFaultInfo s3_process_fault_info = 3;
+        optional ProcessFaultInfo s4_process_fault_info = 4;           
+        
+        optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+        optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+        optional uint64 publish_ptp_ts = 536870907;   // publish ptp timestamp, uint in nanosec
+        optional string publisher_id   = 536870909; // uuid of the publisher
+        optional uint64 counter        = 536870910;         // message counter
+        optional uint64 publish_ts     = 536870911;    // publish utc timestamp; unit : nanosecond
+
+} 
+
+message ProcessFaultInfo{
+        optional bool CAN_RX_Exited_Abnormal = 1;
+        optional bool CAN_TX_Exited_Abnormal = 2;
+        optional bool Radar_APP_Exited_Abnormal = 3;
+        optional bool Camera_SAL_Exited_Abnormal = 4;
+        optional bool Position_APP_Exited_Abnormal = 5;
+        optional bool AA_APP_Exited_Abnormal = 6;
+        optional bool EHY_APP_Exited_Abnormal = 7;
+        optional bool FCT_APP_Exited_Abnormal = 8;
+        optional bool FCTs_APP_Exited_Abnormal = 9;
+        optional bool FAM_Extied_Abnoraml = 10;
+        optional bool CDM_APP_Exited_Abnormal = 11;
+        optional bool DLB_APP_Exited_Abnormal = 12;
+        optional bool Desensitization_APP_Exited_Abnoraml = 13;
+        optional bool Launcher_Exited_Abnormal = 14;
+        optional bool Rel_Loc_APP_Exited_Abnoraml = 15;
+        optional bool NOPDelta_Planner_Exited_Abnoraml = 16;
+        optional bool NOPDelta_Control_Exited_Abnoraml = 17;
+        optional bool NOPDelta_Canbus_Exited_Abnoraml = 18;
+        optional bool NOPDelta_WM_Exited_Abnoraml = 19;
+        optional bool ADHMI_Exited_Abnormal = 20;
+        optional bool DMS_Exited_Abnormal = 21;
+        optional bool Parking_ENV_Exited_Abnormal = 22;
+        optional bool Parking_Process__Exited_Abnormal = 23;
+        optional bool Parking_Planning_Exited_Abnormal = 24;
+        optional bool Map_Loc_App_Exited_Abnormal = 25;
+        optional bool reserved1 = 26;
+        optional bool reserved2 = 27;
+        optional bool reserved3 = 28;
+        optional bool reserved4 = 29;
+        optional bool reserved5 = 30;
+        optional bool reserved6 = 31;
+        // 0: no fault, 1: has fault;        
+}

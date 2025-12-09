@@ -1,0 +1,129 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+import "np/apps/parking/par_base.proto";
+
+
+message ParkSlot{
+    optional SlotBase slot = 1;
+    optional bool left_corner_exist = 2;
+    optional ParPoint left_corner_pt1 = 3;
+    optional ParPoint left_corner_pt2 = 4;
+    optional bool right_corner_exist = 5;
+    optional ParPoint right_corner_pt1 = 6;
+    optional ParPoint right_corner_pt2 = 7;
+    optional bool curb_exist = 8;
+    optional ParPoint curb_pt1 = 9;
+    optional ParPoint curb_pt2 = 10;
+    optional bool slot_bumper = 11;
+    optional ParPoint slot_bumper_pt1 = 12;
+    optional ParPoint slot_bumper_pt2 = 13;
+    optional ParPoint left_corner_pt3 = 14;
+    optional ParPoint right_corner_pt3 = 15;
+    optional bool corner_pt3_exist = 16;
+    optional ParPoint virtual_channel_pt1 = 17;
+    optional ParPoint virtual_channel_pt2 = 18;
+    optional bool virtual_channel_exist = 19;
+    enum CornerType_e{
+        CornerType_Car = 0;
+        CornerType_Pillar = 1;
+        CornerType_Wall = 2;
+        CornerType_Curb = 3;
+        CornerType_Unknown = 4;
+        CornerType_Rsrvd5 = 5;
+    }
+    optional CornerType_e left_corner_type = 20;
+    optional CornerType_e right_corner_type = 21;
+    optional uint32 slot_update_count = 22;
+    optional bool replan_suggest = 23;
+    optional bool left_curb_exist = 24;
+    optional ParPoint left_curb_pt1 = 25;
+    optional ParPoint left_curb_pt2 = 26;
+    optional bool right_curb_exist = 27;
+    optional ParPoint right_curb_pt1 = 28;
+    optional ParPoint right_curb_pt2 = 29;
+    repeated float baselink_centerline_dist = 30;  // env, svc
+    repeated float body_left_line_dists = 31;  // env, svc
+    repeated float body_right_line_dists = 32;  // env, svc 
+    optional float corner_corner_dist = 33;
+    optional float left_corner_line_dist = 34;
+    optional float right_corner_line_dist = 35;
+    optional float channel_width = 36;
+    optional SlotBase left_slot = 37;
+    optional SlotBase right_slot = 38;
+    optional CornerType_e virtual_channel_type = 39;
+    optional float curb_conf = 40;
+    optional uint32 slot_attribute = 41; // in bitwise. Bit 0= dead-end, bit 1= mechanical (stereo), bit 2= charging, bit 3= handicap, bit 4= parklock, bit 5= channel_blocked, bit 6= recommended. e.g.: value 0b0001 is a dead-end slot
+    optional bool slot_parkin_direction_is_same = 42;
+}
+
+
+message ParkingInInfo{
+    repeated ParkSlot slots = 1;
+    optional uint32 total_slots_num = 2;
+    optional uint32 psok_slots_num = 3;
+    optional uint32 psokposok_slots_num = 4;
+    enum SlotRecommendStatus{
+        STATUS_IDLE = 0;
+        STATUS_RECOMMENDING = 1;
+        STATUS_RECOMMENDED = 2;
+    }
+    optional SlotRecommendStatus recommend_status = 5;
+    optional bool stored_info_valid = 6;
+    enum StoredMirrorStatus{
+        Mirror_Folded = 0; //Folded
+        Mirror_Folding = 1; //Folding
+        Mirror_Unfolded = 2; //Not Folded (Unfolded)
+        Mirror_Unfolding = 3; //Unfolding
+    }
+    repeated StoredMirrorStatus stored_mirr_sts = 7; // 0: left, 1: right
+
+    enum LowSpdDestMatchStatus{
+        DEST_MATCH_DEFAULT = 0;
+        DEST_MATCH_SUCCESS_AND_AVAIL = 1;
+        DEST_MATCH_SUCCESS_NOT_AVAIL = 2;
+        DEST_MATCH_FAIL = 3;
+        DEST_MATCHING = 4;
+    }
+    optional LowSpdDestMatchStatus ls_dest_match_sts = 8; //低速目的地匹配结果
+
+    enum RecommendSlotStatus{
+        SLOT_DEFAULT = 0;
+        SLOT_AVAIL = 1;
+        SLOT_NOT_AVAIL = 2;
+        SLOT_RECOMMENDING = 3;
+    }
+    optional RecommendSlotStatus rec_slot_sts = 9; //推荐车位状态
+}
+
+message ParkingOutInfo{
+    optional bool left_obstacle_exist = 1;
+    optional bool right_obstacle_exist = 2;
+    optional bool front_obstacle_exist = 3;
+    optional ParPoint left_obstacle_point = 4;
+    optional ParPoint right_obstacle_point = 5;
+    optional float front_obstacle_distance = 6;
+    repeated ParkSlot slots = 7;
+}
+
+message ParkingOtherInfo{
+    repeated ParkSlot slots = 1;
+}
+
+message ParSemanticMap{
+    optional ParkingInInfo parking_in = 1;
+    optional ParkingOutInfo parking_out = 2;
+    optional NodeInfo node_info=3;
+    optional ParkingOtherInfo parking_other = 4;
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909; // uuid of the publisher
+    optional uint64 counter = 536870910; // message counter
+    optional uint64 publish_ts = 536870911; // publish utc timestamp; unit : nanosecond
+
+}

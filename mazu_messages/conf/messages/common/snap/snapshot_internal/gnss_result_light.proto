@@ -1,0 +1,20 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/sensors/gnss_result.proto";
+
+message GnssResult_light {
+    optional GnssResult.GnssStatus position_type = 2;   
+    optional double latitude          = 4;   // degree, [-90, 90]
+    optional double longitude         = 5;   // degree, [-180, 180]
+    optional GnssResult.GnssStatus ort_type 	    = 11;  // orientation type with the same definition with position type
+    optional float yaw                = 14;  // rotation angle of the car around z axis, which follows ISO standard, x - front, y - left, z - up, yaw = 0 when the car faces east
+  
+    optional float std_lat            = 20;  // radian   (0 99.9999]
+    optional float std_long           = 21;  // radian   (0 99.9999]
+    optional uint32 num_sat_used      = 33;  // number of used satellites [0, 50]
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    optional uint64 publish_ptp_ts             = 536870907;  // publish ptp timestamp, uint in nanosec
+}
+  

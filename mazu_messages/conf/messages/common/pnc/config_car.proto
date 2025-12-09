@@ -1,0 +1,162 @@
+
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+import "common/pnc/geometry.proto";
+
+message SteerAngleSpeedTable {
+  optional double speed = 1 [default = 1.0];
+  optional double steer_angle_speed = 2 [default = 0.0];
+}
+
+enum TireType {
+  RIM_18_INCH = 0;
+  RIM_19_INCH = 1;
+  RIM_20_INCH = 2;
+  RIM_21_INCH = 3;
+  RIM_22_INCH = 4;
+}
+enum VehicleType {
+  VEH_TYPE_ET5 = 0;
+  VEH_TYPE_ET7 = 1;
+  VEH_TYPE_ES7 = 2;
+  VEH_TYPE_ES8 = 3;
+  VEH_TYPE_ES6 = 4;
+  VEH_TYPE_EC6 = 5;
+  VEH_TYPE_EC7 = 6;
+}
+
+message ConfigCar {
+  // Size of the vehicle, with respect to the vehicle reference point (VRP),
+  // center of rear axle.
+  optional float front_edge_to_vrp = 1;
+  optional float rear_edge_to_vrp = 2;
+  optional float left_edge_to_vrp = 3;
+  optional float right_edge_to_vrp = 4;
+
+  // length = front_edge_to_vrp + rear_edge_to_vrp
+  // width = left_edge_to_vrp + right_edge_to_vrp
+  optional float height = 5;
+
+  // Car's center of gravity with respect to VRP.
+  optional Vector3f center_of_gravity = 6;
+
+  // Distance between front and rear axles.
+  optional float wheel_base = 7;
+  // rear_to_gc = center_of_gravity().x()
+  // front_to_gc = wheel_base - rear_to_gc
+
+  // mass and inertia.
+  optional float mass = 8;
+  // TODO(): Clarify inertia.
+  optional float inertia = 9;
+
+  // Tire effective rolling radius (vertical distance between the wheel center
+  // and the ground).
+  optional float wheel_rolling_radius = 10;
+  optional float c_alpha_front = 11;
+  optional float c_alpha_rear = 12;
+  optional float c_torque_front = 13;
+  optional float c_torque_rear = 14;
+
+  // Acceleration properties.
+  optional float acceleration_limit = 15 [default = 1.0];
+  optional float deceleration_limit = 16 [default = 3.0];
+  optional float stop_line_acceleration_limit = 17 [default = 1.5];
+  optional float stop_line_deceleration_limit = 18 [default = 5.0];
+  optional float acceleration_jerk_limit = 19 [default = 1.5];
+  optional float deceleration_jerk_limit = 20 [default = 2.5];
+  optional float stop_line_acceleration_jerk_limit = 21 [default = 1.5];
+  optional float stop_line_deceleration_jerk_limit = 22 [default = 4.0];
+
+  // Steering properties.
+  optional float min_turn_radius = 23;
+  optional float angle_limit = 24;
+  optional float angle_slew_rate = 25;
+  optional float steering_ratio = 26;
+  optional float lateral_acc_limit = 27;
+
+  // Throttle/brake deadzone
+  optional float throttle_deadzone_low = 28;
+  optional float throttle_deadzone_up = 29;
+  optional float brake_deadzone_low = 30;
+  optional float brake_deadzone_up = 31;
+
+  optional float pitch_bias = 32 [default = 0.0];
+  optional float control_frequency = 33 [default = 50.0];
+  // degree
+  optional double max_steer_angle = 34 [default = 400];
+  optional double max_steer_angle_rate = 35 [default = 180];
+  // second order acc dynamic params
+  optional double a_0_0 = 36 [default = -1.934];
+  optional double a_0_1 = 37 [default = -1.642];
+  optional double a_1_0 = 38 [default = 1];
+  optional double a_1_1 = 39 [default = 0];
+  optional double b_0_0 = 40 [default = 1];
+  optional double b_1_0 = 41 [default = 0];
+  optional double c_0_0 = 42 [default = 0];
+  optional double c_0_1 = 43 [default = 1.713];
+  optional double steer_angle_speed_discount = 44 [default = 0.95];
+  repeated SteerAngleSpeedTable steer_angle_speed_table = 45;
+
+  optional float lf_m = 46;
+  optional float lr_m = 47;
+  optional float cf_Nprad = 48;
+  optional float cr_Nprad = 49;
+  optional float sa2fwa_rad_p1_c = 50;
+  optional float sa2fwa_rad_p2_c = 51;
+  optional float sa2fwa_rad_p3_c = 52;
+  optional float fwa2sa_rad_p1_c = 53;
+  optional float fwa2sa_rad_p2_c = 54;
+  optional float fwa2sa_rad_p3_c = 55;
+  optional bool allwheelsteer_flg = 56;
+  repeated ConfigTire tire = 57;
+  optional VehicleType vehicle_type = 58 [default = VEH_TYPE_ET7];
+  optional TireType tire_type = 59 [default = RIM_19_INCH];
+  optional float disp2local_spd_offset = 60;
+  optional float local2disp_spd_offset = 61;
+  optional float disp2local_spd_ratio = 62;
+  optional float local2disp_spd_ratio = 63;
+
+  repeated SteerAngleSpeedTable psp_steer_angle_speed_table = 64;
+  optional float max_front_wheel_angle_rad = 65 [default = 0.5];
+  optional float kus_config = 66 [default = 0.0035];
+}
+
+message ConfigTire {
+  message RIM_18_INCH {
+    optional double radius_m = 1;
+    optional double cx_nppct = 2;
+    optional double cy_nprad = 3;
+  }
+  message RIM_19_INCH {
+    optional double radius_m = 1;
+    optional double cx_nppct = 2;
+    optional double cy_nprad = 3;
+  }
+  message RIM_20_INCH {
+    optional double radius_m = 1;
+    optional double cx_nppct = 2;
+    optional double cy_nprad = 3;
+  }
+  message RIM_21_INCH {
+    optional double radius_m = 1;
+    optional double cx_nppct = 2;
+    optional double cy_nprad = 3;
+  }
+  message RIM_22_INCH {
+    optional double radius_m = 1;
+    optional double cx_nppct = 2;
+    optional double cy_nprad = 3;
+  }
+  oneof type {
+    RIM_18_INCH rim_18 = 1;
+    RIM_19_INCH rim_19 = 2;
+    RIM_20_INCH rim_20 = 3;
+    RIM_21_INCH rim_21 = 4;
+    RIM_22_INCH rim_22 = 5;
+  }
+}

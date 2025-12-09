@@ -1,0 +1,12 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+message Pose_light {
+    optional uint32 wm_confidence = 24;
+    optional float cross_distance = 35; // distance to next cross junction
+    optional uint64 cross_link_id = 36; // front cross junction link id
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    optional uint64 publish_ptp_ts = 536870907;   // publish ptp timestamp, uint in nanosec
+}

@@ -1,0 +1,34 @@
+
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+import "common/dlb/record_response.proto";
+
+message DataFilterEventResponse {
+    repeated DlbResponse dds_resp      = 1;      // all proto response
+    repeated DlbResponse camera_resp   = 2;      // all camera response
+    repeated DlbResponse lidar_resp    = 3;      // lidar response
+    repeated DlbResponse log_resp      = 4;      // log response
+    optional string uuid               = 5;      // uuid of datafilter event
+    repeated DlbResponse picture_resp  = 6;      // picture response
+    repeated DlbResponse can_resp      = 7;      // can response
+    repeated DlbResponse position_resp = 8;      // position response
+    optional string type               = 9;      // app type. eg. cdm_app cdm_eco_app
+    optional bool accepted             = 10;     // cdm request is accepted or not
+    optional string fail_reason        = 11;
+    repeated DlbResponse calibration_resp = 12;  // calibration resp
+    repeated DlbResponse perform_diag_resp = 13;  // perform_diag resp
+    repeated DlbResponse network_packet_resp = 14;  // network packets resp
+    repeated DlbResponse soa_resp            = 15;  // soa event resp
+    
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin    
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts    = 536870907; // publish ptp timestamp, uint in nanosec
+    optional string publisher_id      = 536870909; // uuid of the publisher 
+    optional uint64 counter           = 536870910; // message counter
+    optional uint64 publish_ts        = 536870911; // publish utc timestamp; unit : nanosecond
+}

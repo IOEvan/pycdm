@@ -1,0 +1,42 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages.nudge;
+
+enum DcpLatAction {
+  kLaneChangeLeft = 0;
+  kLaneKeeping = 1;
+  kLaneChangeRight = 2;
+  kOOLNudgeLeft = 3;
+  kOOLNudgeRight = 4;
+  kLCHold = 5;
+  kLCPrepare = 6;
+  kLaneChangeOffset = 7;
+  kAcrossLaneChange = 8;
+  kAcrossLaneChangeOffset = 9;
+  kMaxIndex = 10;
+}
+
+enum NudgeStatus{
+  INVALID = 0;
+  INLANE = 1;
+  PREPARING = 2;
+  NUDGING= 3; 
+  RETURNING = 4;
+}
+
+enum MotionStatus{ 
+  MOTION_STATUS_MOVING = 0;
+  MOTION_STATUS_STOPPING = 1;
+  MOTION_STATUS_STATIC = 2;
+}
+
+
+enum FSCrossable{
+  NONE = 0;
+  LEFT = 1; 
+  RIGHT = 2;
+  BOTH = 3;
+}
+

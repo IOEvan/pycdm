@@ -1,0 +1,70 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+import "common/perception/svc_base.proto";
+
+message Slot{
+  optional int32 slot_index = 1;
+  optional SVCPoint pt1 = 2;
+  optional SVCPoint pt2 = 3;
+  optional SVCPoint pt3 = 4;
+  optional SVCPoint pt4 = 5;
+  optional SVCPoint veh_pos = 6;
+  optional float veh_psi = 7; //Yaw angle of vehicle w.r.t detected slot
+  optional float slot_prob = 8;
+  enum SlotType {
+    UNKNOWN = 0;
+    LEFT_PARALLEL = 1;
+    RIGHT_PARALLEL = 2;
+    LEFT_CROSS = 3;
+    RIGHT_CROSS = 4;
+    LEFT_PARK_OUT = 5;
+    RIGHT_PARK_OUT = 6;
+    LEFT_ANGLED = 7;
+    RIGHT_ANGLED = 8;
+    LEFT_USER_DEFINED = 9;
+    RIGHT_USER_DEFINED = 10;
+    LEFT_MECHANICAL = 11;  // left mechanical slot, with lift
+    RIGHT_MECHANICAL = 12; // right mechanical slot, with lift
+    SLOT_TYPE_RESERVED1 = 13;
+    SLOT_TYPE_RESERVED2 = 14;
+    SLOT_TYPE_RESERVED3 = 15;
+  }
+  optional SlotType slot_type=9 [default = UNKNOWN];
+  enum SlotStatus{
+    UNCERTAIN = 0;
+    AVAILABLE = 1;
+    NOT_AVAILABLE = 2;
+    STATUS_RESERVED1 = 3;
+    STATUS_RESERVED2 = 4;
+  }
+  optional SlotStatus slot_status = 10 [default = UNCERTAIN];
+  optional float slot_angel = 11;
+  optional int32 slot_priority = 12;
+  optional float slot_distance = 13;
+  optional float slot_line_width = 14;
+  enum SlotAttribute {
+    SLOT_ATTRIBUTE_UNKNOWN = 0;
+    SLOT_ATTRIBUTE_NORMAL = 1;
+    SLOT_ATTRIBUTE_RESTRICTED = 2;
+    SLOT_ATTRIBUTE_STEREO_GARAGE = 3;
+    SLOT_ATTRIBUTE_CHARGING = 4;
+    SLOT_ATTRIBUTE_ABNORMAL = 5;
+    SLOT_ATTRIBUTE_HANDICAP = 6;
+    SLOT_ATTRIBUTE_PARKLOCK = 7;
+    SLOT_ATTRIBUTE_OTHERS = 8;
+    SLOT_ATTRIBUTE_RESERVED = 9;
+  }
+  optional SlotAttribute slot_attribute = 15;
+  optional int32 reserved1 = 16;
+  optional int32 reserved2 = 17;
+}
+
+message SlotResult{
+  optional uint64 timestamp = 1;//Timestamp_Receive_Image
+  repeated Slot slots = 2;
+  optional int32 pld_eserved1 = 3;
+  optional int32 pld_Reserved2 = 4;
+}

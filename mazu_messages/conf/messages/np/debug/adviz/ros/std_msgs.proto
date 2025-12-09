@@ -1,0 +1,20 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+import "np/debug/adviz/ros/builtins.proto";
+
+package ros.std_msgs;
+
+message ColorRGBA {
+  optional float r = 1;
+  optional float g = 2;
+  optional float b = 3;
+  optional float a = 4;
+}
+
+message Header {
+  optional uint32 seq = 1;
+  optional Time stamp = 2;
+  optional string frame_id = 3;
+}

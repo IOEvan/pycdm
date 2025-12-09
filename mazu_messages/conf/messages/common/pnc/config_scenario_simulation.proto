@@ -1,0 +1,382 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+import "common/pnc/path.proto";
+import "common/pnc/car_state.proto";
+import "common/pnc/hmi_state.proto";
+import "common/pnc/geometry.proto";
+import "common/pnc/road_map.proto";
+import "common/pnc/perception_object.proto";
+import "common/pnc/prediction.proto";
+import "common/pnc/perception_signal.proto";
+import "common/pnc/planner_debug.proto";
+import "common/pnc/planner_log.proto";
+import "common/pnc/static_map.proto";
+import "common/pnc/world_model_log.proto";
+import "common/localization/global_localization.proto";
+import "np/apps/ehy_obf_outputs.proto";
+import "common/map_engine/hd_map.proto";
+import "common/map_engine/global_hd_routes.proto";
+import "common/vehicle_in/vehicle_10ms.proto";
+import "common/vehicle_in/vehicle_50ms.proto";
+import "common/perception/vision_road_detection.proto";
+import "np/apps/ehy_lpp_outputs.proto";
+import "np/apps/ehy_rme_road_outputs.proto";
+import "np/apps/ehy_tpp_outputs.proto";
+import "np/apps/ehy_tsi_outputs.proto";
+import "np/apps/ehy_tse_outputs.proto";
+import "common/function_arb/function_arb_out.proto";
+import "common/perception/side_feature.proto";
+import "common/perception/vision_illumnance_flag.proto";
+import "common/nop/nop_functionstatus.proto";
+import "common/nop/nop_speedlimitvalue.proto";
+import "common/nop/nop_vehicleout.proto";
+import "np/apps/fct_out.proto";
+import "np/debug/dgb_fct.proto";
+import "common/vehicle_out/ads.proto";
+
+// Directory structure description
+//  ScenarioSimulation
+//          |-- Refence timestamp sequence
+//          |-- Agent scenario info
+//                      |-- non-ego agent scenario info
+//          |-- ego agent scenario info
+//          |-- Environemnt scenario info
+
+message AgentFrameInfo {
+  // frame id
+  optional uint64 frame_id = 1;
+
+  // current time stamp in ns
+  optional uint64 timestamp = 2;
+
+  // percpetion object
+  optional PerceptionObject perception_object = 3;
+
+  // timestamp of perception_objects
+  optional uint64 perception_timestamp = 4;
+}
+
+message EgoFrameInfo {
+  // frame id
+  optional uint64 frame_id = 1;
+
+  // current time stamp in ns
+  optional uint64 timestamp = 2;
+
+  // trajectory in this frame
+  optional PathNop trajectory = 3;
+
+  // car_state for this frame
+  optional CarState car_state = 4;
+
+  optional HmiState hmi_state = 5;
+}
+
+message AgentScenarioInfo {
+  // agent id
+  optional int64 agent_id = 1;
+
+  // agent type
+  optional PerceptionObject.Type agent_type = 2;
+
+  // agent dimension: x -> length; y -> width; z -> height
+  optional Vector3d dimension = 3;
+
+  // agent info for all frame in scenario
+  repeated AgentFrameInfo agent_frame_info = 4;
+}
+
+message EgoScenarioInfo {
+  // ego id
+  optional int64 agent_id = 1;
+
+  // ego type
+  optional PerceptionObject.Type ego_type = 2;
+
+  // agent dimension: x -> length; y -> width; z -> height
+  optional Vector3d dimension = 3;
+
+  // ego info for all frame in scenario
+  repeated EgoFrameInfo ego_frame_info = 4;
+}
+
+message EnvironmentFrameInfo {
+  // frame if
+  optional uint64 frame_id = 1;
+
+  // time stamp for current frame in ns
+  optional uint64 timestamp = 2;
+
+  // traffic signal info
+  optional PerceptionSignals sim_signal = 3;
+}
+
+message EnvironmentScenarioInfo {
+  // environment info for all frame
+  repeated EnvironmentFrameInfo environment_frame_info = 1;
+}
+
+message ReferenceTimestampSequence {
+  repeated uint64 frame_id = 1;
+
+  // reference timestamp in ns
+  repeated uint64 timestamp = 2;
+}
+
+message PlannerDebugInfo {
+  repeated PlannerDebug planner_debug = 1;
+}
+
+message PlannerLogRecord {
+  repeated PlannerLogInfo planner_log_info = 1;
+}
+
+message LabelInfo {
+  enum Label {
+    URBAN = 0;
+    HIGHWAY = 1;
+    JUNCTION = 2;
+    CUT_IN = 3;
+    FOLLOWING = 4;
+    STOP = 5;
+    LANE_CHANGE = 6;
+    PARKING = 7;
+    MERGE = 8;
+    PEDESTRIAN = 9;
+    CYCLIST = 10;
+    TRUCK = 11;
+    MOTION_PLANNING = 12;
+    BEHAVIOR_PLANNING = 13;
+    PREDICTION = 14;
+    CONTROL = 15;
+  };
+  repeated Label label = 1;
+}
+
+message StaticMapInfo {
+  optional uint64 frame_id = 1;
+
+  // reference timestamp
+  optional uint64 timestamp = 2;
+
+  optional StaticMap static_map = 3;
+}
+
+message ScenarioStaticMapInfo {
+  repeated StaticMapInfo scenario_static_map_info = 1;
+}
+
+message LocalizationInfo {
+  optional uint64 frame_id = 1;
+
+  // reference timestamp
+  optional uint64 timestamp = 2;
+
+  optional uint64 car_state_time = 3;
+
+  optional GlobalLocalization localization = 4;
+}
+
+message ScenarioLocalizationInfo {
+  repeated LocalizationInfo localization_infos = 1;
+}
+
+message PerceptionObjectInfo {
+  optional uint64 frame_id = 1;
+
+  // reference timestamp
+  optional uint64 timestamp = 2;
+
+  optional EHYObfOutputs objects = 3;
+}
+
+message ScenarioPerceptionObjects {
+  repeated PerceptionObjectInfo perception_objects = 1;
+}
+
+message HdMapInfo {
+  optional uint64 frame_id = 1;
+  optional uint64 timestamp = 2;
+  optional HdMap hd_map = 3;
+}
+
+message ScenarioHdMap {
+  repeated HdMapInfo hd_map_info = 1;
+}
+
+message GlobalRoutingInfo {
+  optional uint64 frame_id = 1;
+  optional uint64 timestamp = 2;
+  optional GlobalRouting global_routing = 3;
+}
+
+message ScenarioGlobalRouting {
+  repeated GlobalRoutingInfo global_routing_info = 1;
+}
+
+message VEH10msInfo {
+  optional uint64 frame_id = 1;
+  optional uint64 timestamp = 2;
+  optional VEH10ms veh_10ms = 3;
+}
+message ScenarioVehicle10ms {
+  repeated VEH10msInfo veh_10ms_infos = 1;
+}
+
+message VEH50msInfo {
+  optional uint64 frame_id = 1;
+  optional uint64 timestamp = 2;
+  optional VEH50ms veh_50ms = 3;
+}
+message ScenarioVehicle50ms {
+  repeated VEH50msInfo veh_50ms_infos = 1;
+}
+
+message RoadDetectionInfo {
+  optional uint64 frame_id = 1;
+  optional uint64 timestamp = 2;
+  optional RoadDetection road_detection = 3;
+}
+message ScenarioRoadDetection {
+  repeated RoadDetectionInfo road_detection_infos = 1;
+}
+
+message EHYObfOutputsInfo {
+  optional uint64 frame_id = 1;
+  optional uint64 timestamp = 2;
+  optional EHYObfOutputs obf_outputs = 3;
+}
+message ScenarioEHYObfOutputs {
+  repeated EHYObfOutputsInfo obf_outputs_infos = 1;
+}
+
+message EHYLppOutputsInfo {
+  optional uint64 frame_id = 1;
+  optional uint64 timestamp = 2;
+  optional EHYLppOutputs lpp_outputs = 3;
+}
+message ScenarioEHYLppOutputs {
+  repeated EHYLppOutputsInfo lpp_outputs_infos = 1;
+}
+
+message EHYRmeOutputsInfo {
+  optional uint64 frame_id = 1;
+  optional uint64 timestamp = 2;
+  optional EHYRmeOutputs rme_outputs = 3;
+}
+message ScenarioEHYRmeOutputs {
+  repeated EHYRmeOutputsInfo rme_outputs_infos = 1;
+}
+
+message EHYTppOutputsInfo {
+  optional uint64 frame_id = 1;
+  optional uint64 timestamp = 2;
+  optional EHYTppOutputs tpp_outputs = 3;
+}
+message ScenarioEHYTppOutputs {
+  repeated EHYTppOutputsInfo tpp_outputs_infos = 1;
+}
+
+message EHYTsiOutputsInfo {
+  optional uint64 frame_id = 1;
+  optional uint64 timestamp = 2;
+  optional EHYTsiOutputs tsi_outputs = 3;
+}
+message ScenarioEHYTsiOutputs {
+  repeated EHYTsiOutputsInfo tsi_outputs_infos = 1;
+}
+
+message EHYTseOutputsInfo {
+  optional uint64 frame_id = 1;
+  optional uint64 timestamp = 2;
+  optional EHYTseOutputs tse_outputs = 3;
+}
+message ScenarioEHYTseOutputs {
+  repeated EHYTseOutputsInfo tse_outputs_infos = 1;
+}
+
+message ArbOutInfo {
+  optional uint64 frame_id = 1;
+  optional uint64 timestamp = 2;
+  optional FunctionRequestBook arb_out = 3;
+}
+message ScenarioArbOut {
+  repeated ArbOutInfo arb_out_infos = 1;
+}
+
+message SideFeatureInfo {
+  optional uint64 frame_id = 1;
+  optional uint64 timestamp = 2;
+  optional ForceSideFeatures side_feature = 3;
+}
+message ScenarioSideFeature {
+  repeated SideFeatureInfo side_feature_infos = 1;
+}
+
+message IlluminanceFeaturesInfo {
+  optional uint64 frame_id = 1;
+  optional uint64 timestamp = 2;
+  optional IlluminanceFeatures illuminance_features = 3;
+}
+message ScenarioIlluminanceFeatures {
+  repeated IlluminanceFeaturesInfo illuminance_features_infos = 1;
+}
+
+message NopFunctionStatusInfo {
+  optional uint64 frame_id = 1;
+  optional uint64 timestamp = 2;
+  optional NopFunctionStatus nop_function_status = 3;
+}
+message ScenarioNopFunctionStatus {
+  repeated NopFunctionStatusInfo nop_function_status_infos = 1;
+}
+
+message NopSpeedLimitValueInfo {
+  optional uint64 frame_id = 1;
+  optional uint64 timestamp = 2;
+  optional NopSpeedLimitValue nop_speed_limit_value = 3;
+}
+message ScenarioNopSpeedLimitValue {
+  repeated NopSpeedLimitValueInfo nop_speed_limit_value_infos = 1;
+}
+
+message NopVehicleOutInfo {
+  optional uint64 frame_id = 1;
+  optional uint64 timestamp = 2;
+  optional NopVehicleOut nop_vehicle_out = 3;
+}
+message ScenarioNopVehicleOut {
+  repeated NopVehicleOutInfo nop_vehicle_out_infos = 1;
+}
+
+message FctOutInfo {
+  optional uint64 frame_id = 1;
+  optional uint64 timestamp = 2;
+  optional FctOut fct_out = 3;
+}
+message ScenarioFctOut {
+  repeated FctOutInfo fct_out_infos = 1;
+}
+
+message FctDbgInfo {
+  optional uint64 frame_id = 1;
+  optional uint64 timestamp = 2;
+  optional debug.FCTDebugOut fct_dbg = 3;
+}
+message ScenarioFctDbg {
+  repeated FctDbgInfo fct_dbg_infos = 1;
+}
+
+message ADSInfo {
+  optional uint64 frame_id = 1;
+  optional uint64 timestamp = 2;
+  optional ADS ads = 3;
+}
+
+message ScenarioADS {
+  repeated ADSInfo ads_infos = 1;
+}

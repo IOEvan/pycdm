@@ -1,0 +1,48 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+message ObjUss{
+    repeated Point_Uss_2d uss_polygen = 1;
+    optional float problty = 2;
+    optional float HeightProblty  = 3;
+    optional USSObjType type = 4;
+    optional USSObjHeiType HeightWarn = 5;
+    optional USSObjHeiType HeightBrake = 6;
+    optional ObjHeightType HeightType = 7;
+
+
+    enum USSObjType {
+      USSObjType_None = 0;
+      USSObjType_Point = 1;
+      USSObjType_Straight0Corner = 2;
+      USSObjType_Straight1Corner = 3;
+      USSObjType_Reserved4 = 4;
+      USSObjType_Straight2Corner = 5;
+      USSObjType_Reserved6 = 6;
+      USSObjType_Sna = 7;
+    }
+
+    enum USSObjHeiType  {
+      USSObjHeiWarnType_Low = 0;
+      USSObjHeiWarnType_High = 1;
+      USSObjHeiWarnType_Traversable = 2;
+      USSObjHeiWarnType_Unknow = 3;
+    }
+
+    enum ObjHeightType {
+        OBJ_HEIGHT_NONE    = 0;
+        OBJ_HEIGHT_LOW     = 1;    // < 30cm
+        OBJ_HEIGHT_HIGH    = 2;    // higher than probe height
+        OBJ_HEIGHT_UNKNOW  = 3;
+        OBJ_HEIGHT_MAX     = 4;
+    }
+
+}
+
+
+message Point_Uss_2d {
+  optional float Point_x = 1; // x_pixel 
+  optional float Point_y = 2; // y_pixel 
+}

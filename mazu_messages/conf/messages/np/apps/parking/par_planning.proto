@@ -1,0 +1,116 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+import "common/pnc/path.proto";
+import "np/apps/parking/par_base.proto";
+import "np/apps/parking/par_planner_debug.proto";
+import "np/apps/parking/par_pnc_point.proto";
+import "np/apps/parking/par_trajectory.proto";
+import "np/apps/parking/par_semantic_map.proto";
+import "np/apps/parking/par_state_machine.proto";
+import "np/apps/parking/par_objmap.proto";
+
+message SlotTrajectory {
+reserved 1;
+    optional ADCTrajectory trajectory = 2;
+    optional SlotBase slot            = 3;
+    optional ParkSlot park_slot       = 4;
+    optional uint64 timestamp         = 5; // unit: nanosecond
+    optional uint32 replan_cnt        = 6;
+    optional float compute_time       = 7; // e2e parking trajectory compute time, unit: ms
+    repeated float compute_meta       = 8; // include: loop_count, preprocess, A_infer, C_prefill, B_infer, C_decode, C_out, postprocess etc. 
+}
+
+message ParkingE2EGoal {
+  // in odometry frame (x、 y、 theta)
+  optional PathPoint goal_point = 1;
+  // for action id
+  optional double goal_speed_mps = 2;
+  optional double goal_yawrate_radps = 3;
+}
+
+message ParkingE2ERequest {
+  // E2E Path Timestamp(ns)
+  optional uint64 timestamp = 1;
+  optional uint64 counter = 2;
+  // speed limit
+  optional double speed_limit_mps = 3;
+  // mm goals in odometry
+  repeated ParkingE2EGoal goals = 4;
+  // init prompt traj in odometry
+  optional PathNop init_path = 5;
+  optional bool is_estop_flg = 6;
+  // gear hard constraint
+  optional bool enable_reverse_flg = 7 [default=true];
+}
+
+message ParkingE2EDebug {
+  // planning request inputs
+  optional ParkingE2ERequest planning_req = 1;
+  // environment inputs
+  repeated ParSingleObject static_objs = 2;
+  repeated ParDynamicObject dynamic_objs = 3;
+  // mm outputs
+  repeated PathNop e2e_paths = 4;
+}
+
+message ParkingTrajectory{
+    repeated SlotTrajectory slot_trajectory=1;
+    optional NodeInfo node_info=2;
+    optional FeatureStatus trajectory_feature_status=3; // station psap fault signal
+
+    enum InputStatus{           // Input信号的状态
+        NOT_USED = 0;           // 未使用
+        IN_USE = 1;             // 使用中
+        LOST_COM = 2;           // 使用中丢失信号
+        BAD_INPUT = 3;          // 信号输入数值有问题
+        STATUS_RESERVED1 = 4;
+        STATUS_RESERVED2 = 5;
+    }
+
+    optional InputStatus psap_station_info_status = 4;  // psap站端信号状态
+
+    optional double planning_consumption_time = 5; // in seconds
+
+    optional FeatureStatus feature_status = 6;
+
+    optional bool is_umanned_psap_monitor_connected = 7;
+
+    optional ParPoint tf_slot2odom_pos = 8; // {x, y, z}, unit: m
+    optional ParQuaternion tf_slot2odom_quat = 9; // {w, x, y, z}
+    optional ParEulerAngle tf_slot2odom_eur = 10; // {roll, pitch, yaw}, unit: radian
+
+    repeated SlotTrajectory e2e_slot_trajectories = 11; // e2e_planner output trajectories
+    optional TrajectorySource traj_source = 12;   // planning output trajectory traj_source
+
+    enum TrajectorySource{
+        INVALID = 0;
+        RULE = 1;      // 规则规划器
+        PLAN_NN = 2;   // 模型规划器
+    }
+
+    optional bool TurnAroundSts = 13; // true:Turn around is running  
+
+    optional PathNop nop_path = 14;
+    optional ParPlannerDebug par_planner_debug = 15;
+
+    // for e2e debug
+    optional ParkingE2EDebug e2e_debug = 100;
+
+    // for e2e planning request
+    optional ParkingE2ERequest e2e_request = 101;
+    optional bool is_e2e_in_loop_flg = 102;
+
+    optional string vid = 10000; // vid of target vehicle
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909; // uuid of the publisher
+    optional uint64 counter = 536870910; // message counter
+    optional uint64 publish_ts = 536870911; // publish utc timestamp; unit : nanosecond
+}

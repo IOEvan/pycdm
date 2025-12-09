@@ -1,0 +1,610 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+import "common/pnc/geometry.proto"; // for Vector3d
+import "common/perception/manner_map.proto"; // for PathSemantic and speed limit
+import "common/perception/perception_objects.proto"; // for dynamic agents attributions
+
+enum AgentPredictionType {
+  AgentPredictionType_UNKNOW = 0;
+  AgentPredictionType_RUlE_BASED = 1;
+  AgentPredictionType_MARGINAL_NN_BASED = 2;
+}
+
+enum AgentPriorityType {
+  AgentPriorityType_UNKNOW = 0;
+  AgentPriorityType_LOW = 1;
+  AgentPriorityType_NORMAL = 2;
+  AgentPriorityType_HIGH = 3;
+  AgentPriorityType_RECALL_HIGH = 4;
+  AgentPriorityType_PRECISION_HIGH = 5;
+  AgentPriorityType_EGO_LONG_HIGH = 6;
+  AgentPriorityType_EGO_LAT_HIGH = 7;
+}
+
+enum AgentIntentionType {
+  AgentIntentionType_UNKNOW = 0;
+  AgentIntentionType_CUT_IN = 1;
+  AgentIntentionType_CUT_OUT = 2;
+  AgentIntentionType_CROSSING = 3;
+  AgentIntentionType_DEAD = 4;
+  AgentIntentionType_CLOSE_CUT_IN = 5;
+  AgentIntentionType_UNCERTAIN_BEHAVIOR = 6;
+  AgentIntentionType_ONCOMING = 7;
+}
+
+enum Ego2AgentDecisionType {
+  Ego2AgentDecisionType_UNKNOW = 0;
+  Ego2AgentDecisionType_IGNORE = 1;
+  Ego2AgentDecisionType_FOLLOW = 100;
+  Ego2AgentDecisionType_YIELD = 200;
+  Ego2AgentDecisionType_OVERTAKE = 300;
+  Ego2AgentDecisionType_NUDGE = 400;
+}
+
+// goal point planner
+enum GoalPointType {
+  GOALPOINTTYPE_INVALID= 0;
+  GOALPOINTTYPE_P2P_CONNECT = 1;
+  GOALPOINTTYPE_INTERSECTION_ENTRY = 2;
+  GOALPOINTTYPE_MAIN_SIDE_PASS = 3;
+  GOALPOINTTYPE_CAR_FOLLOW = 4;
+  GOALPOINTTYPE_LANE_KEEP = 5;
+  GOALPOINTTYPE_RED_LIGHT_STOP = 6;
+  GOALPOINTTYPE_LC_SUPPRESSION = 7;
+  GOALPOINTTYPE_LC_NAVIGATION = 8;
+  GOALPOINTTYPE_LC_EFFICIENCY = 9;
+  GOALPOINTTYPE_LK_YIELD = 10;
+  GOALPOINTTYPE_LK_NUDGE = 11;
+  GOALPOINTTYPE_FOLLOW_NAVI_PATH = 12;
+  GOALPOINTTYPE_FOLLOW_FORBICAL_CENTER = 13;
+  GOALPOINTTYPE_FOLLOW_CRUISE_CENTER = 14;
+  GOALPOINTTYPE_MAIN_SIDE_ENTRY = 15;
+  GOALPOINTTYPE_FOLLOW_LANE_CHANGE = 16;
+  GOALPOINTTYPE_TLD_STOP_POINT = 17;
+  GOALPOINTTYPE_LC_STALK = 18;
+  GOALPOINTTYPE_UTURN_PRE_ENTRY = 19;
+  GOALPOINTTYPE_UTURN_POST_ENTRY = 20;
+  GOALPOINTTYPE_UTURN_INTERSECTION_EXIT = 21;
+}
+
+message EgoDecision{
+  enum EgoDecisionType {
+    UNKNOW = 0;
+    KEEP_SPEED = 1;
+    BRAKE = 10;
+    STOP = 20;
+    ACC = 100;
+    START = 110;
+    KEEP_LANE = 200;
+    NUDGE = 210;
+    LANE_CHANGE = 220;
+    BACK_ORIGINAL_LANE = 230;
+    TLD_GREEN_GO= 300;
+    TLD_GREEN_FLASH_GO= 301;
+    TLD_GREEN_FLASH_STOP= 302;
+    TLD_GREEN_COUNT_STOP= 303;
+    TLD_YELLOW_GO= 304;
+    TLD_YELLOW_STOP= 305;
+    TLD_RED_GO= 306;
+    TLD_RED_STOP= 307;
+  }
+
+  repeated EgoDecisionType ego_decision_type = 1;// ego_decision,horizontal and vertical coupling
+  repeated float ego_decision_score = 2;// ego_decision score,horizontal and vertical coupling
+  repeated int32 ego_decision_reason = 3;// ego_decision reason ,maybe multi-reason
+  repeated int32 ego_decision_reason_agent_id = 4;// ego_decision reason ,maybe multi-agent
+  optional uint32 final_speed_limit = 5;  // speed limit after consider user adjust and scenario, unit is kph
+  optional Lane.SpeedSource final_speed_limit_source = 6;
+  optional Lane lc_target_lane = 7; // target centerline for lane change, used for path stitch
+
+  message SpeedControl {
+    enum SpeedControlType {
+      DEFAULT = 0;            // Do not override, follow speed limit
+      SINGLE_DELTA_V = 1;     // Override with Delta V (Speed Offset), 
+                              // must have 1 delta_v, delta_t is not required
+      MULTIPLE_DELTA_VT = 2;  // New interface (Speed Offset with multiple control points), 
+                              // support to 3pts, each point must have delta_v and delta_t
+      DISABLE = 100;          // Do not prompt speed
+    }
+    optional SpeedControlType control_type = 1; // Select speed override mode, then control_points 
+                                                // will take effect, choose DEFAULT or empty == no override
+    repeated float delta_v = 2;       // unit is m/s, raw astra model input, use with caution
+    repeated float delta_t = 3;       // unit is s, range is [0.2 ~ 5], same as astra trajectory output
+                                      // size must equal to delta_v under MULTIPLE_DELTA_VT mode
+  }
+  optional SpeedControl speed_control = 8;  // Override speed using speed control model
+  optional uint32 longitudinal_policy = 9;  // 0 -> Default, 100 -> Disable reward model longitudinal optimization
+  optional uint32 lateral_policy = 10;  // 0 -> Default, 100 -> Disable reward model lateral optimization
+  repeated float reverse = 1000;
+}
+
+enum SceneType {
+  SceneType_INVALID = 0;
+  SceneType_FOLLOW = 1; // include straight, lane change, nudge now
+  SceneType_TURN_LEFT = 2;
+  SceneType_TURN_RIGHT = 3;
+  SceneType_U_TURN_LEFT = 4;
+  SceneType_U_TURN_RIGHT = 5;
+  SceneType_LEFT_NUDGE = 6;
+  SceneType_RIGHT_NUDGE = 7;
+  SceneType_LEFT_CHANGE = 8;
+  SceneType_RIGHT_CHANGE = 9;
+  SceneType_3PT_U_TURN_LEFT = 10;
+  SceneType_3PT_U_TURN_RIGHT = 11;
+  SceneType_OTHERS = 100;
+}
+
+enum AstraScenarioType {
+  AstraScenarioType_Default = 0;
+  AstraScenarioType_Unprotected_Turn_Left= 1;
+  AstraScenarioType_Turn_Right = 2;
+  AstraScenarioType_Nudge = 3;
+}
+
+message AstraTurnSignal{
+  enum TurnSignalType {
+    TurnSignal_NONE = 0;
+    TurnSignal_LEFT = 1;
+    TurnSignal_RIGHT = 2;
+  }
+
+  enum TurnSignalSource {
+    TurnSource_NONE   = 0;
+    TurnSource_LC     = 1;
+    TurnSource_TURN   = 2;
+    TurnSource_U_TURN = 3;
+    TurnSource_NUDGE  = 4;
+  }
+
+  optional TurnSignalType signal = 1; // final turn indicator value
+  optional TurnSignalSource source = 2; // reason for turn indicator
+  optional int32 lc_times = 3; // LC times from navipath/navilane, positive if need left LC, negative if need right LC, and 0 if not need LC.
+  optional PathSemantic path_semantic = 4; // path_semantic from navipath/navilane
+}
+
+message AstraProphetOutput {
+    message ScenarioDescription {
+        message StaticDescription {
+            optional uint32 static_env_tag = 1;
+            optional int64 id = 2;
+            optional float dist_to_entry = 3;
+            optional float dist_to_exit = 4;
+            optional uint32 filtered = 5;
+        }
+        message DynamicDescription {
+            optional int64 id = 1;
+            optional float dist = 2;
+            optional uint32 interaction_tag = 3;
+            optional uint32 filtered = 4;
+        }
+        message TrafficDescription {
+            optional uint32 traffic_tag = 1;
+            optional float dist_to_entry = 2;
+            optional float dist_to_exit = 3;
+            optional uint32 filtered = 4;
+        }
+        message EgoBehaviorDescription {
+            optional uint32 ego_desc = 1;
+            optional uint32 filtered = 2;
+        }
+        // desc. static road envrionment
+        repeated StaticDescription static_desc = 1;
+        // desc. ego status
+        repeated EgoBehaviorDescription ego_desc = 2;
+        // desc. dynamic objects which maybe interactive with ego(single)
+        repeated DynamicDescription dynamic_desc = 3;
+        // desc. traffic flow grouped by dynamic objects
+        repeated TrafficDescription traffic_desc = 4;
+    }
+    message ScenarioTags {
+        optional AstraScenarioType scenario_type = 1;
+        optional uint32 source = 2;
+    }
+    repeated MarginalPredictedAgent marginal_predicted_agents = 1; // maybe used later, for each agent
+    optional ScenarioDescription scenario_desc = 2;
+    repeated ScenarioTags scenario_tags = 3;
+    repeated ScenarioTags filtered_scenario_tags = 4;
+    repeated uint32 prophet_traces = 5;
+}
+
+message AstraPlannerAgents {
+  optional uint64 timestamp = 1; // ptp time of perception result, unit: ns
+  repeated JointMMScenario mm_scenarios = 2;
+  repeated MarginalPredictedAgent marginal_predicted_agents = 3;  // Num of agents == perception objects inputs
+  optional AstraProphetOutput astra_prophet_output = 11; // the output of prophet model/post, except agents
+  repeated AstraTrajectory marginal_ego_trajectories = 4;         // 18 ego trajectories
+  optional bool is_valid = 5;    // if this bit is false, Astra Planner trajectories should not be used
+
+  enum AstraInvalidReason {
+    NO_ERROR = 0;
+    NAVLANE_EMPTY = 1;
+    NAVLANE_LACK_HD = 2;
+    NAVLANE_LACK_SD = 3;
+    NAVLANE_LACK_NAVI_ROUTE = 4;
+    NAVIPATH_EMPTY = 5;
+  }
+
+  repeated AstraInvalidReason invalid_reasons = 6;
+  optional uint32 confidence = 7;    // when confidence == 100 -> use astra planner model trajectory under flag=5
+  repeated EgoDecision ego_decision = 8;// ego_decision,maybe multi-possibilities
+
+  optional SceneType top_scene_type = 9; // for split query, top on scene, now only has FOLLOW, TURN_LEFT, TURN_RIGHT, U_TURN_LEFT
+  repeated float scene_confidence = 10; // confidence for each scene, now length is 4
+
+  repeated AstraTrajectory marginal_ego_reward_trajectories = 12;
+
+  optional bool goal_mode = 13 [default = false];
+
+  optional NaviPathType navi_path_type = 14; // navipath types
+
+  enum InternalStateMachineState {
+    UNKNOWN = 0;
+
+    NOA_STATUS = 100;   // Main state
+    NOA_ENGAGED = 102;  // sub state
+    NOA_DISABLE = 103;  // sub state
+
+    CRUISE = 200;
+    LK = 201;
+    LK_FAIL = 202;
+    NUDGE = 203;
+    // uturn
+    UTURN = 210;
+    UTURN_PREPARE_LEFT = 211;
+    UTURN_PREPARE_RIGHT = 212;
+    UTURN_ONGOING_LEFT = 213;
+    UTURN_ONGOING_RIGHT = 214;
+    // three point uturn
+    THREE_POINT_UTURN_PREPARE_LEFT = 215;
+    THREE_POINT_UTURN_PREPARE_RIGHT = 216;
+    THREE_POINT_UTURN_ONGOING_LEFT = 217;
+    THREE_POINT_UTURN_ONGOING_RIGHT = 218;
+    UTURN_CANCEL = 219;
+    UTURN_COMPLETE = 220;
+    UTURN_ONGOING_LEFT_FORWARD = 221;
+    UTURN_ONGOING_LEFT_BACKWARD = 222;
+    UTURN_ONGOING_RIGHT_FORWARD = 223;
+    UTURN_ONGOING_RIGHT_BACKWARD = 224;
+
+    LANE_CHANGE = 300;
+    // preprare
+    LC_PREPARE_LEFT = 301;
+    LC_PREPARE_RIGHT = 302;
+    // ongoing
+    LC_ONGOING_LEFT = 303;
+    LC_ONGOING_RIGHT = 304;
+    // cancel
+    LC_CANCEL = 305;
+    // finished
+    LC_COMPLETE = 306;
+    // suppression
+    LC_SUPPRESSION = 307;
+
+    INTERSECTION = 400;
+
+    TURN = 500;
+
+    ROUNDABOUT = 600;
+    ROUNDABOUT_PREPARE = 601;
+    ROUNDABOUT_ONGOING = 602;
+    ROUNDABOUT_LEAVING = 603;
+    ROUNDABOUT_COMPLETE = 604;
+    ROUNDABOUT_LANE_CHANGE = 605;
+    ROUNDABOUT_LC_PREPARE_LEFT = 606;
+    ROUNDABOUT_LC_PREPARE_RIGHT = 607;
+    ROUNDABOUT_LC_ONGOING_LEFT = 608;
+    ROUNDABOUT_LC_ONGOING_RIGHT = 609;
+    ROUNDABOUT_LC_CANCEL = 610;
+    ROUNDABOUT_LC_COMPLETE = 611;
+  }
+  optional InternalStateMachineState internal_state_machine_state = 15;
+
+  message DebugInfo {
+    enum PromptType {
+      EMPTY = 0;
+      VTLD_GO = 1;
+      VTLD_STOP = 2;
+      FOLLOW_GO = 3;
+      FOLLOW_STOP = 4;
+      FOLLOW_BRAKE = 5;
+      ROLLING_PREVENTION = 6;
+      OPEN_SPACE_AHEAD = 7;
+    }
+
+    enum PostprocessType {
+      NO_POST = 0;
+      VTLD_GO_POST = 1;
+      VTLD_STOP_POST = 2;
+      FOLLOW_GO_POST = 3;
+      FOLLOW_STOP_POST = 4;
+      FOLLOW_BRAKE_POST = 5;
+      ROLLING_PREVENTION_POST = 6;
+      OPEN_SPACE_AHEAD_POST = 7;
+      CLIP_REVERSED_PATH_POST = 8;
+      LONGITUDINAL_SCORE_POST = 9;
+      LATERAL_SCORE_POST = 10;
+    }
+
+    message DebugInfoStr {
+      optional float t = 1;
+      optional float max_sped_lmt = 2;
+      optional float min_sped_lmt = 3;
+      optional float v_x = 4;
+      optional float a_x = 5;
+      optional uint32 acc_times = 6;
+      optional uint32 raw_junction_light = 7;
+      optional uint32 junction_light = 8;
+      optional uint32 tld_color = 9;
+      optional uint32 navi_tld_color = 10;
+      optional uint32 navi_semantic = 11;
+      optional float stop_dist = 12;
+      optional float navi_stop_dist = 13;
+      optional float navi_strat_dist = 14;
+      optional uint32 strat_navi = 15;
+      optional uint32 front_objs = 16;
+      optional uint32 cipv = 17;
+      optional float last_delta_v = 18;
+      optional float delta_v = 19;
+      optional float prompt = 20;
+      optional float str_angle = 21;
+      optional float navi_dist_before_turn = 22;
+      optional string cruise_info = 23;
+      optional string limit_info = 24;
+      optional string prelimit_info = 25;
+      optional float cipv_x = 26;
+      optional float cipv_y = 27;
+      optional float cipv_vx = 28;
+      optional float cipv_ax = 29;
+      optional float cipv_ttc_dist = 30;
+      optional float cipv_headway = 31;
+      optional float cipv_thw = 32;
+      optional uint32 start_front_objs = 33;
+      optional float navi_lc_type = 34;
+      optional float free_acc = 35;
+      optional float cipv_acc = 36;
+      optional float expect_acc = 37;
+      optional string start_info = 38;
+    }
+
+    message Point {
+      optional float x = 1;
+      optional float y = 2;
+    }
+
+    repeated PromptType prompt_types = 1;
+    repeated uint32 traj_raw_indices = 2;
+    repeated uint32 traj_query_ids = 3; // id for corresponding navlink or navpath, 0 means learnable.
+    repeated PostprocessType postprocess_types = 4;
+    optional string debug_info_str = 5[deprecated = true];
+    optional DebugInfoStr debug_info_string = 6;
+    repeated Point astra_input_points = 7;
+  }
+  optional DebugInfo debug_info = 100;
+
+  repeated uint64 receive_map_id = 536870904;   // history receive topic ts
+  repeated AstraHistroyTime astra_histroy_time = 536870905;   // history receive topic ts
+  optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+  optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909; // uuid of the publisher
+  optional uint64 counter = 536870910;         // message counter
+  optional uint64 publish_ts = 536870911;    // publish utc timestamp; unit : nanosecond
+}
+
+message JointMMScenario {
+  optional AstraTrajectory ego_trajectory = 1;
+  repeated JointPredictedAgent joint_predicted_agents = 2;
+}
+
+message JointPredictedAgent {
+  optional int32 agent_id = 1;                      // perception objects id
+  repeated AstraTrajectory agent_trajectory = 2;
+}
+
+message  MarginalPredictedAgent {
+  enum AgentMotionStatus{
+    AgentMotionStatus_Unknown = 0;
+    AgentMotionStatus_Static = 1;
+    AgentMotionStatus_Stopped = 2;
+    AgentMotionStatus_Moving_Slowly = 3;
+    AgentMotionStatus_Moving = 4;
+    AgentMotionStatus_RearMoving = 5;
+    AgentMotionStatus_Start = 6;
+    AgentMotionStatus_Dead = 7;
+    AgentMotionStatus_Hard_Break = 8;
+    AgentMotionStatus_LTAP = 9;
+    AgentMotionStatus_RTAP = 10;
+    AgentMotionStatus_Accelerating = 11;
+    AgentMotionStatus_Cruising = 12;
+    AgentMotionStatus_LC_Left = 13;
+    AgentMotionStatus_LC_Right = 14;
+  }
+
+  message ScenarioAttr {
+    repeated Ego2AgentDecisionType  ego2agent_decision_type = 1;// ego2agent decision type,maybe multi-possibilities
+    repeated float ego2agent_decision_score = 2;// ego2agent decision score
+    optional AgentIntentionType agent_intention_type = 3;//agent intention type
+    optional float agent_intention_score = 4;// agent intention score
+  }
+
+  optional int32 agent_id = 1;                      // perception objects id
+  repeated AstraTrajectory agent_trajectories = 2;  // 6 trajectories per agent, marginal multi-modal agent trajectories
+  optional AgentPredictionType  agent_prediction_type = 3; // prediction method
+  optional AgentPriorityType  agent_priority_type = 4; // agent priority
+  repeated AgentPriorityType  agent_multi_priorities_type = 35; // agent multi priorities
+  optional float agent_priority_score = 5; // agent priority
+  repeated float agent_multi_priorities_score = 36; // agent multi priorities score
+  repeated Ego2AgentDecisionType  ego2agent_decision_type = 6 [deprecated=true];// ego2agent decision type,maybe multi-possibilities
+  repeated float ego2agent_decision_score = 7 [deprecated=true];// ego2agent decision score
+  optional AgentIntentionType agent_intention_type = 8 [deprecated=true];//agent intention type
+  optional float agent_intention_score = 9 [deprecated=true];// agent intention score
+  repeated uint32 agent_traces = 34;
+  map<uint32, ScenarioAttr> scenario_attributes = 10;
+  optional DynamicObj.OBJObjectClass agent_class = 11;
+  optional DynamicObj.OBJLaneAssignment lane_assignment = 12;
+  optional AgentMotionStatus motion_status = 13;
+  optional float heading = 14;
+  optional float heading_std = 15;
+  optional float angle_rate = 16;
+  optional float angle_rate_std = 17;
+  optional Position distance = 18;
+  optional Velocity abs_velocity = 19;
+  optional Acceleration abs_acc = 20;
+  optional Dimension dimension = 21;
+  optional Source source = 22; // object source
+  optional DynamicObj.OBJDoorStatus vehicle_door_left_status = 23; //status of the left Door
+  optional DynamicObj.OBJDoorStatus vehicle_door_right_status = 24;
+  optional float age_second = 25; // object tacked time in seconds
+  optional float missing_age_second = 26; // object missed tracking time in seconds
+  optional DynamicObj.OBJLightStatus brake_light = 27;//制动灯状态 0: off, 1: on, 2: invisible
+  optional float brake_light_probability = 28; // 刹车灯状态为on的置信度
+  optional DynamicObj.OBJLightStatus left_indicator = 29;//左转向灯状态 0: off, 1: on, 2: invisible
+  optional float left_indicator_probability = 30; // 左转灯状态为on的置信度
+  optional DynamicObj.OBJLightStatus right_indicator = 31;//右转向灯状态 0: off, 1: on, 2: invisible
+  optional float right_indicator_probability = 32; // 右转灯状态为on的置信度
+  optional DynamicObj.OBJObjectSpecialClass object_special_class = 33;
+  repeated float reverse = 1000;
+}
+
+message AstraTrajectory {
+  enum GearState {
+    GEAR_NEUTRAL = 0;
+    GEAR_DRIVE = 1;
+    GEAR_REVERSE = 2;
+    GEAR_PARKING = 3;
+    GEAR_INVALID = 4;
+  }
+
+  // goal point traj planner
+  enum GoalPointType {
+    GOALPOINTTYPE_INVALID= 0;
+    GOALPOINTTYPE_ENTRANCE = 1;
+    GOALPOINTTYPE_INTERACTION = 2;
+    GOALPOINTTYPE_CUSTOM = 3;
+  }
+
+  enum AstraTrajectorySource {
+    AstraTrajectorySource_Unknown = 0;
+    AstraTrajectorySource_Model = 1;
+    AstraTrajectorySource_Post = 2;
+    AstraTrajectorySource_Reward = 3;
+    AstraTrajectorySource_ModelRefined = 4;
+    AstraTrajectorySource_GoalPoints = 5;
+    AstraTrajectorySource_Uturn = 6;
+  }
+
+  message RewardInfo {
+    repeated bool point_agent_collision = 1;
+    repeated bool point_lane_collision = 2;
+    repeated float point_agent_collision_prob = 3;
+    repeated float point_lane_collision_prob = 4;
+    repeated float traj_reward = 5;
+    repeated int32 traj_index = 6;
+  }
+
+  reserved 2;
+  // length 35, waypoints are spaced out by 0.2s
+  repeated AstraWayPoint trajectory = 1;
+
+  // used for marginal predicted agents
+  optional AgentDecisions decisons = 3;
+
+  // used for predicted agents and ego
+  optional float probability = 4;
+
+  // used for multi scene for ego trajectory
+  optional SceneType trajectory_scene_type = 5;
+
+  // used for turn indicator signal
+  optional AstraTurnSignal turn_signal = 6;
+
+  optional GearState gear_state = 7;
+
+  optional GoalPointType goal_point_type = 8 [deprecated=true];
+
+  repeated GearState future_gears = 9;
+
+  optional AstraTrajectorySource astra_traj_source = 10;
+
+  repeated uint32 traj_traces = 11;
+
+  repeated AstraGoalPoint goal_points = 12;
+
+  optional RewardInfo traj_reward_info = 13;
+
+  // length 150, drivepath is spaced out by 1m
+  repeated AstraWayPoint drivepath = 15;
+}
+
+message AstraWayPoint {
+  reserved 2,3,4,5,6,7,8,9;
+  // position of the way point in global frame in m
+  optional Vector3d position = 1;
+
+  // curvature of the way point in rad/m
+  optional float kappa = 10;
+
+  // speed stamped on the path point in m/s
+  optional float speed = 11;
+
+  // acceleration stamped on the way point in m/s^2
+  optional float acceleration = 12;
+
+  // yaw rate stamped on the way point in rad/s
+  optional float yaw_rate = 13;
+
+  // yaw stamped on the way point in rad
+  optional float yaw = 14;
+}
+
+message AgentDecisions {
+  // size == the num of marginal ego trajs, order same as the order of marginal ego trajs
+  repeated AgentDecision decision = 1;
+}
+
+message AgentDecision {
+  reserved 1,2;
+  optional float score = 3;
+  optional float confidence = 4;
+}
+
+message AstraHistroyTime{
+  optional uint64 receive_od_ts  = 1;      // /receive od topic timestamp;unit : nanosecond
+  optional uint64 receive_relative_loc_ts  = 2;      // /receive relative_localization topic timestamp;unit : nanosecond
+  optional uint64 receive_global_loc_ts  = 3;   // receive global_localization topic timestamp;unit : nanosecond
+  optional uint64 receive_vehicle_in_10_ts  = 4;      // receive vehicle_in_10_ts topic timestamp;unit : nanosecond
+  optional uint64 receive_vehicle_in_50_ts  = 5;      // receive vehicle_in_50_ts topic timestamp;unit : nanosecond
+  optional uint64 receive_lane_post_ts  = 6;   //receive lane_post topic timestamp;unit : nanosecond
+  optional uint64 receive_marker_post_ts  = 7;   //receive marker_post topic timestamp;unit : nanosecond
+  optional uint64 receive_atlas_ts  = 8;      // receive atlas topic timestamp;unit : nanosecond
+  optional uint64 receive_sdmap_routing_ts  = 9;   //receive sdmap_routing topic timestamp;unit : nanosecond
+  optional uint64 receive_global_routing_ts  = 10;   //receive global_routing topic timestamp;unit : nanosecond
+  optional uint64 receive_tld_post_ts  = 11;      // receive tld_post topic timestamp;unit : nanosecond
+  optional uint64 receive_tsr_post_ts  = 12;      // receive tsr_post topic timestamp;unit : nanosecond
+  optional uint64 receive_camera_ts  = 13;      // receive camera topic timestamp;unit : nanosecond
+  optional uint64 receive_lidar_point_ts  = 14;      // receive lidar_point topic timestamp;unit : nanosecond
+  optional uint64 receive_road_post_ts  = 15;      // receive road_post topic timestamp;unit : nanosecond
+  optional uint64 receive_agents_model_ts  = 16;      // receive agents behaviors model topic timestamp;unit : nanosecond
+  optional uint64 receive_mlm_scene_ts  = 17;      // receive mlm scene info topic timestamp;unit : nanosecond
+}
+
+message AstraGoalPoint {
+  optional float x = 1;
+  optional float y = 2;
+  optional float heading = 3;
+  optional float velocity = 4;
+  optional GoalPointType point_type = 5;
+  optional float desire_t = 6;
+}
+
+message NaviPathTypeInfo {
+  optional int32 navipath_id = 1; 
+  optional PathLCType path_lc_type = 2;
+}
+
+message NaviPathType {
+  repeated NaviPathTypeInfo navipath_type_info = 1;
+}

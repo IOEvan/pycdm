@@ -1,0 +1,312 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+enum MhlResultValid {
+  kResultInvalid = 0;
+  kResultValid = 1;
+}
+
+enum MhlResultBool {
+  kBoolInvalid = -1;    /** value is invalid; this is a valid defination, means that process can not get value*/
+  kBoolFalse = 0;       /** false value*/
+  kBoolTrue = 1;        /** true value*/
+}
+
+enum MhlGender {
+  kGenderInvalid = -1;   /**< Gender invalid */
+  kGenderFemale = 0;     /**< Gender female */
+  kGenderMale = 1;       /**< Gender male */
+}
+
+enum MhlGazeAoi {
+  kGazeAoiUndefined = -1; /** undefined aoi*/
+  kGazeAoiNomi = 0;
+}
+
+enum MhlEmotion {
+  kEmotionInvalid = -1;
+  kEmotionPositive = 0;
+  kEmotionNegative = 1;
+  kEmotionNeutral = 2;
+}
+
+enum MhlSeatPosition {
+  kSeatPositionInvalid = -1;
+  kSeatPosition1stLeft = 0;
+  kSeatPosition1stRight = 1;
+  kSeatPosition2ndLeft  = 2;
+  kSeatPosition2ndMiddle = 3;
+  kSeatPosition2ndRight = 4;
+  kSeatPosition3rdLeft = 5;
+  kSeatPosition3rdMiddle = 6;
+  kSeatPosition3rdRight = 7;
+}
+
+enum MhlPetType {
+  kPetTypeInvalid = -1;
+  kPetTypeDog = 0;
+  kPetTypeCat = 1;
+}
+
+enum MhlChildClass {
+  kChildClassInvalid = -1;
+  kChildClassChild = 0; /** 4 ~ 12 years old */
+  kChildClassBaby = 1;  /** 0 ~ 4 years old */
+}
+
+enum MhlObjectType {
+  kObjectInvalid = -1;
+  kObjectPhone = 0;
+  kObjectBag = 1;
+  kObjectCup = 2;
+  kObjectSafetySeat = 3;
+}
+
+enum MhlHandGesture {
+  kGestureNone = -1;
+  kGestureThumbUp = 0;
+  kGestureThumbDown = 1;
+  kGestureOk = 2;
+  kGestureZero = 3;
+  kGestureOne = 4;
+  kGestureTwo = 5;
+  kGestureThree = 6;
+  kGestureFour = 7;
+  kGestureFive = 8;
+}
+
+enum MhlFaceAttriMask {
+  kFaceAttriMaskInvalid = -1;
+  kFaceAttriMaskNone = 1;
+  kFaceAttriMaskExist = 2;
+}
+
+/** A enum to represent glasses status */
+enum MhlFaceAttrGlasses {
+  kGlassesTypeInvalid = -1;     /**< Face glasses invalid status */
+  kGlassesTypeNone = 0;       /**< Face has no glasses status */
+  kGlassesTypeGeneral = 1;    /**< Face has general glasses status */
+  kGlassesTypeSunGlasses = 2; /**< Face has sun glasses status */
+}
+
+enum MhlFaceIdStatus {
+  kFaceIdStatusInvalid = -1;
+  kFaceIdStatusOK = 0;          // faceid success to recognize
+  kFaceIdStatusNoFace = 1;         // no face in image
+  kFaceIdStatusTrackScoreLow = 2; // face track socre is too low in image
+  kFaceIdStatusTooBright = 3;      // the image of face is too bright
+  kFaceIdStatusTooDark = 4;        // the image of face is too dark
+  kFaceIdStatusBlurred = 5;         // the image of face is too blurred
+  kFaceIdStatusFaceTooSmall = 6;  // the face is too small
+  kFaceIdStatusYawTooBig = 7;     // the yaw is too big
+  kFaceIdStatusPitchTooBig = 8;   // the pitch is too big
+  kFaceIdStatusNonLiving = 9;      // the face in image is non-living
+  kFaceIdStatusNotFound = 10;       // login not found faceid
+  kFaceIdStatusOcclusion = 11;       // the face is blocked
+  kFaceIdStatusOcclusionEye = 12;   // the eye of face is blocked
+  kFaceIdStatusOcclusionMouth = 13; // the mouth of face is blocked
+}
+
+enum MhlPersonSource {
+  kPersonSourceVision = 0;
+  kPersonSourceSeatSensor = 1;
+  kPersonSourceInvalid = 2;
+}
+
+message MhlRect {
+  optional int32 left = 1;   /**< the x coordinate of the top left corner */
+  optional int32 right = 2;  /**< the x coordinate of the bottom right corner */
+  optional int32 top = 3;    /**< the y coordinate of the top left corner */
+  optional int32 bottom = 4; /**< the y coordinate of the bottom right corner */
+}
+
+message MhlFaceLocation {
+  optional int32 x_percent = 1;
+  optional int32 y_percent = 2;
+}
+
+/** struct to represent a keypoint */
+message MhlPoint2i {
+  optional int32 x = 1; /**< the x coordinate of the point */
+  optional int32 y = 2; /**< the y coordinate of the point */
+}
+
+/** An enum to represent a keypoint with score */
+message MhlPoint2is {
+  optional int32 x = 1;   /**< the x coordinate of the point */
+  optional int32 y = 2;   /**< the y coordinate of the point */
+  optional float s = 3; /**< the score of the point */
+}
+
+/** A struct to represent one oritation result */
+message MhlOritation {
+  optional float yaw = 1;   /**< yaw */
+  optional float pitch = 2; /**< pitch */
+  optional float roll = 3;  /**< roll */
+}
+
+/** A struct to represent one headpose result */
+message MhlHeadPoseResult {
+  optional MhlResultValid result_valid = 1; /** whether result is valid */
+  optional MhlOritation headpose = 2; /** head oritation (yaw, pitch, roll) */
+}
+
+message MhlGazeResult {
+  optional MhlResultValid valid = 1;
+  optional MhlGazeAoi gaze_aoi = 2;
+};
+
+message MhlNoddingResult {
+  optional MhlResultValid valid = 1;
+  optional MhlResultBool is_nodding = 2;
+  optional MhlResultBool is_shaking = 3;
+}
+
+message MhlSeatPositionResult {
+  optional MhlSeatPosition seat_position = 1; /** seat position*/
+  optional MhlResultBool is_fasten_belt = 2; /** whether passenger fasten his belt*/
+  optional MhlResultBool has_child_seat = 3; /** whether this seat has a childseat*/
+};
+
+message MhlPetResult {
+  optional MhlResultValid valid = 1; /** whether result is valid*/
+  optional MhlPetType pet = 2;
+  optional MhlRect rect = 3;
+}
+
+message MhlObjectResult {
+  optional MhlResultValid valid = 1; /** whether result is valid*/
+  optional MhlObjectType object = 2; /** object type*/
+  optional MhlRect rect = 3;
+}
+
+message MhlHandResult {
+  optional MhlResultValid valid = 1;
+  optional MhlHandGesture hand_gesture = 2; /** hand gesture */
+  optional MhlRect rect = 3;
+  optional float score = 4;
+}
+
+message MhlFaceAttrGlassesResult {
+  optional MhlResultValid valid = 1; /**< result valid or not */
+  optional MhlFaceAttrGlasses glasse = 2; /**< glasses status */
+  optional float score = 3;              /**< confidence */
+}
+
+/** A struct to represent face result */
+message MhlFaceResult {
+  optional MhlResultValid valid = 1; /** the face result is valid or not */
+  optional float age = 2;                        /** the age of person */
+  optional int32 track_id = 3;                        /** the face id of person */
+  optional float face_score = 4;
+  optional MhlRect face_rect = 5; /** the rectangle of person's face */
+  optional MhlFaceLocation face_location = 6; /** the face percent value insmart air Coordinate System*/
+  optional int32 landmasks_number = 7;
+  repeated MhlPoint2i landmasks = 8;
+  optional MhlGender gender = 9; /** gender */
+  optional MhlEmotion emotion_result = 10; /** the emotion result of person */
+  optional MhlFaceAttriMask mask = 11;
+  optional MhlFaceAttrGlasses glasses  = 12; /** the glass result of person */
+  optional MhlHeadPoseResult headpose_result = 13;
+  optional MhlGazeResult gaze_result  = 14; /** the gaze result of person */
+  optional MhlNoddingResult nodding_result = 15;     /** the nodding result of person */
+}
+
+/** A struct to represent one body result */
+message MhlBodyResult {
+  optional MhlResultValid valid = 1; /** the body result is valid or not */
+  optional int32 track_id = 2;                       /** body track id */
+  optional float body_score = 3;                 /** body detect score */
+  optional MhlRect body_rect = 4; /** the rectangle of person's body */
+  optional int32 key_points_number = 5;              /** key_points numbers */
+  repeated MhlPoint2i key_points = 6;   /** 13 or 15 points of keypoints */
+}
+
+
+/** A struct to represent one person result */
+message MhlPersonResult {
+  optional float score = 1;                 /** person score*/
+  optional MhlSeatPositionResult seat_result = 2; /** the seat result of person*/
+  optional MhlFaceResult face_result = 3;         /** the face result of person*/
+  optional MhlBodyResult body_result = 4;
+  optional MhlResultBool is_child = 5;  /*whether the person is a child*/
+  optional float is_child_score = 6;            /*child's detection coef*/
+  optional MhlChildClass child_class = 7; /*child's class, only valid when is_child is true*/
+  optional MhlResultBool is_on_child_seat = 8; /*is child seat on safeseat*/
+  optional MhlPersonSource person_from = 9; // vision or seat sensor
+}
+
+message MhlOMSResult {
+  optional int32 person_number = 1;       /** number of person*/
+  optional int32 hand_number = 2;         /** number of hands*/
+  optional int32 pet_number = 3;          /** number of pet*/
+  optional int32 object_number = 4;       /** number of left-thing*/
+  repeated MhlPersonResult persons = 5; /** array of person result*/
+  repeated MhlHandResult hands = 6;      /** array of hand result*/
+  repeated MhlPetResult pets = 7;        /** array of pet result*/
+  repeated MhlObjectResult objects = 8;  /** array of left-thing result*/
+  optional int32 camera_mode = 9;
+}
+
+/** A struct to represent one face id query result */
+message MhlFaceIdQueryResult {
+  optional MhlFaceIdStatus query_status = 1;     /** the query status of the probe face*/
+  optional int32 result_idx = 2;          /** query result index of the face in gallery*/
+  optional MhlSeatPosition queried_seat_pos = 3; /** the seat position of queried person*/
+  optional MhlRect queried_face_rect = 4;        /** the face rect of queried person*/
+  optional MhlRect queried_body_rect = 5;        /** the body rect of queried person*/
+}
+
+/** A struct to represent multiple face id query results */
+message MhlMultiFaceIdQueryResult {
+  optional int32 person_number = 1;            /** number of person*/
+  repeated MhlFaceIdQueryResult persons = 2; /** array of face id query result*/
+}
+
+message MhlFaceIdResult {
+  optional MhlSeatPosition position = 1;
+  optional string uuid = 2;
+}
+
+/** A struct to represent face id request */
+message MhlFaceIdRequest {
+  optional int32 request_id = 1;
+  optional string request_name = 2;
+  optional MhlSeatPosition position = 3;
+  optional string uuid = 4;
+}
+
+/** A struct to represent face id response */
+message MhlFaceIdResponse {
+  optional int32 response_id = 1;
+  optional string response_name = 2;
+  optional int32  result_id = 3;
+  optional string result_name = 4;
+  optional int32 result_number = 5;
+  repeated MhlFaceIdResult persons = 6;
+  optional int32 status_code = 7;
+  optional int32 err_code = 8;
+}
+
+/** A struct to represent face attr request */
+message MhlFaceAttrRequest {
+  optional int32 request_id = 1;
+  optional string request_name = 2;
+}
+
+message MhlFaceAttrResult {
+  optional MhlSeatPosition position = 1;
+  optional MhlFaceAttrGlasses glasses = 2;
+}
+
+/** A struct to represent face attr response */
+message FaceAttrResponse {
+  optional int32 response_id = 1;
+  optional string response_name = 2;
+  optional int32 result_number = 3;
+  repeated MhlFaceAttrResult results = 4;
+}
+
+

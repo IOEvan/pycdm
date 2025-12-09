@@ -1,0 +1,506 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+message TrajectoryBoundsDecider {
+  optional double map_size_x = 1 [default = 250.0];
+  optional double map_size_y = 2 [default = 71];
+  optional double map_size_z = 3 [default = 41];
+  optional int32 infl_x_p = 4 [default = 5];
+  optional int32 infl_x_n = 5 [default = 5];
+  optional int32 infl_y_p = 6 [default = 5];
+  optional int32 infl_y_n = 7 [default = 5];
+  optional int32 infl_z_p = 8 [default = 1];
+  optional int32 infl_z_n = 9 [default = 1];
+  optional double map_resl_x = 10 [default = 1.0];
+  optional double map_resl_y = 11 [default = 0.2];
+  optional double map_resl_z = 12 [default = 0.2];
+  optional double s_back_len = 13 [default = 20.0];
+  optional double max_lon_vel = 14 [default = 50.0];
+  optional double min_lon_vel = 15 [default = 0.0];
+  optional double max_lon_acc = 16 [default = 3.0];
+  optional double max_lon_dec = 17 [default = -6.0];
+  optional double max_lat_vel = 18 [default = 2.5];
+  optional double max_lat_acc = 19 [default = 1.25];
+  optional double max_grids_along_time = 20 [default = 2];
+  optional double velocity_singularity_eps = 21 [default = 0.01];
+  optional double horizon = 22 [default = 100];
+  optional double obs_length_buffer = 23 [default = 0.0];
+  optional double obs_width_buffer = 24 [default = 0.0];
+  optional double init_forward_extend_time = 25 [default = 2.0];
+  optional double ego_min_pass_width = 26 [default = 0.2];
+  optional double nudge_hard_buffer = 27 [default = 0.0];
+  optional double nudge_soft_buffer = 28 [default = 0.5];
+  optional double road_edge_nudge_soft_buffer = 29 [default = 0.6];
+}
+
+message PathBoundsDecider {
+  optional double default_boundary_buffer = 1 [default = 0.1];
+  optional double obstacle_lat_buffer = 2 [default = 0.4];
+  optional double obstacle_lon_start_buffer = 3 [default = 3.0];
+  optional double obstacle_lon_end_buffer = 4 [default = 2.0];
+  optional double horizon = 5 [default = 100.0];
+  optional double resolution = 6 [default = 0.5];
+  optional double extra_tail_bound_point = 7 [default = 20.0];
+  optional double start_planning_lon_buffer = 8 [default = 7.0];
+  optional double start_planning_lat_buffer = 9 [default = 0.4];
+  optional bool is_extend_lane_bounds_to_include_adc = 10 [default = true];
+}
+
+// Next id: 13
+message SpeedBoundsDecider {
+  optional double total_time = 1 [default = 7.0];
+  optional double boundary_buffer = 2 [default = 0.1];
+  optional double max_centric_acceleration_limit = 3 [default = 2.0];
+  optional double minimal_kappa = 4 [default = 0.00001];
+  optional double point_extension = 5 [default = 0.0];
+  optional double lowest_speed = 6 [default = 2.5];
+  optional double collision_safety_range = 7 [default = 1.0];
+  optional double static_obs_nudge_speed_ratio = 8;
+  optional double dynamic_obs_nudge_speed_ratio = 9;
+  optional double overlap_buffer = 10 [default = 0.4];
+  optional bool ignore_attention_merge_hard_bound_on_straight_lane = 11;
+
+  // Next id: 8
+  message StoppingModeParams {
+    optional double comfortable_stopping_deceleration = 1;
+    optional double max_stopping_deceleration = 2;
+    optional double stopping_mode_close_s_buffer = 3;
+    optional double stopping_mode_close_v_buffer = 4;
+    optional double stopping_mode_max_speed = 5;
+    optional double low_speed_stopping_deceleration = 6;
+    optional double low_speed_threshold = 7;
+  }
+  optional StoppingModeParams stopping_mode_params = 12;
+}
+
+// Next id: 12
+message ImpreciseSpeedBoundsDecider {
+  optional double total_time = 1 [default = 7.0];
+  optional double boundary_buffer = 2 [default = 0.1];
+  optional double max_centric_acceleration_limit = 3 [default = 2.0];
+  optional double minimal_kappa = 4 [default = 0.00001];
+  optional double point_extension = 5 [default = 0.0];
+  optional double lowest_speed = 6 [default = 2.5];
+  optional double collision_safety_range = 7 [default = 1.0];
+  optional double static_obs_nudge_speed_ratio = 8;
+  optional double dynamic_obs_nudge_speed_ratio = 9;
+  optional double overlap_buffer = 10 [default = 0.4];
+  optional bool ignore_attention_merge_hard_bound_on_straight_lane = 11;
+}
+
+message CLPreInfoDecider {
+  optional double total_time = 1 [default = 7.0];
+  optional double boundary_buffer = 2 [default = 0.1];
+  optional double max_centric_acceleration_limit = 3 [default = 2.0];
+  optional double minimal_kappa = 4 [default = 0.00001];
+  optional double point_extension = 5 [default = 0.0];
+  optional double lowest_speed = 6 [default = 2.5];
+  optional double collision_safety_range = 7 [default = 1.0];
+  optional double static_obs_nudge_speed_ratio = 8;
+  optional double dynamic_obs_nudge_speed_ratio = 9;
+  optional double overlap_buffer = 10 [default = 0.4];
+  optional bool ignore_attention_merge_hard_bound_on_straight_lane = 11;
+}
+
+// Next id: 13
+message PreciseSpeedBoundsDecider {
+  optional double total_time = 1 [default = 7.0];
+  optional double boundary_buffer = 2 [default = 0.1];
+  optional double max_centric_acceleration_limit = 3 [default = 2.0];
+  optional double minimal_kappa = 4 [default = 0.00001];
+  optional double point_extension = 5 [default = 0.0];
+  optional double lowest_speed = 6 [default = 2.5];
+  optional double collision_safety_range = 7 [default = 1.0];
+  optional double static_obs_nudge_speed_ratio = 8;
+  optional double dynamic_obs_nudge_speed_ratio = 9;
+  optional double overlap_buffer = 10 [default = 0.4];
+  optional bool ignore_attention_merge_hard_bound_on_straight_lane = 11;
+
+  // Next id: 8
+  message StoppingModeParams {
+    optional double comfortable_stopping_deceleration = 1;
+    optional double max_stopping_deceleration = 2;
+    optional double stopping_mode_close_s_buffer = 3;
+    optional double stopping_mode_close_v_buffer = 4;
+    optional double stopping_mode_max_speed = 5;
+    optional double low_speed_stopping_deceleration = 6;
+    optional double low_speed_threshold = 7;
+  }
+  optional StoppingModeParams stopping_mode_params = 12;
+}
+
+message PathTimeHeuristicOptimizer {
+  optional double unit_t = 1 [default = 1.0];
+  optional int32 dense_dimension_s = 2 [default = 41];
+  optional double dense_unit_s = 3 [default = 0.5];
+  optional double sparse_unit_s = 4 [default = 1.0];
+
+  optional double speed_weight = 10 [default = 0.0];
+  optional double accel_weight = 11 [default = 10.0];
+  optional double jerk_weight = 12 [default = 10.0];
+  optional double obstacle_weight = 13 [default = 1.0];
+  optional double reference_weight = 14 [default = 0.0];
+  optional double go_down_buffer = 15 [default = 5.0];
+  optional double go_up_buffer = 16 [default = 5.0];
+  optional double speed_lon_decision_horizon = 17 [default = 200.0];
+  // obstacle cost config
+  optional double default_obstacle_cost = 20 [default = 1e4];
+
+  // speed cost config
+  optional double default_speed_cost = 31 [default = 1.0];
+  optional double exceed_speed_penalty = 32 [default = 10.0];
+  optional double low_speed_penalty = 33 [default = 2.5];
+  optional double reference_speed_penalty = 34 [default = 1.0];
+  optional double keep_clear_low_speed_penalty = 35 [default = 10.0];
+
+  // accel cost config
+  optional double accel_penalty = 40 [default = 2.0];
+  optional double decel_penalty = 41 [default = 2.0];
+
+  // jerk cost config
+  optional double positive_jerk_coeff = 50 [default = 1.0];
+  optional double negative_jerk_coeff = 51 [default = 300.0];
+
+  // other constraint
+  optional double max_acceleration = 60 [default = 4.5];
+  optional double max_deceleration = 61 [default = -4.5];
+
+  // buffer
+  optional double safe_time_buffer = 70 [default = 3.0];
+  optional double follow_safe_distance = 71 [default = 4.0];
+  optional double overtake_safe_distance = 72 [default = 20.0];
+
+  // spatial potential cost config for minimal time traversal
+  optional double spatial_potential_penalty = 80 [default = 1.0];
+
+  optional bool is_lane_changing = 81 [default = false];
+}
+
+message PiecewiseJerkPathOptimizer {
+  optional double lateral_derivative_bound_default = 1 [default = 2.0];
+  optional double l_weight = 2 [default = 1.0];
+  optional double dl_weight = 3 [default = 20.0];
+  optional double ddl_weight = 4 [default = 1000.0];
+  optional double dddl_weight = 5 [default = 50000.0];
+  optional double crossable_bound_weight = 6 [default = 3.0];
+  optional double nudge_bound_weight = 7 [default = 100.0];
+  optional int32 max_iter = 8 [default = 4000];
+  optional double path_reference_l_weight = 9 [default = 0.0];
+  optional double path_slack_length = 10 [default = 10.0];
+  optional double lane_change_time = 11 [default = 8.0];
+  optional double sigmoid_k = 12 [default = 7.0];
+  optional double max_lateral_jerk = 13 [default = 0.8];
+  optional double dddl_soft_constraint_weight = 14 [default = 1000.0];
+  optional double dddl_soft_constraint_lookahead_time = 15 [default = 3.0];
+  optional double min_speed_for_dddl_constraint_range = 16 [default = 1.0];
+  optional double max_lateral_jerk_for_lane_change = 17 [default = 1.0];
+  optional double l_weight_for_lane_change = 18 [default = 4.0];
+  optional double dl_weight_for_lane_change = 19 [default = 10.0];
+  optional double ddl_weight_for_lane_change = 20 [default = 10.0];
+  optional double dddl_weight_for_lane_change = 21 [default = 10.0];
+}
+
+message EudmPathOptimizer {
+  optional double max_constraint_interval = 1 [default = 5];
+  optional double longitudinal_boundary_bound = 2 [default = 1.0];
+  optional double max_lateral_boundary_bound = 3 [default = 0.5];
+  optional double min_lateral_boundary_bound = 4 [default = 0.2];
+  // The output resolution for qp smoother reference line.
+  optional uint32 num_of_total_points = 5 [default = 500];
+  optional double curb_shift = 6 [default = 0.2];
+  optional double lateral_buffer = 7 [default = 0.2];
+  // The output resolution for spiral smoother reference line.
+  optional double resolution = 8 [default = 0.02];
+  optional uint32 spline_order = 9 [default = 5];
+  optional double max_spline_length = 10 [default = 25];
+  optional double regularization_weight = 11 [default = 0.1];
+  optional double second_derivative_weight = 12 [default = 0.0];
+  optional double third_derivative_weight = 13 [default = 100];
+}
+
+message ConfigTauGap {
+  optional double decay_delta_v_threshold = 1;
+  optional double delta_tau_max_ref_v = 2;
+  optional double delta_tau_min_ref_v = 3;
+  optional double max_delta_tau = 4;
+  optional double min_delta_tau = 5;
+  optional bool use_fix_diff_mode = 6;
+  optional double diff_s = 7;
+}
+
+message ConfigTTC {
+  optional double max_ref_s = 1;
+  optional double mid_ref_s = 2;
+  optional double min_ref_s = 3;
+  optional double max_ttc_ratio = 4;
+  optional double mid_ttc_ratio = 5;
+  optional double min_ttc_ratio = 6;
+}
+
+message ConfigCreep {
+  optional bool enable_creep = 1 [default = false];
+  optional double creep_enter_ego_v = 2;
+  optional double creep_exit_ego_v = 3;
+  optional double creep_static_obs_v = 4;
+  optional double creep_max_follow_s = 5;
+  optional int32 creep_max_frame_count = 6;
+  optional double creep_target_s_without_obs = 7;
+  optional double creep_target_v_without_obs = 8;
+  optional double creep_target_a_without_obs = 9;
+  optional double creep_obs_s_buffer = 10;
+  optional double creep_virtual_obs_s_buffer = 11;
+  optional double creep_large_obs_s_buffer = 12;
+  optional double creep_enter_static_obs_v = 13;
+  optional double creep_exit_static_obs_v = 14;
+}
+
+message ConfigRefSMappingTable {
+  repeated double speed_table = 1;
+  repeated double weight_table = 2;
+  repeated double acc_table = 3;
+  repeated double jerk_table = 4;
+}
+
+message CL2DMatrix {
+  message InnerList {
+    repeated float inner_values = 1 [packed = true];
+  }
+  repeated InnerList outter_values = 1;
+}
+
+message CL1DMatrix {
+  repeated float list_values = 1 [packed = true];
+}
+
+message ConfigConstraintLearning {
+  repeated CL1DMatrix heading_diff_ranges = 1;
+  repeated CL1DMatrix speed_ranges = 2;
+  repeated CL1DMatrix s_distance_ranges = 3;
+  repeated CL1DMatrix delta_v_ranges = 4;
+  repeated CL2DMatrix thw_matrix = 5;
+  repeated CL2DMatrix ttc_matrix = 6;
+}
+
+// Next id: 45
+message PiecewiseJerkSpeedOptimizer {
+  optional double longitudinal_jerk_lower_bound = 1 [default = -4.0];
+  optional double longitudinal_jerk_upper_bound = 2 [default = 2.0];
+  optional double default_cruise_speed = 3 [default = 5.0];
+  optional double planning_upper_speed_limit = 4 [default = 11.0];
+  optional double acc_weight = 5 [default = 1.0];
+  optional double jerk_weight = 6 [default = 3.0];
+  optional double kappa_penalty_weight = 7 [default = 2000.0];
+  optional double dkappa_penalty_weight = 8 [default = 2000.0];
+  optional double ref_s_weight = 9 [default = 10.0];
+  optional double ref_s_weight_for_stopping = 37;
+  optional double ref_v_weight = 10 [default = 10.0];
+  optional double ref_a_weight = 11 [default = 10.0];
+  optional double following_buffer_weight = 12 [default = 10.0];
+  optional double follow_safe_distance = 13 [default = 3.0];
+  optional double soft_spd_limit_weight = 14 [deprecated = true];
+  optional double stop_speed = 15 [default = 0.1];
+  optional double acceleration_limit = 16 [default = 0.6];
+  optional double deceleration_limit = 17 [default = -4.0];
+  optional double ref_acc_time = 18 [default = 2.0];
+  optional double min_spd_for_cost = 19 [default = 3.0];
+  optional double following_base_thw = 20 [default = 1.0];
+  optional double following_extra_ttc = 21 [default = 2.0];
+  optional double ref_v_max_diff = 22 [default = 8.0];
+  optional double comfort_speed_limit_weight = 23 [default = 100.0];
+  optional double map_speed_limit_weight = 24 [default = 100.0];
+  optional double lane_change_slot_alignment_s_weight = 25 [default = 5.0];
+  optional double lane_change_slot_alignment_v_weight = 26 [default = 1.0];
+  optional ConfigTauGap tau_gap_config = 27;
+  optional double dec_jerk_upper_limit = 28 [default = 2.0];
+  optional double dec_acc_threshold = 29 [default = -0.5];
+  optional double acc_jerk_upper_limit = 30 [default = 1.0];
+  optional double min_speed_limit_by_dkappa = 31 [default = 0.5];
+  optional ConfigTTC ttc_config = 32;
+  optional ConfigCreep creep_config = 33 [deprecated = true];
+  optional ConfigRefSMappingTable ref_s_mapping_config = 34;
+  optional double following_ttc_weight = 35 [default = 4.0];
+  optional SpeedConstraintExpert constraint_expert_config = 36;
+  optional double lane_change_align_yield_max_dec = 38 [default = -2.0];
+  optional double lane_change_align_not_yield_max_acc = 39 [default = 2.0];
+  optional double lane_change_urban_slot_align_yield_s_weight = 40
+      [default = 5.0];
+  optional double lane_change_slot_align_not_yield_s_weight = 41
+      [default = 10.0];
+  // risk speed limits params
+  optional double softer_risk_min_acc = 42;
+  optional double softer_risk_min_jerk = 43;
+
+  message VToLateralAccConfig {
+    repeated double v = 1;
+    repeated double lat_acc = 2;
+  }
+  optional VToLateralAccConfig v_to_lateral_acc = 44;
+}
+
+message CIlqrPathOptimizer {
+  optional double pos_weight = 1 [default = 3.0];
+  optional double theta_weight = 2 [default = 0.0];
+  optional double kappa_weight = 3 [default = 1.0];
+  optional double kapparate_weight = 4 [default = 10.0];
+  optional double pos_weight_freespace = 5 [default = 3.0];
+  optional double theta_weight_freespace = 6 [default = 0.0];
+  optional double kappa_weight_freespace = 7 [default = 1.0];
+  optional double kapparate_weight_freespace = 8 [default = 10.0];
+  optional double q1_kappa = 10 [default = 1.0];
+  optional double q2_kappa = 11 [default = 40.0];
+  optional double q1_kapparate = 12 [default = 1.0];
+  optional double q2_kapparate = 13 [default = 250.0];
+  optional double kappa_max_limit = 14 [default = 0.02];
+  optional double kappa_min_limit = 15 [default = -0.02];
+  optional double kapparate_max_limit = 16 [default = 0.005];
+  optional double kapparate_min_limit = 17 [default = -0.005];
+  optional double ego_min_pass_width = 20 [default = 0.2];
+  optional double q1_lane_boundary = 30 [default = 3.0];
+  optional double q2_lane_boundary = 31 [default = 1.0];
+  optional double q1_crossable_lane = 32 [default = 3.0];
+  optional double q2_crossable_lane = 33 [default = 1.0];
+  optional double q1_obs_nudge = 34 [default = 3.0];
+  optional double q2_obs_nudge = 35 [default = 1.0];
+  optional double w1_hard_boundary = 40 [default = 3.0];
+  optional double w1_crossable_lane = 41 [default = 3.0];
+  optional double w1_obs_nudge = 42 [default = 3.0];
+  optional double hard_boundary_nudge_buffer = 43 [default = 0.5];
+  optional double pos_weight_lane_change = 44 [default = 2.5];
+  optional double theta_weight_lane_change = 45 [default = 3.0];
+  optional double kappa_weight_lane_change = 46 [default = 9.0];
+  optional double kapparate_weight_lane_change = 47 [default = 9.0];
+  optional double pos_weight_lane_change_cancel = 48 [default = 2.5];
+  optional double theta_weight_lane_change_cancel = 49 [default = 0.0];
+  optional double kappa_weight_lane_change_cancel = 50 [default = 2.0];
+  optional double kapparate_weight_lane_change_cancel = 51 [default = 1.0];
+}
+
+message ConfigCLRefSMappingTable {
+  repeated double speed_table = 1;
+  repeated double attention_obs_predict_max_t_table = 2;
+  repeated double expect_thw_table = 3;
+  repeated double expect_thw_for_truck_table = 4;
+  repeated double expect_ttc_table = 5;
+  repeated double risk_l_distance_table = 6;
+  repeated double risk_l_table = 7;
+  repeated double risk_s_distance_table = 8;
+  repeated double risk_s_table = 9;
+  repeated double ttc_scaler_for_faster_obs_table = 10;
+  repeated double taugap_scaler_for_ego_v_table = 11;
+  repeated double expect_thw_highway_table = 12;
+  repeated double bnd_t_table = 13;
+  repeated double generic_cl_refs_up_revise_delta_thw_max = 14;
+  repeated double generic_cl_refs_up_revise_amplifier = 15;
+  repeated double generic_cl_refs_up_revise_delta_thw_extend_max = 16;
+  repeated double generic_cl_refs_up_revise_extend_amplifier = 17;
+  repeated double ttc_scaler_for_faster_obs_init_table = 18;
+}
+
+message SpeedConstraintExpert {
+  message SpeedConstraintConf {
+    optional double thw_weight = 1;
+    optional double ttc_weight = 2;
+    optional double base_ttc = 3 [default = 3.0];
+    optional double base_thw = 4 [default = 1.0];
+    optional double ref_s_weight = 5;
+    // slot cl s constraint param
+    optional double lane_change_slot_yield_max_dec = 6 [default = -3.5];
+    optional double lane_change_slot_not_yield_max_acc = 7 [default = 2.0];
+    optional double lane_change_urban_slot_yield_s_weight_const = 8
+        [default = 10.0];
+    optional double lane_change_urban_slot_not_yield_s_weight_const = 9
+        [default = 20.0];
+    // slot align cl s constraint param
+    optional double lane_change_urban_align_yield_s_weight_const = 10
+        [default = 10.0];
+    optional double lane_change_urban_align_not_yield_s_weight_const = 11
+        [default = 20.0];
+    // merge cl s constraint param
+    optional double merge_yield_s_weight = 12 [default = 20.0];
+    optional double perception_fp_min_thw = 13 [default = 0.7];
+    optional double cl_ref_s_protect_max_dec = 14 [default = -4.0];
+    optional ConfigCLRefSMappingTable cl_refs_mapping_config = 15;
+    optional ConfigConstraintLearning constraint_learning_config = 36;
+  }
+  optional SpeedConstraintConf yield_config = 1;
+  optional SpeedConstraintConf merge_yield_config = 2;
+  optional SpeedConstraintConf slot_yield_config = 3;
+  optional SpeedConstraintConf slot_not_yield_config = 4;
+  optional SpeedConstraintConf align_yield_config = 5;
+  optional SpeedConstraintConf align_not_yield_config = 6;
+}
+
+message SpeedDecider {
+  optional double follow_min_obs_lat_distance = 1 [default = 2.5];
+  optional double follow_time_epsilon = 2 [default = 1e-3];
+  optional double follow_cut_off_time = 3 [default = 0.5];
+  optional double follow_min_time_sec = 4 [default = 2.0];
+}
+
+message ReferenceLineDecider {}
+
+message SpeedFallBackPlanner {
+  optional double delta_t = 1;
+  optional double jerk_min = 2;
+  optional double acc_min = 3;
+  optional uint32 max_spd_pts_len = 4;
+  optional int32 car_emergency_frames_base_count = 5;
+}
+
+message PathFallBackPlanner {}
+
+message LaneChangeDecider {}
+
+message ConstraintLearningTask {}
+
+message ObsClassifyDecider {}
+
+message TaskConfig {
+  enum TaskType {
+    PATH_BOUNDS_DECIDER = 0;
+    SPEED_BOUNDS_DECIDER = 1;
+    PATH_TIME_HEURISTIC_OPTIMIZER = 2;
+    PIECEWISE_JERK_PATH_OPTIMIZER = 3;
+    PIECEWISE_JERK_SPEED_OPTIMIZER = 4;
+    SPEED_DECIDER = 5;
+    REFERENCE_LINE_DECIDER = 6;
+    EUDM_PATH_OPTIMIZER = 7;
+    TRAJECTORY_BOUNDS_DECIDER = 8;
+    LANE_CHANGE_DECIDER = 9;
+    SPEED_FALL_BACK_PLANNER = 10;
+    PATH_FALL_BACK_PLANNER = 11;
+    IMPRECISE_SPEED_BOUNDS_DECIDER = 12 [deprecated = true];
+    PRECISE_SPEED_BOUNDS_DECIDER = 13 [deprecated = true];
+    CONSTRAINT_LEARNING_TASK = 14;
+    CILQR_PATH_OPTIMIZER = 15;
+    OBS_CLASSIFY_DECIDER = 16;
+    CL_PREINFO_DECIDER = 17;
+  };
+  optional TaskType task_type = 1;
+
+  oneof type {
+    PathBoundsDecider path_bounds_decider = 2;
+    SpeedBoundsDecider speed_bounds_decider = 3;
+    PathTimeHeuristicOptimizer path_time_heuristic_optimizer = 4;
+    PiecewiseJerkPathOptimizer piecewise_jerk_path_optimizer = 5;
+    PiecewiseJerkSpeedOptimizer piecewise_jerk_speed_optimizer = 6;
+    SpeedDecider speed_decider = 7;
+    ReferenceLineDecider reference_line_decider = 8;
+    EudmPathOptimizer eudm_path_optimizer = 9;
+    TrajectoryBoundsDecider trajectory_bounds_decider = 10;
+    LaneChangeDecider lane_change_decider = 11;
+    SpeedFallBackPlanner speed_fall_back_planner = 12;
+    PathFallBackPlanner path_fall_back_planner = 13;
+    ImpreciseSpeedBoundsDecider imprecise_speed_bounds_decider = 14
+        [deprecated = true];
+    PreciseSpeedBoundsDecider precise_speed_bounds_decider = 15
+        [deprecated = true];
+    ConstraintLearningTask constraint_learning_task = 16;
+    CIlqrPathOptimizer cilqr_path_optimizer = 17;
+    ObsClassifyDecider obs_classify_decider = 18;
+    CLPreInfoDecider cl_preinfo_decider = 19;
+  }
+}

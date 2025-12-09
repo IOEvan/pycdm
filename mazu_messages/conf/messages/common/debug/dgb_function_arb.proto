@@ -1,0 +1,276 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages.debug;
+// import "common/perf/sensor_ts_header.proto";
+
+message FeatureFuncConditions {
+  optional bool req_updated     = 1;
+  optional bool general_enable  = 2;
+  optional bool activate_enable = 3;
+  optional bool blocked         = 4;
+  optional bool actv_trig       = 5;
+  optional bool deactv_trig     = 6;
+  optional bool control_lost    = 7;
+};
+
+message FeatureFuncWti {
+  optional bool     trig        = 1;
+  optional uint32   wti         = 2;
+};
+
+enum FeatureFuncId {
+  FUNC_ID_NONE       = 0;
+  FUNC_ID_FCW        = 1;
+  FUNC_ID_FCTA       = 2;
+  FUNC_ID_RCTA       = 3;
+  FUNC_ID_LDW        = 21;
+  FUNC_ID_SLIF       = 41;
+  FUNC_ID_LWF       = 42;
+  FUNC_ID_BSD        = 50;
+  FUNC_ID_LCA        = 51;
+  FUNC_ID_SDOW       = 60;
+  FUNC_ID_AEB        = 101;
+  FUNC_ID_AEBreverse = 102;
+  FUNC_ID_LKA        = 141;
+  FUNC_ID_ELK        = 151;
+  FUNC_ID_AES        = 161;
+  FUNC_ID_AHB        = 171;
+  FUNC_ID_EAS        = 181;
+  FUNC_ID_DaMain     = 201;
+  FUNC_ID_DaSdc      = 211;
+  FUNC_ID_DaIsa      = 221;
+  FUNC_ID_DaPsc      = 231;
+  FUNC_ID_DaLcc      = 261;
+  FUNC_ID_DaAs       = 271;
+  FUNC_ID_DaAlcs     = 281;
+  FUNC_ID_DaNbc      = 291;
+  FUNC_ID_NAD        = 304;
+  FUNC_ID_SapaMain   = 401;
+  FUNC_ID_SapaIn     = 402;
+  FUNC_ID_SapaOut    = 403;
+  FUNC_ID_PsapMain   = 411;
+  FUNC_ID_PsapIn     = 412;
+  FUNC_ID_PsapOut    = 413;
+}
+
+enum FunctionSts {		  // requested Function status
+  FUNC_STS_OFF	       = 0;	        // request to unload function app // not in BL07X
+  FUNC_STS_LOADED 	   = 1;	        // request to load function app into RAM, but do not execute it
+  FUNC_STS_CHECKING    = 2;	        // request to execution of app
+  FUNC_STS_STANDBY	   = 3;	        // request function to go standby
+  FUNC_STS_RUNNING     = 4;	        // request function to run
+  FUNC_STS_RSRVD5      = 5;
+  FUNC_STS_RSRVD6      = 6;
+  FUNC_STS_RSRVD7      = 7;
+  FUNC_STS_RSRVD8      = 8;
+}
+
+message FeatureFuncReqOut {
+  optional int32       id    = 1;
+  optional string      name  = 2;
+  optional FunctionSts req   = 3;
+}
+
+message FeatureFuncSts {
+  optional int32        id           = 1;
+  optional string       name         = 2;
+  optional FunctionSts  sts          = 3;
+  optional int32        req_func_id  = 4;
+}
+
+message FeatureFuncData {
+  optional   FeatureFuncConditions conditions    = 1;
+  optional   FeatureFuncWti wti                  = 2;
+  optional   FeatureFuncReqOut  req_out          = 3;
+}
+
+enum EcoPlusModeChgTrig {
+  NO_TRIG                        = 0;
+  ECO_PLUS                       = 1;
+  NOT_ECO_PLUS                   = 2;
+  MODE_TRIG_RSRVD3               = 3;
+  MODE_TRIG_RSRVD4               = 4;
+  MODE_TRIG_RSRVD5               = 5;
+  MODE_TRIG_RSRVD6               = 6;
+  MODE_TRIG_RSRVD7               = 7;
+  MODE_TRIG_RSRVD8               = 8;
+}
+
+enum AaBaseAlgoMode {
+  READY_FOR_OFF_MODE           = 0;
+  MANUAL_MODE                  = 1;
+  ADAS_MODE                    = 2;
+  NAD_MODE                     = 3;
+  AA_MODE_RSRVD4               = 4;
+  AA_MODE_RSRVD5               = 5;
+  AA_MODE_RSRVD6               = 6;
+  AA_MODE_RSRVD7               = 7;
+  AA_MODE_RSRVD8               = 8;
+}
+
+enum AppSt {
+    APP_INIT           = 0;
+    APP_SUSPEND        = 1;
+    APP_PARTIAL_ACTV   = 2;
+    APP_FULL_ACTV      = 3;
+    APP_FAILED         = 4;
+    APP_EXIT           = 5;
+    APP_RSRVD6         = 6;
+    APP_RSRVD7         = 7;
+    APP_RSRVD8         = 8;
+}
+
+enum MsgSts {
+    MSG_INIT              = 0;
+    MSG_ALIVE             = 1;
+    MSG_LOST              = 2;
+    MSG_SUSPEND           = 3;
+    MSG_NOT_RECEIVED      = 4;
+    MSG_RSRVD5            = 5;
+    MSG_RSRVD6            = 6;
+    MSG_RSRVD7            = 7;
+    MSG_RSRVD8            = 8;
+}
+
+enum HpmsMode {
+  INVLD                = 0;
+  DEFAULT              = 1;
+  FULL                 = 2;
+  REBOOT_SOC           = 3;
+  REBOOT_ALL           = 4;
+  HMPS_REQ_RSRVD5      = 5;
+  HMPS_REQ_RSRVD6      = 6;
+  HMPS_REQ_RSRVD7      = 7;
+  HMPS_REQ_RSRVD8      = 8;
+}
+
+message ArbMsgSts {
+  optional MsgSts        msg_sts_fct_out           = 1;
+  optional MsgSts        msg_sts_fcts_out          = 2;
+  optional MsgSts        msg_sts_parking_out       = 3;
+  optional MsgSts        msg_sts_dms_eas           = 4;
+  optional MsgSts        msg_sts_aa_base_algo_sts  = 5;
+  optional MsgSts        msg_sts_hw_mode           = 6;
+  optional MsgSts        msg_sts_hw_mode_rsp       = 7;
+  optional MsgSts        msg_sts_soc_shutdown_req  = 8;
+  optional MsgSts        msg_sts_camera_sts        = 9;
+  optional MsgSts        msg_sts_camera_sal_sts    = 10;
+  optional MsgSts        msg_sts_veh_10ms          = 11;
+  optional MsgSts        msg_sts_veh_50ms          = 12;
+  optional MsgSts        msg_sts_dms_can           = 13;
+  optional MsgSts        msg_sts_aa_nbc            = 14;
+  repeated MsgSts        msg_sts_reserved          = 15;
+}
+
+enum FuncReqSts {
+  NO_REQ             = 0;
+  INPROCESS          = 1;
+  COMPLETE           = 2;
+  TIMEOUT            = 3;
+  FAILED             = 4;
+  FUNC_REQ_RSRVD5    = 5;
+  FUNC_REQ_RSRVD6    = 6;
+  FUNC_REQ_RSRVD7    = 7;
+}
+
+message CameraReqOut {
+  optional bool        side_camera_req         = 1;
+  optional bool        camera_sal_req          = 2;
+  optional FuncReqSts  camera_sal_req_sts      = 3;
+}
+
+message AaBaseAlgoReqOut {
+  optional bool                 is_req_actv   = 1;
+  optional AaBaseAlgoMode       req           = 2;
+  optional FuncReqSts           req_sts       = 3;
+}
+
+message FamHmiReqOut {
+  optional bool   show_set_360_ap        = 1;
+  optional bool   show_set_cha           = 2;
+  optional bool   eco_plus_mode_req_sts  = 3;
+}
+
+enum HpmsModeReq {
+  HPMS_INVLD         = 0;
+  HPMS_DEFAULT       = 1;
+  HPMS_FULL          = 2;
+  HPMS_REBOOT_SOC    = 3;
+  HPMS_REBOOT_ALL    = 4;
+  HPMS_RSRVD5        = 5;
+  HPMS_RSRVD6        = 6;
+  HPMS_RSRVD7        = 7;
+}
+
+enum ShutdownRsp {
+  NO_RSP             = 0;
+  BEGIN              = 1;
+  END                = 2;
+  SHUTDOWN_RSRVD3    = 3;
+  SHUTDOWN_RSRVD4    = 4;
+  SHUTDOWN_RSRVD5    = 5;
+  SHUTDOWN_RSRVD6    = 6;
+  SHUTDOWN_RSRVD7    = 7;
+}
+
+message HmpsReqOut {
+  optional bool           is_req_actv   = 1;
+  optional HpmsModeReq    req           = 2;
+  optional FuncReqSts     req_sts       = 3;
+  optional ShutdownRsp    shutdown_rsp  = 4;
+}
+
+enum FeatureFuncType {
+  NONE                       = 0;
+  DA                         = 1;
+  AA                         = 2;
+  PA                         = 3;
+  RTCAB                      = 4;
+  FEATURE_FUNC_TYPE_RSRVD5   = 5;
+  FEATURE_FUNC_TYPE_RSRVD6   = 6;
+  FEATURE_FUNC_TYPE_RSRVD7   = 7;
+  FEATURE_FUNC_TYPE_RSRVD8   = 8;
+  FEATURE_FUNC_TYPE_RSRVD9   = 9;
+}
+
+message FuncArbDebugOut {
+  repeated FeatureFuncData      func_data                    = 1;
+  optional bool                 da_req_actv                  = 2;
+  optional bool                 pa_req_actv                  = 3;
+  optional AaBaseAlgoMode       aa_base_algo_sts             = 4;
+  optional AaBaseAlgoMode       last_aa_base_algo_mode       = 5;
+  optional EcoPlusModeChgTrig   mode_change_trig             = 6;
+  optional bool                 shutdown_req                 = 7;
+  optional bool                 da_general_enable            = 8;
+  optional FeatureFuncWti       wti_trig                     = 9;
+  optional FeatureFuncSts       current_lat_func             = 10;
+  optional FeatureFuncSts       current_long_func            = 11;
+  optional FeatureFuncSts       target_lat_func              = 12;
+  optional FeatureFuncSts       target_long_func             = 13;
+  optional AppSt                arb_running_st               = 14;
+  optional bool                 hpms_full_mode_succeed       = 15;
+  optional bool                 hpms_full_mode_failed        = 16;
+  optional bool                 hpms_default_mode_succeed    = 17;
+  optional bool                 hpms_default_mode_failed     = 18;
+  optional ArbMsgSts            msg_sts                      = 19;
+  optional CameraReqOut         camera_req                   = 20;
+  optional AaBaseAlgoReqOut     aa_base_algo_req             = 21;
+  optional HmpsReqOut           hpms_req                     = 22;
+  optional FamHmiReqOut         hmi_req                      = 23;
+  optional bool                 pa_general_enable            = 24;
+  optional bool                 hero_button_trig             = 25;
+  optional bool                 is_resume_actv               = 26;
+  optional FeatureFuncType      lat_output_feature_type      = 27;
+  optional FeatureFuncType      long_output_feature_type     = 28;
+  repeated FeatureFuncSts       func_sts                     = 29;
+  repeated double               reserved                     = 30;
+
+  optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+  // optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+  optional uint64 publish_ptp_ts     = 536870907;     // publish ptp timestamp; unit : nanosecond
+  optional string publisher_id       = 536870909;     // uuid of the publisher
+  optional uint64 counter            = 536870910;     // message counter
+  optional uint64 publish_ts         = 536870911;     // publish timestamp; unit : nanosecond
+}

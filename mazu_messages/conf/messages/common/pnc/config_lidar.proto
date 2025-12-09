@@ -1,0 +1,131 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+import "common/pnc/geometry.proto";
+import "common/pnc/stream.proto";
+
+enum LidarType {
+  UNSPECIFIED = 0;
+
+  // Velodyne
+  HDL_64_S2 = 1;
+  HDL_64_S3 = 2;
+  HDL_32 = 3;
+  VLP_16 = 4;     // Puck, Puck Lite, etc
+  VLP_16_HR = 5;  // Puck Hi-Res
+  VLP_32 = 6;
+
+  // Hesai
+  PANDAR_40 = 11;
+  PANDAR_40P = 12;
+  PANDAR_64 = 13;
+  PANDAR_128 = 14;
+
+  // R-Fans
+  RFANS_16 = 16;
+  RFANS_16_GPS = 17;
+  RFANS_32 = 18;
+
+  // Robosense
+  RS_16 = 21;
+  RS_32 = 22;
+  RS_128 = 23;
+  RS_HELIOS = 24;
+
+  // FPGA
+  FPGA = 26;
+}
+
+message Intrinsic {
+  optional bool enabled = 1 [default = true];
+  optional float azimuth_offset = 3 [default = 0.0];
+  optional float vert = 4 [default = 0.0];  // in degree
+  optional float vert_offset = 5 [default = 0.0];
+  optional int64 laser_time_offset = 6;       // in ns
+  optional int64 laser_time_offset_long = 7;  // in ns
+  optional uint32 laser_index = 9;
+}
+
+message CacheIntrinsic {
+  optional float cos_rot = 1;
+  optional float sin_rot = 2;
+  optional float cos_vert = 3;
+  optional float sin_vert = 4;
+  optional float final_azimuth_offset = 5;
+}
+
+message ModelSpec {
+  required LidarType type = 1;
+  required uint32 laser_size = 2;
+
+  optional float min_distance = 3;
+  optional float max_distance = 4;
+
+  optional uint32 laser_period = 5;        // in nanosecond
+  optional uint32 firing_period = 6;       // in nanosecond
+  optional uint32 data_packet_period = 7;  // in nanosecond
+
+  optional uint32 data_packet_size = 8;  // in bytes
+  optional uint32 position_packet_size = 9;
+
+  optional uint32 blocks_size = 10;
+
+  repeated Intrinsic base_intrinsics = 11;
+
+  // the value of angle degree that towards the back of lidar,
+  // this value depends on the definition of the lidar manufacturer
+  // this value is 18000 for most of the lidar manufacturer
+  // one particular is that Hesai use backward as 0 deg, so this value shall be
+  // 0 for Hesai lidars
+  optional uint32 sync_angle = 12 [default = 18000];
+  optional uint32 transfrom_angle = 13 [default = 0];
+}
+
+message LidarCommon {
+  optional string car_name = 1;
+
+  optional Transformation3f vehicle_to_sensing = 2;
+
+  message ExclusionBox {
+    optional float x_min = 1;
+    optional float x_max = 2;
+    optional float y_min = 3;
+    optional float y_max = 4;
+    optional float z_min = 5;
+    optional float z_max = 6;
+  }
+  optional ExclusionBox exclusion_box = 3;
+}
+
+message Lidar {
+  required bytes name = 1;
+  required LidarType type = 2;
+  repeated Intrinsic intrinsic_offsets = 3;
+  optional ModelSpec spec = 4;
+
+  optional bool publish_origin = 5 [default = false];
+  optional Transformation3f sensing_to_lidar = 6;
+  repeated Stream stream = 7;
+  optional double rpm = 8 [default = 600.0];
+
+  optional float min_distance = 9;
+  optional float max_distance = 10;
+  optional LidarCommon lidar_common = 11;
+
+  // For VLP-16 only!!!
+  // If background_distance > max_distance, a point with distance > max_distance
+  // will be treated as a point on background, with distance =
+  // background_distance.
+  // optional float background_distance = 7;
+
+  optional bool shm_only = 12;
+}
+
+message LidarCombiner {
+  required bool enable_combine = 1 [default = true];
+  optional uint32 lidar_count = 2;
+  repeated string lidar_topic = 3;
+  optional LidarCommon lidar_common = 4;
+}

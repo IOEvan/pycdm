@@ -1,0 +1,128 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+import "common/perception/radar_base.proto";
+import "common/perception/radar_detection.proto";
+
+message RadarObjectValidStatus{
+  required bool flag_valid = 1;
+  required bool flag_measured = 2;  //radar object has measures
+  required bool flag_hist = 3;      //no measures and object is coasting
+}
+
+message RadarStatus{
+  required bool flg_blindness = 1;
+  required bool flg_failure = 2;
+  required bool flg_loss_comm_fault = 3;
+  required bool flg_time_stamp_invalid = 4;
+  optional float mis_alignment_angle = 5;
+  optional AlignmentStatus alignment_st = 6;
+  optional SensorLoc sensor_location = 7;
+
+  enum SensorLoc{
+    kDefaultLocation = 1;
+    kFrontCenter = 2;
+    kFrontLeft = 3;
+    kRearLeft = 4;
+    kRearRight = 5;
+    kFrontRight = 6;
+  }
+
+  enum AlignmentStatus{
+    kDefaultStatus = 1;
+    kAlignmentComplete = 2;
+    kAlignmentOngoing = 3;
+    kAlignmentNokStatus = 4;
+  }
+}
+
+message RadarObject{
+  required RadarObjectValidStatus valid_status = 1;
+  required uint32 source = 2;               //bitwise signal:0x0:None, 0x1:MRR, 0x2:SRR_FL, 0x4:SRR_FR, 0x8:SRR_RL,
+                                            // 0x10:SRR_RR, 0x3:MRR+SRR_FL, 0x5:MRR+SRR_FR, ...
+  required ObjMotion motion = 3;            // contain position/velocity/acceleration/size
+  required ObjMotionState motion_state = 4; // record the moving/movable/direction information of object
+  required ObjClass classification = 5;
+  required uint32 sub_class = 6;
+  required float class_prob = 7;            //class probability ; range 0~1
+  required float obstacle_prob = 8;         //the probability that the object is obstacle ; range 0~1
+  required float conf = 9;                  //object confidence ; range 0~1. Original value from Aptiv source(0 ,1,2,3) is devided by 3 
+  required uint32 age = 10;                 // cnt_alive for bosch
+  optional uint32 id = 11;
+  optional ReferPoint ref_point = 12; // for bosch mapping to referencePtIndex
+  optional float object_rcs = 13;
+  optional float assoc_det_max_height = 14;
+  optional float assoc_det_min_height = 15;
+  optional float assoc_det_height_std = 16;
+  optional uint32 assoc_number_of_det = 17;
+  optional bool f_multi_measures = 18;
+  optional bool f_overhead_suspicious = 19;
+  optional uint32 unique_id = 20;
+  optional bool f_crossing = 21;
+  optional float mirror_prob = 22;
+}
+
+message RadarTracker{
+  required uint64 timestamp = 1; // the time that aptiv sends radar trackers to us
+  required uint32 sync_bit = 2;
+  repeated RadarObject objects = 3;  // Aptiv :96 radar objects
+}
+
+message RadarFeature{
+  repeated uint32 acc_tar = 1;          // 6 ACC target selection tracker ID;
+  optional uint32 aeb_tar = 2;          // 1 AEB target selection tracker ID;
+}
+
+message RadarGuardrail{
+optional float c0=1;//[rad/m] curvature of guardrail at 0m downrange
+optional float c1=2;//[rad/m2] rate at which curvature of guardrail changes distance downrange
+optional float heading=3;//[rad] heading angle of guardrail at 0m downrange
+optional float offset=4;//[m] lateral position of guardrail at 0m downrange,right=+
+optional float x_farthest_hist=5;//[m] downrange coordinate of farthest history point
+optional uint32 lka_confidence=6;//0-invalid 1- valid
+}
+
+message RadarGuardrailTracker{
+optional RadarGuardrail guardrail_left=1;
+optional RadarGuardrail guardrail_right=2;
+}
+
+message RadarBarrier{
+repeated float coef=1;//[coef] barrier polynomial coeficents:y=a[0]+a[1]*x+a[2]*x^2+a[3]*x^3
+optional float dist_end=2;//[m] longitudinal distance to end of valid estimates
+optional float dist_from=3;//[m] longitudinal distance start point of valid estimates
+optional uint32 lka_confidence=4;//0-low 1- med 2-high
+}
+
+message RadarBarrierOutput{
+optional RadarBarrier barrier_left=1;
+optional RadarBarrier barrier_right=2;
+}
+
+message RadarSensor{
+  optional float ego_speed = 1;           // unit :m/s
+  optional float ego_acc = 2;             // unit :m/s^2
+  optional float ego_yawrate = 3;         // unit :rad/s
+  
+  repeated RadarStatus status = 4;        // radars status
+  
+  repeated RadarTracker trackers = 5;
+  
+  repeated RadarDetection detection_points = 6;
+  
+  optional RadarFeature radar_feature = 7;
+
+  optional RadarGuardrailTracker radar_guardrail=8;
+  
+  optional RadarBarrierOutput radar_barrier=9;
+
+  optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin   
+  optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+  optional uint64 publish_ptp_ts = 536870907;   // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909;     // uuid of the publisher
+  optional uint64 counter = 536870910;          // message counter
+  optional uint64 publish_ts = 536870911;       // publish utc timestamp; unit : nanosecond
+}

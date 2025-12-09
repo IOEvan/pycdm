@@ -1,0 +1,112 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+enum DMSDistractionSts_DA {
+    DMSDistractionSts_On                              = 0;
+    DMSDistractionSts_Failure                         = 1;
+}
+
+enum DMSDistractionLevel_DA {
+    DMSDistractionLevel_No_Warning                    = 0;
+    DMSDistractionLevel_Attention_Demand              = 1;
+    DMSDistractionLevel_Takeover_Demand               = 2;
+    DMSDistractionLevel_MRM                           = 3; // Reserved
+    DMSDistractionLevel_Rain                          = 4; 
+}
+
+enum DMSDrowsinessSts_DA {
+    DMSDrowsinessSts_On                               = 0;
+    DMSDrowsinessSts_Failure                          = 1;
+}
+
+enum DMSDrowsinessLevel_DA {
+    DMSDrowsinessLevel_No_Warning                     = 0;
+    DMSDrowsinessLevel_Attention_Demand_Light         = 1;
+    DMSDrowsinessLevel_Attention_Demand_Medium        = 2;
+    DMSDrowsinessLevel_Attention_Demand_Heavy         = 3;
+    DMSDrowsinessLevel_Takeover_Demand                = 4;
+    DMSDrowsinessLevel_MRM                            = 5; // Reserved
+}
+
+enum DMSDistractionSts_DA_Short {    
+    DMSDistractionSts_On_Short                        = 0;    
+    DMSDistractionSts_Failure_Short                   = 1;
+}
+
+enum DMSDistractionLevel_DA_Short {    
+    DMSDistractionLevel_Short_No_Warning              = 0;    
+    DMSDistractionLevel_Short_Attention_Demand        = 1;    
+    DMSDistractionLevel_Short_Takeover_Demand         = 2;   
+    DMSDistractionLevel_Short_MRM                     = 3; // Reserved
+    DMSDistractionLevel_Short_Rain                    = 4; 
+}
+
+enum DMSSensitivityChgReq_DA {
+    DMSSensitivityChgReq_No                           = 0;
+    DMSSensitivityChgReq_Level1                       = 1;
+    DMSSensitivityChgReq_Level2                       = 2;
+    DMSSensitivityChgReq_Invalid                      = 3;
+}
+
+enum DMSDistractionSts_DA_Moment {    
+    DMSDistractionSts_On_Moment                        = 0;    
+    DMSDistractionSts_Failure_Moment                   = 1;
+}
+
+enum DMSDistractionLevel_DA_Moment {    
+    DMSDistractionLevel_Moment_No_Warning              = 0;    
+    DMSDistractionLevel_Moment_Lvl1                    = 1;
+}
+
+enum DMSDriverInLoopSt {
+    DMSDriverInLoopSt_InLoop                                       = 0;
+    DMSDriverInLoopSt_NotInLoop                                    = 1;
+    DMSDriverInLoopSt_Invalid                                      = 2;
+}
+
+enum DMSDriverSeatOccpSts {
+    DMSDriverSeatOccpSts_NotOccp                                    = 0;
+    DMSDriverSeatOccpSts_Occp                                       = 1;
+}
+
+enum DMSTakeOverCapbility{
+    DMSTakeOverCapbility_Normal                                   = 0;
+    DMSTakeOverCapbility_Low                                      = 1;
+}
+
+enum DMSFaceDetectionStatus{
+    DMSFaceDetectionStatus_Valid                                      =0;
+    DMSFaceDetectionStatus_InValid                                    =1;
+}
+
+
+message DMS_DA {
+    optional DMSDistractionSts_DA distraction_sts                 = 1;
+    optional DMSDistractionLevel_DA distraction_level             = 2;
+    optional DMSDrowsinessSts_DA drowsiness_sts                   = 3;
+    optional DMSDrowsinessLevel_DA drowsiness_level               = 4;
+    optional DMSDistractionSts_DA_Short distraction_sts_short     = 5; 
+    optional DMSDistractionLevel_DA_Short distraction_level_short = 6;
+    optional DMSSensitivityChgReq_DA ldw_sensitivity_req          = 7;
+    optional DMSSensitivityChgReq_DA fcw_sensitivity_req          = 8;
+    optional DMSSensitivityChgReq_DA lka_sensitivity_req          = 9;
+    optional DMSSensitivityChgReq_DA elk_sensitivity_req          = 10;
+    optional DMSDistractionSts_DA_Moment distraction_sts_moment   = 11;
+    optional DMSDistractionLevel_DA_Moment distraction_level_moment   = 12;
+    optional DMSDriverInLoopSt driver_in_loop_status                  = 13;
+    optional DMSDriverSeatOccpSts driver_seat_occp_status             = 14;
+    optional DMSTakeOverCapbility dms_take_over_capbility             = 15;
+    optional DMSFaceDetectionStatus dms_face_detection_status         = 16;
+    optional uint64 dms_status = 99;
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin 
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts                    = 536870907;    // publish ptp timestamp, uint in nanosec
+    optional string publisher_id                      = 536870909;    // uuid of the publisher
+    optional uint64 counter                           = 536870910;    // message counter
+    optional uint64 publish_ts                        = 536870911;    // publish utc timestamp; unit : nanosecond
+}

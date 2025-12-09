@@ -1,0 +1,122 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+message TgtObj{
+  required uint32 id = 1;
+  required uint32 obj_index = 2;
+  required uint32 confidence =3;
+  required float lon_pos_ccs = 4;  //position in frenet coordinate system
+  required float lon_pos_vcs = 5;  // unit:m  in SAE vehicle coordinate system, right is positive
+  required float lon_pos_vcs_std = 6; //add
+  required float lon_vel = 7 ;     // unit:m/s  in SAE vehicle coordinate system, forward is positive, origin at mid of rear axel
+  required float lon_vel_std = 8 ; 
+  required float lon_acc = 9;
+  required float lat_pos_ccs =10;
+  required float lat_pos_vcs = 11;
+  required float lat_pos_vcs_std = 12; //add
+  required float lat_vel = 13;      // unit:m/s  in SAE vehicle coordinate system, right is positive
+  required float lat_vel_std = 14; //add
+  optional float lat_vel_ccs = 31;  // unit: m/s
+  required float lat_acc = 15;
+  required TgtObjMotionStatus status = 16; //
+  required TgtObjType type = 17;
+  required TgtObjValidStatus valid = 18;
+  required uint32 age = 19;
+  required float width = 20;
+  required float length = 21;
+  required float height = 22; //add
+  required float phi_angle = 23;
+  required float dphi_angle_rate = 24;
+  required TgtFusionSrc fusion_source = 25;
+  required float ttc = 26;
+  required BlinkerType blinker_info = 27;
+  required uint32 brake_lights = 28; // need to find information. Could be not 0 is brake light ON.
+  required float prob_lane_change = 29;
+  required TgtLaneChangeDir dirLaneChange = 30;
+  optional uint32 age_in_path = 32; // frame counter in path, max = 255
+  optional TGTLaneAssignment lane_assign_from_perception = 33;// target lane assign from perception
+  optional float dy_ccs_from_perception = 34;// target ccs lat position from perception
+
+  enum TGTLaneAssignment{
+    TGTLaneAssignment_Unknown = 0;
+    TGTLaneAssignment_Host = 1;
+    TGTLaneAssignment_Left = 2;
+    TGTLaneAssignment_Right = 3;
+    TGTLaneAssignment_Left_Left = 4;
+    TGTLaneAssignment_Right_Right = 5;
+    TGTLaneAssignment_Host_Left_Line = 6;//OD压线的Role,Role的定义与vision_road_detection.proto中LDRole一致
+    TGTLaneAssignment_Host_Right_Line = 7;
+    TGTLaneAssignment_Adjacent_Left_Left_Line = 8;
+    TGTLaneAssignment_Adjacent_Left_Right_Line = 9;
+    TGTLaneAssignment_Adjacent_Right_Left_Line = 10;
+    TGTLaneAssignment_Adjacent_Right_Right_Line = 11;
+    TGTLaneAssignment_LeftLeft_Left_Line = 12;
+    TGTLaneAssignment_LeftLeft_Right_Line = 13;
+    TGTLaneAssignment_RightRight_Left_Line = 14;
+    TGTLaneAssignment_RightRight_Right_Line = 15;
+  }
+
+  enum TgtObjMotionStatus{
+    kOBJ_STATUS_UNDEFINED = 0;  // Default value
+    kOBJ_STATUS_STANDING = 1;
+    kOBJ_STATUS_STOPPED = 2;
+    kOBJ_STATUS_MOVING = 3;
+    kOBJ_STATUS_ONCOMING = 4;
+    kOBJ_STATUS_PARKED = 5;
+  }
+
+
+  enum TgtObjType{
+    kOBJTYPE_VEHICLE = 0;  // Default value
+    kOBJTYPE_TRUCK = 1;
+    kOBJTYPE_BIKE = 2;
+    kOBJTYPE_PEDESTRAIN = 3;
+    kOBJTYPE_BICYCLE = 4;
+    kOBJTYPE_GENERALOBJECT = 5;
+    kOBJTYPE_TRAIL = 6;
+    kOBJTYPE_UNDEFINED = 7;
+    kOBJTYPE_GUARDRAIL = 8;
+    kOBJTYPE_WALL = 9;
+    kOBJTYPE_PASSBY = 10;
+    kOBJTYPE_OBSTACLE = 11;
+    kOBJTYPE_ANIMAL = 12;
+    kOBJTYPE_SUV = 13;
+    kOBJTYPE_PICKUP = 14;
+    kOBJTYPE_VAN = 15;
+    kOBJTYPE_BUS = 16;
+    kOBJTYPE_SPECIALTRUCK = 17;
+    kOBJTYPE_TRICYCLE = 18;
+    kOBJTYPE_BIKE_P = 19;
+    kOBJTYPE_BICYCLE_P = 20;
+    kOBJTYPE_SPECIAL = 21;
+  }
+
+  enum TgtObjValidStatus{
+    kInvalid = 0;
+    kNew = 1;
+    kMature = 2;
+    kCoast = 3;
+  }
+
+  enum BlinkerType{
+    kOFF = 0;
+    kTURNLEFT = 1;
+    kTURNRIGHT = 2;
+    kDOUBLEFLASH = 3;
+  }
+
+  enum TgtLaneChangeDir{
+    kTgtLaneChangeDirDefault = 0;
+    kTgtLaneChangeDirLeft = 1;
+    kTgtLaneChangeDirRight = 2;
+  }
+
+  enum TgtFusionSrc{
+    kDefault = 0;
+    kRadarOnly = 1;
+    kVisionOnly = 2;
+    kRadarVison = 3;
+  }
+}

@@ -1,0 +1,95 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+// Fault and alarm codes for exception reporting, fault clear and DLB
+
+enum SVCPerceptionAlarmType {
+  SVC_GENERAL_ALARM                         = 0;
+  SVC_SAPA_ALARM                            = 1;
+  SVC_PSAP_ALARM                            = 2;
+  SVC_ALARM_TYPE_RESERVED                   = 3;
+}
+
+enum SVCPerceptionFaultType {
+  SVC_GENERAL_FAULT                         = 0;
+  SVC_SAPA_FAULT                            = 1;
+  SVC_PSAP_FAULT                            = 2;
+  SVC_FAULT_TYPE_RESERVED                   = 3;
+}
+
+// general alarms
+enum GeneralAlarmCode {
+  SVC_GEN_ALM_NO_ALARM                      = 0;
+  SVC_GEN_ALM_NO_CAMERA_INPUT               = 1;
+  SVC_GEN_ALM_NO_CAN_SIGNAL                 = 2;
+  SVC_GEN_ALM_RESERVED3                     = 3;
+  SVC_GEN_ALM_RESERVED4                     = 4;
+  SVC_GEN_ALM_RESERVED5                     = 5;
+}
+
+// general faults
+enum GeneralFaultCode {
+  SVC_GEN_ALM_NO_FAULT                      = 0;
+  SVC_GEN_FLT_INTERNAL_ERROR                = 1;  // For all unclassified faults
+  SVC_GEN_FLT_MODEL_INITIALIZATION          = 2;
+  SVC_GEN_FLT_INVALID_CONFIGURATION         = 3;
+  SVC_GEN_FLT_PARAMETER_OUT_OF_RANGE        = 4;
+  SVC_GEN_FLT_NO_CALIBRATION_FILE           = 5;
+  SVC_GEN_FLT_WRONG_CAMERA_PARAMETERS       = 6;
+  SVC_GEN_FLT_MODULE_INIT_FAILED            = 7;
+  SVC_GEN_FLT_WRONG_BATCH_SIZE              = 8;
+  SVC_GEN_FLT_RESERVED9                     = 9;
+  SVC_GEN_FLT_RESERVED10                    = 10;
+}
+
+// PSAP feature specific alarms
+enum PowerSwapAlarmCode {
+  SVC_PSAP_ALM_NO_ALARM                     = 0;
+  SVC_PSAP_ALM_TIMESTAMP_OUT_OF_RANGE       = 1;
+  SVC_PSAP_ALM_NO_PSAP_STATION_INFO         = 2;
+  SVC_PSAP_ALM_RESERVED3                    = 3;
+  SVC_PSAP_ALM_RESERVED4                    = 4;
+  SVC_PSAP_ALM_RESERVED5                    = 5;
+}
+
+// PSAP feature specific faults
+enum PowerSwapFaultCode {
+  SVC_PSAP_FLT_NO_FAULT                     = 0;
+  SVC_PSAP_FLT_INTERNAL_ERROR               = 1;  // For all unclassified faults
+  SVC_PSAP_FLT_PSAP_STATION_INFO_INVALID    = 2;
+  SVC_PSAP_FLT_RESERVED3                    = 3;
+  SVC_PSAP_FLT_RESERVED4                    = 4;
+  SVC_PSAP_FLT_RESERVED5                    = 5;
+  SVC_PSAP_FLT_RESERVED6                    = 6;
+  SVC_PSAP_FLT_RESERVED7                    = 7;
+  SVC_PSAP_FLT_RESERVED8                    = 8;
+  SVC_PSAP_FLT_RESERVED9                    = 9;
+  SVC_PSAP_FLT_RESERVED10                   = 10;
+}
+
+// SAPA feature specific alarms
+enum SapaAlarmCode {
+  SVC_SAPA_ALM_NO_ALARM                     = 0;
+  SVC_SAPA_ALM_TIMESTAMP_OUT_OF_RANGE       = 1;
+  SVC_SAPA_ALM_RESERVED2                    = 2;
+  SVC_SAPA_ALM_RESERVED3                    = 3;
+  SVC_SAPA_ALM_RESERVED4                    = 4;
+  SVC_SAPA_ALM_RESERVED5                    = 5;
+}
+
+// SAPA feature specific faults
+enum SapaFaultCode {
+  SVC_SAPA_FLT_NO_FAULT                     = 0;
+  SVC_SAPA_FLT_INTERNAL_ERROR               = 1;  // For all unclassified faults
+  SVC_SAPA_FLT_SLOT_MATCH_TIMEOUT           = 2;
+  SVC_SAPA_FLT_RESERVED3                    = 3;
+  SVC_SAPA_FLT_RESERVED4                    = 4;
+  SVC_SAPA_FLT_RESERVED5                    = 5;
+  SVC_SAPA_FLT_RESERVED6                    = 6;
+  SVC_SAPA_FLT_RESERVED7                    = 7;
+  SVC_SAPA_FLT_RESERVED8                    = 8;
+  SVC_SAPA_FLT_RESERVED9                    = 9;
+  SVC_SAPA_FLT_RESERVED10                   = 10;
+}

@@ -1,0 +1,419 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages.debug;
+// import "common/perf/sensor_ts_header.proto";
+
+import "common/perception/svc_functional.proto";
+import "common/vehicle_in/veh_upa.proto";
+import "common/vehicle_in/pwrswapstn_info.proto";
+import "common/vehicle_out/psap_ui_results_eth.proto";
+import "np/apps/parking/par_base.proto";
+import "np/apps/parking/par_location.proto";
+import "np/apps/parking/par_state_machine.proto";
+import "np/apps/parking/par_semantic_map.proto";
+
+message ParEnvInputData {
+    optional bool is_received = 1;
+    optional uint64 counter = 2;
+    optional uint64 timestamp = 3;
+    optional uint64 elapsed_time = 4;  // from last received frame
+}
+
+message ParEnvInputUssState {
+    optional UsSDWStsType_e sdw_status = 1;
+    optional APAStsType_e apa_status = 2;
+    optional MapObjStsType_e map_obj_statue = 3;
+    optional UpaSysStsType_e upa_sys_status = 4;
+    optional USSMode_e  uss_mode = 5;
+}
+
+message ParEnvInputDebug {
+    optional ParEnvInputData vehicle_10 = 1;
+    optional ParEnvInputData vehicle_50 = 2;
+    optional ParEnvInputData svc = 3;
+    optional ParEnvInputData location = 4;
+    optional ParEnvInputData state_machine = 5;
+    optional ParEnvInputData planning_result = 6;
+    optional ParEnvInputData psap_station = 7;
+    optional ParEnvInputUssState uss_state = 8;
+    optional SVCDetectionStatus svc_state = 9;
+    optional ParFusedLocation location_info = 10;
+    optional StateMachine state_machine_info = 11;
+    optional uint32 planning_slot_size = 12;
+    optional PsapStationInfo psap_station_info = 13;
+    optional uint64 reserved_0 = 100;
+    optional uint64 reserved_1 = 101;
+    optional uint64 reserved_2 = 102;
+    optional uint64 reserved_3 = 103;
+    optional float reserved_4 = 104;
+    optional float reserved_5 = 105;
+    optional float reserved_6 = 106;
+    optional float reserved_7 = 107;
+    optional bool reserved_8 = 108;
+    optional bool reserved_9 = 109;
+    optional string reserved_10 = 110;
+}
+
+message ParEnvSystemDebug {
+    optional NodeInfo env_app_info = 1;
+    optional bool psap_mode = 2;
+    optional uint64 psap_process_time = 3;
+    optional bool sapa_mode = 4;
+    optional uint64 sapa_process_time = 5;
+    optional uint64 obj_map_process_time = 6;
+    optional uint64 collision_checker_process_time = 7;
+    optional uint64 slots_process_time = 8;
+    optional uint64 semantic_map_process_time = 9;
+    optional uint64 ego_gear = 10;
+    optional float ego_speed = 11;
+    optional float ego_steering = 12;
+    optional bool ego_is_standstill = 13;
+    optional uint64 reserved_0 = 100;
+    optional uint64 reserved_1 = 101;
+    optional uint64 reserved_2 = 102;
+    optional uint64 reserved_3 = 103;
+    optional float reserved_4 = 104;
+    optional float reserved_5 = 105;
+    optional float reserved_6 = 106;
+    optional float reserved_7 = 107;
+    optional bool reserved_8 = 108;
+    optional bool reserved_9 = 109;
+    optional string reserved_10 = 110;
+}
+
+enum ParEnvObjectType_e {
+    kParEnvNone = 0;
+    kParEnvPoint = 1;
+    kParEnvSegment = 2;
+    kParEnvPolygon = 3;
+}
+
+enum ParEnvObjectSource_e {
+    kParEnvUncertain = 0;
+    kParEnvUss = 1;
+    kParEnvSvc = 2;
+    kParEnvFused = 3;
+    kParEnvReserve2 = 4;
+}
+
+message ParEnvObjectPoint {
+    optional float x = 1;
+    optional float y = 2;
+}
+
+message ParEnvObjectSegment {
+    optional ParEnvObjectPoint pt1 = 1;
+    optional ParEnvObjectPoint pt2 = 2;
+}
+
+message ParEnvObjectPolygon {
+    repeated ParEnvObjectPoint pts = 1;
+}
+
+message ParEnvObjectInfo {
+    optional ParEnvObjectType_e type = 1;
+    optional ParEnvObjectSource_e src = 2;
+    optional ParEnvObjectPoint pt = 3;
+    optional ParEnvObjectSegment line = 4;
+    optional ParEnvObjectPolygon polygon = 5;
+}
+
+message ParEnvAssociationInfo {
+    optional int32 index1 = 1;
+    optional int32 index2 = 2;
+    optional ParEnvObjectInfo obj1 = 3;
+    optional ParEnvObjectInfo obj2 = 4;
+    optional int32 reserve1 = 5;
+    optional int32 reserve2 = 6;
+}
+
+message ParEnvSlotObjectResult {
+    optional uint32 slot_id = 1;
+    optional float project_x_margin = 2;
+    optional float project_y_margin = 3;
+    optional ParEnvObjectInfo object_x_margin = 4;
+    optional ParEnvObjectInfo object_y_margin = 5;
+}
+
+message ParEnvSlotAssembyResult {
+    optional ParEnvSlotObjectResult left_corner = 1;
+    optional ParEnvSlotObjectResult right_corner = 2;
+    optional ParEnvSlotObjectResult curb_or_parkstop = 3;
+}
+
+message ParEnvObjectMapDebug {
+    optional int32 module_state = 1;
+    optional bool vehicle_state_valid = 2;
+    optional bool uss_instance_valid = 3;
+    optional bool uss_instance_frame_updated = 4;
+    optional bool svc_instance_valid = 5;
+    optional bool svc_instance_frame_updated = 6;
+    optional bool is_psap_left = 7;
+    optional FeatureType feature_type = 8;
+    optional FeatureStatus feature_state = 9;
+
+    optional float latest_location_odom_x = 10;
+    optional float latest_location_odom_y = 11;
+    optional float latest_location_odom_theta = 12;
+    optional float latest_location_psap_x = 13;
+    optional float latest_location_psap_y = 14;
+    optional float latest_location_psap_theta = 15;
+
+    optional uint32 uss_valid_input_num = 16;
+    optional uint32 uss_high_filtered_num = 17;
+    optional uint32 uss_high_line_num = 18;
+    optional uint32 uss_high_point_num = 19;
+    optional uint32 uss_timesync_state = 20;
+    optional float uss_timesync_reserve = 21;
+    optional uint32 uss_current_objects_num = 22;
+    optional uint32 uss_fused_objects_num = 23;
+    optional uint32 uss_associated_num = 24;
+    repeated ParEnvAssociationInfo uss_pairing = 25;
+    optional uint32 uss_update_num = 26;
+    optional uint32 uss_increase_num = 27;
+
+    optional uint32 fs_input_num = 28;
+    optional uint32 fs_valid_num = 29;
+    optional uint32 fs_timesync_state = 30;
+    optional float fs_timesync_reserve = 31;
+    optional uint32 fs_current_pts_num = 32;
+    optional uint32 fs_reserve_type1_num = 33;
+    optional uint32 fs_reserve_type2_num = 34;
+    optional uint32 fs_reserve_type3_num = 35;
+    optional uint32 fs_reserve_type4_num = 36;
+    optional uint32 fs_reserve_type5_num = 37;
+
+    optional uint32 od_input_num = 38;
+    optional uint32 od_valid_num = 39;
+    optional uint32 od_timesync_state = 40;
+    optional float od_timesync_reserve = 41;
+    optional uint32 od_current_object_num = 42;
+    optional uint32 od_fused_objects_num = 43;
+    optional uint32 od_associated_num = 44;
+    repeated ParEnvAssociationInfo od_pairing = 45;
+    optional uint32 od_reserve_type1_num = 46;
+    optional uint32 od_reserve_type2_num = 47;
+    optional uint32 od_reserve_type3_num = 48;
+    optional uint32 od_reserve_type4_num = 49;
+    optional uint32 od_reserve_type5_num = 50;
+
+    repeated ParEnvAssociationInfo fusion_result = 51;
+
+    optional uint32 roi_filtered_num = 52;
+    repeated ParEnvObjectSegment roi_filtered_segments = 53;
+    repeated ParEnvObjectPoint roi_filtered_points = 54;
+    optional float uss_debug_float_reserve1 = 55;
+    optional float uss_debug_float_reserve2 = 56;
+    optional float uss_debug_float_reserve3 = 57;
+    optional float uss_debug_float_reserve4 = 58;
+    optional float uss_debug_float_reserve5 = 59;
+    optional float uss_debug_float_reserve6 = 60;
+    optional float uss_debug_float_reserve7 = 61;
+    optional float uss_debug_float_reserve8 = 62;
+    optional float uss_debug_float_reserve9 = 63;
+    optional float uss_debug_float_reserve10 = 64;
+    optional int32 uss_debug_int32_reserve1 = 65;
+    optional int32 uss_debug_int32_reserve2 = 66;
+    optional int32 uss_debug_int32_reserve3 = 67;
+    optional int32 uss_debug_int32_reserve4 = 68;
+    optional int32 uss_debug_int32_reserve5 = 69;
+    optional int32 uss_debug_int32_reserve6 = 70;
+    optional int32 uss_debug_int32_reserve7 = 71;
+    optional int32 uss_debug_int32_reserve8 = 72;
+    optional int32 uss_debug_int32_reserve9 = 73;
+    optional int32 uss_debug_int32_reserve10 = 74;
+    optional float svc_debug_float_reserve1 = 75;
+    optional float svc_debug_float_reserve2 = 76;
+    optional float svc_debug_float_reserve3 = 77;
+    optional float svc_debug_float_reserve4 = 78;
+    optional float svc_debug_float_reserve5 = 79;
+    optional float svc_debug_float_reserve6 = 80;
+    optional float svc_debug_float_reserve7 = 81;
+    optional float svc_debug_float_reserve8 = 82;
+    optional float svc_debug_float_reserve9 = 83;
+    optional float svc_debug_float_reserve10 = 84;
+    optional int32 svc_debug_int32_reserve1 = 85;
+    optional int32 svc_debug_int32_reserve2 = 86;
+    optional int32 svc_debug_int32_reserve3 = 87;
+    optional int32 svc_debug_int32_reserve4 = 88;
+    optional int32 svc_debug_int32_reserve5 = 89;
+    optional int32 svc_debug_int32_reserve6 = 90;
+    optional int32 svc_debug_int32_reserve7 = 91;
+    optional int32 svc_debug_int32_reserve8 = 92;
+    optional int32 svc_debug_int32_reserve9 = 93;
+    optional int32 svc_debug_int32_reserve10 = 94;
+}
+
+message ParEnvSemanticMapDebug {
+    optional int32 module_state = 1;
+    optional bool vehicle_state_valid = 2;
+    optional bool uss_instance_valid = 3;
+    optional bool svc_instance_valid = 4;
+
+    optional FeatureType feature_type = 5;
+    optional FeatureStatus feature_state = 6;
+    optional float latest_location_odom_x = 7;
+    optional float latest_location_odom_y = 8;
+    optional float latest_location_odom_theta = 9;
+    optional float latest_location_psap_x = 10;
+    optional float latest_location_psap_y = 11;
+    optional float latest_location_psap_theta = 12;
+
+    optional uint32 slot_num = 13;
+    optional uint32 slot_corner_valid_num = 14;
+    optional uint32 slot_parkstop_valid_num = 15;
+    optional uint32 slot_curb_valid_num = 16;
+    optional ParEnvSlotObjectResult left_corner = 17;
+    optional ParEnvSlotObjectResult right_corner = 18;
+    optional ParEnvSlotObjectResult curb_or_parkstop = 19;
+
+    repeated ParEnvSlotAssembyResult slot_results = 20;
+}
+
+message ParEnvCollisionData {
+    optional float crash_distance = 1;
+    optional float obj_distance = 2;
+    optional float uss_region_distance = 3;
+    optional float center_x = 4;    // when collision dis < 0.9, then show 4-9
+    optional float center_y = 5;
+    optional float center_yaw = 6;
+    optional ParEnvObjectPoint crash_pt1 = 7;
+    optional ParEnvObjectPoint crash_pt2 = 8;
+    optional uint32 path_index = 9;
+}
+
+message ParEnvCollisionCheckerDebug {
+    optional bool is_load_config = 1;
+    optional float wheel_curve = 2;
+    optional bool is_larger_outlines = 3;
+    optional ParEnvCollisionData forward_dst = 4;
+    optional ParEnvCollisionData backward_dst = 5;
+    optional ParEnvCollisionData direct_forward_dst = 6;
+    optional ParEnvCollisionData direct_backward_dst = 7;
+    optional uint64 reserved_0 = 100;
+    optional uint64 reserved_1 = 101;
+    optional uint64 reserved_2 = 102;
+    optional uint64 reserved_3 = 103;
+    optional float reserved_4 = 104;
+    optional float reserved_5 = 105;
+    optional float reserved_6 = 106;
+    optional float reserved_7 = 107;
+    optional bool reserved_8 = 108;
+    optional bool reserved_9 = 109;
+    optional string reserved_10 = 110;
+}
+
+message ParEnvSlotsGenerateDebug {
+    optional float ego_x = 1;
+    optional float ego_y = 2;
+    optional float ego_yaw = 3;
+    optional uint32 uss_slots_size = 4;
+    optional uint32 svc_slots_size = 5;
+    optional uint32 planning_return_slots_size = 6;
+    optional uint32 planning_slots_size = 7;
+    optional uint32 bind_slots_size = 8;
+    optional uint32 hmi_slots_size = 9;
+    optional ParkSlot psap_slot = 10; // when in psap mode, show 10-14
+    optional psapMapObject psap_hmi = 11;
+    optional float psap_ad_pose_x = 12; // AD_Pose based on O1, for SVC coordinate transform
+    optional float psap_ad_pose_y = 13;
+    optional float psap_ad_pose_yaw = 14;
+    optional uint32 planning_ok_slots_size = 15; // when in sapa mode, show
+    optional uint32 track_slot_index = 16;
+    optional ParkSlot sapa_guidance_slot = 17; // only show in sapa preguidance/guidance stage
+    optional bool guidance_slot_planning_ok = 18;
+    optional float guidance_slot_size_x = 19;
+    optional float guidance_slot_size_y = 20;
+    optional bool is_guidance_slot_narrow = 21;
+    optional uint64 reserved_0 = 100;
+    optional uint64 reserved_1 = 101;
+    optional uint64 reserved_2 = 102;
+    optional uint64 reserved_3 = 103;
+    optional float reserved_4 = 104;
+    optional float reserved_5 = 105;
+    optional float reserved_6 = 106;
+    optional float reserved_7 = 107;
+    optional bool reserved_8 = 108;
+    optional bool reserved_9 = 109;
+    optional string reserved_10 = 110;
+}
+
+message ParEnvReserved {
+    optional float reserved_0 = 1;
+    optional float reserved_1 = 2;
+    optional float reserved_2 = 3;
+    optional float reserved_3 = 4;
+    optional float reserved_4 = 5;
+    optional float reserved_5 = 6;
+    optional float reserved_6 = 7;
+    optional float reserved_7 = 8;
+    optional float reserved_8 = 9;
+    optional float reserved_9 = 10;
+    optional float reserved_10 = 11;
+    optional float reserved_11 = 12;
+    optional float reserved_12 = 13;
+    optional float reserved_13 = 14;
+    optional float reserved_14 = 15;
+    optional float reserved_15 = 16;
+    optional float reserved_16 = 17;
+    optional float reserved_17 = 18;
+    optional float reserved_18 = 19;
+    optional float reserved_19 = 20;
+    optional float reserved_20 = 21;
+    optional float reserved_21 = 22;
+    optional float reserved_22 = 23;
+    optional float reserved_23 = 24;
+    optional float reserved_24 = 25;
+    optional float reserved_25 = 26;
+    optional float reserved_26 = 27;
+    optional float reserved_27 = 28;
+    optional float reserved_28 = 29;
+    optional float reserved_29 = 30;
+    optional uint32 reserved_30 = 31;
+    optional uint32 reserved_31 = 32;
+    optional uint32 reserved_32 = 33;
+    optional uint32 reserved_33 = 34;
+    optional uint32 reserved_34 = 35;
+    optional uint32 reserved_35 = 36;
+    optional uint32 reserved_36 = 37;
+    optional uint32 reserved_37 = 38;
+    optional uint32 reserved_38 = 39;
+    optional uint32 reserved_39 = 40;
+    optional uint32 reserved_40 = 41;
+    optional uint32 reserved_41 = 42;
+    optional uint32 reserved_42 = 43;
+    optional uint32 reserved_43 = 44;
+    optional uint32 reserved_44 = 45;
+    optional uint32 reserved_45 = 46;
+    optional uint32 reserved_46 = 47;
+    optional uint32 reserved_47 = 48;
+    optional uint32 reserved_48 = 49;
+    optional uint32 reserved_49 = 50;
+    optional uint32 reserved_50 = 51;
+    optional uint32 reserved_51 = 52;
+    optional uint32 reserved_52 = 53;
+    optional uint32 reserved_53 = 54;
+    optional uint32 reserved_54 = 55;
+    optional uint32 reserved_55 = 56;
+    optional uint32 reserved_56 = 57;
+    optional uint32 reserved_57 = 58;
+    optional uint32 reserved_58 = 59;
+    optional uint32 reserved_59 = 60;
+}
+
+message ParEnvDebug {
+    optional ParEnvInputDebug input_debug = 1;
+    optional ParEnvSystemDebug system_debug = 2;
+    optional ParEnvObjectMapDebug object_map_debug = 3;
+    optional ParEnvSemanticMapDebug  semantic_map_debug = 4;
+    optional ParEnvCollisionCheckerDebug collision_checker_debug = 5;
+    optional ParEnvSlotsGenerateDebug slots_generate_debug = 6;
+    optional ParEnvReserved env_reserved_debug = 7;
+
+    // optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909;   // uuid of the publisher
+    optional uint64 counter = 536870910;        // message counter
+    optional uint64 publish_ts = 536870911;     // publish utc timestamp; unit : nanosecond
+}

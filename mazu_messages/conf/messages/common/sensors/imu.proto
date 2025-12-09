@@ -1,0 +1,59 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message IMUValidFlags {
+  required bool imu_heading = 1;       // Value of IMUFrame.heading is valid.
+  required bool imu_roll = 2;          // Value of IMUFrame.orientation[0] is valid.
+  required bool imu_pitch = 3;         // Value of IMUFrame.orientation[1] is valid.
+  required bool imu_yaw = 4;           // Value of IMUFrame.orientation[2] is valid.
+  required bool imu_quaternion_x = 5;  // Value of IMUFrame.orientationQuaternion.x is valid.
+  required bool imu_quaternion_y = 6;  // Value of IMUFrame.orientationQuaternion.y is valid.
+  required bool imu_quaternion_z = 7;  // Value of IMUFrame.orientationQuaternion.z is valid.
+  required bool imu_quaternion_w = 8;  // Value of IMUFrame.orientationQuaternion.w is valid.
+  required bool imu_roll_rate = 9;     // Value of IMUFrame.turnrate[0] is valid.
+  required bool imu_pitch_rate = 10;   // Value of IMUFrame.turnrate[1] is valid.
+  required bool imu_yaw_rate = 11;     // Value of IMUFrame.turnrate[2] is valid.
+  required bool imu_acceleration_x = 12;  // Value of IMUFrame.acceleration[0] is valid.
+  required bool imu_acceleration_y = 13;  // Value of IMUFrame.acceleration[1] is valid.
+  required bool imu_acceleration_z = 14;  // Value of IMUFrame.acceleration[2] is valid.
+  required bool imu_magnetometer_x = 15;  // Value of IMUFrame.magnetometer[0] is valid.
+  required bool imu_magnetometer_y = 16;  // Value of IMUFrame.magnetometer[1] is valid.
+  required bool imu_magnetometer_z = 17;  // Value of IMUFrame.magnetometer[2] is valid.
+}
+
+message Quaterniond {
+  required double x = 1;
+  required double y = 2;
+  required double z = 3;
+  required double w = 4;
+}
+
+message IMUFrame {
+  required IMUValidFlags valid_flags = 1;  // The flags to show which values are valid in this IMU frame.
+  required int64 timestamp_us = 2;         // Timestamp for the current message. Indicates when it's first received [usec].
+  repeated double orientation = 3;         // Roll, pitch, and yaw angle of the orientation returned by the IMU [degree].
+  required Quaterniond orientationQuaternion = 4;  //Quaternion representation (x, y, z, w) of the orientation returned by the IMU.
+  repeated double turnrate = 5;            // Roll, pitch, and yaw turn rate (i.e., gyroscope)[rad/s].
+  repeated double acceleration = 6;        // Acceleration in X, Y, and Z directions [m/s^2].
+  repeated double magnetometer = 7;        // Measurement of the magnetometer unit in X, Y, and Z directions [utesla].
+  required double heading = 8;             // Heading of the IMU measured in respect to the ENU system [degrees], i.e., compass.
+  required IMUHeadingType headingType = 9; // Type of the heading information.
+  optional uint64 timestamp_ptp_ns = 10;   // PTP timestamp for the current message. Indicates when it's first received [nano second].
+  optional double temperature = 11;        // Temperature of imu sensor, unit: ℃
+
+  enum IMUHeadingType {
+    IMU_HEADING_TRUE = 0;     // IMU heading towards true north.
+    IMU_HEADING_MAGNETIC = 1; // IMU heading towards magnetic north.
+  };
+
+  optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin 
+  optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+  optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909; // uuid of the publisher
+  optional uint64 counter = 536870910;       // message counter
+  optional uint64 publish_ts = 536870911;    // publish utc timestamp; unit : nanosecond
+
+}

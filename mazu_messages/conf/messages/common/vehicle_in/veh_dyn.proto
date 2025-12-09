@@ -1,0 +1,87 @@
+//vehicle dynamic states proto
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+import "common/vehicle_in/veh_enum_type.proto";
+message VehDynInfo{
+reserved 14,15,16;
+
+	message VehSpdInfos{
+		required QfZeroAsVld_e VehSpdSts = 1;           //@Channel:CHASSIS @Message:0x5B @Signal:VehSpdSts
+															//@Channel:CHASSIS2 @Message:0x5B @Signal:VehSpdSts
+
+        enum VehMovDirType_e{
+            VehMov_Stst     = 0 ; //Standstill
+            VehMov_ForWard  = 1 ; //Forward
+            VehMov_BackWard = 2 ; //Backward
+            VehMov_InVld    = 3 ; //Invalid
+        }
+		required VehMovDirType_e VehMovgDir = 2;        //@Channel:CHASSIS @Message:0x5B @Signal:VehMovgDir
+															//@Channel:CHASSIS2 @Message:0x5B @Signal:VehMovgDir
+		required float  VehSpdkph = 3;                  //@Channel:CHASSIS @Message:0x5B @Signal:VehSpd
+															//@Channel:CHASSIS2 @Message:0x5B @Signal:VehSpd
+		required float  VehSpdmps = 4;
+        required float  VehFiltLngAcc = 5;
+		required QfZeroAsVld_e VehSpdASILDSts = 6;      //@Channel:CHASSIS @Message:0x5F @Signal:VehSpdSts_ASILD
+		required float  VehSpdASILD = 7;	            //@Channel:CHASSIS @Message:0x5F @Signal:VehSpd_ASILD
+		required float  VehDispSpd = 8;		            //@Channel:CHASSIS @Message:0x328 @Signal:VCUVehDispdSpd
+
+        enum VCUVehDispSpdSts_e{
+            VCUVehDispSpdSts_Vld     = 0 ; //Valid
+            VCUVehDispSpdSts_InVld  = 1 ; //Invalid
+        }
+		optional VCUVehDispSpdSts_e VCUVehDispSpdSts = 9;   //@Channel:CHASSIS @Message:0x328 @Signal:VCUVehDispSpdSts
+		repeated uint64 timestamp_ptp_ns		 = 10;		//@Channel:CHASSIS @Message:0x5B
+															//@Channel:CHASSIS @Message:0x5F
+															//@Channel:CHASSIS @Message:0x328
+		enum VehDispdSpdUnit_e{
+			VehDispdSpdUnit_kph = 0;
+			VehDispdSpdUnit_mph = 1;
+			}
+		optional VehDispdSpdUnit_e VehDispdSpdUnit = 11;		//@Channel:ADAS @Message:0x155 @Signal:CDC_VehDispdSpdUnit
+	}
+	required VehSpdInfos VehSpd = 1;
+
+    enum ImuCalStType_e{
+        ImuCal_False  = 0; //Not Calibrated
+        ImuCal_True   = 1; //Calibrated
+        ImuCal_Rsrvd2 = 2; //Reserved
+        ImuCal_NotAvl = 3; //Signal not available
+    }
+	required ImuCalStType_e AxAyYrsCalSts = 2; 	        //@Channel:CHASSIS @Message:0x3E @Signal:AxAyYrsCalSts
+															//@Channel:CHASSIS2 @Message:0x3E @Signal:AxAyYrsCalSts
+
+    enum ImuSigalStType_e{
+        ImuSig_Valid = 0; //Normal (Valid)
+        ImuSig_InVld = 1; //Invalid
+        ImuSig_Rsrvd2= 2; //Reserved
+        ImuSig_Init  = 3; //Initializing
+    }
+	required ImuSigalStType_e LgtASts = 3;		        //@Channel:CHASSIS @Message:0x3E @Signal:LgtAValSts
+															//@Channel:CHASSIS2 @Message:0x3E @Signal:LgtAValSts
+	required float  LgtSAEAg = 4;			            //@Channel:CHASSIS @Message:0x3E @Signal:LgtA @Comment:LgtA
+															//@Channel:CHASSIS2 @Message:0x3E @Signal:LgtA @Comment:LgtA
+	required float  LgtSAEAmpss = 5;		            //LgtA*9.81
+	required ImuSigalStType_e LatASts = 6;		        //@Channel:CHASSIS @Message:0x3D @Signal:LatAValSts
+															//@Channel:CHASSIS2 @Message:0x3D @Signal:LatAValSts
+	required float  LatSAEAg = 7;			            //@Channel:CHASSIS @Message:0x3D @Signal:LatA @Comment:LatA*-1
+															//@Channel:CHASSIS2 @Message:0x3D @Signal:LatA @Comment:LatA*-1
+	required float  LatSAEAmpss = 8;		            //LatA*-9.81
+	required ImuSigalStType_e YawRateSts = 9;		    //@Channel:CHASSIS @Message:0x3D @Signal:YawRateValSts
+															//@Channel:CHASSIS2 @Message:0x3D @Signal:YawRateValSts
+	required float  YawRateSAERps = 10;	                //YawRate*3.14159/-180
+	required float  YawRateSAEDps = 11;	                //@Channel:CHASSIS @Message:0x3D @Signal:YawRate @Comment:YawRate*-1
+															//@Channel:CHASSIS2 @Message:0x3D @Signal:YawRate @Comment:YawRate*-1
+	required float  VehOdom = 12;		                //@Channel:CHASSIS @Message:0x3AA @Signal:VehOdometer
+	optional uint64 YawRate_Timestamp  = 13;            //@Channel:CHASSIS @Message:0x3D @Timestamp
+	optional uint64 timestamp_ptp_ns  = 17;             //@Channel:CHASSIS @Message:0x3D @Timestamp
+
+	optional float RefVehSpd = 18;                      // @linescope: NT3
+	optional uint32	RefVehSpdSts = 19;                  // @linescope: NT3   //0x0:valid 0x1:inaccuracte 0x2:invalid 
+
+	optional float VehSlopVal = 20;                     // @linescope: NT3
+	optional bool VehSlopValVld = 21;                   // @linescope: NT3   //0x0:valid 0x1:invalid 
+}

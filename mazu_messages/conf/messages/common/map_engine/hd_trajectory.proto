@@ -1,0 +1,20 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/map_engine/map_geometry.proto";
+
+message HdTrajectory {
+  repeated MapPoint point_list = 1;
+  optional uint32 speed = 2;
+}
+
+message HdExperienceTrajectory {
+  repeated HdTrajectory trajectory_list = 1;
+  repeated uint64 lane_list = 2;
+  repeated uint64 start_lanes = 3;
+  repeated uint64 end_lanes = 4;
+  optional string event_id = 5;
+  optional float probability = 6;  // 比例：0 ~ 1，以及 -1：表示”冗余“
+  optional int32 type = 7;  // 1：正确，2：缺失，3：冗余
+}

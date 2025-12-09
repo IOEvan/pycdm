@@ -1,0 +1,193 @@
+syntax = "proto2"; 
+option cc_enable_arenas = true;
+       
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message FailsafeFaultInfo{ 
+        optional FWFaultInfo fw_fault_info = 1;
+        optional FNFaultInfo fn_fault_info = 4;
+        optional RNFaultInfo rn_fault_info = 5;
+        optional SVCFrontFaultInfo svcfront_adc_fault_info = 6;
+        optional SVCLeftFaultInfo svcleft_adc_fault_info = 7;
+        optional SVCRearFaultInfo svcrear_adc_fault_info = 8;
+        optional SVCRightFaultInfo svcright_adc_fault_info = 9;
+        optional SideFLFaultInfo sidefl_adc_fault_info = 10;
+        optional SideFRFaultInfo sidefr_adc_fault_info = 11;
+        optional SideRLFaultInfo siderl_adc_fault_info = 12;
+        optional SideRRFaultInfo siderr_adc_fault_info = 13;       
+        
+        optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+        optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+        optional uint64 publish_ptp_ts = 536870907;   // publish ptp timestamp, uint in nanosec
+        optional string publisher_id   = 536870909; // uuid of the publisher
+        optional uint64 counter        = 536870910;         // message counter
+        optional uint64 publish_ts     = 536870911;    // publish utc timestamp; unit : nanosecond
+
+} 
+
+message FWFaultInfo{
+        optional bool FS_rain_3 = 1; // failsafe info
+        optional bool FS_fog_3 = 2;
+        optional bool FS_snow_3 = 3;
+        optional bool FS_partialBlockage_3 = 4;
+        optional bool FS_lowSun_3 = 5;
+        optional bool FS_sunRay_3 = 6;
+        optional bool FS_splashes_3 = 7;
+        optional bool FS_frozenWindshield_3 = 8;
+        optional bool FS_out_of_focus_3 = 9;
+        optional bool FS_blurredImage_3 = 10;
+        optional bool FS_Smeared_Halo_3 = 11;
+        // 0: no fault, 1: has fault;
+}
+
+message FNFaultInfo{
+        optional bool FS_rain_3 = 1; // failsafe info
+        optional bool FS_fog_3 = 2;
+        optional bool FS_snow_3 = 3;
+        optional bool FS_partialBlockage_3 = 4;
+        optional bool FS_lowSun_3 = 5;
+        optional bool FS_sunRay_3 = 6;
+        optional bool FS_splashes_3 = 7;
+        optional bool FS_frozenWindshield_3 = 8;
+        optional bool FS_out_of_focus_3 = 9;
+        optional bool FS_blurredImage_3 = 10;
+        optional bool FS_Smeared_Halo_3 = 11;
+        // 0: no fault, 1: has fault;
+}
+
+message RNFaultInfo{
+        optional bool FS_rain_3 = 1; // failsafe info
+        optional bool FS_fog_3 = 2;
+        optional bool FS_snow_3 = 3;
+        optional bool FS_partialBlockage_3 = 4;
+        optional bool FS_lowSun_3 = 5;
+        optional bool FS_sunRay_3 = 6;
+        optional bool FS_splashes_3 = 7;
+        optional bool FS_frozenWindshield_3 = 8;
+        optional bool FS_out_of_focus_3 = 9;
+        optional bool FS_blurredImage_3 = 10;
+        optional bool FS_Smeared_Halo_3 = 11;
+        // 0: no fault, 1: has fault;
+}
+
+message SVCFrontFaultInfo{
+        optional bool FS_rain_3 = 1; // failsafe info
+        optional bool FS_fog_3 = 2;
+        optional bool FS_snow_3 = 3;
+        optional bool FS_partialBlockage_3 = 4;
+        optional bool FS_lowSun_3 = 5;
+        optional bool FS_sunRay_3 = 6;
+        optional bool FS_splashes_3 = 7;
+        optional bool FS_frozenWindshield_3 = 8;
+        optional bool FS_out_of_focus_3 = 9;
+        optional bool FS_blurredImage_3 = 10;
+        optional bool FS_Smeared_Halo_3 = 11;
+        // 0: no fault, 1: has fault;
+}
+
+message SVCLeftFaultInfo{
+        optional bool FS_rain_3 = 1; // failsafe info
+        optional bool FS_fog_3 = 2;
+        optional bool FS_snow_3 = 3;
+        optional bool FS_partialBlockage_3 = 4;
+        optional bool FS_lowSun_3 = 5;
+        optional bool FS_sunRay_3 = 6;
+        optional bool FS_splashes_3 = 7;
+        optional bool FS_frozenWindshield_3 = 8;
+        optional bool FS_out_of_focus_3 = 9;
+        optional bool FS_blurredImage_3 = 10;
+        optional bool FS_Smeared_Halo_3 = 11;
+        // 0: no fault, 1: has fault;
+}
+
+message SVCRearFaultInfo{
+        optional bool FS_rain_3 = 1; // failsafe info
+        optional bool FS_fog_3 = 2;
+        optional bool FS_snow_3 = 3;
+        optional bool FS_partialBlockage_3 = 4;
+        optional bool FS_lowSun_3 = 5;
+        optional bool FS_sunRay_3 = 6;
+        optional bool FS_splashes_3 = 7;
+        optional bool FS_frozenWindshield_3 = 8;
+        optional bool FS_out_of_focus_3 = 9;
+        optional bool FS_blurredImage_3 = 10;
+        optional bool FS_Smeared_Halo_3 = 11;
+        // 0: no fault, 1: has fault;
+}
+
+message SVCRightFaultInfo{
+        optional bool FS_rain_3 = 1; // failsafe info
+        optional bool FS_fog_3 = 2;
+        optional bool FS_snow_3 = 3;
+        optional bool FS_partialBlockage_3 = 4;
+        optional bool FS_lowSun_3 = 5;
+        optional bool FS_sunRay_3 = 6;
+        optional bool FS_splashes_3 = 7;
+        optional bool FS_frozenWindshield_3 = 8;
+        optional bool FS_out_of_focus_3 = 9;
+        optional bool FS_blurredImage_3 = 10;
+        optional bool FS_Smeared_Halo_3 = 11;
+        // 0: no fault, 1: has fault;
+}
+
+message SideFLFaultInfo{
+        optional bool FS_rain_3 = 1; // failsafe info
+        optional bool FS_fog_3 = 2;
+        optional bool FS_snow_3 = 3;
+        optional bool FS_partialBlockage_3 = 4;
+        optional bool FS_lowSun_3 = 5;
+        optional bool FS_sunRay_3 = 6;
+        optional bool FS_splashes_3 = 7;
+        optional bool FS_frozenWindshield_3 = 8;
+        optional bool FS_out_of_focus_3 = 9;
+        optional bool FS_blurredImage_3 = 10;
+        optional bool FS_Smeared_Halo_3 = 11;
+        // 0: no fault, 1: has fault;
+}
+
+message SideFRFaultInfo{
+        optional bool FS_rain_3 = 1; // failsafe info
+        optional bool FS_fog_3 = 2;
+        optional bool FS_snow_3 = 3;
+        optional bool FS_partialBlockage_3 = 4;
+        optional bool FS_lowSun_3 = 5;
+        optional bool FS_sunRay_3 = 6;
+        optional bool FS_splashes_3 = 7;
+        optional bool FS_frozenWindshield_3 = 8;
+        optional bool FS_out_of_focus_3 = 9;
+        optional bool FS_blurredImage_3 = 10;
+        optional bool FS_Smeared_Halo_3 = 11;
+        // 0: no fault, 1: has fault;
+}
+
+message SideRLFaultInfo{
+        optional bool FS_rain_3 = 1; // failsafe info
+        optional bool FS_fog_3 = 2;
+        optional bool FS_snow_3 = 3;
+        optional bool FS_partialBlockage_3 = 4;
+        optional bool FS_lowSun_3 = 5;
+        optional bool FS_sunRay_3 = 6;
+        optional bool FS_splashes_3 = 7;
+        optional bool FS_frozenWindshield_3 = 8;
+        optional bool FS_out_of_focus_3 = 9;
+        optional bool FS_blurredImage_3 = 10;
+        optional bool FS_Smeared_Halo_3 = 11;
+        // 0: no fault, 1: has fault;
+}
+
+message SideRRFaultInfo{
+        optional bool FS_rain_3 = 1; // failsafe info
+        optional bool FS_fog_3 = 2;
+        optional bool FS_snow_3 = 3;
+        optional bool FS_partialBlockage_3 = 4;
+        optional bool FS_lowSun_3 = 5;
+        optional bool FS_sunRay_3 = 6;
+        optional bool FS_splashes_3 = 7;
+        optional bool FS_frozenWindshield_3 = 8;
+        optional bool FS_out_of_focus_3 = 9;
+        optional bool FS_blurredImage_3 = 10;
+        optional bool FS_Smeared_Halo_3 = 11;
+        // 0: no fault, 1: has fault;
+}

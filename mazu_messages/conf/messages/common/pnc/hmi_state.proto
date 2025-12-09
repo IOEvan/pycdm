@@ -1,0 +1,104 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+enum SwichReq {
+  NO_REQ_SWITCH = 0;
+  REQ_SWITCH_ON = 1;
+  REQ_SWITCH_OFF = 2;
+};
+
+enum LaneChangeReq {
+  NO_REQ_LANE_CHANGE = 0;
+  REQ_LEFT_TURN = 1;       //  DA_TurnIndicatorLeftTip
+  REQ_RIGHT_TURN = 2;      //  DA_TurnIndicatorRightTip
+  REQ_TIP_LEFT_TURN = 3;   //  DA_TurnIndicatorLeftLatch
+  REQ_TIP_RIGHT_TURN = 4;  //  DA_TurnIndicatorRightLatch
+};
+
+enum SpeedADJReq {
+  NO_REQ_SPEED_ADJ = 0;
+  REQ_HIGHER_SPEED = 1;
+  REQ_EQUAL_SPEED = 2;
+  REQ_LOWER_SPEED = 3;
+};
+
+enum OverrideReq {
+  NO_REQ_OVERRIDE = 0;
+  REQ_LATERAL_OVERRIDE = 1;
+  REQ_LONGITUDINAL_OVERRIDE = 2;
+  REQ_LATERAL_LONGITUDINAL_OVERRIDE = 3;
+};
+
+enum FunctionRequest {
+  HMI_REQ_OFF = 0;
+  HMI_REQ_CHECKING = 1;
+  HMI_REQ_STANDBY = 2;
+  HMI_REQ_RUNNING = 3;
+};
+
+enum ALCConfirmReq {
+  REQ_AUTO = 0;
+  REQ_CONFIRM_TYPE_1 = 1;
+  REQ_CONFIRM_TYPE_2 = 2;
+  REQ_CONFIRM_TYPE_3 = 3;
+}
+
+enum DAInhibitReq {
+  REQ_NO_ACTIVE = 0;
+  REQ_ACTIVE_SOFT_AD = 1;
+  REQ_ACTIVE_SOFT_TD = 2;
+  REQ_ACTIVE_SOFT_EDA = 3;
+  REQ_ACTIVE_SOFT_INSTANT_OFF = 4;
+}
+
+enum VLCModeReq {
+  REQ_LC_OFF = 0;
+  REQ_LC_PASSIVE = 1;
+  REQ_LC_STANDBY = 2;
+  REQ_LC_ACTIVE = 3;
+  REQ_LC_BRAKE_ONLY = 4;
+  REQ_LC_OVERRIDE = 5;
+  REQ_LC_STANDSTILL = 6;
+  REQ_LC_FAILURE = 7;
+};
+
+enum SpeedSourceTypeReq {
+  REQ_NO_USER_SET = 0;
+  REQ_USER_SET = 1;
+  REQ_SPEED_OFFSETS = 2;
+}
+
+message LaneChangeSuppression {
+  // 0.0 means no supression, each bit correspond to one supression condition
+  optional uint64 left_lc_suprs = 1;
+  optional uint64 right_lc_suprs = 2;
+}
+
+message HmiState {
+  optional uint64 time_meas = 1;  // in ns
+  optional SwichReq function_enable_req = 2 [default = NO_REQ_SWITCH];
+  optional LaneChangeReq lane_change_req = 3 [default = NO_REQ_LANE_CHANGE];
+  optional SpeedADJReq speed_adjustment_req = 4 [default = NO_REQ_SPEED_ADJ];
+  optional double reference_speed_req = 5
+      [default = 0.0];  // DA_SetSpeed (localization), unit: km/h
+  optional OverrideReq override_req = 6 [default = NO_REQ_OVERRIDE];
+  optional double reference_tau_gap_req = 7
+      [default = 0.0];  // DA_TauGap, unit: s
+  optional DAInhibitReq da_inhibit_req = 8
+      [default = REQ_NO_ACTIVE];  // DA_Inhibit
+  optional FunctionRequest function_req = 9
+      [default = HMI_REQ_OFF];  // function_arb_out
+  optional ALCConfirmReq acl_confirm_req = 10
+      [default = REQ_AUTO];                                      // SetDA_NOPALC
+  optional VLCModeReq vlc_mode_req = 11 [default = REQ_LC_OFF];  // VLC_Mode
+  optional bool takeover_req = 12 [default = false];  // takeover override
+  optional double raw_reference_speed_req = 13
+      [default = 0.0];  // DA_SetSpeed (disp speed) unit: km/h
+  optional SpeedSourceTypeReq speed_source_type_req = 14
+      [default = REQ_NO_USER_SET];
+  optional LaneChangeSuppression lane_change_suprs = 15;
+  optional bool nop_rain_mode = 16;
+}

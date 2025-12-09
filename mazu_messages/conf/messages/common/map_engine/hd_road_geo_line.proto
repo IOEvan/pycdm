@@ -1,0 +1,48 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+import "common/map_engine/map_geometry.proto";
+
+message HdRoadGeoLine {
+  optional uint64 id = 1;
+  optional uint64 link_id = 2;
+
+  // The shape point information of the road geo line.
+  optional MapPolyline shape_point = 3;
+
+  // The curvature of each shape point, resolution is 10^-5 [1/m].
+  // Value range from 0.00000 to 0.16192, 0.16192 means curvature more than 0.16912.
+  // Please note that this field might be empty.
+  repeated double curvature = 4;
+
+  // The slope of each shape point, defined by tangent value of angle.
+  // Value range from 0.000 to 0.248, value 0.25 means slope from 0.25 to 0.30, value 0.30 means slope more than 0.30.
+  // Please note that this field might be empty.
+  repeated double slope = 5;
+
+  // The heading of each shape point, the angle to north in clock-wise.
+  // Value range from 0.00 to 359.99, value 0.00 for north, value 90.00 for east.
+  // Please note that this field might be empty.
+  repeated double heading = 6;
+
+  // The accumulated offset(in meter) of shape_point, the first value is always 0.0.
+  repeated double shape_point_offset = 7 [ packed = true ];
+
+  // The ordinal number of the geom link within an intersection or route link
+  // identifying the geom link together with the intersection or route link id.
+  optional uint32 ordinal_number = 8;
+}
+
+message HdRoadGeoLineList {
+  repeated HdRoadGeoLine road_geo_line_list = 1;
+
+  optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin 
+  optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+  optional uint64 publish_ptp_ts = 536870907; // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909;  // uuid of the publisher
+  optional uint64 counter = 536870910;       // message counter
+  optional uint64 publish_ts = 536870911;    // publish utc timestamp; unit : nanosecond
+}

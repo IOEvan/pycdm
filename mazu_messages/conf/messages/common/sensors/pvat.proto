@@ -1,0 +1,109 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message PVATResult {
+
+  message UTCTime {
+    optional uint32 year  = 1;  // [2020, 2038]
+    optional uint32 month = 2;  // [1, 12]
+    optional uint32 day   = 3;  // [1, 31]
+    optional uint32 hour  = 4;  // [0,24)
+    optional uint32 min   = 5;  // [0, 60)
+    optional uint32 sec   = 6;  // [0, 60)
+    optional float  msec  = 7;  // [0, 999]
+  }
+  enum GNSSPos_e {
+    NONE         = 0;           // gnss invalid 
+    SINGLE       = 1;           // single point
+    DGPS         = 2;
+    RTK_FIX      = 4;            
+    RTK_FLOAT    = 5;
+  }
+
+
+  // bit0: init_position    0 or 1
+  // bit1: init_velocity    0 or 1
+  // bit2: init_attitude    0 or 1
+  // bit3: init_orientation 0 or 1
+  optional uint32 init_state        = 1;
+
+  // 0: not combined;
+  // 1: attitude initializing;
+  // 2: normal combined results;
+  // 3: no GNSS, no wheel-speed, DR;
+  // 4: no GNSS, wheel-speed + DR;
+  optional uint32 ins_state         = 2;
+
+  optional GNSSPos_e position_type  = 3;   // compliance with GPGGA's setting;
+
+  optional double latitude          = 4;   // degree, [-90, 90]
+  optional double longitude         = 5;   // degree, [-180, 180]
+  optional double height            = 6;   // meters, Position's Height above mean sea level
+  optional double undulation        = 7;   // meters, undulation of height, // tbd // don't know how to cal the undulation
+  optional double velocity_north    = 8;   // m/s, [-515, 515]
+  optional double velocity_east     = 9;   // m/s, [-515, 515]
+  optional double velocity_up       = 10;  // m/s, [-515, 515]
+  optional double roll              = 11;  // rad, [-90/180*pi, 90/180*pi]
+  optional double pitch             = 12;  // rad, [-90/180*pi, 90/180*pi]
+  optional double azimuth           = 13;  // rad, [-180/180*pi, 180/180*pi]
+
+  optional double bias_gyro_x       = 14;  // rad/s, bias of gyro x
+  optional double bias_gyro_y       = 15;  // rad/s, bias of gyro y
+  optional double bias_gyro_z       = 16;  // rad/s, bias of gyro z
+  optional double bias_acc_x        = 17;  // m/s^2, bias of accel x
+  optional double bias_acc_y        = 18;  // m/s^2, bias of accel y
+  optional double bias_acc_z        = 19;  // m/s^2, bias of accel z
+  
+  optional float std_lat            = 20;  // degree   (0 99.9999]
+  optional float std_long           = 21;  // degree   (0 99.9999]
+  optional float std_height         = 22;  // m        (0 99.9999]
+  optional float std_vel_north      = 23;  // m/s      (0 99.9999]
+  optional float std_vel_east       = 24;  // m/s      (0 99.9999]
+  optional float std_vel_up         = 25;  // m/s      (0 99.9999]
+  optional float std_roll           = 26;  // degree   (0 99.9999]
+  optional float std_pitch          = 27;  // degree   (0 99.9999]
+  optional float std_azimuth        = 28;  // degree   (0 99.9999]
+
+  optional UTCTime utc_time         = 29;  // defined in UTCTime message
+
+  optional double itow_time         = 30;  // s  [0, 604800000), seconds from the beginning of the GPS reference week
+  optional uint32 gps_ref_week      = 31;  // GPS reference week number, [0, 3072)
+
+  optional uint32 num_sat_track     = 32;  // number of tracking satellites [0, 50]
+  optional uint32 num_sat_used      = 33;  // number of used satellites [0, 50]
+  optional uint32 num_sat_dfrq      = 34;  // number of satellites tracking dual-frequecy, [0, 50)
+  optional uint32 update_flag       = 35;  // solution update flags
+  optional uint32 propagate_time    = 36;  // ms, elapsed time since the last absolute positioning update
+
+
+  enum GDPRStatus_e {
+    GNSS_OFF                = 0;  // off
+    GNSS_ON_ENABLE_SHARING  = 1;  // on & enable sharing, the gnss data could be used in vehicle and out of vehicle
+    GNSS_ON_DISABLE_SHARING = 2;  // on & disable sharing, the gnss data should be used in vehicle.
+  }
+
+  optional GDPRStatus_e gdpr_status  = 37;
+
+  optional float rsd_imu_bdy_x      = 38;  // degree, x-axial residual of IMU frame to Body frame
+  optional float rsd_imu_bdy_y      = 39;  // degree, y-axial residual of IMU frame to Body frame
+  optional float rsd_imu_bdy_z      = 40;  // degree, z-axial residual of IMU frame to Body frame
+  
+  //0x00: not done
+  //0x01: calibrated
+  optional uint32 dyna_cal_state    = 41;  // result of dynamic calibration
+  optional uint64 timestamp_ptp_ns  = 42;   //pvat result ptp timestamp, uint: nano second
+
+  optional uint32 ins_state_eol     = 43;  // record if ins_state has reached 2
+
+  optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin   
+  optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+  optional uint64 publish_ptp_ts = 536870907;   // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909;     // uuid of the publisher
+  optional uint64 counter = 536870910;          // message counter
+  optional uint64 publish_ts = 536870911;       // publish utc timestamp; unit : nanosecond
+}
+
+

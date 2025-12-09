@@ -1,0 +1,45 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+import "common/cfgclient/cfg_info.proto";
+import "common/perf/sensor_ts_header.proto";
+
+//send trigger signal to app when config file has been upgraded
+message CfgMsg { 
+    enum UpgradeMethod {
+        DEFAULT_UPGRADE_RESERVED = 0;
+        BOOTUP_UPGRADE      = 1;   //app upgrade the new file only when system bootup
+        IMMEDIATE_UPGRADE   = 2;   //app upgrade the new file immediately when receive the notify
+    }  
+    enum SaveMethod {
+        DEFAULT_SAVE_RESERVED = 0;
+        SAVE_PERMANENT      = 1;   //OTA can't change it, like calibration file
+        SAVE_CURRENT_OTA    = 2;   //will change it after OTA
+    }
+    enum Source {
+        LOCAL_DEFAULT   = 0;  //the config file is from fota boudle
+        REMOTE_UPGRADE  = 1;  //the config is downloaded from cloud
+    }
+    optional CfgModule module          = 1;  //module name
+    optional SubFunc func              = 2;  //module sub func
+    optional string local_path         = 3;  //config file save path
+    optional string version            = 4;  //version
+    optional string md5                = 5;  //checksum
+    optional UpgradeMethod upgrade     = 6;  
+    optional SaveMethod save           = 7;
+    optional Source file_source        = 8;
+}
+
+message CfgFileNotify {    
+    repeated CfgMsg cfg_msgs         = 1;  
+    
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts   = 536870907;   //publish ptp timestamp, uint in nanosec
+    optional string publisher_id     = 536870909;   // uuid of the publisher
+    optional uint64 counter           = 536870910;  // message counter
+    optional uint64 publish_ts      = 536870911;  // publish timestamp; unit : nanosecond
+}
+

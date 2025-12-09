@@ -1,0 +1,17 @@
+
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+message SteerReport_light {
+    optional bool steer_override = 5;
+}
+message CarInfo_light {
+    optional SteerReport_light steer_report = 2;
+    optional uint64 publish_ptp_ts = 536870907;
+}
+message CarState_light {
+    optional double yaw_rate = 17;
+    optional uint64 publish_ptp_ts = 536870907;
+}

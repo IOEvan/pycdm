@@ -1,0 +1,180 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message TrafficLight{
+    optional uint32 TLD_Panel_ID = 1;//单灯所在的灯框ID
+    optional uint32 TLD_ID = 2;
+    optional uint32 TLD_Age = 3;
+    optional TLDType TLD_Type =4;
+    optional TLDColor TLD_Color =5;
+    optional uint32 TLD_Status =6; //0：常亮, 1：闪烁, 2：熄灭（预留）
+    optional uint32 TLD_Timer =7;
+    optional float TLD_Distance3D_x = 8;
+    optional float TLD_Distance3D_y = 9;
+    optional float TLD_Distance3D_z = 10;
+    reserved 11;
+    reserved 12;
+    optional LaneAssign TLD_Relevancy_Lane =13;  // relation with lane
+    optional float TLD_Panel_Width_3d =14;       // 3d size
+    optional float TLD_Panel_Height_3d =15;
+    reserved 16;
+    reserved 17;
+    optional uint32 TLD_Measure_Status =18 [deprecated=true];
+    optional float TLD_Confidence_Type =19;//0~1
+    optional float TLD_Confidence_Color =20;//0~1
+    optional float TLD_Confidence_Timer =21;//0~1
+    optional uint32 TLD_Junction_ID =22;//单灯所在的路口ID
+    optional bool tld_blocked=23; //单灯是否遮挡，false: 没有遮挡，true: 有遮挡
+    optional bool panel_blocked=24; //单灯所在的panel是否遮挡，false: 没有遮挡，true: 有遮挡
+    // esd
+    optional TLDColor tld_color_esd = 25 [deprecated=true]; // color from esd
+    optional TLDType tld_type_esd = 26 [deprecated=true]; // type from esd
+    optional uint32 tld_timer_esd = 27 [deprecated=true]; // timer from esd
+    optional uint32 TLD_failure_status = 28; // 0: normal, 1: failure, 2:预留 xx 类型故障
+
+    enum TLDColor{
+        TLDColor_Unknown = 0;
+        TLDColor_Red = 1;
+        TLDColor_Yellow = 2;
+        TLDColor_Green = 3;
+        TLDColor_Gray = 4;
+    }
+
+    enum TLDType{
+        TLDType_Unknown = 0;
+        TLDType_Circle = 1;
+        TLDType_Left = 2;
+        TLDType_Right = 3;
+        TLDType_Up = 4;
+        TLDType_U_Turn = 5;
+        TLDType_Pedestrian = 6;
+        TLDType_Bicycle = 7;
+        TLDType_Straight_Up = 8;
+        TLDType_Forbid = 9;
+        TLDType_Straight_Down = 10;
+        TLDType_Warning = 11;
+        TLDType_Railway = 12;
+        TLDType_Turn_Right = 13;
+        TLDType_Turn_Left = 14;
+        TLDType_Bus = 15;
+        TLDType_Left_Uturn = 16;
+        TLDType_Right_Uturn = 17;
+        TLDType_Timer = 100;
+    }
+
+    enum LaneAssign{
+        LaneAssign_Unknown = 0;
+        LaneAssign_Host_Lane = 1;
+        LaneAssign_Left_Lane = 2;
+        LaneAssign_Right_Lane = 3;
+        LaneAssign_Left_Left_Lane = 4;
+        LaneAssign_Right_Right_Lane = 5;
+        LaneAssign_Reserve2 = 6;
+    }
+}
+
+message PanelLight{
+    optional uint32 TLD_Panel_ID=1;
+    optional float Panel3d_Width =2;
+    optional float Panel3d_Height =3;
+    optional float Panel3d_Pos_x =4;
+    optional float Panel3d_Pos_y =5;
+    optional float Panel3d_Pos_z =6;
+    optional float Panel_Heading =7;
+    optional float Panel_Confidence=8;//0~1
+    optional uint32 Panel_Movable=9;//是否临时摆放
+    optional uint32 Panel_Broken=10;//是否故障
+    optional uint32 TLD_Junction_ID = 11;//灯框所在的路口ID
+    repeated uint32 TLD_ID = 12;//灯框包含的单灯ID
+    optional float Panel3d_Pos_x_esd =13;
+    optional float Panel3d_Pos_y_esd =14;
+    optional float Panel3d_Pos_z_esd =15;
+    optional bool panel_blocked=16;//是否遮挡，false: 没有遮挡，true: 有遮挡
+    optional float panel_blocked_ratio=17;//遮挡比例, 0~1
+    optional float panel_theta=18;        // in degree, car view
+    optional bool panel_slow_light=19;    // panel is slow light or not
+    optional PostureType posture = 20;    // panel posture
+    optional uint32 panel_status = 21;    // 0 normal
+    repeated SensorAngleMap sensor_angle_map = 22; // panel measured angle of different sensors
+    optional uint32 Panel_failure_status = 23; // 0: normal, 1: failure, 2:预留 xx 类型故障
+    optional int32 TLD_Track_ID=24; // track id from tld post, -1 is default
+
+    message SensorAngleMap {
+        optional uint32 sensor_id = 1; // refer to: https://ad-gitlab.nioint.com/ad/perception/engineering/internal/argus_post_common/-/blob/master/include/argus_post_common/data_structure/common/sensors.h
+        optional float angle_x = 2;    // angle from z axis, -180~0 or 0~180
+        optional float angle_y = 3;
+    }
+
+    enum PostureType {
+        UNKNOWN = 0;
+        VERTICAL = 1;
+        HORIZONTAL = 2;
+        SQUARE = 3;
+    }
+}
+
+message TLDJunction{
+    optional JunctionColor TLD_Junction_Left = 1;
+    optional JunctionColor TLD_Junction_UTurn = 2;
+    optional JunctionColor TLD_Junction_Straight = 3;
+    optional JunctionColor TLD_Junction_Right = 4;
+    optional uint32 TLD_Junction_ID = 5;
+    repeated uint32 TLD_Panel_ID = 6;//路口包含的灯框ID
+    repeated uint32 TLD_ID = 7;//路口包含的单灯ID
+    repeated uint32 TLD_Full_Panel_ID = 31;//路口包含的灯框ID, 融合了E2E, BEV2.0 panel, 给WM使用
+    repeated uint32 TLD_Full_ID = 32;//路口包含的单灯ID，融合了E2E, BEV2.0 panel, 给WM使用 
+    repeated uint32 RoadSign_ID =8;//路口对应的停止线ID，见https://git.nevint.com/mazu/mazu_messages/-/blob/master/common/perception/vision_RoadSign.proto
+    repeated uint32 TLD_Junction_Status =9; //4个方向的灯是否闪烁，顺序依次Left->UTurn->Straight->Right,0：常亮, 1：闪烁, 2：熄灭（预留）
+    optional uint32 tld_junction_left_timer = 10;       // count down digit for different direction, 65535 is invalid
+    optional uint32 tld_junction_uturn_timer = 11;
+    optional uint32 tld_junction_straight_timer = 12;
+    optional uint32 tld_junction_right_timer = 13;
+    repeated bool panels_blocked=14; //4个方向的虚拟灯是否遮挡，顺序依次Left->UTurn->Straight->Right，false: 没有遮挡，true: 有遮挡
+    repeated uint32 source_panels_of_u_turn = 15;    // traffic light instance for u_turn
+    repeated uint32 source_panels_of_left_turn = 16; // traffic light instance for left turn
+    repeated uint32 source_panels_of_straight = 17;  // traffic light instance for no_turn
+    repeated uint32 source_panels_of_right_turn = 18;// traffic light instance for right turn
+    // esd
+    optional JunctionColor left_color_esd = 19 [deprecated=true];
+    optional JunctionColor u_turn_color_esd = 20 [deprecated=true];
+    optional JunctionColor straight_color_esd = 21 [deprecated=true];
+    optional JunctionColor right_color_esd = 22 [deprecated=true];
+    repeated uint32 status_esd = 23 [deprecated=true];  // 4个方向的灯是否闪烁，顺序依次Left->UTurn->Straight->Right,0：常亮, 1：闪烁, 2：熄灭（预留）
+    optional uint32 left_timer_esd = 24 [deprecated=true];
+    optional uint32 u_turn_timer_esd = 25 [deprecated=true];
+    optional uint32 straight_timer_esd = 26 [deprecated=true];
+    optional uint32 right_timer_esd = 27 [deprecated=true];
+    repeated uint32 TLD_junction_failure_status = 28; // 4个方向的灯wti状态，顺序依次Left->UTurn->Straight->Right, 0: normal, 1: failure, 2:预留 xx 类型故障
+    optional uint32 tld_junction_left_countdown_duration = 33;       // count down duration time for different direction
+    optional uint32 tld_junction_uturn_countdown_duration = 34;
+    optional uint32 tld_junction_straight_countdown_duration = 35;
+    optional uint32 tld_junction_right_countdown_duration = 36;
+
+    enum JunctionColor{
+        JunctionColor_Unknown = 0;
+        JunctionColor_Red = 1;
+        JunctionColor_Yellow = 2;
+        JunctionColor_Green = 3;
+        JunctionColor_Gray = 4;
+    }
+}
+
+message TrafficLightDetection{
+    optional uint64 timestamp = 1;//ptp time of perception result, unit: ns
+    repeated TrafficLight trafficlight = 2;
+    reserved 3;
+    repeated TLDJunction TLD_Junction =4; //虚拟路口
+    repeated TLDJunction TLD_Junction_TLD3D =6; //虚拟路口 来自BEV2.0方案，给WM融合使用
+    repeated PanelLight Panellight =5;
+
+    optional uint64 tld_fw_camera_ts = 536870904; // for tld chain monitor
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909;       // uuid of the publisher
+    optional uint64 counter = 536870910;            // message counter
+    optional uint64 publish_ts = 536870911;         // publish utc timestamp; unit : nanosecond
+}

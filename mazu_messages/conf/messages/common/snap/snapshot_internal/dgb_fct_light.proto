@@ -1,0 +1,18 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+message ACCSC_DebugOut_light{
+    optional uint32 ACCSC_uNOPActivationPrevention_mp = 793;
+    optional uint32 ACCSC_uNOPSuppression_mp = 794;
+}
+message LatCtrl_DebugOut_light{
+    optional uint32 LatCtrl_bfLksSprs_mp = 478;
+    optional uint32 LatCtrl_bfLCATakeOverSprsMask_mp = 1070;
+}
+message FCTDebugOut_light{
+    optional ACCSC_DebugOut_light      accsc_debug_out         = 3;
+    optional LatCtrl_DebugOut_light    latctrl_debug_out       = 6;
+    repeated double                    reserved                = 18;
+    optional uint64                    publish_ptp_ts          = 536870907;
+}

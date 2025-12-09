@@ -1,0 +1,72 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message HDMapIssueInfo {
+    enum HDMapIssueType {
+        HDMapISSUE_TYPE_MAPPING_ElementRedundance = 0;      // HD要素多余，来至于建图筛选器
+        HDMapISSUE_TYPE_MAPPING_ElementMissing = 1;      // HD要素缺失，来至于建图筛选器
+        HDMapISSUE_TYPE_MAPPING_ElementGeomtryErr = 2;   // HD要素几何错误，来至于建图筛选器
+        HDMapISSUE_TYPE_MAPPING_ElementAttributeErr = 3; // HD要素语义错误，来至于建图筛选器
+        HDMapISSUE_TYPE_LOCALIZATION_ElementRedundance = 100; //HD要素多余，来至于定位筛选器
+        HDMapISSUE_TYPE_LOCALIZATION_ElementMissing = 101;  //HD要素缺失，来至于定位筛选器
+        HDMapISSUE_TYPE_LOCALIZATION_ElementGeomtryErr  = 102; //HD要素几何错误，来至于定位筛选器
+        HDMapISSUE_TYPE_LOCALIZATION_ElementAttributeErr = 103; // HD要素语义错误，来至于定位筛选器
+    }
+    optional HDMapIssueType type = 1;   // type of this issue
+    repeated double wgs84_position = 2; // position of this issue, lat/lon/alt
+    optional uint64 tile_id = 3;        // tile id of this map issue
+    optional uint64 element_id = 4;     // element id of this issue
+}
+
+message SubHdmapIssueMsg {
+  enum Type {
+    MAP_ODD_VALID_TYPE = 0;   //valid odd
+    MAP_ODD_INVALID_TYPE = 1; //invalid odd
+    GEOMETRY_ERROR_TYPE = 2;  //geometry type
+    MAP_CHANGE_ROAD_TYPE = 3; //chang road type
+    OTHER_TYPE = 4;           //other type
+  }
+
+  message WGS84Position {
+    optional double lon = 1;
+    optional double lat = 2;
+    optional double alt = 3;
+  }
+
+  message EventInfo {
+    optional uint64 link_id = 1;
+    optional uint64 event_index = 2;
+    optional string event_id = 3;
+    optional double start_offset = 4;
+    optional double end_offset = 5;
+  }
+
+  optional Type issue_type = 1;    // Hdmap Issue Type
+  optional string map_version = 2; //hdmap map version
+  optional float severity = 3;     //hdmap issue confidence 0~1
+  optional double start_time = 4;  //event start start_time
+  optional double end_time = 5;    //event start end_time
+  optional WGS84Position start_wgs84_position = 6; //event start position
+  optional WGS84Position end_wgs84_position = 7; //event end position 
+  repeated EventInfo event_info = 8; //event information from map engine
+}
+
+message HDMapIssueNotification {
+    optional uint64 timestamp = 1; // -- time in nanosec that the HDMap issue is done
+
+    repeated HDMapIssueInfo hdmap_issue_info = 2; // -- hdmap issue information
+    optional string uuid = 3; // -- uuid of this notification
+    optional string description = 4; // -- event description, record some info
+    optional SubHdmapIssueMsg sub_hdmap_issue_msg = 5; //sub hdmap issue msg from loc
+
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907; // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909; // uuid of the publisher
+    optional uint64 counter = 536870910; // -- message counter
+    optional uint64 publish_ts = 536870911; // publish utc timestamp, unit in nanosec
+}
+

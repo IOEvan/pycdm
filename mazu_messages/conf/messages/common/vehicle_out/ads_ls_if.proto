@@ -1,0 +1,530 @@
+//AD low speed function proto to vehicle 
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+message ParkStInfo{
+    reserved 9,16,17,18,19,20,21;
+    enum PrkSysType_e{
+        ParkSys_NoReq = 0;//No Parking type request
+        ParkSys_APA   = 1;//APA
+        ParkSys_SAPA  = 2;//SAPA
+        ParkSys_Rsrvd3= 3;//Reserved
+    }
+    optional PrkSysType_e PrkgTypSts = 1;                    //@Channel:ADAS @Message:0x1AA @Signal:PrkgTypSts
+ 
+    enum SapaOpModType_e{
+        SapaOpMode_Off    = 0;//Off
+        SapaOpMode_Fusion = 1;//Fusion
+        SapaOpMode_USS    = 2;//USS only
+        SapaOpMode_VISION = 3;//Vision only
+        SapaOpMode_Rsrvd4 = 4;//Reserved
+        SapaOpMode_Rsrvd5 = 5;//Reserved
+        SapaOpMode_Rsrvd6 = 6;//Reserved
+        SapaOpMode_Rsrvd7 = 7;//Reserved
+    }
+    optional SapaOpModType_e SAPAOpMode = 2;                 //@Channel:ADAS @Message:0x1AA @Signal:SAPAOpMode
+
+    enum SapaStType_e{
+        SapaSt_Stdby   = 0;//Standby
+        SapaSt_Search  = 1;//SAPA in search
+        SapaSt_PreGdnc = 2;//PreGuidance
+        SapaSt_GdncActv= 3;//GuidanceActive
+        SapaSt_Suspend = 4;//Suspend(pause) 
+        SapaSt_Abort   = 5;//Abort
+        SapaSt_Parked  = 6;//Parking finished
+        SapaSt_Fault   = 7;//Fault
+        SapaSt_VLNLowSpeedSearch  = 8;//VLN LowSpeed Search
+        SapaSt_RemotePrepare  = 9;//Remote Park is preparing
+        SapaSt_SapaOutSearch = 10;//SAPA out search
+        SapaSt_ReverseAssistSearch = 11;//Reverse Assist Search
+        SapaSt_CruisingActive = 12;//Cruising Active
+        SapaSt_ManeuveringActive = 13;//Maneuvering Active
+        SapaSt_P2PLowSpeedSearch = 14;// P2P LowSpeed Search
+        SapaSt_P2PLowSpeedReady = 15;// P2P LowSpeed Ready
+    }
+    optional SapaStType_e SApaStatus = 3;                    //@Channel:ADAS @Message:0x1AA @Signal:SApaStatus
+
+    enum ApaReqType_e{
+        ApaReq_None     = 0;//None
+        ApaReq_Stdby    = 1;//Standby
+        ApaReq_Search   = 2;//Search
+        ApaReq_TrackSlot= 3;//TrackSlot
+        ApaReq_Abort    = 4;//Abort
+        ApaReq_Complete = 5;//Complete
+        ApaReq_Rsrvd6   = 6;//Reserved
+        ApaReq_Rsrvd7   = 7;//Reserved
+    }
+    optional ApaReqType_e APAReq   = 4;                      //@Channel:ADAS @Message:0x224 @Signal:ADC1_APAReq
+    optional uint32 APASlotTrackID = 5;                      //@Channel:ADAS @Message:0x224 @Signal:ADC1_APASlotTrackID
+
+    enum SvcReqType_e{
+        SvcReq_Off    = 0;//No request
+        SvcReq_On     = 1;//Request
+        SvcReq_Rsrvd2 = 2;//Reserved
+        SvcReq_Rsrvd3 = 3;//Reserved
+    }
+    optional SvcReqType_e SVCReq = 6;                        //@Channel:ADAS @Message:0x1AA @Signal:ADC_SVC_Req
+
+    enum SapaDrvDirTpye_e{
+        SapaDir_None = 0;//None
+        SapaDir_Drv  = 1;//Drive
+        SapaDir_Rvrs = 2;//Reverse
+        SapaDir_Stst = 3;//Standstill
+    }
+    optional SapaDrvDirTpye_e SApaDrivingDir = 7;            //@Channel:ADAS @Message:0x326 @Signal:SApaDrivingDir
+
+    enum SapaSlotType_e{
+        SapaSlot_LePrll = 0;//LeftParallel
+        SapaSlot_RiPrll = 1;//RightParallel
+        SapaSlot_LeCrss = 2;//LeftCross
+        SapaSlot_RiCrss = 3;//RightCross
+        SapaSlot_LePOC  = 4;//LeftPOC
+        SapaSlot_RiPOC  = 5;//RightPOC
+        SapaSlot_Rsrvd6 = 6;//Reserved
+        SapaSlot_SNA    = 7;//Sna
+    }
+
+    enum SapaPscSlotStType_e{
+        SapaPsc_None        = 0;//PSNone
+        SapaPsc_PSUnSuitable= 1;//PSUnsuitable
+        SapaPsc_PSOk        = 2;//PSOk
+        SapaPsc_PSOkPosOk   = 3;//PSOkPosOk
+    }
+    repeated SapaPscSlotStType_e SApaPscSlot = 10;          //@Channel:ADAS @Message:0x1AA @Signal:SApaPscSlotParallelLe
+                                                            //@Channel:ADAS @Message:0x1AA @Signal:SApaPscSlotParallelRi
+                                                            //@Channel:ADAS @Message:0x1AA @Signal:SApaPscSlotCrossLe
+                                                            //@Channel:ADAS @Message:0x1AA @Signal:SApaPscSlotCrossRi
+                                                            //@Channel:ADAS @Message:0x1AA @Signal:SApaPscSlotAngLe
+                                                            //@Channel:ADAS @Message:0x1AA @Signal:SApaPscSlotAngRi
+                                                            //@Channel:ADAS @Message:0x1AA @Signal:SApaPscSlotOtherLe
+                                                            //@Channel:ADAS @Message:0x1AA @Signal:SApaPscSlotOtherRi
+
+    repeated SapaPscSlotStType_e SApaPocSLot = 11;          //@Channel:ADAS @Message:0x1AA @Signal:SApaPocSlotParallelLe
+                                                            //@Channel:ADAS @Message:0x1AA @Signal:SApaPocSlotParallelRi
+                                                            //@Channel:ADAS @Message:0x326 @Signal:SApaPocSlotCrossLe
+                                                            //@Channel:ADAS @Message:0x326 @Signal:SApaPocSlotCrossRi
+                                                            //@Channel:ADAS @Message:0x326 @Signal:SApaPocSlotAngLe
+                                                            //@Channel:ADAS @Message:0x326 @Signal:SApaPocSlotAngRi
+
+    enum SapaInstrctnType_e{
+        SapaInstrctn_NoMsg     = 0 ;//No Message
+        SapaInstrctn_SafeBelt  = 1 ;//Buckle Safety Belt
+        SapaInstrctn_Shft2R    = 2 ;//Collision risk for narrow slot
+        SapaInstrctn_RlsBrkPdl = 3 ;//Release Brake Pedal
+        SapaInstrctn_Work      = 4 ;//Working
+        SapaInstrctn_Pause     = 5 ;//Pause
+        SapaInstrctn_Abort     = 6 ;//Abort
+        SapaInstrctn_Finish    = 7 ;//Finished
+        SapaInstrctn_Msg8      = 8 ;//Instruction8
+        SapaInstrctn_Msg9      = 9 ;//Handshaking
+        SapaInstrctn_Msg10     = 10;//Keep standstill
+        SapaInstrctn_Msg11     = 11;//Remove obstacle
+        SapaInstrctn_Msg12     = 12;//Close door
+        SapaInstrctn_Msg13     = 13;//Trying to recover automatically
+        SapaInstrctn_Msg14     = 14;//Remain seated
+        SapaInstrctn_Msg15     = 15;//Instruction 15
+    }
+    optional SapaInstrctnType_e SApaInstruction = 22;       //@Channel:ADAS @Message:0x1AA @Signal:SApaInstruction
+    optional uint32 SApaStopDstDisp             = 23;       //@Channel:ADAS @Message:0x326 @Signal:SApaStopDstDisp
+
+    enum SvcEdrReqType_e{
+        SvcEdr_NoReq = 0;//No request
+        SvcEdr_ReqOn = 1;//EDR request
+        SvcEdr_Rsrvd2= 2;//Reserved
+        SvcEdr_InVld = 3;//Invalid
+    }
+    optional SvcEdrReqType_e SVCEDRReq = 24;                //@Channel:ADAS @Message:0x1AA @Signal:ADC_SVCEDRReq  
+    optional uint32 SApaAbortReason    = 25;                //@Channel:ADAS @Message:0x1AA @Signal:SApaAbortReason
+    optional uint32 SAPATextInfo       = 26;                //@Channel:ADAS @Message:0x1AA @Signal:SAPATextInfo
+    enum PSAPOutInstruction_e{
+        PSAPOutIn_No_message=0;
+        PSAPOutIn_Buckle_Safety_Belt=1;
+        PSAPOutIn_Localization_success=2;
+        PSAPOutIn_Release_Brake_Pedal=3;
+        PSAPOutIn_Parking_in=4;
+        PSAPOutIn_Pause=5;
+        PSAPOutIn_Abort=6;
+        PSAPOutIn_Finished=7;
+        PSAPOutIn_Localizing=8;
+        PSAPOutIn_Handshaking=9;
+        PSAPOutIn_Keep_vehicle_standstill=10;
+        PSAPOutIn_Remove_obstacle=11;
+        PSAPOutIn_Close_door=12;
+        PSAPOutIn_Trying_to_recover_automatically=13;
+        PSAPOutIn_Remain_seated=14;
+        PSAPOutIn_Shift_to_D_or_R=15;
+    }
+    optional PSAPOutInstruction_e  PSAPOutInstruction=10000;//@Channel:ADAS @Message:0x319 @Signal:PSAPOutInstruction
+    enum PSAPInstruction_e{
+        PSAPIn_No_message=0;
+        PSAPIn_Buckle_Safety_Belt=1;
+        PSAPIn_Localization_success=2;
+        PSAPIn_Release_Brake_Pedal=3;
+        PSAPIn_Parking_in=4;
+        PSAPIn_Pause=5;
+        PSAPIn_Abort=6;
+        PSAPIn_Finished=7;
+        PSAPIn_Localizing=8;
+        PSAPIn_Handshaking=9;
+        PSAPIn_Keep_vehicle_standstill=10;
+        PSAPIn_Remove_obstacle=11;
+        PSAPIn_Close_door=12;
+        PSAPIn_Trying_to_recover_automatically=13;
+        PSAPIn_Remain_seated=14;
+        PSAPIn_Shift_to_D_or_R=15;
+    }
+    optional PSAPInstruction_e PSAPInstruction=10001; //@Channel:ADAS @Message:0x319 @Signal:PSAPInstruction
+    enum PSAPTextInfo_e{
+        PSAPTe_None=0;
+        PSAPTe_Unable_to_activate=1;
+        PSAPTe_Camera_fault=2;
+        PSAPTe_Speed_too_high=3;
+        PSAPTe_Shift_to_D_or_R=4;
+        PSAPTe_Show_suspend_button=5;
+        Pedestrian_in_station=6;// Not used,instead by "remove obstacle"
+        risk_station_wifi_disconnected=7;
+        PSAPTe_TextInfo_8=8;
+        PSAPTe_TextInfo_9=9;
+        PSAPTe_TextInfo_10=10;
+        PSAPTe_TextInfo_11=11;
+        PSAPTe_TextInfo_12=12;
+        PSAPTe_TextInfo_13=13;
+        PSAPTe_TextInfo_14=14;
+        PSAPTe_TextInfo_15=15;
+    }
+    optional PSAPTextInfo_e PsapTextInfo=10002;//@Channel:ADAS @Message:0x319 @Signal:PSAPTextInfo
+    enum PSAPAbortReason_e{
+        PSAPAb_None=0;
+        PSAPAb_VelocityTooHigh=1;
+        PSAPAb_VehDynIntervention=2;
+        PSAPAb_DoorOpen=3;
+        PSAPAb_HandsOnDetected=4;
+        PSAPAb_EPSFault=5;
+        PSAPAb_Manual_Abort=6;
+        PSAPAb_Service_system=7;
+        PSAPAb_System_Disabled=8;
+        PSAPAb_Localization_fail=9;
+        PSAPAb_InternalCode10=10;
+        PSAPAb_InternalCode11=11;
+        PSAPAb_InternalCode12=12;
+        PSAPAb_InternalCode13=13;
+        PSAPAb_InternalCode14=14;
+        PSAPAb_InternalCode15=15;
+        PSAPAb_InternalCode16=16;
+        PSAPAb_InternalCode17=17;
+        PSAPAb_InternalCode18=18;
+        PSAPAb_InternalCode19=19;
+        PSAPAb_InternalCode20=20;
+        PSAPAb_InternalCode21=21;
+        PSAPAb_InternalCode22=22;
+        PSAPAb_InternalCode23=23;
+        PSAPAb_InternalCode24=24;
+        PSAPAb_InternalCode25=25;
+        PSAPAb_InternalCode26=26;
+        PSAPAb_InternalCode27=27;
+        PSAPAb_InternalCode28=28;
+        PSAPAb_InternalCode29=29;
+        PSAPAb_InternalCode30=30;
+        PSAPAb_InternalCode31=31;
+        PSAPAb_VCU_LLC_module_inactive=32;
+        PSAPAb_Suspend_over_time=33;
+        PSAPAb_Gearshift_over_time=34;
+        PSAPAb_Distance_control_over_time=35;
+        PSAPAb_Unexpected_EPB_apply=36;
+        PSAPAb_Path_plan_fail=37;
+        PSAPAb_Process_over_time=38;
+        PSAPAb_Internal_code_08=39;
+        PSAPAb_Vehilce_moves_during_handshake=40;
+        PSAPAb_ADC_internal_fault=41;
+        PSAPAb_Unable_to_enter_preguidance=42;
+        PSAPAb_Driver_absence=43;
+        PSAPAb_Surround_view_camera_fault=44;
+        PSAPAb_Localization_failed=45;
+        PSAPAb_LLC_EPB_failure=46;
+        PSAPAb_Vehicle_blocked=47;
+        PSAPAb_ICS_fault=48;
+        PSAPAb_station_fault=49;
+        PSAPAb_Station_Msgs_Losscomm=50;
+        PSAPAb_Unexpected_Rearview_Mirror_Sts=51;
+        PSAPAb_Localization_Datas_Wrong=52;
+        PSAPAb_Reserved6=53;
+        PSAPAb_Reserved7=54;
+        PSAPAb_Reserved8=55;
+        PSAPAb_Reserved9=56;
+        PSAPAb_Reserved10=57;
+        PSAPAb_Reserved11=58;
+        PSAPAb_Reserved12=59;
+        PSAPAb_Reserved13=60;
+        PSAPAb_Reserved14=61;
+        PSAPAb_Reserved15=62;
+        PSAPAb_out_VelocityTooHigh=63;
+        PSAPAb_out_VehDynIntervention=64;
+        PSAPAb_out_DoorOpen=65;
+        PSAPAb_out_HandsOnDetected=66;
+        PSAPAb_out_EPSFaulted=67;
+        PSAPAb_out_ManualAbort=68;
+        PSAPAb_out_ServiceSystem=69;
+        PSAPAb_out_SystemDisabled=70;
+        PSAPAb_out_Localization_fail=71;
+        PSAPAb_out_Internalcode_10=72;
+        PSAPAb_out__Internalcode_11=73;
+        PSAPAb_out__Internalcode_12=74;
+        PSAPAb_out__Internalcode_13=75;
+        PSAPAb_out__Internalcode_14=76;
+        PSAPAb_out__Internalcode_15=77;
+        PSAPAb_out_VCU_LLC_module=78;
+        PSAPAb_out_Suspend_over_time=79;
+        PSAPAb_out_Gearshift_over_time=80;
+        PSAPAb_out_Distance_control_over_time=81;
+        PSAPAb_out_Unexpected_EPB_apply=82;
+        PSAPAb_out_Path_plan_fail=83;
+        PSAPAb_out_Process_over_time=84;
+        PSAPAb_out_InternalCode08=85;
+        PSAPAb_out_Vehicle_moves_during_handshake=86;
+        PSAPAb_out_ADC_internal_fault=87;
+        PSAPAb_out_Unable_to_enter_preguidance=88;
+        PSAPAb_out_Driver_absence=89;
+        PSAPAb_out_Surround_view_camera_fault=90;
+        PSAPAb_out_Localization_failed=91;
+        PSAPAb_out_LLC_EPB_failure=92;
+        PSAPAb_out_Vehicle_blocked=93;
+    }
+    optional PSAPAbortReason_e  PSAPAbortReason=10003;//@Channel:ADAS @Message:0x319 @Signal:PSAPAbortReason
+    enum PSAPHMIStatus_e{
+        PSAPHMI_Off=0;
+        PSAPHMI_Standby=1;
+        PSAPHMI_Localization=2;
+        PSAPHMI_Preguidance=3;
+        PSAPHMI_Guidance=4;
+        PSAPHMI_Suspend=5;
+        PSAPHMI_Abort=6;
+        PSAPHMI_Fault=7;
+        PSAPHMI_Parking_finished=8;
+        PSAPHMI_Passive=9;
+        PSAPHMI_RemotePrepare=10;
+        PSAPHMI_Status_11=11;
+        PSAPHMI_Status_12=12;
+        PSAPHMI_Status_13=13;
+        PSAPHMI_Status_14=14;
+        PSAPHMI_Status_15=15;
+    }
+    optional PSAPHMIStatus_e PSAPHMIStatus=10004;//@Channel:ADAS @Message:0x319 @Signal:PSAPHMIStatus
+    enum PSAPDrivingDir_e{
+        PSAPDr_None=0;
+        PSAPDr_Drive=1;
+        PSAPDr_Reverse=2;
+        PSAPDr_Standstill=3;
+    }
+    optional PSAPDrivingDir_e PSAPDrivingDir=10005;//@Channel:ADAS @Message:0x319 @Signal:PSAPDrivingDir
+    optional uint32 PSAPStopDstDisp=10006;//@Channel:ADAS @Message:0x319 @Signal:PSAPStopDstDisp
+    enum PSAPOutHMIStatus_e{
+        PSAPOut_Off=0;
+        PSAPOut_Standby=1;
+        PSAPOut_Localization=2;
+        PSAPOut_Preguidance=3;
+        PSAPOut_Guidance=4;
+        PSAPOut_Suspend=5;
+        PSAPOut_Abort=6;
+        PSAPOut_Fault=7;
+        PSAPOut_Parking_finished=8;
+        PSAPOut_Passive=9;
+        PSAPOut_Status_10=10;
+        PSAPOut_Status_11=11;
+        PSAPOut_Status_12=12;
+        PSAPOut_Status_13=13;
+        PSAPOut_Status_14=14;
+        PSAPOut_Status_15=15;
+    }
+    optional PSAPOutHMIStatus_e PSAPOutHMIStatus=10007;//@Channel:ADAS @Message:0x319 @Signal:PSAPOutHMIStatus
+
+    optional uint32 SApaProgress = 10008;//@Channel:ADAS @Message:0x326 @Signal:SApaProgress
+
+    enum PrkgActvFeatureTyp_e{
+        PrkgActvFeature_None = 0;
+        PrkgActvFeature_PsapIn = 1;
+        PrkgActvFeature_PsapOut = 2;
+        PrkgActvFeature_SapaIn = 3;
+        PrkgActvFeature_SapaOut = 4;
+        PrkgActvFeature_SapaRemoteIn = 5;
+        PrkgActvFeature_SapaRemoteOut = 6;
+        PrkgActvFeature_HZP = 7;
+        PrkgActvFeature_AVP = 8;
+        PrkgActvFeature_NBS = 9;
+        PrkgActvFeature_RPsapIn = 10;
+        PrkgActvFeature_RPsapOut = 11;
+        PrkgActvFeature_ReverseAssist = 12;
+        PrkgActvFeature_P2PLowSpeed = 13;
+        PrkgActvFeature_VLNLowSpeed = 14;
+        PrkgActvFeature_Type_15 = 15;
+    }
+
+    optional PrkgActvFeatureTyp_e PrkgActvFeatureTyp = 10009;//@Channel:ADAS @Message:0x1AA @Signal:PrkgActvFeatureTyp  
+
+    optional uint32 SApaInstructionSecond = 10010; //@Channel:ADAS @Message:0x326 @Signal:SApaInstructionSecond
+
+    optional uint32 SAPATextInfoSecond    = 10011; //@Channel:ADAS @Message:0x326 @Signal:SAPATextInfoSecond
+
+    optional bool is_PSP_connection_area_available = 10012; //should be true if PSP connection area is available when transition with PSAP
+}
+message SummonStInfo{
+    optional uint32 NBSInstruction      = 1;                //@Channel:ADAS @Message:0x266 @Signal:NBSInstruction
+
+    enum NbsBlkgRsnType_e{
+        NBSBlkg_No   = 0;//No Blockage
+        NBSBlkg_Frnt = 1;//Front Blockage
+        NBSBlkg_Rear = 2;//Rear Blockage
+        NBSBlkg_Both = 3;//Both Blockage
+    }
+    optional NbsBlkgRsnType_e  NBSBlkage = 2;               //@Channel:ADAS @Message:0x1E4 @Signal:NBSBlkage
+
+    optional uint32 NBSAbortReason       = 3;               //@Channel:ADAS @Message:0x266 @Signal:NBSAbortReason
+
+    optional bool NBSBlkageFrntLe = 4; //@Channel:ADAS @Message:0x1E4 @Signal:NBSBlkageFrntLe
+
+    optional bool NBSBlkageFrntRi = 5; //@Channel:ADAS @Message:0x1E4 @Signal:NBSBlkageFrntRi
+
+    optional bool NBSBlkageReLe = 6; //@Channel:ADAS @Message:0x1E4 @Signal:NBSBlkageReLe
+
+    optional bool NBSBlkageReRi = 7; //@Channel:ADAS @Message:0x1E4 @Signal:NBSBlkageReRi
+
+    enum RpsDirAvl_e{
+        RpsDirAvl_None = 0;//Not Available
+        RpsDirAvl_Available = 1;//Available
+        RpsDirAvl_Reserved2 = 2;//Reserved
+        RpsDirAvl_Reserved3 = 3;//Reserved
+    }
+
+    repeated RpsDirAvl_e RpsDir_Avail = 8; //@Channel:ADAS @Message:0x1E4 @Signal:RpsFront_Avail
+                                           //@Channel:ADAS @Message:0x1E4 @Signal:RpsRear_Avail
+                                           //@Channel:ADAS @Message:0x1E4 @Signal:RpsLeft_Avail
+                                           //@Channel:ADAS @Message:0x1E4 @Signal:RpsRight_Avail
+
+
+    optional uint32 RpsTextInfo = 9; //@Channel:ADAS @Message:0x1E4 @Signal:RpsTextInfo
+
+    enum RpsSlotSts_e{
+        RpsSlotSts_None = 0; //Unknown
+        RpsSlotSts_PerpLeHeadIn = 1; //Perpendicular_Left_HeadIn
+        RpsSlotSts_PerpLeHeadOut = 2; //Perpendicular_Left_HeadOut
+        RpsSlotSts_PerpRiHeadIn = 3; //Perpendicular_Right_HeadIn
+        RpsSlotSts_PerpRiHeadOut = 4; //Perpendicular_Right_HeadOut   
+        RpsSlotSts_ParLe = 5; //Parallel_Left    
+        RpsSlotSts_ParRi = 6; //Parallel_Right 
+        RpsSlotSts_AngLeHeadIn = 7;  //Diagonal_Left_HeadIn
+        RpsSlotSts_AngLeHeadOut = 8; //Diagonal_Left_HeadOut
+        RpsSlotSts_AngRiHeadIn = 9;  //Diagonal_Right_HeadIn
+        RpsSlotSts_AngRiHeadOut = 10;//Diagonal_Right_HeadOut    
+        RpsSlotSts_Reserved11 = 11;//Reserved
+        RpsSlotSts_Reserved12 = 12;//Reserved
+        RpsSlotSts_Reserved13 = 13;//Reserved
+        RpsSlotSts_Reserved14 = 14;//Reserved
+        RpsSlotSts_Reserved15 = 15;//Reserved  
+    }
+
+    optional RpsSlotSts_e RpsSlotSts = 10; //@Channel:ADAS @Message:0x1E4 @Signal:RpsSlotSts
+
+    optional uint32 RpsProgress = 11; //@Channel:ADAS @Message:0x1E4 @Signal:RpsProgress
+
+    optional bool RpsStandstillReq = 12; //@Channel:ADAS @Message:0x1E4 @Signal:RpsStandstillReq
+
+    enum RpsSts_e{
+        RpsSts_Standby = 0; //Standby
+        RpsSts_Search = 1; //SAPA in search
+        RpsSts_Preguidance = 2; //Preguidance
+        RpsSts_GuidanceActive = 3; //GuidanceActive
+        RpsSts_Standstill = 4; //Suspend
+        RpsSts_Abort = 5; //Abort
+        RpsSts_ParkFinish = 6; //Park Finish
+        RpsSts_Fault = 7; //Fault
+        RpsSts_Reserved8 = 8; //Reserved8
+        RpsSts_RemotePrepare = 9; //Remote Park is preparing
+        RpsSts_SapaOutSearch = 10; //SAPA out search
+        RpsSts_Reserved11= 11; //Reserved11
+        RpsSts_Reserved12 = 12; //Reserved12
+        RpsSts_Reserved13 = 13; //Reserved13
+        RpsSts_Reserved14 = 14; //Reserved14
+        RpsSts_Reserved15 = 15; //Reserved15
+    }
+
+    optional RpsSts_e RpsSts = 13; //@Channel:ADAS @Message:0x1E4 @Signal:RpsSts
+
+    enum RpsLockUnlckCtrl_e{
+        RpsLockUnlckCtrl_None = 0;//No request
+        RpsLockUnlckCtrl_Unlock = 1;//All door unlock
+        RpsLockUnlckCtrl_Lock = 2;//All door lock
+        RpsLockUnlckCtrl_Reserved = 3;//Reserved
+    }  
+
+    optional RpsLockUnlckCtrl_e RpsLockUnlckCtrl = 14; //@Channel:ADAS @Message:0x1E5 @Signal:RpsLockUnlckCtrl
+
+    enum RpsInstruction_e{
+        RpsInstruction_None = 0;//No Message
+        RpsInstruction_RemoteReady = 1; //RPS is ready for user to active move control
+        RpsInstruction_RemotePrepare = 2; //RPS is preparing for user to active move control
+        RpsInstruction_RemoteKeyTooFar = 3; //BLE key or key fob too far
+        RpsInstruction_Working = 4; //RPS is working
+        RpsInstruction_Pause = 5; //RPS is in suspend
+        RpsInstruction_Abort = 6; //RPS is abort
+        RpsInstruction_Finished = 7; //RPS has finished
+        RpsInstruction_Instruction8 = 8; //Instruction 8
+        RpsInstruction_Handshaking = 9; //RPS is handshaking
+        RpsInstruction_Instruction10 = 10; //Instruction 10
+        RpsInstruction_RemoveObstacle = 11; //RPS is waiting for obstacle remove
+        RpsInstruction_CloseDoor = 12; //Reminder user close door
+        RpsInstruction_TryingRecoverAutomatically = 13; //Trying to recover automatically
+        RpsInstruction_LeaveSeat = 14; //Reminder user leave seat
+        RpsInstruction_Instruction15 = 15; //Instruction 15
+    }
+
+    optional RpsInstruction_e RpsInstruction = 15; //@Channel:ADAS @Message:0x1E4 @Signal:RpsInstruction
+
+    optional uint32 RpsAbortReason = 16; //@Channel:ADAS @Message:0x1E4 @Signal:RpsAbortReason
+
+    optional float RpsSlotUIVehX = 17; //@Channel:ADAS @Message:0x215 @Signal:RpsSlotUIVehX
+
+    optional float RpsSlotUIVehY = 18; //@Channel:ADAS @Message:0x215 @Signal:RpsSlotUIVehY
+
+    optional float RpsSlotUIVehPsi = 19; //@Channel:ADAS @Message:0x215 @Signal:RpsSlotUIVehPsi
+
+    optional float RpsSlotUISizeX = 20; //@Channel:ADAS @Message:0x215 @Signal:RpsSlotUISizeX
+
+    optional float RpsSlotUISizeY = 21; //@Channel:ADAS @Message:0x215 @Signal:RpsSlotUISizeY
+
+    enum RPSRegnDstType_e{
+        RPSRegnDst_None = 0; //No obstacle
+        RPSRegnDst_Low = 1; //Low warning of obstacle
+        RPSRegnDst_Middle = 2; //Middle warning of obstacle
+        RPSRegnDst_High = 3; //High warning of obstacle
+    }
+    repeated RPSRegnDstType_e RPSRegnDst = 22; //@Channel:ADAS @Message:0x1E5 @Signal:RpsFrntLeRegnDst
+                                               //@Channel:ADAS @Message:0x1E5 @Signal:RpsFrntLeMidRegnDst
+                                               //@Channel:ADAS @Message:0x1E5 @Signal:RpsFrntMidRegnDst
+                                               //@Channel:ADAS @Message:0x1E5 @Signal:RpsFrntRiMidRegnDst
+                                               //@Channel:ADAS @Message:0x1E5 @Signal:RpsFrntRiRegnDst
+                                               //@Channel:ADAS @Message:0x1E5 @Signal:RpsReLeRegnDst
+                                               //@Channel:ADAS @Message:0x1E5 @Signal:RpsReLeMidRegnDst
+                                               //@Channel:ADAS @Message:0x1E5 @Signal:RpsReMidRegnDst
+                                               //@Channel:ADAS @Message:0x1E5 @Signal:RpsReRiMidRegnDst
+                                               //@Channel:ADAS @Message:0x1E5 @Signal:RpsReRiRegnDst
+                                               //@Channel:ADAS @Message:0x1E5 @Signal:RpsLeFrntRegnDst
+                                               //@Channel:ADAS @Message:0x1E5 @Signal:RpsLeMidRegnDst
+                                               //@Channel:ADAS @Message:0x1E5 @Signal:RpsLeRearRegnDst
+                                               //@Channel:ADAS @Message:0x1E5 @Signal:RpsRiFrntRegnDst
+                                               //@Channel:ADAS @Message:0x1E5 @Signal:RpsRiMidRegnDst
+                                               //@Channel:ADAS @Message:0x1E5 @Signal:RpsRiRearRegnDst
+
+    optional uint32 ParkOutAvlTyp = 23; //@Channel:ADAS @Message:0x337 @Signal:ParkOutAvlTyp
+                                        //park out planning result of different direction  
+                                        //bit0: Result of parallel out in left orientation  
+                                        //bit1: Result of parallel out in right orientation
+                                        //bit2: Result of vertical out in forward orientation
+                                        //bit3: Result of Vertical out in left orientation
+                                        //bit4: Result of Vertical out in right orientation                                               
+}
+message LowSpdFunInfo{
+	optional ParkStInfo	 ParkSt = 1;
+	optional SummonStInfo SummonSt = 2; //including RPA and NBS
+}

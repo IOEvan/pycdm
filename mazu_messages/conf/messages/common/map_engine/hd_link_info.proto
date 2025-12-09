@@ -1,0 +1,251 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+import "common/map_engine/map_geometry.proto";
+import "common/map_engine/hd_common.proto";
+import "common/map_engine/hd_lane.proto";
+
+message LinkLandmarkOverlap {
+  optional float start_pos = 1;
+  optional float end_pos = 2;
+  optional uint64 landmark_id = 3;
+  enum Type {
+    UNKNOWN_TYPE = 0;
+    ARROW = 1;
+    PARKING_AREA = 2;
+    SPEED_BUMP = 3;
+    VIRTUAL_JUNCTION = 4;
+    POLE_BOTTOM = 5;
+    POI = 6;
+  }
+  optional Type type = 4;
+}
+
+// landmark关联的link
+message LinkOverlap {
+  optional uint64 ref_link_id = 1;
+  optional float start_pos = 2;
+  optional float end_pos = 3;
+}
+
+message LinkFeaturePoint {
+  /* 类型
+    0：封闭区进入点（不需要存储offset position ref_link）
+    1：封闭区退出点（不需要存储offset position ref_link）
+    2：泊车等候区进入点
+    3：泊车等候区退出点
+    4：换电停车位进入点
+    5：换电停车位退出点
+    8：非换电停车位投影在link上最近点    
+  */
+  optional int32 type = 1;
+  // 相对于link起点偏移量（0-1，0：起点 1：终点）
+  optional float offset = 2;
+  // 坐标
+  optional MapPoint position = 3;
+  // 关联道路ID
+  optional uint64 link_id = 4;
+}
+
+
+message HdLinkInfo {
+  optional uint64 id = 1;
+
+  // Length of the link in meter
+  optional double length = 2;
+
+  // Average speed that can be achieved on a link by a car during normal traffic flow.
+  // Unit size is km/h. The range is 1 to 255.
+  optional uint32 average_speed = 3;
+
+  enum PriorityRoadClass
+  {
+    MOTORWAY = 0;
+    CITY_MOTORWAY = 1;
+    NATIONAL_HIGHWAY = 2;
+    PROVINCIAL_HIGHWAY = 3;
+    COUNTY_ROAD = 4;
+    TOWNSHIP_ROAD = 5;
+    OTHER_ROAD = 6;
+    SPECIAL_SERVICE = 7;
+    FERRY = 8;
+    PEDESTRIAN_ROAD = 9;
+    PASSENGER_FERRY = 10;
+    CYCLE_TRACK = 11;
+    SERVICE_AREA_INNER_ROAD = 12;
+    UNKNOWN_CLASS = 13;
+    URBAN_ROAD = 14;
+    PARKING_LOT_INNER_ROAD = 15;        
+  }
+  optional PriorityRoadClass priority_road_class = 4;
+
+  enum TravelDirection
+  {
+    IN_NO_DIRECTION = 0;
+    IN_POSITIVE_DIRECTION = 1;
+    IN_NEGATIVE_DIRECTION = 2;
+    IN_BOTH_DIRECTIONS = 3;
+  }
+  optional TravelDirection travel_direction = 5;
+
+  enum FormWay
+  {
+    FORM_WAY_NONE = 0;
+    FORM_WAY_SEPARATE_DIRECTION = 1;
+    FORM_WAY_INTERSECTION = 2;
+    FORM_WAY_IC = 3;
+    FORM_WAY_JCT = 4;
+    FORM_WAY_TUNNEL = 5;
+    FORM_WAY_SA = 6;
+    FORM_WAY_PA = 7;
+    FORM_WAY_RELIEF_ROAD = 8;
+    FORM_WAY_ROUNDABOUT = 9;
+    FORM_WAY_BRIDGE = 10;
+    FORM_WAY_PEDESTRIAN_STREET = 11;
+    FORM_WAY_RAMP = 12;
+    FORM_WAY_CONTROLLED_ACCESS = 13;
+    FORM_WAY_UNKNOWN_TRAFFIC_REGION = 14;
+    FORM_WAY_POI_LINK = 15;
+    FORM_WAY_BUS = 16;
+    FORM_WAY_RIGHT_TURN = 17;
+    FORM_WAY_TOURIST = 18;
+    FORM_WAY_REGION_ROAD = 19;
+    FORM_WAY_LEFT_TURN = 20;
+    FORM_WAY_TRUCK = 21;
+    FORM_WAY_RELIEF_ENTRANCE_OR_EXIT = 22;
+    FORM_WAY_PA_ENTRANCE_OR_EXIT = 23;
+    FORM_WAY_MOVABLE_BRIDGE = 24;
+    FORM_WAY_RESERVED = 25;
+    FORM_WAY_MAIN_ROAD = 26;
+    FORM_WAY_TURN_LEFT_TO_BORROW_ROAD = 27;
+    FORM_WAY_UTURN = 28;
+    FORM_WAY_LINK_TO_SPECIAL = 29;
+    FORM_WAY_LINK_STEP_ROAD = 30;
+    FORM_WAY_LINK_FRONT_OF_DOOR = 31;
+    FORM_WAY_UNKNOWN = 32;
+    FORM_WAY_SAPA = 33;
+    FORM_WAY_WITHIN_INTERSECTION = 34;
+    FORM_WAY_BUILD_UP_AREA_ROAD = 35;
+    FORM_WAY_URBAN_ROAD = 36;
+    FORM_WAY_TOLL_PLAZA = 37;
+    FORM_WAY_CHECKPOINT = 38;
+    FORM_WAY_PARKING = 39;
+    FORM_WAY_PARK_ROAD = 40;
+  };
+  repeated FormWay form_way = 6;
+
+  // The geometric predecessor/successor of this link.
+  repeated uint64 predecessor_link_ids = 7;
+  repeated uint64 successor_link_ids = 8;
+
+  // The lane ids which related to this link.
+  repeated uint64 lane_ids = 9;
+
+  // The lane group ids which related to this link.
+  repeated uint64 lane_group_ids = 10;
+
+  // The road geo line ids which related to this link.
+  repeated uint64 road_geo_line_ids = 11;
+
+  // Whether this link is virtual link.
+  optional bool complex_intersection = 12;
+
+  repeated LinkFeaturePoint feature_points = 13;
+
+  // Whether this link is junction link.
+  optional bool plural_junction = 14;
+
+  optional int32 conn_access = 15;
+  // 楼层信息
+  message FloorInfo{
+    // 楼层id，以路面层为0，依次向下排列
+    optional int32 id = 1;
+    // 现实中楼层的名称
+    optional string floor_name = 2;
+
+    // 标识局部地图的全局唯一id，应用于停车场、服务区
+    optional string map_id = 3;    
+  }
+  optional FloorInfo floor_info = 16;
+  
+  // 路口资料来源
+  enum MtrlType {
+    MTRL_UNCLASSIFIED = 0; // 未分类
+    MTRL_POINT_CLOUD = 1;  // 点云
+    MTRL_IMAGE = 2;        // 影像 
+    MTRL_VECTOR = 3;       // 矢量
+    MTRL_PICTURE = 4;      // 照片 
+    MTRL_OTHER = 5;        // 其它
+  }
+  repeated MtrlType mtrl_type = 17;
+  // 是否豁口路口内道路
+  optional bool opening_junction = 18 [default = false];
+  // 是否VRU路口内道路
+  optional bool vru_junction = 19 [default = false];
+  // 当link为sd内化时的车道相关信息
+  message SDLaneNumInfo {
+    // sd内化时的sd车道数
+    optional uint32 rd_lane_num = 1;
+    // 路口前道路的左边可行驶车道
+    optional uint32 ex_lane_num_left = 2;
+    // 路口前道路的右边可行驶车道
+    optional uint32 ex_lane_num_right = 3;
+  }
+  // sd内化后车道信息
+  optional SDLaneNumInfo sd_lane_info = 20;
+  enum UrbanRoadClass {
+    URBAN_NATIONAL_HIGHWAY = 5;
+    URBAN_PROVINCIAL_HIGHWAY = 6;
+    URBAN_COUNTY_ROAD = 7;
+    URBAN_TOWNSHIP_ROAD = 8;
+    URBAN_OTHER_ROAD = 9;
+    URBAN_SPECIAL_SERVICE = 10;
+  }
+  optional UrbanRoadClass urban_road_class = 21;
+
+
+  /* 数据来源
+    0：Unknown
+    1：众包
+    2：腾讯 HD
+    3：HERE HD
+    4: SD
+    5: 自采集
+  */
+  optional uint32 source = 22;
+  // 限速, 单位m/s
+  optional float max_speed = 23;
+  // 数据制作类型
+  // 0: 众包
+  // 1: 快修
+  // 2: 供应商数据转换
+  // 99: 其他
+  optional uint32 auto_type = 24;
+  // 无图服务区link关联的定位框
+  repeated LinkLandmarkOverlap parking_area_overlap = 25;
+  // 经验限速, 单位m/s
+  optional float exp_speed = 26;
+
+  optional sint32 new_rd_lane_num = 27;
+
+  repeated HdLane.DynamicLayerInfo dynamic_layer_info = 28;
+  // link级virtual_junction
+  repeated LinkLandmarkOverlap virtual_junction_overlap = 29;
+  // link关联的landmark，用于轻图停车场
+  repeated LinkLandmarkOverlap landmark_overlap = 30;
+
+  // 同层标记https://nio.feishu.cn/docx/CkKDdu9sPoMtHuxoXyVc6uKJnyd
+  enum RoadSpaceType {
+    ROADSPACE_NOT_CLASSIFIED = 0;
+    ROADSPACE_COINCIDENCE = 1;
+  }
+  optional RoadSpaceType road_space_type = 31;
+  optional double coincidence_start_offset = 32;
+  optional double coincidence_end_offset = 33;
+}
+
+message HdLinkInfoList {
+  repeated HdLinkInfo link_info_list = 1;
+}

@@ -1,0 +1,192 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+import "common/pnc/geometry.proto";
+import "common/pnc/pose.proto";
+import "common/perf/sensor_ts_header.proto";
+import "common/pnc/nop_calibration.proto";
+import "common/localization/map_topo_localization.proto";
+import "common/localization/global_localization.proto";
+
+message WheelSpeed {
+  enum WheelSpeedType {
+    FORWARD = 0;
+    BACKWARD = 1;
+    STANDSTILL = 2;
+    INVALID = 3;
+  }
+  optional fixed64 measurement_time = 1;
+  optional bool is_wheel_spd_rr_valid = 2 [default = false];
+  optional WheelSpeedType wheel_direction_rr = 3 [default = INVALID];
+  optional double wheel_spd_rr = 4 [default = 0.0];
+  optional bool is_wheel_spd_rl_valid = 5 [default = false];
+  optional WheelSpeedType wheel_direction_rl = 6 [default = INVALID];
+  optional double wheel_spd_rl = 7 [default = 0.0];
+  optional bool is_wheel_spd_fr_valid = 8 [default = false];
+  optional WheelSpeedType wheel_direction_fr = 9 [default = INVALID];
+  optional double wheel_spd_fr = 10 [default = 0.0];
+  optional bool is_wheel_spd_fl_valid = 11 [default = false];
+  optional WheelSpeedType wheel_direction_fl = 12 [default = INVALID];
+  optional double wheel_spd_fl = 13 [default = 0.0];
+}
+
+message CarState {
+  optional uint64 time_meas = 1;  // in ns
+
+  // Position of the vehicle in map frame in m.
+  optional Vector3d position = 2;
+
+  // Velocity of the vehicle in map frame in m/s.
+  optional Vector3d velocity_enu = 3;
+
+  // Velocity of the vehicle in vehicle frame in m/s.
+  optional Vector3d velocity_flu = 4;
+
+  // Euler angles of roll, pitch, yaw in rad (intrinsic sequence z-y-x).
+  // Yaw is 0 when the car points to east, pi/2 when the car points to north.
+  optional Vector3d roll_pitch_yaw = 5;
+
+  optional Vector3d angular_velocity_flu = 6;  // in rad/s
+
+  optional Vector3d acceleration_flu = 7;  // in m/s^2
+
+  optional double front_wheel_angle = 8;  // in rad
+
+  optional double speed = 9;  // Vehicle speed, in m/s.
+
+  //  turn signal status
+  enum TurnSignal {
+    NONE_TURN = 0;
+    LEFT = 1;
+    RIGHT = 2;
+    TIP_LEFT = 3;
+    TIP_RIGHT = 4;
+  }
+  optional TurnSignal turn_signal = 10;
+
+  // warning blinker status
+  optional bool warning_blinker_on = 11;
+
+  enum GearStatus {
+    INVALID = 0;
+    PARK = 1;
+    REVERSE = 2;
+    NEUTRAL = 3;
+    DRIVE = 4;
+    LOW = 5;
+    UNSPECIFIED = 6;
+  }
+  optional GearStatus gear = 12;
+
+  enum DrivingMode {
+    MANUAL = 0;
+    LONGITUDINAL_AUTO = 1;
+    LATERAL_AUTO = 2;
+    AUTO = 3;
+  }
+  optional DrivingMode driving_mode = 13;
+
+  optional double acceleration_over_ground = 14;
+
+  optional double longitudinal =
+      15;  // in used, longitudinal command in [-1, 1]
+  optional WheelSpeed wheel_speed = 16;
+  optional double yaw_rate = 17;
+  optional double lateral_acceleration = 18;
+  optional double longitudinal_acceleration = 19;
+
+  optional Pose.PoseType localization_status = 20;
+  optional double localization_confidence = 21;
+
+  optional double chassis_speed = 22;  // chassis speed get from CAN, unit m/s
+  repeated float dim_confidence = 23;
+
+  enum VlcllcStatus {
+    VLC_ACTIVE = 0;
+    VLCLLC_TRANSITION = 1;
+    LLC_ACTIVE = 2;
+  }
+  optional VlcllcStatus vlcllc_status = 24;
+
+  optional bool canbus_status = 25;
+
+  optional uint32 global_loc_reject_reason = 26;
+  optional Pose.WMConfidence wm_confidence = 27;
+
+  optional Vector3d relative_position =
+      28;  // position from relative localization for bl200 lane map mode
+  optional Vector3d relative_roll_pitch_yaw =
+      29;  // orientation from relative localization for bl200 lane map mode
+  optional uint64 relative_time_meas =
+      30;  // time meas from relative localization for bl200 lane map mode
+
+  optional uint64 curr_hd_lane_id = 31;  // current hd map lane id from global
+                                         // localization for bl200 lane map mode
+  optional float curr_hd_lane_offset =
+      32;  // s on current lane id from global localization for bl200 lane map
+           // mode
+  optional NOPCalibration nop_calibration = 33;
+  optional ControlReplanReq replan_req = 34;
+  enum ControlLonStatus {
+    LonSt_Invalid = 0;
+    LonSt_Stopped = 1;
+    LonSt_StartUp = 2;
+    LonSt_Driving = 3;
+    LonSt_DecelToStop = 4;
+    LonSt_Reserved = 10000;
+  }
+  optional ControlLonStatus lon_status = 35;
+
+  optional string current_station_id = 36;
+  optional uint32 current_is_in_psp_area = 37;
+  optional LaneLoc lane_loc = 38 [deprecated = true];
+  optional uint32 navigation_yawing = 39;  // navigation deviated
+  optional LaneLocRoadMap lane_loc_road_map = 40;
+
+  // local map suppression from
+  optional bool wm_nop_suppr_req_flg = 50;
+  optional bool wm_nop_actprev_req_flg = 51;
+
+  // corrected_pose.roll_pitch_yaw
+  optional Vector3d wm_roll_pitch_yaw = 52;
+
+  // driving safety speed control
+  optional double reference_speed_kph = 100;
+  optional double reference_thw_sec = 101;
+  optional double displayed_speed_kph = 102;
+
+  // pn input
+  optional MapTopoLoc map_topo_loc = 150;
+  optional LaneLoc.LaneLocStatus lane_loc_status = 151;
+  optional uint32 current_is_in_pn_area = 152;
+
+  optional bool wm_highway_to_ramp_risk_scenario_flg = 153;
+  optional bool wm_lane_risk_scenario = 154;  // perception rain risk
+
+  optional SensorTSHeader sensor_original_ts =
+      1001;  // sensor original ts, last field of msg
+  optional uint64 publish_ptp_ts =
+      536870907;  // publish ptp timestamp, uint in nanosec
+  optional uint64 timestamp = 536870908;  // ptp sensor time of perception result, unit: ns
+  optional string publisher_id = 536870909;  // uuid of the publisher
+  optional uint64 counter = 536870910;       // message counter
+  optional uint64 publish_ts =
+      536870911;  // publish utc timestamp; unit : nanosecond
+}
+message VehicleSignal {
+  optional CarState.TurnSignal turn_signal = 1;
+  // lights enable command
+  optional bool high_beam = 2;
+  optional bool low_beam = 3;
+  optional bool horn = 4;
+  optional bool emergency_light = 5;
+  
+}
+
+message ControlReplanReq {
+  optional bool lon_replan_req = 1 [default = false];
+  optional bool lat_replan_req = 2 [default = false];
+}

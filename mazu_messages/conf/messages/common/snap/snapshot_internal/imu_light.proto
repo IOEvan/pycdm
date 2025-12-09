@@ -1,0 +1,18 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/sensors/imu.proto";
+
+message IMUFrame_light {
+    required IMUValidFlags valid_flags = 1;  // The flags to show which values are valid in this IMU frame.
+    required int64 timestamp_us = 2;         // Timestamp for the current message. Indicates when it's first received [usec].
+    repeated double orientation = 3;         // Roll, pitch, and yaw angle of the orientation returned by the IMU [degree].
+    required Quaterniond orientationQuaternion = 4;  //Quaternion representation (x, y, z, w) of the orientation returned by the IMU.
+    repeated double turnrate = 5;            // Roll, pitch, and yaw turn rate (i.e., gyroscope)[rad/s].
+    required double heading = 8;             // Heading of the IMU measured in respect to the ENU system [degrees], i.e., compass.
+    required IMUFrame.IMUHeadingType headingType = 9; // Type of the heading information.
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+  }

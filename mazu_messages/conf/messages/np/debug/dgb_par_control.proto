@@ -1,0 +1,322 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+import "common/vehicle_out/ads_actu.proto";
+import "np/apps/parking/par_pnc_point.proto";
+import "np/apps/parking/par_base.proto";
+import "common/pnc/control_command.proto";
+
+message SimpleLateralDebug {
+    // lateral error
+    optional double lateral_error = 1;
+    // reference heading angle
+    optional double ref_heading = 2;
+    // heading angle of ego vehicle
+    optional double heading = 3;
+    // heading angle error
+    optional double heading_error = 4;
+    // heading error rate
+    optional double heading_error_rate = 5;
+    // lateral error rate
+    optional double lateral_error_rate = 6;
+    // road curvature
+    optional double curvature = 7;
+    // steering angle
+    optional double steer_angle = 8;
+    // calcualted steer angle feedforward
+    optional double steer_angle_feedforward = 9;
+    // calculated steer angle lateral contribution
+    optional double steer_angle_lateral_contribution = 10;
+    // calculated steer angle lateral rate contribution
+    optional double steer_angle_lateral_rate_contribution = 11;
+    // calculated steer angle heading contribution
+    optional double steer_angle_heading_contribution = 12;
+    // calculated steer angle heading rate contribution
+    optional double steer_angle_heading_rate_contribution = 13;
+    // calculated steer angle feedback
+    optional double steer_angle_feedback = 14;
+    // steering position
+    optional double steering_position = 15;
+    // reference speed
+    optional double ref_speed = 16;
+    // steering angle limitation value
+    optional double steer_angle_limited = 17;
+    // time derivative of lateral error rate, in m/s^2
+    optional double lateral_acceleration = 18;
+    // second time derivative of lateral error rate, in m/s^3
+    optional double lateral_jerk = 19;
+
+    optional double ref_heading_rate = 20;
+    optional double heading_rate = 21;
+    // heading acceleration, as known as yaw acceleration, is the time derivative
+    // of heaing rate, in rad/s^2
+    optional double ref_heading_acceleration = 22;
+    optional double heading_acceleration = 23;
+    optional double heading_error_acceleration = 24;
+
+    // heading_jerk, as known asa yaw jerk, is the second time derivative of
+    // heading_rate, in rad/s^3
+    optional double ref_heading_jerk = 25;
+    optional double heading_jerk = 26;
+    optional double heading_error_jerk = 27;
+
+    // modified lateral_error and heading_error with look-ahead or look-back
+    // station, as the feedback term for control usage
+    optional double lateral_error_feedback = 28;
+    optional double heading_error_feedback = 29;
+
+    // current planning target point
+    optional TrajectoryPoint current_target_point = 30;
+
+    // Augmented feedback control term in addition to LQR control
+    optional double steer_angle_feedback_augment = 31;
+}
+
+message SimpleMPCDebug {
+    // lateral error
+    optional double lateral_error = 1;
+    // reference heading angle
+    optional double ref_heading = 2;
+    // heading angle of ego vehicle
+    optional double heading = 3;
+    // heading angle error
+    optional double heading_error = 4;
+    // heading error rate
+    optional double heading_error_rate = 5;
+    // lateral error rate
+    optional double lateral_error_rate = 6;
+    // road curvature of coordinate origin
+    optional double curvature = 7;
+    // calcualted front wheel angle feedforward
+    optional double front_wheel_angle_feedforward = 8;
+    // calcualted rear wheel angle feedforward
+    optional double rear_wheel_angle_feedforward = 9;
+    // calcualted front wheel angle feedback
+    optional double front_wheel_angle_feedback = 10;
+    // calcualted rear wheel angle feedback
+    optional double rear_wheel_angle_feedback = 11;
+    // steering angle corresponding to front wheel angle
+    optional double steer_angle_original = 12;
+    // steering angle limitation value
+    optional double steer_angle_limited = 13;
+    // pnnagsae of strsys
+    optional double steering_position = 14;
+    // calcualted steer angle feedforward
+    optional double steer_angle_feedforward = 15;
+    // calculated steer angle lateral contribution
+    optional double steer_angle_lateral_contribution = 16;
+    // calculated steer angle lateral rate contribution
+    optional double steer_angle_lateral_rate_contribution = 17;
+    // calculated steer angle heading contribution
+    optional double steer_angle_heading_contribution = 18;
+    // calculated steer angle heading rate contribution
+    optional double steer_angle_heading_rate_contribution = 19;
+    // calculated steer angle feedback
+    optional double steer_angle_feedback = 20;
+
+    optional double ref_speed = 21;
+    optional double station_reference = 22;
+    optional double station_error = 23;
+    optional double speed_reference = 24;
+    optional double speed_error = 25;
+    optional double acceleration_reference = 26;
+    optional bool is_full_stop = 27;
+    optional double station_feedback = 28;
+    optional double speed_feedback = 29;
+    optional double acceleration_cmd_closeloop = 30;
+    optional double acceleration_cmd = 31;
+    optional double acceleration_lookup = 32;
+    optional double speed_lookup = 33;
+    optional double calibration_value = 34;
+    optional double steer_unconstrained_control_diff = 35;
+    optional double steer_angle_feedforward_compensation = 36;
+    repeated double matrix_q_updated = 37; // matrix_q_updated_ size = 6
+    repeated double matrix_r_updated = 38; // matrix_r_updated_ size = 2
+
+    // time derivative of lateral error rate, in m/s^2
+    optional double lateral_acceleration = 39;
+    // second time derivative of lateral error rate, in m/s^3
+    optional double lateral_jerk = 40;
+
+    optional double ref_heading_rate = 41;
+    optional double heading_rate = 42;
+
+    // heading_acceleration, as known as yaw acceleration, is the time derivative
+    // of heading rate,  in rad/s^2
+    optional double ref_heading_acceleration = 43;
+    optional double heading_acceleration = 44;
+    optional double heading_error_acceleration = 45;
+
+    // heading_jerk, as known as yaw jerk, is the second time derivative of
+    // heading rate, in rad/s^3
+    optional double ref_heading_jerk = 46;
+    optional double heading_jerk = 47;
+    optional double heading_error_jerk = 48;
+
+    optional double acceleration_feedback = 49;
+    optional double acceleration_error = 50;
+    optional double jerk_reference = 51;
+    optional double jerk_feedback = 52;
+    optional double jerk_error = 53;
+
+    // modified lateral_error and heading_error with look-ahead or look-back
+    // station, as the feedback term for control usage
+    optional double lateral_error_feedback = 54;
+    optional double heading_error_feedback = 55;
+    // Augmented feedback control term in addition to MPC control
+    optional double steer_angle_feedback_augment = 56;
+    optional TrajectoryPoint current_matched_point = 57;
+    optional TrajectoryPoint current_reference_point = 58;
+    optional TrajectoryPoint preview_reference_point = 59;
+    optional double preview_station_error = 60;
+    optional double preview_speed_reference = 61;
+    optional double preview_speed_error = 62;
+    optional double preview_acceleration_reference = 63;
+    optional double vehicle_pitch = 64;
+    optional double slope_offset_compensation = 65;
+    optional double path_remain = 66;
+    optional double acceleration_lookup_offset = 67;
+    optional double acceleration_vrf = 68;
+}
+
+message SimpleLongitudinalDebug {
+    reserved 26, 27, 28, 29, 30, 31;
+
+    optional double acceleration_cmd = 1;
+    optional double collision_dst = 2;               // env
+    optional double verb_collision_dst = 3;          // env
+    optional double planning_collision_dst = 4;      // planning
+    optional double planning_verb_collision_dst = 5; // planning
+    optional double vlc_xtara = 6;
+    optional double vlc_maxjerka = 7;
+    optional double vlc_minjerka = 8;
+    optional double ref_obstacle_speed = 9;
+    optional double ref_curveture_speed = 10;
+    optional double ref_speed = 11;
+    optional double ref_speed_mode1 = 12;
+    optional double ref_speed_mode2 = 13;
+    optional double ref_speed_mode3 = 14;
+    optional double ref_speed_mode4 = 15;
+    optional double ref_speed_mode5 = 16;
+    optional double stop_distance = 17;
+    optional double vehdsttovslot = 18;
+    optional double vehspdkph = 19;
+
+    optional bool vlc_obstcrossreq = 20;
+    optional bool vlc_decectostopreq = 21;
+    optional bool vlc_drvoffreq = 22;
+    optional bool is_adjust = 23;
+    optional bool is_finish = 24;
+    optional bool is_estop = 25;
+
+    optional double reserved_1 = 32;
+    optional double reserved_2 = 33;
+    optional double reserved_3 = 34;
+    optional double reserved_4 = 35;
+    optional double reserved_5 = 36;
+
+    optional int32 control_estop_type = 37;
+    optional int32 acceleration_mode = 38;
+    optional int32 speed_control_mode = 39;
+    optional int32 actual_gear_location = 40;
+    optional int32 target_gear_location = 41;
+    optional int32 planning_gear_location = 42;
+}
+
+enum statemachine_status{
+    statemachine_off  =  0;
+    statemachine_init  =  1;
+    statemachine_standby   =  2;
+    statemachine_runn  =  3;
+    statemachine_Finish = 4;
+}
+
+message control_statemachine_DebugOut{
+    optional bool estop = 1;
+    optional string status =  2;
+    optional statemachine_status control_state = 3;
+    optional bool  is_finish = 4;
+    optional int32 aborttype = 5;
+    optional bool is_eps_hand_shake_ok = 6;
+    optional bool is_vcu_hand_shake_ok = 7;
+    optional int32 Gear_request = 8;
+    optional float Steering_output = 9;
+    optional float current_location_x = 10;
+    optional float current_location_y = 11;
+    optional float target_location_x = 12;
+    optional float target_location_y = 13;
+    optional FeatureType bind_status = 14;
+    optional bool has_receive_10ms = 15;
+    optional bool has_receive_bind = 16;
+    optional bool has_receive_planning = 17;
+    optional bool has_receive_location = 18;
+    optional float steer_angle_feedback = 19;
+    optional float steer_angle_feedforward = 20;
+    optional double  stop_distance = 21;
+    optional double  sum_s = 22;
+}
+
+message ControlCommand {
+    // target throttle in percentage [0, 100]
+    optional double throttle = 1;
+
+    // target brake in percentage [0, 100]
+    optional int32 brake = 2;
+
+    // target non-directional steering rate, in percentage of full scale per second [0, 100]
+    optional double steering_rate = 3;
+
+    // target steering angle
+    optional double steering_angle = 4;
+
+    // target steering torque in N*m
+    optional double steering_torque = 5;
+
+    // parking brake engage. true: engaged
+    optional bool parking_brake = 6 [default = false];
+
+    // target speed, in kph
+    optional double speed = 7;
+
+    // target acceleration in m*s^-2
+    optional double acceleration = 8;
+
+    // target axle torque in N*m
+    optional double axle_torqaue = 9;
+
+    // target stop distance m
+    optional double stop_distance = 10;
+
+    // target gear position
+    optional int32 gear_location = 11;
+
+    // target control mode
+    optional int32 control_mode = 12;
+
+    // lateral controller
+    optional SimpleLateralDebug simple_lat_debug = 13;
+
+    // parking control statemachine
+    optional control_statemachine_DebugOut par_control_statemachine = 14;
+
+    // MPC lateral controller
+    optional SimpleMPCDebug simple_mpc_debug = 15;
+
+    // longitudinal controller
+    optional SimpleLongitudinalDebug simple_lon_debug = 16;
+
+    // p2p debug
+    optional ControlCommandNop.SimpleDebug nop_simple_debug = 17;
+    optional ControlCommandNop.MPCDebug nop_mpc_debug = 18;
+    optional ControlCommandNop.LatLmpcDebug nop_lat_lmpc_debug = 19;
+
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909;   // uuid of the publisher
+    optional uint64 counter = 536870910;        // message counter
+    optional uint64 publish_ts = 536870911;     // publish utc timestamp; unit : nanosecond
+}

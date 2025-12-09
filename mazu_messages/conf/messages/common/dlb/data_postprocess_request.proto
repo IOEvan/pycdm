@@ -1,0 +1,41 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message DataPostprocessReq {
+    enum DataType {
+        H264  = 0;
+        Lidar = 1;
+        H265  = 2;
+    }
+
+    message DataOutput {
+        optional string event_uuid          = 1;  // uuid of the
+        optional string output              = 2;  // file path
+        optional string datamask_conf       = 3;  // config
+        optional uint64 timestamp_ptp       = 4;  // time in ns
+        optional int32 pre_window           = 5;  // time in ms
+        optional int32 post_window          = 6;  // time in ms
+        optional uint32 priority            = 7;  // 100: not desense
+        optional string meta_path           = 8;
+    }
+
+    optional string req_uuid            = 1;  
+    optional DataType type              = 2;  //
+    optional uint64 expiration_time     = 3;  // timeout in ptp_ms for postprocess
+    optional string input               = 4;  // file path
+    optional uint32 data_duration       = 5;  // time in ms
+    repeated DataOutput outputs         = 6;  // output datas
+    optional string reserve             = 7;
+    optional string recorder_type       = 8;  // recorder type
+    optional string key                 = 9;  // key
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin    
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts    = 536870907;     // publish ptp timestamp, uint in nanosec
+    optional string publisher_id      = 536870909;     // uuid of the publisher
+    optional uint64 counter           = 536870910;     // message counter
+    optional uint64 publish_ts        = 536870911;     // publish utc timestamp, unit in nanosec
+}

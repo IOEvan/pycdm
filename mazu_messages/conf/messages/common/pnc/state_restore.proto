@@ -1,0 +1,571 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+import "common/pnc/behavior_obstacle.proto";
+import "common/pnc/planner_debug.proto";
+import "common/pnc/hmi_state.proto";
+import "common/pnc/road_map.proto";
+import "common/pnc/io_adapter.proto";
+import "common/pnc/planner_scheduler.proto";
+import "common/pnc/car_state.proto";
+import "common/nop/nop_speed.proto";
+import "common/pnc/state_restore_enum_nudge.proto";
+import "common/pnc/state_restore_enum_task.proto";
+import "common/pnc/state_restore_enum_trigger.proto";
+import "common/pnc/state_restore_enum_routing.proto";
+import "common/pnc/dynamic_map.proto";
+import "common/pnc/geometry.proto";
+import "common/map_engine/hd_link_info.proto";
+import "common/perf/sensor_ts_header.proto";
+
+enum HmiLaneChangeTaskState {
+  TASK_STATE_NONE = 0;
+  TASK_STATE_REJECTED = 1;
+  TASK_STATE_PREPARING = 2;
+  TASK_STATE_RUNNING = 3;
+  TASK_STATE_CANCELED = 4;
+  TASK_STATE_FINISHED = 5;
+}
+
+message SimLaneChangeStatus {
+  optional LaneChangeStatus.LaneChangeType lane_change_type = 1;
+  optional LaneChangeStatus.StatusType status_type = 2;
+  optional trigger.TriggerType trigger_type = 3;
+  optional uint64 target_route_id = 4;
+  optional LaneChangeCanceledReason lane_change_canceled_reason = 5;
+  optional HmiLaneChangeTaskState hmi_lane_change_task_state = 6;
+  optional task.HmiLaneChangeTaskError hmi_lane_change_task_error = 7;
+  optional bool is_over_cancel_point = 8;
+  optional double distance_to_next_split = 9;
+  optional trigger.LaneType lane_type = 10;
+  optional int32 to_ramp_lane_change_num = 11;
+  optional bool veh_enter_split = 12;
+  optional bool is_merge_finished = 13;
+  optional uint64 merge_lane_id = 14;
+  optional bool check_veh_enter_split = 15;
+  optional uint64 split_lane_id = 16;
+  optional bool is_route_entry_ramp_split = 17;
+  optional bool is_on_road_rightmost_lane = 18;
+  optional double current_route_left_distance = 19;
+  optional uint64 lane_change_canceled_reason_bit_flag = 20;
+  optional double lane_change_rest_distance = 21;
+  optional double average_routing_lc_distance = 22;
+  optional double lane_changing_used_time = 23;
+}
+
+message OOLNudgeStatus{
+  enum OOLNudgeStatusType {
+    STATUS_NONE = 0;
+    STATUS_PREPARE = 1;
+    STATUS_START_NUDGE = 2;
+    STATUS_NUDGING = 3;
+    STATUS_FINISH = 4;
+    STATUS_CANCEL = 5;
+  }
+
+  enum OOLNudgeDirection {
+    DIRECTION_NONE = 0;
+    DIRECTION_LEFT = 1;
+    DIRECTION_RIGHT = 2;
+  }
+  optional OOLNudgeStatusType status_type = 1;
+  optional OOLNudgeDirection direction = 2;
+}
+
+message SimBehaviorstus {
+  enum BehaviorType {
+    LANE_KEEP = 0; 
+    OOL_NUDGE = 1;
+    LANE_CHANGE = 2;
+  }
+  optional BehaviorType behavior_type = 1;
+  optional SimLaneChangeStatus lane_change_status = 2;
+  optional OOLNudgeStatus ool_nudge_status = 3;
+}
+
+message LaneChangeRecommendation {
+  enum Priority {
+    LOW = 0;
+    MID = 1;
+    HIGH = 2;
+  }
+  optional Priority left_recommend_priority = 1;
+  optional Priority right_recommend_priority = 2;
+}
+
+message LCRouteBlockInfo {
+  optional bool is_route_blocked = 1;
+  optional bool is_route_blocked_by_god = 2;
+  optional bool is_route_blocked_by_static_vehicle = 3;
+  optional double min_block_distance = 4;
+  optional double max_veh_block_distance = 5;
+  repeated int32 route_block_obs_ids = 6;
+}
+
+message LCSplitInfo {
+  enum SplitType {
+    NONE = 0;
+    RAMP = 1;
+    LEFT_TURN = 2;
+    RIGHT_TURN = 3;
+    ROAD_SPLIT_LEVEL_1 = 4;
+    ROAD_SPLIT_LEVEL_2 = 5;
+  }
+  optional bool is_left_split = 1;
+  optional bool is_right_split = 2;
+  optional SplitType split_type = 3;
+  optional double distance_to_next_split = 4;
+}
+
+message DeciderInfoRestore{
+  optional LaneChangeRecommendation lc_recommendation = 1;
+  optional RouteLaneChangeRequest route_lane_change_request = 2;
+  optional RouteLaneChangeRequest last_route_lane_change_request = 3;
+  optional RouteLaneChangeRequest lc_task_route_lc_request = 4;
+  optional SimLaneChangeStatus last_lane_change_status = 5;
+  repeated LCRouteBlockInfo multi_route_block_info_array = 6;
+  optional bool request_route_change = 7;
+  optional uint64 emergency_situation_timetstamp = 8;
+  optional LCSplitInfo last_split_info = 9;
+  optional bool is_enter_road_split = 10;
+  optional double last_timestamp = 11;
+  optional double curr_frame_move_distance = 12;
+  optional double after_split_cumulative_move_distance = 13;
+  optional HmiLaneChangeTaskState hmi_lane_change_task_state = 14;
+  optional task.HmiLaneChangeTaskError hmi_lane_change_task_error = 15;
+  optional int32 overtake_count = 16;
+  optional int32 leading_vehicle_too_slow_count = 17;
+  optional int32 overtake_vehicle_id = 18;
+  optional double overtake_vehicle_speed = 19;
+  optional bool overtake_vehicle_is_dead_vehicle = 20;
+  optional int32 static_vehicle_id = 21 [default = -1];
+  optional bool is_lane_change_traffic_congestion = 22;
+  optional int32 target_lane_exist_slow_front_veh_frame_num = 23;
+  optional uint64 left_invalid_timestamp = 24;
+  optional uint64 right_invalid_timestamp = 25;
+  optional uint64 left_inhabit_by_cone_timestamp = 26;
+  optional uint64 right_inhabit_by_cone_timestamp = 27;
+  optional uint64 left_width_invalid_timestamp = 28;
+  optional uint64 right_width_invalid_timestamp = 29;
+  optional uint64 center_block_timestamp = 30;
+  optional uint64 left_block_timestamp = 31;
+  optional uint64 right_block_timestamp = 32;
+  optional uint64 route_probability_smaller_time = 33;
+  optional uint64 route_probability_same_time = 34; 
+  optional LaneChangeCanceledReason last_left_cancel_reason = 35;
+  optional LaneChangeCanceledReason last_right_cancel_reason = 36;
+  optional uint64 left_overtake_valid_timestamp = 37;
+  optional uint64 right_overtake_valid_timestamp = 38;
+  optional uint64 right_fast_lane_valid_timestamp = 39;
+  optional LaneChangeCanceledReason last_cancel_reason = 40;
+  optional int32 none_cancel_reason_count = 41;
+  optional uint32 left_route_spd_faster_count = 42;
+  optional uint32 right_route_spd_faster_count = 43;
+  optional uint64 construction_zone_lc_finish_timestamp = 44;
+  optional int32 left_overtake_following_duration_count = 45;
+  optional int32 right_overtake_following_duration_count = 46;
+  optional int32 left_lane_exist_overtake_room_count = 47;
+  optional int32 right_lane_exist_overtake_room_count = 48;
+  optional uint32 target_can_be_nudged_count = 49;
+  optional uint64 lc_route_invalid_timestamp = 50;
+  optional uint64 begin_lc_exec_timestamp = 51;
+  optional double last_lane_change_rest_exec_time_limit = 52 [default = 10.0];
+  optional bool last_has_hold_in_lc_exec = 53;
+  optional bool last_is_lc_route_valid = 54;
+  optional bool left_route_overlap_suppress = 55;
+  optional bool right_route_overlap_suppress = 56;
+  optional bool driver_trigger_to_bus_lane = 57;
+  optional int32 lane_map_lane_change_num = 58;
+  optional bool is_navigation_yawing = 59;
+  optional bool ego_crossed_lane_boundary = 60;
+  optional int64 lc_task_cancel_reason_bit_flag = 61;
+  optional double cumulative_distance_after_pass_junction = 62;
+  optional double cumulative_distance_last_time_stamp = 63;
+  optional bool left_line_ttc_check_crossable = 64;
+  optional bool right_line_ttc_check_crossable = 65;
+  optional int32 side_traffic_slow_counter = 66;
+  optional bool is_scene_inhibit_change = 67;
+  optional int32 current_route_not_exist_bus_lane_cnt = 68;
+  optional bool last_raw_yawing_pre_check = 69;
+  optional uint64 one_map_junction_suprs_time = 70;
+  optional uint64 ego_in_junction_time = 71;
+  optional bool current_lane_is_non_motor_lane_last = 72;
+  optional uint64 non_motor_lane_time_stamp = 73;
+  optional uint64 last_psp_event_ptp = 74;
+  optional bool allow_to_trigger_left_lc_by_junction_cd = 75;
+  optional bool allow_to_trigger_right_lc_by_junction_cd = 76; 
+}
+
+message LaneChangeStatusExtraInfo{
+  optional bool is_over_cancel_point = 1;
+  optional double distance_to_next_split = 2;
+  optional trigger.LaneType lane_type = 3;
+  optional int32 to_ramp_lane_change_num = 4;
+  optional bool veh_enter_split = 5;
+  optional bool is_merge_finished = 6;
+  optional uint64 merge_lane_id = 7;
+  optional bool check_veh_enter_split = 8;
+  optional uint64 split_lane_id = 9;
+  optional bool is_route_entry_ramp_split = 10;
+  optional bool is_on_road_rightmost_lane = 11;
+  optional int32 target_route_id = 12;
+  optional uint64 left_invalid_timestamp = 13;
+  optional uint64 right_invalid_timestamp = 14;
+  optional uint64 left_width_invalid_timestamp = 15;
+  optional uint64 right_width_invalid_timestamp = 16;
+  optional LaneChangeCanceledReason last_left_cancel_reason = 17;
+  optional LaneChangeCanceledReason last_right_cancel_reason = 18;
+  optional int32 none_cancel_reason_count = 19;
+  optional uint64 construction_zone_lc_finish_timestamp = 20;
+  repeated int64 construction_zone_lane_id_array = 21;
+  optional uint64 hmi_lane_change_reset_timestamp = 22;
+
+  optional int32 cancel_status_counter = 23;
+  optional uint64 ool_nudge_prepare_timestamp = 24;
+  optional double lane_changing_used_time = 25;
+  optional bool last_is_lane_changing = 26;
+  optional LaneChangeStatus.StatusType last_lane_change_status_type = 27;
+  optional uint64 lane_change_cancel_start_timestamp = 28;
+  optional uint64 lane_change_start_timestamp = 29;
+  optional SimLaneChangeStatus lane_change_status = 30;
+  optional SimBehaviorstus behavior_status = 31;
+
+  optional DeciderInfoRestore decider_info = 32;
+}
+
+message SimBehaviorStatus {
+  optional LaneChangeStatus lane_change_status = 1;
+  optional LaneChangeStatusExtraInfo lane_change_status_extra_info = 5;
+  optional LaneChangeTask lane_change_task = 2;
+  optional bool is_auto_mode = 3;
+  optional BehaviorVehicle ego_vehicle = 4;
+}
+
+message LaneChangeRequestExtraInfo{
+  optional int32 overtake_count = 1;
+  optional int32 overtake_vehicle_id = 2;
+  optional double overtake_vehicle_speed = 3;
+  optional bool is_emergency_avoidance_situation = 4;
+  optional uint64 emergency_situation_timetstamp = 5;
+  optional bool is_lane_change_traffic_congestion = 6;
+  optional uint64 lane_change_task_timestamp = 7;
+  optional uint64 left_overtake_valid_timestamp = 8;
+  optional uint64 right_overtake_valid_timestamp = 9;
+  optional uint64 right_faste_lane_valid_timestamp = 10;
+  optional int32 side_traffic_slow_counter = 11;
+  optional int32 leading_vehicle_too_slow_count = 12;
+  optional int32 target_lane_exist_slow_front_veh_frame_num = 13;
+  optional int32 left_overtake_following_duration_count = 14;
+  optional int32 right_overtake_following_duration_count = 15;
+  optional int32 left_lane_exist_overtake_room_count = 16;
+  optional int32 right_lane_exist_overtake_room_count = 17;
+  optional double cumulative_distance_last_time_stamp = 18;
+  optional int32 left_route_spd_faster_count = 19;
+  optional int32 right_route_spd_faster_count = 20;
+}
+
+message SimRouteLaneChangeRequest{
+  optional LaneChangeStatus.LaneChangeType lane_change_type = 1;
+  optional task.Scene scene = 2;
+  optional trigger.TriggerType trigger_type = 3;
+  optional task.Level level = 4;
+  optional bool need_reject_task = 5;  // 0428:表示当前是否是 lane_keep route 换道！ 即lane_change_num =0
+  optional bool valid = 6;
+  optional LaneChangeRequestExtraInfo lane_change_request_extra_info = 7;
+
+}
+
+message TaskInfo{
+  optional task.TaskType type = 1;
+  optional uint64 id = 2;
+}
+
+
+  
+message RouteStatus {
+  optional routing.GlobalRoutingState global_routing_state = 1;
+  optional bool is_leaving_sa = 2;
+  optional double distance_to_queue_area_start = 3;
+  repeated double sa_distance_vec = 4;
+  optional bool has_queue_area_in_front = 5;
+}
+
+message MidDataPartial{
+  message NopChassisControl {
+  optional bool is_control_command_loss = 1;
+  optional bool is_control = 2;
+  optional bool is_takeover = 3;
+  optional bool nop_vlc_drive_off_req = 4;
+  optional double nop_control_cmd_lat_error = 5;
+  optional double nop_control_cmd_pinion_angle = 6;
+  optional double nop_control_cmd_tar_accleration = 7;
+}
+  optional FunctionRequest psp_func_sts = 1;
+  optional bool is_planner = 2;
+  optional bool nop_rain_mode = 3;
+  optional uint32 nop_speed_source = 4;
+  optional uint32 usr_set_speed = 5;
+  optional NopChassisControl nop_chassis_ctrl_input = 6;
+  optional bool nop_scenemgmt_ok = 7;
+  optional int32 nop_reqfunctionid = 8;
+  optional TaskInfo task_info = 9;
+  optional task.TaskExecutationState task_executation_status_state = 10; 
+  optional RouteStatus route_status = 11; 
+  optional HdLinkInfo.PriorityRoadClass road_class = 12; //HdLinkInfo_PriorityRoadClass
+  optional bool nop_cutin_wti = 13;
+  optional bool ego_is_lane_keep = 14;
+  optional bool is_local_route_end = 15;
+  optional MidOutputMsg mid_out_msg = 16;
+  optional ad.messages.NopSpeed nop_speed = 17;
+}
+
+message LaneChangePrompt {
+  optional bool valid = 1;
+  optional LaneChangeStatus.LaneChangeType lane_change_type = 2;
+  optional task.Scene prompt_scene = 3;
+  optional task.LaneChangeTaskType task_type = 4;
+  optional trigger.TriggerType trigger_type = 5;
+  optional bool need_reject_task = 6;
+}
+
+message PlannerSchedulerStateRestore{
+  enum LaneChangeUserResponse { 
+    NONE_RESPONCE = 0; 
+    CONFIRM_LANE_CHANGE = 1; 
+    REJECT_LANE_CHANGE = 2;
+  }
+  optional uint64 scheduler_lane_change_state_timestamp = 1;
+  optional SchedulerTask last_scheduler_lane_change_task = 2;
+  optional uint64  last_route_lane_change_req_timestamp = 3;
+  optional task.SchedulerLaneChangeEventState scheduler_lane_change_event_state = 4;
+  optional task.LaneChangeTaskType scheduler_lane_change_event_task_type = 5;
+  optional uint64  event_state_timestamp = 6;
+  optional task.HmiLaneChangeTaskError hmi_lane_change_task_error = 7;
+
+  optional LaneChangeReq lane_change_req = 8;
+  optional uint64 lane_change_req_timestamp = 9;
+
+  optional bool request_lane_change_cooling_state_update = 10;
+  optional uint64 cooling_state_timestamp = 11;
+  optional int32 user_reject_lane_change_cnt = 12;
+  optional double current_cooling_distance_travelled = 13;
+
+  optional task.LaneChangeCoolingState lane_change_cooling_state = 14;
+  optional uint64 last_lane_change_prompt_timestamp = 15;
+  optional bool is_lane_change_finished = 16;
+  optional bool auto_mode_first_lane_change_trigger_done = 17;
+
+  optional CarState last_car_state = 18;
+  optional LaneChangeUserResponse lane_change_user_response = 19;
+  optional LaneChangePrompt lane_change_prompt = 20;
+  optional SimLaneChangeStatus last_lane_change_status = 21;
+  optional bool timestamp_inited = 22;
+  optional int64 emergency_lc_state_timestamp = 23;
+}
+
+message RoutePosition {
+  optional int32 route_index = 1;
+  optional int32 route_center_line_index = 2;
+  optional uint64 lane_id = 3;
+  optional double s_of_lane = 4;
+  optional double s_of_route = 5;
+  optional double l = 6;
+  optional bool on_route = 7;
+}
+
+message LocalRouteState {
+  // TargetRoutePosition
+  optional RoutePosition current_route_position = 1;
+  optional RoutePosition left_route_position = 2;
+  optional RoutePosition right_route_position = 3;
+  // CurrentLocalRoute
+  optional LocalRoute current_local_route = 4;
+  optional LocalRoute left_local_route = 5;
+  optional LocalRoute right_local_route = 6;
+}
+
+message MotionState{
+  optional PlannerRunnerReproduction motion_reproduction = 1;
+  optional MotionInput motion_input = 2;
+  optional LocalRouteState route_state = 3;
+}
+
+message ActionPair{
+  optional trigger.DcpLonAction lon_action = 1;
+  optional nudge.DcpLatAction lat_action = 2;
+  optional double timestamp = 3;
+}
+
+message NudgeStatusSet{
+  optional nudge.NudgeStatus status = 1;
+  optional double value = 2;
+}
+
+
+message NudgeInfo{
+  optional bool is_ool = 1;
+  optional bool is_backup = 2;
+  optional bool dir = 3;
+  repeated NudgeStatusSet nudge_status_set = 4;
+  repeated nudge.FSCrossable fs_crossable = 5;
+}
+
+
+message ObjectDecision{
+  optional int32 obstacle_id = 1;
+  optional trigger.LatDecision lat_decision = 2;
+}
+
+message RefPath{
+  optional NudgeInfo nudge_info = 1;
+  repeated ObjectDecision objects_decision_map = 2;
+}
+
+message BehaviorPlannerResult {
+  optional bool is_fallback = 1;
+  repeated ActionPair action_seq = 2;
+  optional RefPath ref_path = 3;
+}
+
+message LaneChangeVehInfo {
+  optional int32 id = 1;
+  // relative to ego
+  optional double center_s = 2;
+  optional double half_length = 3;
+  optional double v = 4;
+}
+
+message LaneChangeSlot {
+  optional LaneChangeVehInfo front_info = 1;
+  optional LaneChangeVehInfo back_info = 2;
+  optional bool is_align_front = 3;
+  optional bool is_acc_to_dec = 4;
+  optional double aligned_s = 5;
+  optional double acc_t = 6;
+  optional double dec_t = 7;
+  optional double acc = 8;
+  optional double dec = 9;
+  optional double aligned_space = 10;
+  optional double aligned_v = 11;
+  optional double cost = 12;
+  optional bool is_valid = 13;
+  optional bool is_left_lane_change = 14;
+  optional double front_safety_threshold = 15;
+  optional double back_safety_threshold = 16;
+}
+
+message ObjectMotionStatus{
+  optional int32 obstacle_id = 1;
+  optional nudge.MotionStatus motion_status = 2;
+  optional uint64 status_timestamp = 3;
+  optional double static_time_threshold = 4;
+}
+
+message ForwardSimulationState{
+  optional CarState.TurnSignal turn_signal = 1;
+  optional uint64 turn_signal_updated_timestamp = 2;
+  optional LaneChangeSlot lane_change_slot = 3;
+  repeated ObjectMotionStatus obstacles_history_motion_status_map = 4;
+}
+
+
+message BehaviourState{
+  optional BehaviorPlannerResult behaviour_planner_result = 1;
+  optional ForwardSimulationState forward_simulation_state = 2;
+}
+
+message TrafficLightState{
+  message ColorMap{
+    optional uint64 id = 1;
+    optional TLColor color = 2;
+  }
+  message TrafficLightDecision{
+    optional bool b_updated_this_frame = 1;
+    optional double stop_line_s = 2;
+    optional int32 go_direction = 3; // enum TrafficLightDirection {STRAIGHT = 0, LEFT, RIGHT, U_TURN}
+    optional int32 uturn_dec = 4; // enum TLDDecision { UNKNOWN = 0, STOP = 1, GO = 2 };
+    optional int32 left_dec = 5; // enum TLDDecision
+    optional int32 straight_dec = 6; // enum TLDDecision
+    optional int32 right_dec = 7; // enum TLDDecision
+  }
+  optional uint64 yellow_color_time_tracker = 1;
+  optional uint64 blocked_tl_time_tracker = 2;
+  optional uint64 flash_yellow_color_time_tracker = 3;
+  optional uint64 flash_green_color_time_tracker = 4;
+  optional uint64 unknown_extinct_time_tracker = 5;
+  optional TLColor latest_color = 6;
+  optional double time_to_go = 7;
+  optional bool broken_unknown_light_receive_request_signal = 8;
+  optional bool stopped_with_stopline_distance = 9;
+  repeated ColorMap history_colors_map = 10;
+  optional TrafficLightDecision traffic_light_decision = 11;
+  optional int32 gaode_unknown_light_consecutive_count = 12;
+  optional uint64 tracker_id = 13;
+}
+
+message TrafficSignalState{
+  optional bool last_psp_left_turn_signal_set = 1;
+  optional bool last_psp_right_turn_signal_set = 2;
+  optional int32 psp_turn_left_turn_off_delay = 3;
+  optional int32 psp_turn_right_turn_off_delay = 4;
+  optional double psp_turn_distance = 5;
+}
+
+message TrafficRuleState{
+  optional TrafficLightState traffic_light_state = 1; // 废弃
+  optional TrafficSignalState traffic_signal_state = 2;
+  repeated TrafficLightState traffic_light_states = 3;
+}
+message DrivingSpaceModelling{
+  message TrafficFlowInfo{
+    enum TrafficTurnState {
+      NOT_TRUNING = 0;
+      TURN_LEFT = 1;
+      TURN_RIGHT = 2;
+    }
+    message TrafficState {
+      optional Vector2d position = 1;
+      optional double angle = 2;
+      optional double speed = 3;
+      optional Vector2d bounding_box = 4;
+      optional int64 tracking_time = 5;
+      optional TrafficTurnState turn_state = 6;
+      optional int64 nearest_lane_id = 7;
+      optional double s_of_current_ego_lane_id = 8;
+      optional double l_of_current_ego_lane_id = 9;
+    }
+    optional int32 id = 1;
+    repeated TrafficState history_states = 2;
+  }
+  repeated TrafficFlowInfo traffic_flow_info_map = 1;
+  repeated Vector2d his_stop_line = 2;
+  optional bool is_in_junction = 3;
+}
+
+message ContinuousDriving{
+  optional bool last_frame_using_continuous_driving_result = 1;
+}
+
+message StateRestore{
+  optional uint64 time_meas = 1;  // in ns
+  optional MidDataPartial mid_data = 2;
+  optional SimBehaviorStatus sim_behaviour_status = 3;
+  optional SimRouteLaneChangeRequest route_lane_change_request = 4;
+  optional PlannerSchedulerStateRestore planner_scheduler_state = 5;
+  optional MotionState motion_state = 6;
+  optional BehaviourState behaviour_state = 7;
+  optional TrafficRuleState traffic_rule_state = 8;
+  optional bool restored_in_simulation = 9 [default = false];
+  optional DrivingSpaceModelling driving_space_modelling = 10;
+  optional ContinuousDriving continuous_driving = 11;
+
+  optional uint64 timestamp = 536870905;     // ptp time, nanosec, for cosine bundle timestamp 
+  optional SensorTSHeader sensor_original_ts = 536870906;  // sensor original ts
+  optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909; // uuid of the publisher
+  optional uint64 counter = 536870910;         // message counter
+  optional uint64 publish_ts = 536870911;    // publish utc timestamp; unit : nanosecond
+}

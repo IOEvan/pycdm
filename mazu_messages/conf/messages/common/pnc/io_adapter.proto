@@ -1,0 +1,43 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+import "common/pnc/hmi_state.proto";
+
+message MidOutputMsg {
+  optional LaneChangeReq lane_change_req = 3 [default = NO_REQ_LANE_CHANGE];
+  optional double reference_speed_req = 5
+      [default = 0.0];  // DA_SetSpeed (localization), unit: km/h
+  optional OverrideReq override_req = 6 [default = NO_REQ_OVERRIDE];
+  optional DAInhibitReq da_inhibit_req = 8
+      [default = REQ_NO_ACTIVE];  // DA_Inhibit
+  optional FunctionRequest function_req = 9
+      [default = HMI_REQ_OFF];  // function_arb_out
+  optional ALCConfirmReq acl_confirm_req = 10
+      [default = REQ_AUTO];                                      // SetDA_NOPALC
+  optional VLCModeReq vlc_mode_req = 11 [default = REQ_LC_OFF];  // VLC_Mode
+  optional bool takeover_req = 12 [default = false];  // takeover override
+  optional double raw_reference_speed_req = 13
+      [default = 0.0];  // DA_SetSpeed (disp speed) unit: km/h
+  optional SpeedSourceTypeReq speed_source_type_req = 14
+      [default = REQ_NO_USER_SET];
+  optional bool nop_rain_mode = 16;
+  optional bool set_spdoff_abs = 18 [default = false];
+  optional double set_spdoff_value = 19 [default = 0.0];
+  optional uint32 curve_speed_assist = 20 [default = 0];
+  optional uint32 set_da_steer_assist = 21 [default = 0];
+  optional bool switch_da_nop = 22 [default = false];
+}
+
+message FinalOutputMsg {
+  optional double reference_tau_gap_req = 7
+      [default = 0.0];  // DA_TauGap, unit: s
+  optional VLCModeReq vlc_mode_req = 11 [default = REQ_LC_OFF];  // VLC_Mode
+  optional LaneChangeSuppression lane_change_suprs = 15;
+}
+
+message FrameStatusMsg {
+  map<uint32, string> status_map = 1;
+}

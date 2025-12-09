@@ -1,0 +1,198 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/vehicle_in/veh_enum_type.proto";
+
+
+message DriverInputInfo{
+    optional bool DA_TurnIndicatorLeftPush = 1;
+    optional bool DA_TurnIndicatorRightPush = 2;
+    optional bool DA_TurnIndicatorRightTip = 3;
+    optional bool DA_TurnIndicatorLeftLatch = 4;
+    optional bool DA_TurnIndicatorRightLatch = 5;
+    optional bool DA_TurnIndicatorLeftTip = 6;
+
+    optional bool DAmain_ActivationTrigger = 7;
+    optional bool DAmain_DeactivationTrigger = 8;
+
+    optional bool DA_ButtonRightShort = 9;
+    optional bool DA_ButtonDownLong = 10;
+    optional bool DA_ButtonDownShort = 11;
+    optional bool DA_ButtonLeftShort = 12;
+    optional bool DA_ButtonUpShort = 13;
+    optional bool DA_ButtonUpLong = 14;
+    optional bool DA_ButtonUpPush = 15;
+}
+
+message SetSpeedInfo{
+    optional uint32 MinSetSpeed = 1;
+    optional uint32 MaxSetSpeed = 2;
+    optional uint32 SetSpeedMode = 3;
+    optional bool SetSpeedAutoChangeLock = 4;
+    optional uint32 Step3_SpeedLimit = 5;
+    optional uint32 Step4_SpeedLimit = 6;
+    optional uint32 Step5_SpeedLimit = 7;
+    optional uint32 Step6_SpeedLimit = 8;
+    optional uint32 Step7_SpeedLimit = 9;
+    optional uint32 SetSpeed_preLim = 10;
+}
+
+message EasDebugInfo {
+    optional bool EasPassive2standbyFlg = 1;
+    optional bool EasStandby2passiveFlg = 2;
+    optional bool EasStandby2activeFlg = 3;
+    optional bool EasActive2passiveFlg = 4;
+    optional bool EasActive2failureFlg = 5;
+    optional bool EasFailure2passiveFlg = 6;
+    optional uint32 EasPassive2standbyBit = 7;
+    optional uint32 EasStandby2passiveBit = 8;
+    optional uint32 EasStandby2activeBit = 9;
+    optional uint32 EasActive2passiveBit = 10;
+    optional uint32 EasActive2failureBit = 11;
+    optional uint32 EasFailure2passiveBit = 12;
+
+    optional bool EasActiveStoppedReq = 13;
+}
+
+message HodDebugInfo {
+    optional float HodTimer = 1; // unit: s
+    optional float HodWarnInstantFeedbackTime = 2; // unit: s
+    optional uint32 HODeasCounter = 3;
+    optional uint32 HodLockActiveWti = 4;
+
+    optional bool HodLockActiveFlag = 5;
+    optional bool HodWarnResetFlag = 6;
+    optional bool HodWarnFreezeFlag = 7;
+    optional bool HodWarnIconResetFlag = 8;
+    optional float HodAttDmdTime = 9; // unit: s
+}
+
+message ALCDebugInfo {
+    optional uint32 ALC_Suppression = 1;
+    optional bool ALC_RTI = 2;
+}
+
+message VLCModeDebugInfo {
+    optional bool VLCSts_trans2Passive_Flag = 1;
+    optional bool VLCSts_trans2Standby_Flag = 2;
+    optional bool VLCSts_Standby2Active_Flag = 3;
+    optional bool VLCSts_Active2BrakeOnly_Flag = 4;
+    optional bool VLCSts_Active2Override_Flag = 5;
+    optional bool VLCSts_Active2Standstill_Flag = 6;
+    optional bool VLCSts_BrakeOnly2Active_Flag = 7;
+    optional bool VLCSts_BrakeOnly2Override_Flag = 8;
+    optional bool VLCSts_BrakeOnly2Standstill_Flag = 9;
+    optional bool VLCSts_Override2Active_Flag = 10;
+    optional bool VLCSts_Override2BrakeOnly_Flag = 11;
+    optional bool VLCSts_Standstill2Active_Flag = 12;
+    optional bool VLCSts_Standstill2Override_Flag = 13;
+    optional bool VLCSts_Standby2Standstill_Flag = 14;
+}
+
+message DASMTransitionDebugInfo {
+    optional bool DASM_Transition_Off2StandbyFlag = 1;
+    optional bool DASM_Transition_Standby2OffFlag = 2;
+    optional bool DASM_Transition_NonStandby2OffFlag = 3;
+    optional bool DASM_Transition_Standby2PilotFlag = 4;
+    optional bool DASM_Transition_Standby2NopFlag = 5;
+    optional bool DASM_Transition_Standby2NadFlag = 6;
+    optional bool DASM_Transition_Standby2MrmFlag = 7;
+    optional bool DASM_Transition_Pilot2Standby = 8;
+    optional bool DASM_Transition_Nop2Standby = 9;
+    optional bool DASM_Transition_Nad2Standby = 10;
+    optional bool DASM_Transition_Pilot2Nop = 11;
+    optional bool DASM_Transition_Pilot2Nad = 12;
+    optional bool DASM_Transition_Pilot2Mrm = 13;
+    optional bool DASM_Transition_Nop2Pilot = 14;
+    optional bool DASM_Transition_Nop2Nad = 15;
+    optional bool DASM_Transition_Nop2Mrm = 16;
+    optional bool DASM_Transition_Nad2Pliot = 17;
+    optional bool DASM_Transition_Nad2Nop = 18;
+    optional bool DASM_Transition_Nad2Mrm = 19;
+
+    optional string DASM_Transition_Off2Standby_FailedReason = 20;
+    optional string DASM_Transition_Standby2OffReason = 21;
+    optional string DASM_Transition_NonStandby2OffReason = 22;
+    optional string DASM_Transition_Standby2Pilot_FailedReason = 23;
+    optional string DASM_Transition_Standby2Nop_FailedReason = 24;
+    optional string DASM_Transition_Standby2Nad_FailedReason = 25;
+    optional string DASM_Transition_Standby2MrmReason = 26;
+    optional string DASM_Transition_Pilot2StandbyReason = 27;
+    optional string DASM_Transition_Nop2StandbyReason = 28;
+    optional string DASM_Transition_Nad2StandbyReason = 29;
+    optional string DASM_Transition_Pilot2Nad_FailedReason = 30;
+    optional string DASM_Transition_Nop2Nad_FailedReason = 31;
+    optional string DASM_Transition_Nop2Pilot_DegradeReason = 32;
+    optional string DASM_Transition_NadPilot_DegradeReason = 33;
+    optional string DASM_Transition_NadNop_DegradeReason = 34;
+}
+
+message StateMachineConditionSts {
+    optional bool DebugFlag = 1;
+    optional string DebugReason = 2;
+    optional uint32 DebugBit = 3;
+}
+
+message StateMachineInfo{
+    optional bool ActFailLock = 1;
+    optional Da_Inhibit_e DA_Inhibit = 2;
+    optional uint32 Sales_Region = 3; // 0-Invalid, 1-CN, 2-EU, 3-UAE
+    optional uint32 FreeSpaceIntrusionAtStandstill = 4;
+    optional uint32 DA_ActivationPrevention = 5;
+    optional uint32 LCC_Suppression = 6;
+    optional uint32 ALC_Suppression = 7;
+    optional bool ALC_RTI = 8;     //ready to intervene
+    optional EasDebugInfo EasDiagnose = 9;
+    optional HodDebugInfo HodDiagnose = 10;
+    
+    // activate & deactivate
+    optional bool DA_ActivationTrigger = 11;
+    optional bool DA_DeactivationTrigger = 12;
+    optional bool DA_HeroButtonOnOffPress = 13;
+    optional string DA_ActivationReason = 14; 
+    optional uint32 DA_ActivationType = 15; // 1-Trigger, 2-Resume, 3-PSP Soft Button Press
+
+    // DA-Activation Prevention
+    optional StateMachineConditionSts DA_ActivationPrevention_Debug = 16;
+
+    // DA-Inhibit (AD TD MRM Instant-Off)
+    optional StateMachineConditionSts Inhibit_AttentionDemand_Debug = 17;
+    optional StateMachineConditionSts Inhibit_TakeoverDemand_Debug = 18;
+    optional StateMachineConditionSts Inhibit_Mrm_Debug = 19;
+    optional StateMachineConditionSts Inhibit_InstantOff_Debug = 20;
+
+    // DA-Nop Suppression
+    optional StateMachineConditionSts NOP_Suppression_Debug = 21;
+
+    // DA-Lcc Suppression
+    optional StateMachineConditionSts LCC_Suppression_Debug = 22;
+    
+    // DAmain StateMachine Transitions
+    optional DASMTransitionDebugInfo DASM_Transition_Debug = 23;
+
+    // NAD Activation Prevention
+    optional StateMachineConditionSts NAD_ActivationPrevention_Debug = 24;
+
+    // NAD Suppression
+    optional StateMachineConditionSts NAD_Suppression_Debug = 25;
+
+    // VLC Mode debug info
+    optional VLCModeDebugInfo VLC_Debug = 26;
+
+    // ALC debug info
+    optional ALCDebugInfo ALC_Debug = 27;
+}
+
+message FsmDrivingDiagnosis {
+    optional DriverInputInfo DriverInput = 1;
+    optional SetSpeedInfo SetSpeedIf = 2;
+    optional StateMachineInfo StateMachine = 3;
+
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    optional uint64 publish_ptp_ts = 536870907;   // publish ptp timestamp unit : nanosecond
+    optional string publisher_id = 536870909;    // uuid of the publisher
+    optional uint64 counter = 536870910;         // message counter
+    optional uint64 publish_ts = 536870911;     // publish utc timestamp; unit : nanosecond
+}

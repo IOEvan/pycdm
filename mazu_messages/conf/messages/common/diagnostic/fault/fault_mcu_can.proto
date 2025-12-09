@@ -1,0 +1,387 @@
+syntax = "proto2"; 
+option cc_enable_arenas = true;
+       
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message McuCanFaultInfo{ // Detected by FW
+        optional CanBusFaultInfo can_bus_fault_info = 1;         
+        optional ACMFaultInfo acm_fault_info = 2;
+        optional ASDMFaultInfo asdm_fault_info = 3;
+        optional APAFaultInfo apa_fault_info = 4;
+        optional BCUFaultInfo bcu_fault_info = 5;
+        optional BCMFaultInfo bcm_fault_info = 6;
+        optional BGWFaultInfo bgw_fault_info = 7;
+        optional CCUFaultInfo ccu_fault_info = 8;
+        optional CDCFaultInfo cdc_fault_info = 9;
+        optional EPB1FaultInfo epb1_fault_info = 10;
+        optional EPB2FaultInfo epb2_fault_info = 11;
+        optional EPS1FaultInfo eps1_fault_info = 12;
+        optional EPS2FaultInfo eps2_fault_info = 13;
+        optional RADFCFaultInfo radfc_fault_info = 14;
+        optional RADFLFaultInfo radfl_fault_info = 15;
+        optional RADFRFaultInfo radfr_fault_info = 16;
+        optional RADRLFaultInfo radrl_fault_info = 17;
+        optional RADRRFaultInfo radrr_fault_info = 18;
+        optional SCMFaultInfo scm_fault_info = 19;
+        optional SWCFaultInfo swc_fault_info = 20;
+        optional VCUFaultInfo vcu_fault_info = 21;        
+        
+        optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+        optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+        optional uint64 publish_ptp_ts = 536870907;   // publish ptp timestamp, uint in nanosec
+        optional string publisher_id   = 536870909; // uuid of the publisher
+        optional uint64 counter        = 536870910;         // message counter
+        optional uint64 publish_ts     = 536870911;    // publish utc timestamp; unit : nanosecond
+
+} 
+
+message CanBusFaultInfo{
+        optional bool ADAS_CAN_Busoff= 1;         
+        optional bool CHS1_CAN_Busoff= 2; 
+        optional bool CHS2_CAN_Busoff= 3;
+        optional bool FrontRAD_CAN_Busoff= 4;         
+        optional bool FrontSideRAD_CAN_Busoff= 5; 
+        optional bool RearSideRAD_CAN_Busoff= 6;
+        // 0: no fault, 1: has fault;
+}
+
+message ACMFaultInfo{
+        optional bool CHS1_ACM_01_MsgError = 1;
+        optional bool CHS1_ACM_02_MsgError = 2;
+        optional bool CHS1_ACM_03_MsgError = 3;
+        optional bool CHS1_ACM_LossCom = 4;
+        // 0: no fault, 1: has fault;
+}
+
+message ASDMFaultInfo{
+        optional bool CHS1_ASDM_LossCom = 1;
+        optional bool CHS1_ASDM_MsgError = 2;
+        // 0: no fault, 1: has fault;
+}
+
+message APAFaultInfo{
+        optional bool ADAS_APA_LossCom = 1;
+        optional bool ADAS_APA_ADC_01_MsgError = 2;
+        optional bool ADAS_APA_ADC_02_MsgError = 3;
+        optional bool ADAS_APA_ADC_03_MsgError = 4;
+        optional bool ADAS_APA_ADC_04_MsgError = 5;
+        optional bool ADAS_APA_ADC_05_MsgError = 6;
+        optional bool ADAS_APA_ADC_06_MsgError = 7;
+        optional bool ADAS_APA_ADC_07_MsgError = 8;
+        optional bool ADAS_APA_ADC_08_MsgError = 9;
+        optional bool ADAS_APA_ADC_09_MsgError = 10;
+        optional bool ADAS_APA_ADC_10_MsgError = 11;
+        optional bool ADAS_APA_01_MsgError = 12;
+        optional bool ADAS_APA_02_MsgError = 13;
+        optional bool ADAS_APA_03_MsgError = 14;
+        optional bool ADAS_APA_04_MsgError = 15;
+        optional bool ADAS_APA_05_MsgError = 16;
+        optional bool ADAS_APA_Slot01_MsgError = 17;
+        optional bool ADAS_APA_Slot02_MsgError = 18;
+        optional bool ADAS_APA_Slot03_MsgError = 19;
+        optional bool ADAS_APA_Slot04_MsgError = 20;
+        optional bool ADAS_APA_Slot05_MsgError = 21;
+        optional bool ADAS_APA_Slot06_MsgError = 22;
+        optional bool ADAS_APA_Slot01Obj1_MsgError = 23;
+        optional bool ADAS_APA_Slot02Obj1_MsgError = 24;
+        optional bool ADAS_APA_Slot03Obj1_MsgError = 25;
+        optional bool ADAS_APA_Slot04Obj1_MsgError = 26;
+        optional bool ADAS_APA_Slot05Obj1_MsgError = 27;
+        optional bool ADAS_APA_Slot06Obj1_MsgError = 28;
+        optional bool ADAS_APA_Slot01Obj2_MsgError = 29;
+        optional bool ADAS_APA_Slot02Obj2_MsgError = 30;
+        optional bool ADAS_APA_Slot03Obj2_MsgError = 31;
+        optional bool ADAS_APA_Slot04Obj2_MsgError = 32;
+        optional bool ADAS_APA_Slot05Obj2_MsgError = 33;
+        optional bool ADAS_APA_Slot06Obj2_MsgError = 34;
+        // 0: no fault, 1: has fault;
+}
+
+message BCUFaultInfo{
+        optional bool CHS1_BCU_LossCom = 1;
+        optional bool CHS1_BCU_01_MsgError = 2;
+        optional bool CHS1_BCU_02_MsgError = 3;
+        optional bool CHS1_BCU_03_MsgError = 4;
+        optional bool CHS1_BCU_04_MsgError = 5;
+        optional bool CHS1_BCU_07_MsgError = 6;
+        optional bool CHS1_BCU_08_MsgError = 7;
+        optional bool CHS1_BCU_09_MsgError = 8;
+        optional bool CHS1_BCU_16_MsgError = 9;
+        optional bool CHS2_BCU_LossCom = 10;
+        optional bool CHS2_BCU_16_MsgError = 11;
+        // 0: no fault, 1: has fault;
+}
+
+message BCMFaultInfo{
+        optional bool ADAS_BCM_LossCom = 1;
+        optional bool CHS1_BCM_LossCom = 2;
+        // 0: no fault, 1: has fault;
+}
+
+message BGWFaultInfo{
+        optional bool CHS1_BGW_01_MsgError = 1;
+        optional bool CHS1_BGW_02_MsgError = 2;
+        optional bool CHS1_BGW_03_MsgError = 3;
+        optional bool CHS1_BGW_LI_MsgError = 4;
+        optional bool CHS1_BGW_TCU_01_MsgError = 5;
+        optional bool CHS1_BGW_WIPR_MsgError = 6;
+        optional bool ADAS_BGW_POWER_SWAP_MsgError = 7;
+        optional bool ADAS_BGW_SCU_D_02_MsgError = 8;
+        optional bool ADAS_BGW_SCU_P_01_MsgError = 9;
+        optional bool ADAS_BGW_SCU_P_02_MsgError = 10;
+        optional bool ADAS_BGW_SNSR_MsgError = 11;
+        optional bool ADAS_BGW_STEERWHL_CMD_MsgError = 12;
+        optional bool CHS1_BGW_LossCom = 13;
+        optional bool ADAS_BGW_LossCom = 14;
+        optional bool ADAS_BGW_RPS_01_MsgError = 15;
+        // 0: no fault, 1: has fault;        
+}
+
+message CCUFaultInfo{
+        optional bool CHS1_CCU_LossCom = 1;
+        // 0: no fault, 1: has fault;
+}
+
+message CDCFaultInfo{
+        optional bool ADAS_CDC_LossCom = 1;
+        optional bool CHS1_CDC_LossCom = 2;
+        optional bool CHS1_CDC_ADC_01_MsgError = 3;
+        optional bool CHS1_CDC_HU_04_MsgError = 4;
+        optional bool CHS1_CDC_HU_09_MsgError = 5;
+        optional bool CHS1_CDC_HU_12_MsgError = 6;
+        optional bool CHS1_CDC_IC_01_MsgError = 7;
+        optional bool CHS1_CDC_IC_04_MsgError = 8;
+        optional bool ADAS_CDC_ADC_03_MsgError = 9;
+        optional bool ADAS_CDC_ADC_04_MsgError = 10;
+        optional bool ADAS_CDC_DMS_01_MsgError = 11;
+        optional bool ADAS_CDC_DMS_02_MsgError = 12;
+        optional bool ADAS_CDC_HU_03_MsgError = 13;
+        optional bool ADAS_CDC_HU_07_MsgError = 14;
+        optional bool ADAS_CDC_HU_08_MsgError = 15;
+        optional bool ADAS_CDC_HU_09_MsgError = 16;
+        optional bool ADAS_CDC_HU_19_MsgError = 17;
+        optional bool CHS2_CDC_HU_04_MsgError = 18;
+        // 0: no fault, 1: has fault;        
+}
+
+message EPB1FaultInfo{
+        optional bool CHS1_EPB1_LossCom = 1;
+        optional bool CHS1_EPB1_01_MsgError = 2;
+        // 0: no fault, 1: has fault;
+}
+
+message EPB2FaultInfo{
+        optional bool CHS2_EPB2_LossCom = 1;
+        optional bool CHS2_EPB2_01_MsgError = 2;
+        // 0: no fault, 1: has fault;
+}
+
+message EPS1FaultInfo{
+        optional bool CHS1_EPS1_01_MsgError = 1;
+        optional bool CHS1_EPS1_02_MsgError = 2;
+        optional bool CHS1_EPS1_LossCom = 3;
+        // 0: no fault, 1: has fault;        
+}
+
+message EPS2FaultInfo{
+        optional bool CHS2_EPS2_01_MsgError = 1;
+        optional bool CHS2_EPS2_02_MsgError = 2;
+        optional bool CHS2_EPS2_LossCom = 3;
+        // 0: no fault, 1: has fault;
+}
+
+message RADFCFaultInfo{
+        optional bool FrontRAD_CAN_RADFC_LossCom = 1;
+        optional bool RADFC_Failure = 2;
+        optional bool FrontRAD_CAN_RADFC_InternalFault = 3;
+        optional bool FrontRAD_CAN_RADFC_AlignmentIncomplete = 4;
+        optional bool FrontRAD_CAN_RADFC_Voltage_Above_Threshold = 5;
+        optional bool FrontRAD_CAN_RADFC_Voltage_Below_Threshold = 6;
+        optional bool FrontRAD_CAN_RADFC_Temp_High_Fault = 7;
+        optional bool FrontRAD_CAN_RADFC_Alignment_Out_of_Range = 8;
+        optional bool FrontRAD_CAN_RADFC_LossComm_with_ADC = 9;
+        optional bool FrontRAD_CAN_RADFC_Invalid_Data_from_ADC = 10;
+        optional bool FrontRAD_CAN_RADFC_Blindness = 11;
+        optional bool FrontRAD_CAN_RADFC_MRR_Detection_001_006_MsgError = 12;
+        optional bool FrontRAD_CAN_RADFC_MRR_Detection_007_012_MsgError = 13;
+        optional bool FrontRAD_CAN_RADFC_MRR_Detection_013_018_MsgError = 14;
+        optional bool FrontRAD_CAN_RADFC_MRR_Detection_019_024_MsgError = 15;
+        optional bool FrontRAD_CAN_RADFC_MRR_Detection_025_030_MsgError = 16;
+        optional bool FrontRAD_CAN_RADFC_MRR_Detection_031_036_MsgError = 17;
+        optional bool FrontRAD_CAN_RADFC_MRR_Detection_037_042_MsgError = 18;
+        optional bool FrontRAD_CAN_RADFC_MRR_Detection_043_048_MsgError = 19;
+        optional bool FrontRAD_CAN_RADFC_MRR_Detection_049_054_MsgError = 20;
+        optional bool FrontRAD_CAN_RADFC_MRR_Detection_055_060_MsgError = 21;
+        optional bool FrontRAD_CAN_RADFC_MRR_Detection_061_066_MsgError = 22;
+        optional bool FrontRAD_CAN_RADFC_MRR_Detection_067_072_MsgError = 23;
+        optional bool FrontRAD_CAN_RADFC_MRR_Detection_073_078_MsgError = 24;
+        optional bool FrontRAD_CAN_RADFC_MRR_Detection_079_084_MsgError = 25;
+        optional bool FrontRAD_CAN_RADFC_MRR_Detection_085_090_MsgError = 26;
+        optional bool FrontRAD_CAN_RADFC_MRR_Detection_091_096_MsgError = 27;
+        optional bool FrontRAD_CAN_RADFC_MRR_Detection_097_102_MsgError = 28;
+        optional bool FrontRAD_CAN_RADFC_MRR_Detection_103_108_MsgError = 29;
+        optional bool FrontRAD_CAN_RADFC_MRR_Detection_109_115_MsgError = 30;
+        optional bool FrontRAD_CAN_RADFC_MRR_Detection_115_120_MsgError = 31;
+        optional bool FrontRAD_CAN_RADFC_MRR_Detection_121_126_MsgError = 32;
+        optional bool FrontRAD_CAN_RADFC_MRR_Detection_127_128_MsgError = 33;
+        optional bool FrontRAD_CAN_RADFC_MRR_Header_AlignmentState_MsgError = 34;
+        optional bool FrontRAD_CAN_RADFC_MRR_Header_SensorCoverage_MsgError = 35;
+        optional bool FrontRAD_CAN_RADFC_MRR_Header_Timestamps_MsgError = 36;
+        optional bool FrontRAD_CAN_RADFC_MRR_CANVersion_MsgError = 37;
+        optional bool FrontRAD_CAN_RADFC_MRR_Status_Radar_MsgError = 38;
+        // 0: no fault, 1: has fault;        
+        
+}
+
+message RADFLFaultInfo{
+        optional bool FrontSide_CAN_RADFL_LossCom = 1;
+        optional bool RAD_FL_Failure = 2;
+        optional bool FrontSide_CAN_RADFL_InternalFault = 3;
+        optional bool FrontSide_CAN_RADFL_AlignmentIncomplete = 4;
+        optional bool FrontSide_CAN_RADFL_Voltage_Above_Threshold = 5;
+        optional bool FrontSide_CAN_RADFL_Voltage_Below_Threshold = 6;
+        optional bool FrontSide_CAN_RADFL_Temp_High_Fault = 7;
+        optional bool FrontSide_CAN_RADFL_Alignment_Out_of_Range = 8;
+        optional bool FrontSide_CAN_RADFL_LossComm_with_ADC = 9;
+        optional bool FrontSide_CAN_RADFL_Invalid_Data_from_ADC = 10;
+        optional bool FrontRAD_CAN_RADFL_Blindness = 11;
+        optional bool FrontSide_CAN_RADFL_FL_Detection_001_006_MsgError = 12;
+        optional bool FrontSide_CAN_RADFL_FL_Detection_007_012_MsgError = 13;
+        optional bool FrontSide_CAN_RADFL_FL_Detection_013_018_MsgError = 14;
+        optional bool FrontSide_CAN_RADFL_FL_Detection_019_024_MsgError = 15;
+        optional bool FrontSide_CAN_RADFL_FL_Detection_025_030_MsgError = 16;
+        optional bool FrontSide_CAN_RADFL_FL_Detection_031_036_MsgError = 17;
+        optional bool FrontSide_CAN_RADFL_FL_Detection_037_042_MsgError = 18;
+        optional bool FrontSide_CAN_RADFL_FL_Detection_043_048_MsgError = 19;
+        optional bool FrontSide_CAN_RADFL_FL_Detection_049_054_MsgError = 20;
+        optional bool FrontSide_CAN_RADFL_FL_Detection_055_060_MsgError = 21;
+        optional bool FrontSide_CAN_RADFL_FL_Detection_061_064_MsgError = 22;
+        optional bool FrontSide_CAN_RADFL_FL_Header_AlignmentState_MsgError = 23;
+        optional bool FrontSide_CAN_RADFL_FL_Header_SensorCoverage_MsgError = 24;
+        optional bool FrontSide_CAN_RADFL_FL_Header_Timestamps_MsgError = 25;
+        optional bool FrontSide_CAN_RADFL_FL_CANVersion_MsgError = 26;
+        optional bool FrontSide_CAN_RADFL_FL_Status_Radar_MsgError = 27;
+        // 0: no fault, 1: has fault;        
+        
+}
+
+message RADFRFaultInfo{
+        optional bool FrontSide_CAN_RADFR_LossCom = 1;
+        optional bool RADFR_Failure = 2;
+        optional bool FrontRAD_CAN_RADFR_InternalFault = 3;
+        optional bool FrontRAD_CAN_RADFR_AlignmentIncomplete = 4;
+        optional bool FrontRAD_CAN_RADFR_Voltage_Above_Threshold = 5;
+        optional bool FrontRAD_CAN_RADFR_Voltage_Below_Threshold = 6;
+        optional bool FrontRAD_CAN_RADFR_Temp_High_Fault = 7;
+        optional bool FrontRAD_CAN_RADFR_Alignment_Out_of_Range = 8;
+        optional bool FrontRAD_CAN_RADFR_LossComm_with_ADC = 9;
+        optional bool FrontRAD_CAN_RADFR_Invalid_Data_from_ADC = 10;
+        optional bool FrontRAD_CAN_RADFR_Blindness = 11;
+        optional bool FrontRAD_CAN_RADFR_MRR_Detection_001_006_MsgError = 12;
+        optional bool FrontRAD_CAN_RADFR_MRR_Detection_007_012_MsgError = 13;
+        optional bool FrontRAD_CAN_RADFR_MRR_Detection_013_018_MsgError = 14;
+        optional bool FrontRAD_CAN_RADFR_MRR_Detection_019_024_MsgError = 15;
+        optional bool FrontRAD_CAN_RADFR_MRR_Detection_025_030_MsgError = 16;
+        optional bool FrontRAD_CAN_RADFR_MRR_Detection_031_036_MsgError = 17;
+        optional bool FrontRAD_CAN_RADFR_MRR_Detection_037_042_MsgError = 18;
+        optional bool FrontRAD_CAN_RADFR_MRR_Detection_043_048_MsgError = 19;
+        optional bool FrontRAD_CAN_RADFR_MRR_Detection_049_054_MsgError = 20;
+        optional bool FrontRAD_CAN_RADFR_MRR_Detection_055_060_MsgError = 21;
+        optional bool FrontRAD_CAN_RADFR_MRR_Detection_061_064_MsgError = 22;
+        optional bool FrontRAD_CAN_RADFR_MRR_Header_AlignmentState_MsgError = 23;
+        optional bool FrontRAD_CAN_RADFR_MRR_Header_SensorCoverage_MsgError = 24;
+        optional bool FrontRAD_CAN_RADFR_MRR_Header_Timestamps_MsgError = 25;
+        optional bool FrontRAD_CAN_RADFR_MRR_CANVersion_MsgError = 26;
+        optional bool FrontRAD_CAN_RADFR_MRR_Status_Radar_MsgError = 27;
+        // 0: no fault, 1: has fault;    
+}
+
+message RADRLFaultInfo{
+        optional bool RearSide_CAN_RADRL_LossCom = 1;
+        optional bool RADRL_Failure = 2;
+        optional bool RearSide_CAN_RADRL_InternalFault = 3;
+        optional bool RearSide_CAN_RADRL_AlignmentIncomplete = 4;
+        optional bool RearSide_CAN_RADRL_Voltage_Above_Threshold = 5;
+        optional bool RearSide_CAN_RADRL_Voltage_Below_Threshold = 6;
+        optional bool RearSide_CAN_RADRL_Temp_High_Fault = 7;
+        optional bool RearSide_CAN_RADRL_Alignment_Out_of_Range = 8;
+        optional bool RearSide_CAN_RADRL_LossComm_with_ADC = 9;
+        optional bool RearSide_CAN_RADRL_Invalid_Data_from_ADC = 10;
+        optional bool RearSide_CAN_RADRL_Blindness = 11;
+        optional bool RearSide_CAN_RADRL_MRR_Detection_001_006_MsgError = 12;
+        optional bool RearSide_CAN_RADRL_MRR_Detection_007_012_MsgError = 13;
+        optional bool RearSide_CAN_RADRL_MRR_Detection_013_018_MsgError = 14;
+        optional bool RearSide_CAN_RADRL_MRR_Detection_019_024_MsgError = 15;
+        optional bool RearSide_CAN_RADRL_MRR_Detection_025_030_MsgError = 16;
+        optional bool RearSide_CAN_RADRL_MRR_Detection_031_036_MsgError = 17;
+        optional bool RearSide_CAN_RADRL_MRR_Detection_037_042_MsgError = 18;
+        optional bool RearSide_CAN_RADRL_MRR_Detection_043_048_MsgError = 19;
+        optional bool RearSide_CAN_RADRL_MRR_Detection_049_054_MsgError = 20;
+        optional bool RearSide_CAN_RADRL_MRR_Detection_055_060_MsgError = 21;
+        optional bool RearSide_CAN_RADRL_MRR_Detection_061_064_MsgError = 22;
+        optional bool RearSide_CAN_RADRL_MRR_Header_AlignmentState_MsgError = 23;
+        optional bool RearSide_CAN_RADRL_MRR_Header_SensorCoverage_MsgError = 24;
+        optional bool RearSide_CAN_RADRL_MRR_Header_Timestamps_MsgError = 25;
+        optional bool RearSide_CAN_RADRL_MRR_CANVersion_MsgError = 26;
+        optional bool RearSide_CAN_RADRL_MRR_Status_Radar_MsgError = 27;
+        // 0: no fault, 1: has fault;  
+}
+
+message RADRRFaultInfo{
+        optional bool RearSide_CAN_RADRR_LossCom = 1;
+        optional bool RADRR_Failure = 2;
+        optional bool RearSide_CAN_RADRR_InternalFault = 3;
+        optional bool RearSide_CAN_RADRR_AlignmentIncomplete = 4;
+        optional bool RearSide_CAN_RADRR_Voltage_Above_Threshold = 5;
+        optional bool RearSide_CAN_RADRR_Voltage_Below_Threshold = 6;
+        optional bool RearSide_CAN_RADRR_Temp_High_Fault = 7;
+        optional bool RearSide_CAN_RADRR_Alignment_Out_of_Range = 8;
+        optional bool RearSide_CAN_RADRR_LossComm_with_ADC = 9;
+        optional bool RearSide_CAN_RADRR_Invalid_Data_from_ADC = 10;
+        optional bool RearSide_CAN_RADRR_Blindness = 11;
+        optional bool RearSide_CAN_RADRR_MRR_Detection_001_006_MsgError = 12;
+        optional bool RearSide_CAN_RADRR_MRR_Detection_007_012_MsgError = 13;
+        optional bool RearSide_CAN_RADRR_MRR_Detection_013_018_MsgError = 14;
+        optional bool RearSide_CAN_RADRR_MRR_Detection_019_024_MsgError = 15;
+        optional bool RearSide_CAN_RADRR_MRR_Detection_025_030_MsgError = 16;
+        optional bool RearSide_CAN_RADRR_MRR_Detection_031_036_MsgError = 17;
+        optional bool RearSide_CAN_RADRR_MRR_Detection_037_042_MsgError = 18;
+        optional bool RearSide_CAN_RADRR_MRR_Detection_043_048_MsgError = 19;
+        optional bool RearSide_CAN_RADRR_MRR_Detection_049_054_MsgError = 20;
+        optional bool RearSide_CAN_RADRR_MRR_Detection_055_060_MsgError = 21;
+        optional bool RearSide_CAN_RADRR_MRR_Detection_061_064_MsgError = 22;
+        optional bool RearSide_CAN_RADRR_MRR_Header_AlignmentState_MsgError = 23;
+        optional bool RearSide_CAN_RADRR_MRR_Header_SensorCoverage_MsgError = 24;
+        optional bool RearSide_CAN_RADRR_MRR_Header_Timestamps_MsgError = 25;
+        optional bool RearSide_CAN_RADRR_MRR_CANVersion_MsgError = 26;
+        optional bool RearSide_CAN_RADRR_MRR_Status_Radar_MsgError = 27;
+        // 0: no fault, 1: has fault;  
+}
+
+message SCMFaultInfo{
+        optional bool CHS1_SCM_01_MsgError = 1;
+        optional bool CHS1_SCM_02_MsgError = 2;
+        optional bool CHS1_SCM_LossCom = 3;
+        // 0: no fault, 1: has fault;
+}
+
+message SWCFaultInfo{
+        optional bool CHS1_SWC_01_MsgError = 1;
+        optional bool CHS1_SWC_LossCom = 2;
+        // 0: no fault, 1: has fault;
+}
+
+message VCUFaultInfo{
+        optional bool CHS1_VCU_LossCom = 1;
+        optional bool CHS2_VCU_LossCom = 2;
+        optional bool CHS1_VCU_13_MsgError = 3;
+        optional bool CHS1_VCU_05_MsgError = 4;
+        optional bool CHS1_VCU_02_MsgError = 5;
+        optional bool CHS1_VCU_HealthMngt_MsgError = 6;
+        optional bool CHS2_VCU_13_MsgError = 7;
+        optional bool CHS2_VCU_HealthMngt_MsgError = 8;
+        optional bool CHS1_VCU_CDC_328_MsgError = 9;
+        // 0: no fault, 1: has fault;
+}

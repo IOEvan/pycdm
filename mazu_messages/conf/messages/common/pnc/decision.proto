@@ -1,0 +1,258 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+import "common/pnc/car_state.proto";
+import "common/pnc/geometry.proto";
+import "common/pnc/road_map.proto";
+
+message DecisionMain {
+  // From least safe to most safe.
+  oneof task {
+    Done done = 1;
+    ChangeLane change_lane = 2;
+    Cruise cruise = 3;
+    Parking parking = 4;
+    Stop stop = 5;
+    NotReady not_ready = 6;
+    EmergencyStop estop = 7;
+  }
+
+  optional AdjustSpeed adjust_speed = 8;
+
+  optional ChangeLaneInfo change_lane_info = 9;
+
+  message ChangeLane {
+    enum Direction {
+      INVALID = 0;
+      LEFT = 1;
+      RIGHT = 2;
+    };
+    optional Direction direction = 1;
+    optional LaneSegment current_lane = 2;
+    optional LaneSegment target_lane = 3;
+    optional Stop current_lane_stop = 4;
+    optional Stop target_lane_stop = 5;
+  }
+
+  message Cruise {  // Cruise on current route.
+    // From least priority to most priority
+    oneof task {
+      double speed_limit_factor = 1;  // TODO: to be replaced by SpeedRange
+      double creep_speed = 2;
+    }
+  }
+
+  message Done {}  // Mission complete.
+
+  message EmergencyStop {
+    enum BrakeLevel {
+      INVALID = 0;
+      SOFT = 1;
+      HARD = 2;
+      INSTANT = 3;
+    };
+    optional BrakeLevel brake_level = 1;
+
+    enum Reason {
+      UNKOWN = 0;
+      COLLISION = 1;
+      // TODO: Add more reasons.
+    }
+    optional Reason reason = 2;
+  }
+
+  message NotReady {
+    optional bytes reason = 1;
+  }
+
+  message Parking {
+    // TODO: Finish this.
+  }
+
+  message Stop {
+    // When stopped, the front center of vehicle should be at this point.
+    optional Vector3d point = 1;
+
+    // Suggested heading of vehicle when stopped.
+    optional double heading = 2 [default = nan];
+
+    optional double route_s = 3;  // route_s is accumulated_s(distance_travel)
+
+    enum Reason {
+      UNKNOWN = 0;
+      DESTINATION = 1;
+      VEHICLE = 2;
+      PEDESTRIAN = 3;
+      OBSTACLE = 4;
+      PARKING = 5;
+      TRAFFIC_LIGHT = 6;
+      STOP_SIGN = 7;
+      YIELD_SIGN = 8;
+      CLEAR_ZONE = 9;
+      CROSS_WALK = 10;
+      TEST = 11;
+    }
+    optional Reason reason = 4;
+  }
+
+  // Adjust speed on the road. Any value that exceeds roadmap speed limit will
+  // be capped at the roadmap speed limit. A separate message to prevent being
+  // override by the priority in task case.
+  message AdjustSpeed {
+    message SpeedRange {  // Set speed on certain range.
+      optional double speed = 1;
+      optional double s_begin = 2;
+      optional double s_end = 3;
+    }
+    repeated SpeedRange speed_range = 1;
+  }
+
+  message ChangeLaneInfo {
+    optional Vector3d mid_point = 1;
+    optional double heading = 2;
+  }
+}
+
+message DecisionObject {
+  optional int32 id = 1;  // Same as the id in percpetion_object.proto.
+
+  // From least safe to most safe.
+  enum Action {
+    INVALID = 0;
+    IGNORE = 1;
+    NUDGE = 2;     // keep lateral distance from the object
+    OVERTAKE = 3;  // overtake the object
+    FOLLOW = 4;    // follow behind the object
+    YIELD = 5;     // yield the object
+    STOP = 6;      // stop behind the object
+    AVOID = 7;     // when collision happens
+  }
+  optional Action action = 2;
+
+  // For longitudinal distance, positive/negative means leading/following.
+  // For lateral distance, positive/negative means left/right.
+  optional double distance = 3;  // in meters
+}
+
+message Decision {
+  optional DecisionMain main = 1;
+  repeated DecisionObject objects = 2;
+  optional CarState.TurnSignal turn_signal = 3;
+}
+
+message DetectPolygon {
+  repeated Polygon polygon = 1;  // in the map frame
+}
+
+//
+message ObjectIgnore {}
+
+enum StopReasonCode {
+  STOP_REASON_HEAD_VEHICLE = 1;
+  STOP_REASON_DESTINATION = 2;
+  STOP_REASON_PEDESTRIAN = 3;
+  STOP_REASON_OBSTACLE = 4;
+  STOP_REASON_PREPARKING = 5;
+  STOP_REASON_SIGNAL = 100;  // only for red signal
+  STOP_REASON_STOP_SIGN = 101;
+  STOP_REASON_YIELD_SIGN = 102;
+  STOP_REASON_CLEAR_ZONE = 103;
+  STOP_REASON_CROSSWALK = 104;
+  STOP_REASON_CREEPER = 105;
+  STOP_REASON_REFERENCE_END = 106;  // end of the reference_line
+  STOP_REASON_YELLOW_SIGNAL = 107;  // yellow signal
+  STOP_REASON_PULL_OVER = 108;      // pull over
+  STOP_REASON_SIDEPASS_SAFETY = 109;
+  STOP_REASON_PRE_OPEN_SPACE_STOP = 200;
+  STOP_REASON_LANE_CHANGE_URGENCY = 201;
+  STOP_REASON_EMERGENCY = 202;
+}
+
+message ObjectStop {
+  optional StopReasonCode reason_code = 1;
+  optional double distance_s = 2;  // in meters
+  // When stopped, the front center of vehicle should be at this point.
+  optional Vector3d stop_point = 3;
+  // When stopped, the heading of the vehicle should be stop_heading.
+  optional double stop_heading = 4;
+  repeated string wait_for_obstacle = 5;
+}
+
+// dodge the obstacle in lateral direction when driving
+message ObjectNudge {
+  enum Type {
+    LEFT_NUDGE = 1;   // drive from the left side to nudge a static obstacle
+    RIGHT_NUDGE = 2;  // drive from the right side to nudge a static obstacle
+    DYNAMIC_LEFT_NUDGE =
+        3;  // drive from the left side to nudge a dynamic obstacle
+    DYNAMIC_RIGHT_NUDGE =
+        4;  // drive from the right side to nudge a dynamic obstacle
+  };
+  optional Type type = 1;
+  // minimum lateral distance in meters. positive if type = LEFT_NUDGE
+  // negative if type = RIGHT_NUDGE
+  optional double distance_l = 2;
+}
+
+message ObjectYield {
+  optional double distance_s = 1;  // minimum longitudinal distance in meters
+  optional PointENU fence_point = 2;
+  optional double fence_heading = 3;
+  optional double time_buffer = 4;  // minimum time buffer required after the
+                                    // obstacle reaches the intersect point.
+}
+
+message ObjectFollow {
+  optional double distance_s = 1;  // minimum longitudinal distance in meters
+  optional PointENU fence_point = 2;
+  optional double fence_heading = 3;
+}
+
+message ObjectOvertake {
+  optional double distance_s = 1;  // minimum longitudinal distance in meters
+  optional PointENU fence_point = 2;
+  optional double fence_heading = 3;
+  optional double time_buffer = 4;  // minimum time buffer required before the
+                                    // obstacle reaches the intersect point.
+}
+
+message ObjectSidePass {
+  enum Type {
+    LEFT = 1;
+    RIGHT = 2;
+  };
+  optional Type type = 1;
+}
+
+// unified object decision while estop
+message ObjectAvoid {}
+
+message ObjectDecisionType {
+  oneof object_tag {
+    ObjectIgnore ignore = 1;
+    ObjectStop stop = 2;
+    ObjectFollow follow = 3;
+    ObjectYield yield = 4;
+    ObjectOvertake overtake = 5;
+    ObjectNudge nudge = 6;
+    ObjectAvoid avoid = 7;
+    ObjectSidePass side_pass = 8;
+  }
+}
+message MainStop {
+  enum ChangeLaneType {
+    FORWARD = 0;
+    LEFT = 1;
+    RIGHT = 2;
+  }
+  optional StopReasonCode reason_code = 1;
+  optional string reason = 2;
+  // When stopped, the front center of vehicle should be at this point.
+  optional PointENU stop_point = 3;
+  // When stopped, the heading of the vehicle should be stop_heading.
+  optional double stop_heading = 4;
+  optional ChangeLaneType change_lane_type = 5;
+}

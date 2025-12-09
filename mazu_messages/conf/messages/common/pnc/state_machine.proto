@@ -1,0 +1,633 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+import "common/pnc/hmi_state.proto";
+import "common/pnc/planner_debug.proto";
+import "common/pnc/geometry.proto";
+import "common/pnc/path.proto";
+import "common/pnc/state_machine_nad.proto";
+import "common/pnc/mrm_manager_debug.proto";
+import "common/pnc/pose.proto";
+import "common/esd/esd_np_feature.proto";
+import "common/vehicle_out/ads_drv_if.proto";
+import "common/vehicle_out/ads_ls_if.proto";
+import "common/vehicle_out/sapa_ui_results_eth.proto";
+import "common/perf/sensor_ts_header.proto";
+
+enum ALCFuncSts {
+  ALC_NOT_ENGAGED = 0;
+  ALC_LANE_CENTERING = 1;
+  ALC_PREPARING_LANE_CHANGE_TOWARDS_LEFT = 2;
+  ALC_PREPARING_LANE_CHANGE_TOWARDS_RIGHT = 3;
+  ALC_EXECUTING_LANE_CHANGE_TOWARDS_LEFT = 4;
+  ALC_EXECUTING_LANE_CHANGE_TOWARDS_RIGHT = 5;
+  ALC_ABORTING_LANE_CHANGE_INTO_NEW_LANE = 6;
+};
+
+enum LCSFuncSts {
+  LCS_OFF = 0;
+  LCS_ON = 1;
+  LCS_READY_TO_INTERVENE = 2;
+  LCS_PROCEDURE_LANE_CHANGE_TOWARDS_LEFT = 3;
+  LCS_PROCEDURE_LANE_CHANGE_TOWARDS_RIGHT = 4;
+  LCS_MANEUVER_LANE_CHANGE_TOWARDS_LEFT = 5;
+  LCS_MANEUVER_LANE_CHANGE_TOWARDS_RIGHT = 6;
+  LCS_SUPPRESSED_LANE_CHANGE_INTO_LEFT = 7;
+  LCS_SUPPRESSED_LANE_CHANGE_INTO_RIGHT = 8;
+  LCS_SUPPRESSED_LANE_CHANGE_INTO_ORIGINAL = 9;
+};
+
+enum CollisionRisk {
+  NO_COLLISION_RISK_DETECTED = 0;
+  CLOSE_DISTANCE_CUTIN_WARNING = 1;
+  INSUFFICIENT_DECELERATION_WARNING = 2;
+  LOSS_OF_LATERAL_CONTROL_WARNING = 3;
+};
+
+enum LatCtrlTar {
+  NO_LANE_LINE_DETECTED = 0;
+  LANE_LINE_NOT_USED_AS_LATERAL_CONTROL_TARGET = 1;
+  LANE_LINE_USED_AS_LATERAL_CONTROL_TARGET = 2;
+  VEHICLE_DRIFTING_OUT_OF_LANE_TOWARDS_THIS_SIDE = 3;
+};
+
+enum LongCtrlTar {
+  NO_LONGITUDINAL_CONTROL_TARGET = 0;
+  LONGITUDINAL_CONTROL_TARGET_AVAILABLE = 1;
+};
+
+enum TurnIndicatorReq {
+  REQ_NO_TURN_INDICATOR = 0;
+  REQ_LEFT_TURN_INDICATOR = 1;
+  REQ_RIGHT_TURN_INDICATOR = 2;
+  REQ_HAZARD_TURN_INDICATOR = 3;
+};
+
+enum NOPWtiElement {
+  REQ_NO_WARNING = 0x00;
+  REQ_UNABLE_ENTER_RAMP_P5 = 0x07;
+  REQ_UNABLE_MERGING_P5 = 0x08;
+  REQ_TAKE_OVER_P5 = 0x09;
+  REQ_WARNING_HAZARD_P7 = 0x10;
+  REQ_TAKE_OVER_TO_NUDGE_P5 = 0x0B;
+  REQ_CURRENT_IN_CHECKING_LANE_P6 = 0x0F;
+  REQ_CURRENT_STILL_IN_TOLLATE_P5 = 0x06;
+  REQ_RISK_GO_STRAIGHT_IN_JUNCTION_P6 = 0x0E;
+  REQ_PREPARING_TO_NUDGE_P8 = 0x5A;
+  REQ_NUDGE_REAR_P9 = 0xE2;
+  REQ_TAKING_OVER_IN_JUNCTION_GO_STRAIGHT_P6 = 0x14;
+  REQ_HIGHWAY_UNABLE_TO_ENTER_RAMP_P7 = 0x16;
+  REQ_TAKING_OVER_IN_JUNCTION_TURN_LEFT_P6 = 0x1F;
+  REQ_TAKING_OVER_IN_JUNCTION_TURN_RIGHT_P6 = 0x20;
+  REQ_TAKING_OVER_IN_JUNCTION_TURN_AROUND_P6 = 0x21;
+  REQ_MAY_BE_INACCESSIBLE_RAMP_P6 = 0x26;
+  REQ_APPROACHING_OUT_OF_ODD_P6 = 0x27;
+  REQ_UNABLE_RETURN_ORIGINAL_LANE_BECAUSE_LANE_CHANGING_P6 = 0x28;
+  REQ_CHANGE_LANES_TO_AVOID_OBSTACLES_P6 = 0x29;
+  REQ_CAREFUL_WITH_CONSTRUCTION_AHEAD_P6 = 0x2A;
+  REQ_CAREFUL_WITH_CONSTRUCTION_AHEAD_DMS_DRIVER_IN_LOOP_P6 = 0x13;
+  REQ_WARNING_GO_STRAIGHT_IN_JUNCTION_P7 = 0x33;
+  REQ_CAREFUL_WITH_OPENING_AHEAD_P8 = 0x41;
+  REQ_PREPARING_LANE_CHANGE_TOWARDS_LEFT_PLEASE_FOLLOW_NAVIGATION_P8 = 0x4B;
+  REQ_PREPARING_LANE_CHANGE_TOWARDS_RIGHT_PLEASE_FOLLOW_NAVIGATION_P8 = 0x4C;
+  REQ_PLEASE_TURN_ON_INDICATOR_LEFT_TO_FOLLOW_NAVIGATION_P8 = 0x4D;
+  REQ_PLEASE_TURN_ON_INDICATOR_RIGHT_TO_FOLLOW_NAVIGATION_P8 = 0x4E;
+  REQ_PLEASE_TURN_ON_INDICATOR_LEFT_TO_ENTER_THE_RECOMMENDED_LANE_P8 = 0x4F;
+  REQ_PLEASE_TURN_ON_INDICATOR_RIGHT_TO_ENTER_THE_RECOMMENDED_LANE_P8 = 0x50;
+  REQ_PREPARING_LANE_CHANGE_TOWARDS_LEFT_TO_ENTER_THE_RECOMMENDED_LANE_P8 =
+      0x51;
+  REQ_PREPARING_LANE_CHANGE_TOWARDS_RIGHT_TO_ENTER_THE_RECOMMENDED_LANE_P8 =
+      0x52;
+  REQ_PREPARING_TO_ENTER_THE_RAMP_PLEASE_ATTENTION_P8 = 0x53;
+  REQ_PREPARING_TO_MERGE_PLEASE_ATTENTION_P8 = 0x54;
+  REQ_CANCEL_LANE_CHANGE_P8 = 0x55;
+  REQ_OVERTAKING_LEFT_P8 = 0x5F;
+  REQ_OVERTAKING_RIGHT_P8 = 0x60;
+  REQ_CONTINUOUS_LANE_CHANGE_IS_THE_FIRST_TIME_P8 = 0x6A;
+  REQ_CONTINUOUS_LANE_CHANGE_IS_NOT_THE_FIRST_TIME_P8 = 0x6B;
+  REQ_THE_OFF_RAMP_IS_THE_FIRST_LANE_CHANGE_P8 = 0x6E;
+  REQ_THE_OFF_RAMP_IS_NOT_THE_FIRST_LANE_CHANGE_P8 = 0x6F;
+  REQ_LANE_CHANGE_DUE_AVOID_BUS_LANE_P8 = 0x81;
+  REQ_EARLY_LANE_CHANGE_FOLLOW_NAVIGATION_DUE_TO_CONGESTION_P8 = 0x8E;
+  REQ_1KM_BEFORE_ENTERING_THE_DEESCALATION_ZONE_P6 = 0x78;
+  REQ_300M_BEFORE_ENTERING_THE_DEESCALATION_ZONE_P6 = 0x7B;
+  REQ_300M_BEFORE_ENTERING_THE_HIGH_RISK_OE_ZONE_P8 = 0x7D;
+  REQ_300M_BEFORE_ENTERING_THE_MID_RISK_OE_ZONE_P8 = 0x67;
+  REQ_IN_HIGH_RISK_OE_ZONE_P10 = 0x68;
+  REQ_PLEASE_TURN_OFF_THE_INDICATIOR_LIGHT_P9 = 0xE3;
+  REQ_WATCH_OUT_FOR_MERGE_VEHICLE = 0x2B;
+  REQ_CAREFUL_WITH_URBAN_MERGE_BLIND_AREA_SCENARIO_P9 = 0xF0; 
+  REQ_ABORTING_LANE_CHANGE_INTO_NEW_LANE_P8 =
+      0xF9;  // update coding value and priority to match cdc modify
+  REQ_HDM_IS_LIMITED_AT_500M_AHEAD_P6 = 0x2D;
+  REQ_APPROACHING_OUT_OF_ODD_TOLL_P6 = 0x2C;
+  REQ_LANE_CHANGE_TO_AVOID_MERGE_LANE_P8 = 0x57;
+  REQ_PLEASE_TURN_ON_INDICATOR_LANE_CHANGE_TO_AVOID_MERGE_LANE_P8 = 0x58;
+  REQ_BACK_TO_ORIGIN_LANE_P8 = 0x69;
+  REQ_ABORTING_OVERTAKE_TARGET_SLOW_VEHICLE_P8 = 0x79;
+  REQ_APPROACHING_OUT_OF_ODD_MAP_END_P6 = 0x31;
+  REQ_APPROACHING_OUT_OF_ODD_OTHER_P6 = 0x30;
+  REQ_VEHICLE_FLOW_SPEED_CONTROL_DECELERATION_START_P9 = 0xE5;
+  REQ_VEHICLE_FLOW_SPEED_CONTROL_ACCELERATION_END_P9 = 0xE6;
+  REQ_CAREFUL_WITH_OCCLUDED_AREA_P9 = 0xEB;
+  REQ_VEHICLE_FLOW_SPEED_CONTROL_CURB_STATIC_P9 = 0xEC;
+  REQ_CAREFUL_WITH_NO_TRAFFIC_LIGHT_JUNCTION_P9 = 0xED;
+  REQ_CAREFUL_WITH_MERGE_BLIND_AREA_SCENARIO_P9 = 0xEE;
+  REQ_ROAD_EDGE_NUDGE_P8 = 0x7E;
+  REQ_LANE_CHANGE_AVOID_CONSTRUCTION_ZONE_P6 = 0x7A;
+  REQ_TAKING_OVER_BRAKE_TO_STOP_BEFORE_JUNCTION_P6 = 0x1D;
+  REQ_CAREFUL_WITH_SPLIT_AHEAD_P7 = 0x34;
+  REQ_CAREFUL_WITH_MERGE_AHEAD_P7 = 0x35;
+  REQ_TLD_BROKEN_CONFIRM_GO_P6 = 0x12;
+  REQ_TLD_ABNORNAL_TAKE_OVER_P5 = 0x0A;
+  REQ_GREEN_GO_P8 = 0x39;
+  REQ_GREEN_STOP_P8 = 0x3A;  // only use for green light countdown
+  REQ_GREEN_FLASH_RUSH_P8 = 0x3B;
+  REQ_GREEN_FLASH_STOP_P8 = 0x3C;
+  REQ_YELLOW_STOP_P8 = 0x3D;
+  REQ_YELLOW_FLASH_SLOW_DOWN_P8 = 0x3E;
+  // yellow flash stop
+  REQ_YELLOW_FLASH_RUSH_P8 = 0x3F;
+  REQ_GOING_TO_WAITING_AREA_P8 = 0x40;
+  REQ_APPROACHING_OUT_OF_ODD_CHECKPOINT_P6 = 0x1B;
+  REQ_TAKE_OVER_TO_AVIOD_MISSING_NAVIGATION_ROUTE_P5 = 0x1C;
+  REQ_ROAD_CONDITION_COMPLICATED_AHEAD_P6 = 0x1A;
+  REQ_LARGE_CURVATURE_AHEAD_P6 = 0x17;
+  REQ_LARGE_CURVATURE_HANDS_ON_REQUEST_P6 = 0x18;
+  REQ_CAREFUL_WITH_NARROW_LANE_AHEAD_P5 = 0x8A;
+  REQ_CAREFUL_WITH_SLOPE_ROAD_AHEAD_P9 = 0x8F;
+  REQ_LAST_LANE_CHANGE_POINT_P7 = 0x49;
+  // junction route select wti
+  REQ_ROUTE_SELECT_CUT_IN_LEFT_P8 = 0x90;
+  REQ_ROUTE_SELECT_CUT_IN_RIGHT_P8 = 0x91;
+  REQ_ROUTE_SELECT_AVOID_OBSTACLE_P8 = 0x92;
+  // uturn gear r override acc pedal wti
+  REQ_REVERSE_ACC_PEDAL_OVERRIDE_P8 = 0x61;
+  REQ_AHEAD_LANE_CHANGE_BY_OTHER_P8 = 0x5C;
+  REQ_AHEAD_LANE_CHANGE_BY_SOLID_LINE_P8 = 0x5D;
+  REQ_HIGHWAY_MERGE_SCENARIO_P8 = 0x62;
+  REQ_NAVIGATION_YAWING_P7 = 0x45;
+  REQ_LOW_RISK_ROUNDABOUT_P6 = 0x46;
+  REQ_HIGH_RISK_ROUNDABOUT_P6 = 0x47;
+  REQ_SINGLE_LINK_CHECKER_LOW_RISK_SCENE_P8 = 0x48;
+  REQ_SINGLE_LINK_CHECKER_MIDDLE_RISK_SCENE_P7 = 0x4A;
+  REQ_IS_REVERSE_LANE_SCENE_P6 = 0x32;
+  REQ_CAREFUL_WITH_T_JUNCTION_P9 = 0x83;
+  REQ_TJP_WILL_EXIT_1KM_WARNING_P6 = 0x36;
+  REQ_TJP_WILL_EXIT_500M_WARNING_P6 = 0x37;
+  REQ_TJP_WILL_EXIT_200M_WARNING_P6 = 0x38;
+  REQ_LAW_CAR_IN_BACK_P8 = 0x98;
+  REQ_POLICE_IN_FRONT_P8 = 0x99;
+  // etc wti
+  REQ_APPROACH_TOLL_P11 = 0x9B;
+  REQ_ENTER_ETC_LANE_P11 = 0x9C;
+  REQ_MANUALLY_CHANGE_LANE_P8 = 0x9D;
+  REQ_THROUGH_ETC_LANE_P11 = 0x9E;
+  REQ_WAIT_FOR_PASSAGE_P11 = 0x9F;
+  REQ_EXIT_TOLL_P11 = 0xA0;
+  REQ_LANE_CHANGE_TOWARDS_LEFT_TO_CLOSE_ETC_LANE_P8 = 0xA1;
+  REQ_LANE_CHANGE_TOWARDS_RIGHT_TO_CLOSE_ETC_LANE_P8 = 0xA2;
+};
+
+enum PSPWtiElement {
+  REQ_PSP_NO_WARNING = 0x00;
+  REQ_TAKING_OVER_WHILE_FAILED_ENTERING_PSP_500M_BEFORE_P6 = 0x0C;
+  REQ_ENTERING_PSP_500M_BEFORE_P6 = 0x0D;
+  REQ_WAITING_WHILE_WAITING_InFRONT_MORE_THAN_THREE_P6 = 0x0E;
+  REQ_DRIVING_TO_PWOER_STATION_ToWAIT_P6 = 0x0F;
+  REQ_DRIVING_TO_PWOER_STATION_ToSWAP_WHILE_DRIVING_P6 = 0x10;
+  REQ_DRIVING_TO_PWOER_STATION_ToSWAP_WHILE_WAITING_IN_VIRTUAL_AREA_P6 = 0x11;
+  REQ_QUITING_PSP_IN_SWAP_STATION_P6 = 0x12;
+  REQ_DRIVING_INTO_CIRCLE_WHILE_PSAP_FAILED_P6 = 0x13;
+  REQ_TAKING_OVER_TO_AVOID_OBSTACLES_P7 = 0x1A;
+  REQ_TAKING_OVER_TO_AVOID_COLLISIONS_IN_NARROW_SPACE_P7 = 0x1B;
+  REQ_STOPPING_TO_WAIT_WHILE_CANNOT_AVOID_OBSTACLES_P7 = 0x1C;
+  REQ_STOPPING_TO_WAIT_IN_VIRTUAL_AREA_P7 = 0x1D;
+  REQ_TAKING_OVER_WHILE_CONGESTION_IN_VIRTUAL_AREA_P7 = 0x1E;
+  REQ_TAKING_OVER_WHILE_BOOKING_FAILED_P7 = 0x20;
+  REQ_TAKING_OVER_TO_AVOID_OBSTACLES_IN_SWAP_AREA_P7 = 0x21;
+  REQ_TAKING_OVER_WHILE_FAILED_MOVING_INTO_SWAP_AREA_P7 = 0x22;
+  REQ_TAKING_OVER_WHILE_READY_TO_SWAP_IN_FIRST_GENERATION_STATION_P7 = 0x23;
+  REQ_TAKING_CARE_OF_PASSERBY_LONG_DISTANCE_BRAKE_P8 = 0x34;
+  REQ_TAKING_CARE_OF_PASSERBY_AROUND_EGOCAR_P8 = 0x35;
+  REQ_WAITING_FOR_PASSERBY_TO_CROSS_P8 = 0x36;
+  REQ_TAKING_CARE_OF_THE_COMING_OBJECT_P8 = 0x37;
+  REQ_LANE_CHANGING_TO_OVERTAKE_P8 = 0x38;
+  REQ_TURNING_LEFT_IN_THE_CORNER_P8 = 0x39;
+  REQ_TURNING_RIGHT_IN_THE_CORNER_P8 = 0x3A;
+  REQ_GOING_STRAIGHT_IN_THE_CORNER_P8 = 0x3B;
+  REQ_MERGING_INTO_HOSTLANE_AFTER_SWAPING_P8 = 0x3C;
+  REQ_MOVING_TO_MAKE_ROOM_P8 = 0x3D;
+  REQ_WATCH_OUT_FOR_CROSS_VEHICLE_P8 = 0x3E;
+};
+
+enum NOPWtiPriority {
+  NOPWTI_P0 = 0;
+  NOPWTI_P1 = 1;
+  NOPWTI_P2 = 2;
+  NOPWTI_P3 = 3;
+  NOPWTI_P4 = 4;
+  NOPWTI_P5 = 5;
+  NOPWTI_P6 = 6;
+  NOPWTI_P7 = 7;
+  NOPWTI_P8 = 8;
+  NOPWTI_P9 = 9;
+  NOPWTI_P10 = 10;
+  NOPWTI_P11 = 11;
+};
+
+enum PSPWtiPriority {
+  PSPWTI_P0 = 0;
+  PSPWTI_P1 = 1;
+  PSPWTI_P2 = 2;
+  PSPWTI_P3 = 3;
+  PSPWTI_P4 = 4;
+  PSPWTI_P5 = 5;
+  PSPWTI_P6 = 6;
+  PSPWTI_P7 = 7;
+  PSPWTI_P8 = 8;
+  PSPWTI_P9 = 9;
+  PSPWTI_P10 = 10;
+};
+
+enum NOPLongCtrlMode {
+  LC_OFF = 0;
+  LC_PASSIVE = 1;
+  LC_STANDBY = 2;
+  LC_ACTIVE = 3;
+  LC_BRAKE_ONLY = 4;
+  LC_OVERRIDE = 5;
+  LC_STANDSTILL = 6;
+  LC_FAILURE = 7;
+};
+
+enum TaskState {
+  FINISH = 0;
+  NAV_TO_QUEUE_AREA = 1;
+  NAV_TO_PSAP_LOC_BOX = 2;
+  IN_QUEUE_AREA = 3;
+  IN_PSAP_LOC_BOX = 4;
+  ON_POWER_SWAP_PARKING = 5;
+  ON_POWER_SWAPING = 6;
+  NAV_TO_HIGHWAY = 7;
+  PREPARE = 8;
+};
+
+enum NopFsMode {
+  NOP_FS_NONE = 0;
+  NOP_FS_NORMAL = 1;
+  NOP_FS_COMPLEX = 2;
+}
+
+enum P2PActvFeatureType {
+  P2P_PARKING_FEATURE_TYPE_NONE = 0x0;
+  P2P_PARKING_FEATURE_TYPE_SAPA_IN = 0x3;
+  P2P_PARKING_FEATURE_TYPE_SAPA_OUT = 0x4;
+}
+
+enum P2PParkingStatus {
+  P2P_PARKING_STATUS_STANDBY = 0x0;
+  P2P_PARKING_STATUS_SEARCH = 0x1;
+  P2P_PARKING_STATUS_PREGUIDANCE = 0x2;
+  P2P_PARKING_STATUS_ACTIVE = 0x3;
+  P2P_PARKING_STATUS_SUSPEND = 0x4;
+  P2P_PARKING_STATUS_ABORT = 0x5;
+  P2P_PARKING_STATUS_FINISH = 0x6;
+  P2P_PARKING_STATUS_FAULT = 0x7;
+  P2P_PARKING_STATUS_PREPARED = 0xA;
+}
+
+enum P2PParkingInstruction {
+  P2P_PARKING_INSTRUCTION_NO_MESSAGE = 0x0;
+  P2P_PARKING_INSTRUCTION_REALSE_BRAKE_PEDAL = 0x3;
+  P2P_PARKING_INSTRUCTION_PAUSE = 0x5;
+  P2P_PARKING_INSTRUCTION_CLOSE_DOOR_AND_SELECT_SLOT = 0xC;
+  P2P_PARKING_INSTRUCTION_TRYING_TO_RECOVER_AUTOMATICALLY = 0xD;
+  P2P_PARKING_INSTRUCTION_REMAIN_SEATED = 0xE;
+  P2P_PARKING_INSTRUCTION_KEEP_VEHICLE_STANDSTILL_AND_SELECT_SLOT = 0xF;
+}
+
+enum P2PParkingInstructionSecond {
+  P2P_PARKING_INSTRUCTION_SECOND_NO_MESSAGE = 0x0;
+  P2P_PARKING_INSTRUCTION_SECOND_STORED_SLOT_UNAVAILABLE = 0x3;
+}
+
+enum P2PParkingTextInfo {
+  P2P_PARKING_TEXTINFO_NONE = 0x0;
+  P2P_PARKING_TEXTINFO_TEXT_INFO_7 = 0x7;
+}
+
+enum P2PParkingDrivingDirection {
+  P2P_PARKING_DRIVING_DIRECTION_NONE = 0x0;
+  P2P_PARKING_DRIVING_DIRECTION_DRIVE_FORWARD = 0x1;
+  P2P_PARKING_DRIVING_DIRECTION_DRIVE_REVERSE = 0x2;
+  P2P_PARKING_DRIVING_DIRECTION_STANDSTILL = 0x3;
+}
+
+enum P2PSlotPlanningStatus {
+  P2P_SLOT_PLANNING_STATUS_NONE = 0x0;
+  P2P_SLOT_PLANNING_STATUS_PARKING_SLOTS_UNSUITABLE = 0x1;
+  P2P_SLOT_PLANNING_STATUS_PARKING_SLOTS_OK = 0x2;
+  P2P_SLOT_PLANNING_STATUS_PARKING_SLOTS_OK_AND_PLANNING_SUCCESS = 0x3;
+}
+
+enum P2PAdInteractiveArea {
+  P2P_AD_INTERACTIVE_AREA_NONE = 0x0;
+  P2P_AD_INTERACTIVE_AREA_ARRIVE_TARGET_SLOT = 0x1;
+  P2P_AD_INTERACTIVE_AREA_STORED_SLOT_UNAVAILABLE = 0x2;
+  P2P_AD_INTERACTIVE_AREA_RELEASE_BRAKE_PEDAL = 0x3;
+  P2P_AD_INTERACTIVE_AREA_OBSTACLE_DETECTED = 0x4;
+  P2P_AD_INTERACTIVE_AREA_ACCELERATE_PEDAL_UNAVAILABLE = 0x5;
+}
+
+
+
+message NopEsdLine {
+  optional uint64 esd_nop_line_role = 1;      // LD_Track_ID
+  optional uint64 esd_nop_line_ld_level = 2;  // highlight level 0~3
+}
+
+message NopEsdObject {
+  optional uint64 esd_nop_obj_id = 1;  //  1 ~ 2 ^ 20（1048576)
+  optional uint64 esd_nop_obj_da = 2;  // highlight level  0~5
+}
+
+message GlbPoint{
+  optional Vector3d position = 1;
+  optional Vector3d angle = 2;
+}
+
+
+message NopEsdPathPoint {
+  optional float x = 1;
+  optional float y = 2;
+  optional float z = 3;
+}
+
+message NopEsdPath {
+  repeated NopEsdPathPoint esd_nop_path_points = 1;
+  optional float esd_nop_discrete_path_length = 2;
+  optional bool esd_nop_discrete_path_enable = 3;
+  optional bool esd_psp_360_enable = 4 [default = false];
+  optional bool esd_psp_psap_interface = 5 [default = false];
+  optional NopEsdPathPoint near_intersection_point = 6;
+  optional NopEsdPathPoint far_intersection_point = 7;
+}
+
+message NpEsdPath {
+  optional float esd_np_path_c0 = 1;
+  optional float esd_np_path_c1 = 2;
+  optional float esd_np_path_c2 = 3;
+  optional float esd_np_path_c3 = 4;
+  optional float esd_np_path_c4 = 5;
+  optional float esd_np_path_c5 = 6;
+  optional float esd_np_path_end = 7;
+  optional bool esd_np_enable = 8;  // 1 enable 0  not enable
+}
+
+message ESDLocQuaternion {
+    optional double x = 1;
+    optional double y = 2;
+    optional double z = 3;
+    optional double w = 4;
+}
+
+message ESDLocVector3 {
+    optional double x = 1;
+    optional double y = 2;
+    optional double z = 3;
+}
+
+message RiskObjects{
+    optional NopEsdPath risk_object_path = 1;  // 风险目标轨迹
+    optional uint64 risk_object_id = 2;        // 风险目标ID
+}
+
+message PlannerIntention {
+    optional uint32 policy_wti = 1;  //老的信号名为 DA_NopWTI
+}
+
+message EsdP2PInfo {
+  optional bool ptp_roadside_parkin_flag = 1 [default = false];  //路边泊入标志信号 NT2ADR-14535
+  optional bool ptp_roadside_parkout_flag = 2 [default = false];  //路边泊出标志信号 NT2ADR-14535
+  repeated Vector3d roadside_parkin_lanecenter = 3;  // https://jira.nioint.com/browse/NT2ADR-14544
+  optional GlbPoint stop_point = 4;
+
+  optional P2PActvFeatureType P2P_PrkgActvFeatureTyp = 100;
+  optional P2PParkingStatus P2P_ParkingStatus = 101;
+  optional P2PParkingInstruction P2P_ParkingInstruction = 102;
+  optional P2PParkingInstructionSecond P2P_ParkingInstruction_Second = 103;
+  optional P2PParkingTextInfo P2P_ParkingTextInfo = 104;
+  optional P2PParkingDrivingDirection P2P_ParkingDrivingDir = 105;
+  optional double P2P_ParkingStopDstDisp = 106;
+  optional P2PSlotPlanningStatus P2P_SlotPlanningSts = 107;
+  optional string P2P_ParkingAbortReason = 108;
+  optional uint32 ADC1_APASlotTrackID_s1 = 109;
+  optional ad.messages.ParkStInfo.ApaReqType_e ADC1_APAReq_s1 = 110 [default = ApaReq_Search];
+  optional ad.messages.ADSysInfo.ADCUSSMode_e ADC_USS_Mode_s1 = 111 [default = ADCUSSMode_SAPA];
+  optional P2PAdInteractiveArea P2P_ADInteractiveArea = 112;
+}  
+
+message NopEsdFeature {
+
+  enum  EsdPspPsapTarget_e{
+      NONE = 0;
+      PSAP_LOC_BOX = 1; // include navi_to_loc_box and in_loc_box
+      CONNECTION_AREA = 2; // include navi_to_connection_area and in_connection_area
+  }
+
+  message EsdPspInfo{
+      optional EsdPspPsapTarget_e esd_psp_psap_target = 1;
+  }
+
+  // 导致刹停的原因
+  enum ESD_Virtual_Wall_Type_e{
+    ESD_VW_TYPE_TRAFFIC_LIGHT = 0;      // 红绿灯
+    ESD_VW_TYPE_WM = 1;                 // WM的is able to ad
+    ESD_VW_TYPE_BLACK_LIST= 2;          //link组黑名单
+    ESD_VW_TYPE_RISK_EVENT= 3;          //link组风险事件
+    ESD_VW_TYPE_NP_PLUS = 4;            // NP+不能左右转
+    ESD_VW_TYPE_OTHER= 5;               // 其他
+    ESD_VW_TYPE_GATE_MACHINE= 6;        // 闸机
+  }
+
+  
+  repeated NopEsdLine esd_nop_line = 1;
+  repeated NopEsdObject esd_nop_object = 2;
+  optional ALCFuncSts esd_nop_alc_sts = 3 [default = ALC_NOT_ENGAGED];
+  optional uint32 esd_nop_distance_to_odd_boundary = 4;
+  optional NpEsdPath esd_np_path = 5;
+  optional NopEsdPath esd_nop_path = 6;
+  optional bool is_right_lane = 7;
+  optional uint32 esd_in_powerstation = 8;  // 0 default, 1 no overlap, 2 overlap
+  optional NopEsdPath esd_nop_2nd_path = 9;
+  optional bool all_in_powerstation = 10;
+  optional EsdPspInfo esd_psp_info = 11;
+  optional ESDVirtualWall esd_virtual_wall = 12;
+  optional EsdP2PInfo esd_p2p_info = 13;
+  // for fs esd display
+  repeated NopEsdPath esd_fs_path = 20;
+  optional NopEsdPath esd_fs_2nd_path = 21;
+  optional bool is_fs_flg = 22;
+  optional NopFsMode esd_nop_fs_mode = 23;
+  optional ESDLocQuaternion esd_nop_quaternion = 24;       // 当前帧的四元数
+  optional ESDLocVector3 esd_nop_position = 25;            // 当前帧的相对定位
+  repeated RiskObjects esd_nop_risk_objects = 26;          // 风险目标
+  optional PlannerIntention planner_intention = 27;        // WTI
+  optional bool is_in_relative = 28;
+  optional LCSFuncSts esd_nop_lcs_sts = 29 [default = LCS_OFF]; 
+
+  optional uint64 time_meas = 50;  // ns
+}
+
+message StaticInfo {
+  optional bool ProperGear = 1; // 挡位条件【C1.2】
+  optional bool NopSubscriptionValidForScenario =2 ; // 订阅权限【C2.1.1-C2.1.2】
+  optional bool NopSettingOnForScenario = 3; // NOP 使能开关状态【C2.4】
+  optional bool NopTrainingComplete = 4; // 用户学习状态【C2.2.1-C2.2.3】
+  optional bool PilotLinkedToNavi = 5; // 
+}
+
+message DynamicInfo {
+  optional bool AnyOtherConditionPreventingNopStart = 1; // 功能抑制【C1.5】
+  optional bool BrakePedalReleased = 2; // 车辆与驾驶员状态【C3.1.1-C3.1.10】
+  optional bool ClosedDoors = 3; // 车辆与驾驶员状态【C3.1.1-C3.1.10】
+  optional bool ClosedHood = 4; // 车辆与驾驶员状态【C3.1.1-C3.1.10】
+  optional bool ClosedTrunk = 5; // 车辆与驾驶员状态【C3.1.1-C3.1.10】
+  optional bool DriverBuckledUp = 6; // 车辆与驾驶员状态【C3.1.1-C3.1.10】
+  optional bool DriverHandsOn = 7; // 车辆与驾驶员状态【C3.1.1-C3.1.10】
+  optional bool HazardLightsOff = 8;  // 车辆与驾驶员状态【C3.1.1-C3.1.10】
+  optional bool NavigationStatusOk = 9; // - 导航状态【C1.1】
+  optional bool VehiclePositioningOnRoadOk = 10; // - 启动范围【C1.3】
+}
+
+message CorridorBoundaryLine {
+  enum CorridorBoundaryType {
+    INVALID = 0;
+    HARD = 1;             // Hard boundary that must be strictly satisfied, other types are SOFT, usually a safe distance from HARD
+    STATIC_OBS = 2;       // Road edges and GOD and other static obstacles
+    UNCROSSABLE_LANE = 3; // Legally uncrossable boundary
+    DYNAMIC_OBS = 4;      // Car and VRU
+    OTHERS = 100;         // Unknown type
+  }
+
+  enum CorridorBoundaryDirection {
+    UNKNOWN = 0;
+    FRONT = 1;
+    REAR = 2;
+    LEFT = 3;
+    RIGHT = 4;
+  }
+  repeated Vector3d points = 1;                   // size = 2, xy for each pt
+  optional CorridorBoundaryType type = 2;         // Obstacle type for each boundary point, needed for parameter tuning
+  optional CorridorBoundaryDirection direction = 3;
+  optional uint32 obj_id = 4;                     // object id corresponding to the corridor boundary
+}
+
+message CorridorBoundary {                        
+  // Fill constraint boundaries in clockwise order: front->right->back->left
+  // Coordinate system is ego planning reference point
+  // Max is ±6m laterally and ±40m longitudinally from the reference point.
+  // Use max value if there is no obstacle, or obstacle too far
+  // Need at least 4 liens to form a rectangle
+  // Optimizer will use as constraints and ensure optimized trajectory points fall in each point's corresponding Corridor
+  repeated CorridorBoundaryLine poly_line = 1;
+  optional Vector3d sample_position = 2;          // Position of the traj reference point, optional
+  optional float sample_time = 3;                 // Time step of the traj reference point, optional
+  optional string debug_info = 4;
+}
+
+message OptimizerConstraint {
+  enum ScenarioType {
+    UNKNOWN = 0;
+    STRAIGHT = 1;
+    TURN_LEFT = 2;
+    TURN_RIGHT = 3;
+    U_TURN = 4;
+    LARGE_CURVATURE = 5;
+    REVERSE = 6;
+  }
+
+  repeated CorridorBoundary corridor = 1;     // size equal to num of traj pts
+  optional ScenarioType scenario = 2;
+}
+
+// broadcast cycle time: 50ms
+message StateMachineNop {
+  optional FunctionRequest nop_func_sts = 1 [default = HMI_REQ_OFF];
+  optional ALCFuncSts nop_alc_sts = 2 [default = ALC_NOT_ENGAGED];
+  optional CollisionRisk nop_collision_risk = 3
+      [default = NO_COLLISION_RISK_DETECTED];
+  optional LatCtrlTar nop_lat_ctrl_tarLe = 4 [default = NO_LANE_LINE_DETECTED];
+  optional LatCtrlTar nop_lat_ctrl_tarRi = 5 [default = NO_LANE_LINE_DETECTED];
+  optional LongCtrlTar nop_long_ctrl_tar = 6
+      [default = NO_LONGITUDINAL_CONTROL_TARGET];
+  optional TurnIndicatorReq nop_turn_indicator_req = 7
+      [default = REQ_NO_TURN_INDICATOR];
+  optional bool nop_freeSpace_intrusion_at_standstill = 8 [default = false];
+  optional bool nop_freeSpace_intrusion_go_notifier = 9 [default = false];
+  optional bool nop_scene_mgmt_ok = 10 [default = false];
+  optional NOPWtiElement nop_wti_element = 11 [default = REQ_NO_WARNING];
+  optional NopEsdFeature nop_esd_feature = 12;
+  optional NOPLongCtrlMode nop_vlc_mode = 13 [default = LC_OFF];
+  optional uint32 nop_distance_to_operational_event = 14;
+  optional bool driver_lane_change_request = 15 [default = false];
+  optional int32 nop_req_function_id = 16 [default = 0];
+  optional uint32 nop_odd_left_distance = 17 [default = 10000];
+  optional uint32 nop_oe_left_distance = 18 [default = 10000];
+  optional bool planner_sts = 19 [default = true];
+  optional bool controller_sts = 20 [default = true];
+  optional bool rcv_hmi_state_sts = 21 [default = true];
+  optional bool rcv_control_command_sts = 22 [default = true];
+  optional bool odd_range_standby_sts = 23 [default = true];
+  optional bool odd_range_checking_sts = 24 [default = false];
+  optional bool oe_range_standby_sts = 25 [default = true];
+  optional bool oe_range_checking_sts = 26 [default = false];
+  optional bool oe_lc_checking_sts = 27 [default = false];
+  optional bool offramp_wti_sts = 28 [default = false];
+  optional uint32 nop_distance_to_next_split = 29;
+  optional bool offramp_checking_sts = 30 [default = false];
+  optional bool route_range_checking_sts = 31 [default = false];
+  optional uint32 nop_route_left_distance = 32;
+  optional LaneChangeCanceledReason lane_change_cancel_reason = 33;
+  optional PSPWtiElement psp_wti_element = 34;
+  optional bool dim_confidence_sts = 35 [default = false];
+  optional TaskState task_state = 36 [default = FINISH];
+  optional KeyObjectsInfo key_objects = 37;
+  optional NADStateMachine nad_state_machine_debug = 38;
+  optional MrmManagerDebug mrm_manager_debug = 39;
+  optional uint32 parking_function_status = 40 [default = 0];
+  optional double distance_to_tollgate = 41;
+  optional NOPSenarioType nop_senario = 42;
+  optional ad.messages.sapaUiInfo sapa_ui_info = 43;
+  optional bool p2p_adhmi_enable_flg = 44 [default = false];
+  optional OptimizerConstraint optimizer_constaints = 45;
+  optional bool da_trajectorysts = 46 [deprecated=true];
+  optional bool goal_mode = 47 [default = false];
+  optional bool planner1_mode_request = 48 [default = false];
+  optional uint64 displaysetspd_planner1 = 49 [deprecated=true];
+  optional uint64 time_pub = 50;  // ns
+
+  optional bool fs_req_fast_steer_flg = 100 [default = false];
+  optional Pose.WMConfidence fs_req_wm_confidence = 101;
+  optional bool junction_scenario_flg = 102 [default = false]; 
+
+  optional StaticInfo static_info = 103;
+  optional DynamicInfo  dynamic_info = 104;
+  optional bool auto_cancel_turn_cmd = 105 [default = false];
+
+  optional bool DA_InnerRoad = 1001 [default = false];
+  optional bool DA_P2Psuppression = 1002 [default = false];
+
+  optional SensorTSHeader sensor_original_ts = 536870906;  // sensor original ts
+  optional uint64 publish_ptp_ts =
+      536870907;  // publish ptp timestamp, uint in nanosec
+  optional uint64 timestamp = 536870908;  // ptp sensor time of perception result, unit: ns
+  optional string publisher_id = 536870909;  // uuid of the publisher
+  optional uint64 counter = 536870910;       // message counter
+  optional uint64 publish_ts =
+      536870911;  // publish utc timestamp; unit : nanosecond
+}

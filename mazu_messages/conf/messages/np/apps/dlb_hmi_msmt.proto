@@ -1,0 +1,40 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages.debug;
+// import "common/perf/sensor_ts_header.proto";
+
+message DLBHMIDebugMeas{
+
+	optional uint32 HMI_xObjectHighlightReason1_mp = 1 ;
+	optional uint32 HMI_xObjectHighlightReason2_mp = 2 ;
+	optional uint32 HMI_xObjectHighlightReason3_mp = 3 ;
+	optional uint32 HMI_xObjectHighlightReason4_mp = 4 ;
+	optional uint32 HMI_xObjectHighlightReason5_mp = 5 ;
+	optional uint32 HMI_xObjectHighlightReason6_mp = 6 ;
+	optional uint32 HMI_xObjectHighlightReason7_mp = 7 ;
+	optional uint32 HMI_xObjectHighlightReason8_mp = 8 ;
+	optional uint32 HMI_xObjectHighlightReason9_mp = 9 ;
+	optional uint32 HMI_xObjectHighlightReason10_mp = 10 ;
+	optional uint32 HMI_xObjectHighlightReason11_mp = 11 ;
+	optional uint32 HMI_xObjectHighlightReason12_mp = 12 ;
+	optional uint32 HMI_xObjectHighlightRedReason1_mp = 13 ;
+	optional uint32 HMI_xObjectHighlightRedReason2_mp = 14 ;
+	optional uint32 HMI_xObjectHighlightRedReason3_mp = 15 ;
+	optional uint32 HMI_xObjectHighlightRedReason4_mp = 16 ;
+	optional uint32 HMI_xObjectHighlightRedReason5_mp = 17 ;
+	optional uint32 HMI_xObjectHighlightRedReason6_mp = 18 ;
+	optional uint32 HMI_xObjectHighlightRedReason7_mp = 19 ;
+	optional uint32 HMI_xObjectHighlightRedReason8_mp = 20 ;
+	optional uint32 HMI_xObjectHighlightRedReason9_mp = 21 ;
+	optional uint32 HMI_xObjectHighlightRedReason10_mp = 22 ;
+	optional uint32 HMI_xObjectHighlightRedReason11_mp = 23 ;
+	optional uint32 HMI_xObjectHighlightRedReason12_mp = 24 ;
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin 
+	// optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+	optional uint64 publish_ptp_ts = 536870907; // publish ptp timestamp, uint in nanosec
+	optional string publisher_id = 536870909; // uuid of the publisher
+	optional uint64 counter = 536870910; // message counter
+	optional uint64 publish_ts = 536870911;    // publish timestamp; unit : nanosecond
+}

@@ -1,0 +1,176 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+// 改动该proto 前请阅读：https://nio.feishu.cn/wiki/wikcnpg49NvHACdA8lqQaEyvtDd
+// 关于该proto 各个字段的描述，请参考：https://nio.feishu.cn/wiki/wikcnpg49NvHACdA8lqQaEyvtDd
+
+import "common/map_engine/sd_map.proto";
+import "common/map_engine/hd_link_info.proto";
+
+
+///
+// sd index     0           1          2            3
+// sdlink |-----------|-----------|------------|------------|
+// offset <-0-->                  <--1-->
+// HdLink       |-----------|------------|
+// HDLinkID           0          1
+
+// start_sd_link_index = 0
+// end_sd_link_index = 3
+// start_offset_in_first_sd_link_m = offset 0
+// end_offset_in_last_sd_link_m = offset 1
+
+message SdMatchedInfo {
+    optional uint32 start_sd_link_index = 1; // 分段的sd起始点在sd_link_info_list中的index(0-based)
+    optional uint32 end_sd_link_index = 2;  // 分段的sd结束点在sd_link_info_list中的index+1
+    optional uint32 start_offset_in_first_sd_link_m = 3; //距离起点link 的offset, 单位是m
+    optional uint32 end_offset_in_last_sd_link_m = 4; //距离终点link 的offset, 单位是m
+}
+
+
+message SdLinkInfo {
+    optional uint64 sd_link_id = 1;
+    repeated Point3d shape_points = 2; // 形点
+    optional float link_length = 3; // link长度，-1或者空代表无效值
+    optional int32 formway = 4;
+    optional int32 link_type = 5;
+    optional int32 ownership = 6;
+}
+
+enum TrafficCongestionInfoType {
+    TC_TYPE_INVALID = 0;  //未知状态
+    TC_TYPE_STRAIGHT_WAY = 1; //畅通
+    TC_TYPE_SLIGHT_CONGESTION = 2; //缓行
+    TC_TYPE_CONGESTION = 3; //拥堵
+    TC_TYPE_HEAVY_CONGESTION = 4; //严重拥堵
+}
+
+message TrafficCongestionInfoDetail {
+    optional TrafficCongestionInfoType  traffic_congestion_info_type = 1; // 拥堵类型
+    optional double congestion_length_meter = 2; // 对应拥堵类型的路段的长度，用米表示
+    optional double congestion_time_s = 3; // 拥堵时长，用秒表示
+    optional double traffic_congestion_dist_meter = 4; // 拥堵路段开始点距离当前位置的长度，用米表示
+}
+
+message TrafficCongestionInfo {
+    optional uint64 traffic_info_update_time_ns = 1;  // 拥堵信息上次更新的时间
+    repeated TrafficCongestionInfoDetail traffic_congestion_info_details = 2; //包含缓行，拥堵，严重拥堵等的路况信息细节
+}
+
+message HDLaneInfo {
+    optional uint64 hd_lane_id = 1; // 当前车道
+    repeated uint64 entry_lane_ids = 2; // 从上一个HDlaneGroup的哪些车道能进入当前车道， entry_lane_ids 不空 表示可以enter
+    repeated uint64 exit_lane_ids = 3; // 从当前车道能进入下一个HDLaneGroup的的哪些车道， 不为空表示可以exit
+}
+
+// 描述一个在一个Hdlink内针对lane 的截断
+message HDLaneGroup { 
+    optional uint64 hd_lane_group_id = 1; // 当前lane group id
+    repeated HDLaneInfo hd_lane_infos = 2; // 当前lane group 内所有 lane的 info， 前进方向上从右到左顺序
+}
+
+message HdLinkContent {
+    optional uint64 hd_link_id = 1;
+    optional double hd_link_length = 2;
+    repeated HDLaneGroup hd_lane_groups = 3;
+    optional Point3d link_start_point = 4; // hd link 起始点，GCJ02
+    optional Point3d link_end_point = 5; // hd link 终止点， 5，6用来计算车辆在hd link上的相对位置，GCJ02
+    optional uint32 hd_link_lane_status = 6;
+    optional int32 hd_link_floor = 7; //该段link对应的楼层，目前仅PN功能使用
+}
+
+
+message HdLinkSegment {
+    repeated HdLinkContent hd_link_contents = 1; // 一段segment内的所有hdlinkcontent
+    optional float segment_length_meter = 2; // hd link segment 长度
+    optional Point3d hd_match_start_point = 3; // SD-HD 开始匹配点的坐标
+    optional Point3d hd_match_end_point = 4; // SD-HD 终止匹配点的坐标
+    optional float offset = 5; // 相对于link起点偏移量（0-1，0：起点 1：终点）
+}
+
+// 参考SD的静态TBT数据结构, 为TBT的最小单位
+message TbtGroup {
+    optional int32 main_action = 1; // turn info 主要行为
+    optional int32 assistant_action = 2; // turn info 辅助行为
+    optional int64 link_count = 3; // 该TBT信息在整个segment中的link count，静态TBT在global routing中会分segment保存，和global routing中的HdLinkSegment的每个segment对应
+                                   // 假设当前linkcontent 为9，TbtSegment中的上一个TbtGroup的link_count为6，那么link7，8，9中间没有TBT，第9个link终点存在TBT事件，事件为当前
+                                   // TbtGroup 本身
+    optional int32 eta_s = 4; // 预留预计到达时间，单位为s
+    repeated int32 turn_kind_action_id = 5; //给出转向id，详见https://nio.feishu.cn/docx/DpxXdvMRzoDKiex6P80czp3nnVf#KkKodiEwwogUo4xcNaPc5rSfnGc
+    optional uint64 hd_link_id = 6; // HD Link 对应ID, 用于DC关联到每个link
+    optional int32 src_floor = 7; // 跨层时的原始楼层
+    optional int32 tar_floor = 8; // 跨层时的目标楼层
+}
+
+message TbtSegment {
+    repeated TbtGroup tbt_groups = 1; // 每个HdLinkSegment对应的TBT信息
+}
+
+message SDTBTSegmentAction {
+    optional int32 main_action = 1;
+    optional int32 assistant_action = 2;
+    optional int32 link_count = 3;
+}
+
+enum HdRoutingLinkType {
+    UNKOWN_ROUTING = 0;  //未知状态
+    MATCH_ROUTING = 1; //匹配的routing结果
+    PSP = 2; //PSP Routing 结果
+    PN = 3; // PN Routing 结果
+}
+
+message HdRoutingLinkRange {
+    optional HdRoutingLinkType routing_link_type = 1; // 当前的range 对应哪一种routing
+    optional int64 link_range_count_start = 2; // 整个routing的所有link中, 当前range起点的link count
+    optional int64 link_range_count_end = 3; // 整个routing的所有link中, 当前range终点的link count
+}
+
+message NavigationStatus {
+  enum ReliableState {
+    INVALID = 0;
+    NORMAL = 1;
+    OUT_OF_MAP_DATA = 2;
+    GPS_NOT_AVAILABLE = 3;
+    ROUTE_DATA_INCORRECT = 4;
+  }
+
+  enum RouteChangeReason {
+    NO_CHANGE = 0;
+    DEVIATION = 1;
+    ROUTE_INTERNAL_ERROR = 2;
+    OUT_OF_RANGE = 3;
+    DESTINATION_CHANGE = 4;
+  }
+
+  optional ReliableState reliable_state = 1;
+  optional RouteChangeReason change_reason = 2;
+}
+
+message NaviPoint {  
+  optional bool is_dest = 1; // 是否为终点「0为途经点，1为终点」    
+  optional int32 poi_category = 2; // POI分类，透传SD数据
+  optional Point3d navi_location = 3; // GPS坐标点「待WM坐标转换到自车坐标系下」
+  optional int32 link_index = 4; //事件关联的link，坐标点「途经点/终点」在link最后一个点
+}
+
+message NaviTrafficEvent {  
+  optional int32 type = 1; // 事件种类，透传SD数据   
+  optional int32 id = 2; // 事件Id，透传SD数据
+  optional Point3d sd_point = 3; // GPS坐标点「待WM坐标转换到自车坐标系下」
+  optional int32 startlinkindex = 4; //事件关联的link起点，<=0为无效值
+  optional int32 endlinkindex = 5; //事件关联的link终点，<=0为无效值 
+}
+
+message HdRouteLinkInfo {
+  optional uint64 hd_link_id = 1;
+  repeated Point3d shape_points = 2; // 形点，可能会进行抽稀
+  repeated int32 form_ways = 3; // hd link formways
+}
+
+message HdRouteGuideLine {
+  repeated Point2d shape_points = 1; // 引导线形点，可能会进行抽稀
+  optional uint64 anchor_hd_link_id = 2; // 过渡线锚定在route上的link id
+  optional uint64 anchor_hd_link_index = 3; // 过渡线锚定在route上的link index
+}

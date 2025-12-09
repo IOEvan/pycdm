@@ -1,0 +1,56 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+import "common/pnc/perception_object.proto";
+import "common/pnc/prediction.proto";
+import "np/apps/ehy_obf_outputs.proto";
+
+// self driving car intent
+message Intent {
+  enum Type {
+    UNKNOWN = 0;
+    STOP = 1;
+    CRUISE = 2;
+    CHANGE_LANE = 3;
+  }
+  optional Type type = 1 [default = UNKNOWN];
+}
+
+message PredictionObstacle {
+  optional PerceptionObject perception_obstacle = 1;
+  optional double timestamp = 2;  // GPS time in seconds
+  // the length of the time for this prediction (e.g. 10s)
+  optional double predicted_period = 3;
+  // can have multiple trajectories per obstacle
+  repeated Prediction trajectory = 4;
+
+  // estimated obstacle intent
+  optional ObstacleIntent intent = 5;
+
+  optional ObstaclePriority priority = 6;
+
+  optional bool is_static = 7 [default = false];
+
+  // Feature history latest -> earliest sequence
+//   repeated Feature feature = 8;
+}
+
+message PredictionObstacles {
+  // make prediction for multiple obstacles
+  repeated PredictionObstacle prediction_obstacle = 1;
+
+  // start timestamp
+  optional double start_timestamp = 2;
+
+  // end timestamp
+  optional double end_timestamp = 3;
+
+  // self driving car intent
+  optional Intent intent = 4;
+
+  // Scenario
+//   optional Scenario scenario = 7;
+}

@@ -1,0 +1,23 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+import "common/map_engine/map_geometry.proto";
+
+
+message HdVirtualJunction {
+  optional uint64 id = 1;
+
+  // The lane ids which touch this virtual junction.
+  repeated uint64 lane_id = 2;
+
+  // The junction controlled by traffic light
+  optional bool controlled_by_traffic_light = 3;
+
+  optional bool plural_junction = 4;
+  optional bool vru_junction = 5;
+  optional bool opening_junction = 6;
+
+  repeated uint64 link_id_in_junction = 7;
+}

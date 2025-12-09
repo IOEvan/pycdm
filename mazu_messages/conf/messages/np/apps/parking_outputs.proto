@@ -1,0 +1,168 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+import "common/vehicle_out/ads_actu.proto";
+import "common/vehicle_out/ads_ls_if.proto";
+import "common/function_arb/function_arb_in.proto";
+
+message ParkingEvent{     
+    optional bool psap_event_trigger = 1;  
+
+    optional bool sapa_event_trigger = 2;   
+    
+    optional uint32 pasp_event_type = 3;  
+
+    optional uint32 sapa_event_type = 4;
+    
+    repeated uint32 buffer = 100;
+
+}
+message BodyOut{
+    reserved 1,2,3,4,6;
+
+    enum AuxilaryLightReq{
+        AUXILARYLIGHT_NONE = 0;
+        AUXILARYLIGHT_REQUEST= 1;
+    }
+    optional AuxilaryLightReq auxilary_lighting_request = 5;
+
+    enum WindShieldWiperReq{
+        WINDWIPER_NONE = 0;
+        WINDWIPER_LOWSPEED = 1;
+        WINDWIPER_MEDIUMSPEED = 2;
+        WINDWIPER_HIGHSPEED = 3;
+        WINDWIPER_RESERVED = 4;
+    }
+    optional WindShieldWiperReq wind_shield_wiper_req = 7;
+
+    enum ParkingPlatformError{
+        PARKINGPLATFORMERROR_NONE = 0;
+        PARKINGPLATFORMERROR_EXIST = 1;
+    }
+    optional ParkingPlatformError parking_platform_error = 8;
+
+    enum ParkingFeatureError{
+        PARKINGFEATUREERROR_NONE = 0;
+        PARKINGFEATUREERROR_EXIST = 1;
+    }
+    optional ParkingFeatureError parking_feature_error = 9;
+
+
+    enum ParkingFeatureStatus{
+        PARKINGFEATURE_INACTIVE = 0;
+        PARKINGFEATURE_ACTIVE = 1;
+    }
+    optional ParkingFeatureStatus parking_feature_status = 10;
+
+    enum ParkingFeatureType{
+        PARKINGFEATURE_NONE = 0;
+        PARKINGFEATURE_PSAP_IN = 1;
+        PARKINGFEATURE_PSAP_OUT = 2;
+        PARKINGFEATURE_SAPA_IN = 3;
+        PARKINGFEATURE_SAPA_OUT = 4;
+        PARKINGFEATURE_SAPA_REMOTEIN = 5;
+        PARKINGFEATURE_SAPA_REMOTEOUT = 6;
+        PARKINGFEATURE_HZP = 7;
+        PARKINGFEATURE_AVP = 8;
+    }
+    optional ParkingFeatureType parking_feature_type = 11;
+
+    enum HornCtrlReqType_e{
+        HornCtrlReq_Off         = 0;
+        HornCtrlReq_On          = 1;
+        HornCtrlReq_Reserved    = 2;
+        HornCtrlReq_Invalid     = 3;
+    }
+    optional HornCtrlReqType_e HornCtrlReq = 12;
+
+    enum ADDrvModReqType_e{
+        ADDrvMod_NoReq   = 0 ;//No Request
+        ADDrvMod_RmtDrv  = 1 ;//RMD Request
+        ADDrvMod_AtDrv   = 2 ;//AD Request
+        ADDrvMod_Rsrvd4  = 3 ;//Reserved
+        ADDrvMod_Rsrvd5  = 4 ;//Reserved
+        ADDrvMod_Rsrvd6  = 5 ;//Reserved
+        ADDrvMod_Rsrvd7  = 6 ;//Reserved
+        ADDrvMod_Rsrvd8  = 7 ;//Reserved
+        ADDrvMod_Rsrvd9  = 8 ;//Reserved
+        ADDrvMod_Rsrvd10 = 9;//Reserved
+        ADDrvMod_Rsrvd11 = 10;//Reserved
+        ADDrvMod_Rsrvd12 = 11;//Reserved
+        ADDrvMod_Rsrvd13 = 12;//Reserved
+        ADDrvMod_Rsrvd14 = 13;//Reserved
+        ADDrvMod_Rsrvd15 = 14;//Reserved
+        ADDrvMod_Rsrvd16 = 15;//Invalid
+    }
+    optional ADDrvModReqType_e ADDrvTypReq = 13;
+
+    enum TrnLghtReqType_e{
+        TrnLghtReq_NoReq = 0;//No Request
+        TrnLghtReq_Hazard= 1;//Hazard Lights Request
+        TrnLghtReq_Left  = 2;//Left Turn Indicator Request
+        TrnLghtReq_Right = 3;//Right Turn Indicator Request
+    }
+    optional TrnLghtReqType_e TurnLightReq = 14;
+
+    enum MirrFoldUnfoldExtReq_e{
+        MirrFoldUnfoldExtReq_None = 0;//No request
+        MirrFoldUnfoldExtReq_Fold = 1;//Request to fold
+        MirrFoldUnfoldExtReq_Unfold = 2;//Request to unfold
+        MirrFoldUnfoldExtReq_Invld = 3;//Invalid
+    }  
+    optional MirrFoldUnfoldExtReq_e MirrFoldUnfoldExtReq = 15;
+
+    enum ADCPosnLightReqType_e{
+        ADCPosnLightReq_None = 0; //No request 
+        ADCPosnLightReq_Front = 1; //Front position light request
+        ADCPosnLightReq_Rear = 2; //Rear position light request
+        ADCPosnLightReq_FrontAndRear = 3; //Front and reat position light request
+    }
+    optional ADCPosnLightReqType_e ADCPosnLightReq = 16;
+}
+
+message ParkingOut{
+    optional LatCtrlIf eps_out              = 1;
+    optional LngLwSpdCtrlIf vcu_out         = 2;  // vcu llc output
+    optional BodyOut body_out               = 3;
+    optional ParkStInfo parking_status_out  = 4;
+    repeated FunctionXstatus Function       = 5;       //0:SAPA_Main 1:PSAP_Main
+    optional ParkingEvent parking_event     = 6;
+    optional uint32 acsf_a_sts_edr          = 7;  // 0:off 1:standby 2:active 3:fault
+    optional SummonStInfo summon_status_out = 8;
+    optional LngctrlCmfrtIf vlc_out         = 9;  // vcu vlc output
+    
+    enum SlotRecommendStatus{
+        STATUS_IDLE = 0;            // no recommended slot in last 10s
+        STATUS_RECOMMENDING = 1;    // recommending slot
+        STATUS_RECOMMENDED = 2;     // recommended slot in last 10s
+    }
+    optional SlotRecommendStatus recommend_status = 10;
+    
+    optional VehRwsCtrlIf rws_out           = 11; // eps rws output
+    optional uint32 sapa_interactions       = 12; 
+
+    enum P2PHandoverRequest{
+        NONE = 0;
+        URBAN_TO_LOWSPEED = 1;
+        LOWSPEED_TO_URBAN = 2;
+    }
+    optional P2PHandoverRequest p2p_handover_req = 13;
+
+    enum ParkingLidarCommand{
+        NO_Request = 0;
+        Request    = 1;
+    }
+    optional ParkingLidarCommand parking_lidar_command = 14;
+    optional bool rpa_in_is_avl = 15;
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907; // publish ptp timestamp; unit : nanosecond
+    optional string publisher_id = 536870909;   // uuid of the publisher
+    optional uint64 counter = 536870910;        // message counter
+    optional uint64 publish_ts = 536870911;     // publish utc timestamp; unit : nanosecond
+}

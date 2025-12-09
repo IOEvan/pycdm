@@ -1,0 +1,2080 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+import "common/pnc/geometry.proto";
+import "common/pnc/car_state.proto";
+import "common/pnc/decision.proto";
+import "common/pnc/path.proto";
+import "common/pnc/road_map.proto";
+import "common/pnc/behavior_obstacle.proto";
+import "common/pnc/planner_scheduler.proto";
+import "common/pnc/hmi_state.proto";
+import "common/pnc/state_restore_enum_routing.proto";
+import "common/pnc/planner_speed.proto";
+import "common/pnc/refpath_debug.proto";
+import "common/pnc/attention_debug.proto";
+import "np/apps/parking/par_pnc_point.proto";   // For SLPoint
+import "common/pnc/ego_command_result_debug.proto";
+import "common/pnc/planner_solver_debug.proto";
+import "common/pnc/park_low_speed_debug.proto";
+import "common/pnc/refline_debug.proto";
+import "common/pnc/path_bound_debug.proto";
+import "common/pnc/adms_debug.proto";
+import "common/pnc/conpre_debug.proto";
+import "common/perf/sensor_ts_header.proto";
+
+message ObstacleFilterInfo {
+  optional int32 obs_id = 1;
+  optional string filter_strategy_name = 2;
+}
+
+message ObstacleFilterManagerInfo {
+  optional string scene = 1;  // urban highway psp
+  repeated ObstacleFilterInfo filter_info = 2;
+}
+
+// note: there is no much reusable structure
+// reference line debug:s,x,y,theta,k,dk,calculated bound,offset_l
+message ReferenceLinePoint {
+  optional double s = 1;
+  optional double x = 2;
+  optional double y = 3;
+  optional double heading = 4;
+  optional double k = 5;
+  optional double dk = 6;
+  optional double lateral_bound = 7;
+  optional double offset_l = 8;  // offset to center line point
+}
+message ReferenceLineDebug {
+  repeated ReferenceLinePoint reference_line_point = 1;
+}
+// path bound(s,l)
+message PathBound {
+  optional string label = 1;
+  repeated SLPoint left_bound = 2;
+  repeated SLPoint right_bound = 3;
+}
+
+message TrajectoryConstraints{
+  optional Vector3d traj_position = 1;
+  repeated Polyline traj_constraints_polyline = 2;
+  optional double obs_left_ratio = 3;
+  optional double obs_right_ratio = 4;
+  optional double god_left_ratio = 5;
+  optional double god_right_ratio = 6;
+  optional double shoulder_left_ratio = 7;
+  optional double shoulder_right_ratio = 8;
+}
+
+// multiple path boundary
+message PathBoundsDebug {
+  repeated PathBound path_bound = 1;
+}
+// obstacle s l boundary
+// obstacle s t boundary
+// obstacle decision type
+message ObstacleDebug {
+  optional SLBoundary sl_boundary = 1;
+  optional STBoundary st_boundary = 2;
+  // obstacle decision tag
+  optional ObjectDecisionType longitudinal_decision_type = 3;
+  optional ObjectDecisionType lateral_decision_type = 4;
+}
+message ObstaclesDebug {
+  map<string, ObstacleDebug> obstacle_debug_maps = 1;
+}
+
+// path result data
+message PathDataDebug {
+  // only position,k,theta,s,l related with path is used
+  repeated PathPointNop path_points = 1;
+}
+// speed bound
+// there could be better if we use some basic data structure like this in tasks
+message SpeedLimitPoint {
+  optional double s = 1;
+  optional double v = 2;
+  optional double t = 3;
+}
+enum RiskType {
+  NO_TYPE = 0;
+  BP_LANE_KEEP_RISK = 1;
+  BP_CROSS_RISK = 2;
+  MP_RISK = 3;
+  BP_INTERFERENCE_RISK = 4;
+  BP_VRU_RISK = 5;
+  MP_ROADEDGE_RISK = 6;
+  BP_MERGE_YIELD_RISK = 7;
+  BP_MERGE_PROCESS_RISK = 8;
+  BP_MERGE_OVERTAKE_RISK = 9;
+  BP_RISK = 10;
+}
+message RiskSpeedLimitPoint {
+  optional SpeedLimitPoint speed_limit = 1;
+  optional RiskType type = 2;
+}
+message SpeedBoundDebug {
+  repeated SpeedLimitPoint speed_limit_points = 1;
+}
+// st graph result with every point's cost
+message StGraphPoint {
+  optional STPoint st_point = 1;
+  optional double obstacle_cost = 2;
+  optional double spatial_potential_cost = 3;
+  optional double edge_cost = 4;
+  optional double total_cost = 5;
+}
+message StGraphDebug {
+  repeated StGraphPoint st_graph_points = 1;
+}
+// st graph result
+message StGraphResultDebug {
+  repeated SpeedPointNop speed_points = 1;
+}
+// qp speed bound
+
+// qp speed result
+message SpeedDataDebug {
+  repeated SpeedPointNop speed_points = 1;
+  optional double current_map_speed_limit = 2 [default = 0.0];  // km/h
+  repeated SLTTrajectory obs_slt_trajectories = 3;
+  repeated double reference_speed = 4;
+  repeated double cruise_speed_limit = 5;
+  repeated double map_speed_limit = 6;
+  repeated MMSLTTrajectorys mm_obs_slt_trajectories = 7;
+  repeated MMSpeedPoints mm_speed_points = 8;
+}
+
+message MMSpeedPoints {
+  optional int32 modal_id = 1;
+  repeated SpeedPointNop speed_points = 2;
+}
+
+message SLTTrajectory {
+  optional string obs_id = 1;
+  repeated SLTPoint slt_points = 2;
+}
+
+message MMSLTTrajectorys {
+  optional string obs_id = 1;
+  repeated MMSLTTrajectory mm_obs_slt_trajectory = 2;
+}
+
+message MMSLTTrajectory {
+  optional int32 modal_id = 1;
+  repeated SLTPoint slt_points = 2;
+}
+
+message SLTPoint {
+  enum MotionDecisionTypeDebug {
+    LEFT_NUDGE = 1;
+    RIGHT_NUDGE = 2;
+
+    OOL_LEFT_NUDGE = 3;
+    OOL_RIGHT_NUDGE = 4;
+
+    YIELD = 5;
+    NOT_YIELD = 6;
+    SLOT_YIELD = 7;
+    SLOT_NOT_YIELD = 8;
+    MERGE_YIELD = 9;
+    MERGE_NOT_YIELD = 10;
+    ALIGN_YIELD = 11;
+    ALIGN_NOT_YIELD = 12;
+
+    CROSS_YIELD = 13;
+    VRU_YIELD = 14;
+    RISK = 15;
+
+    IGNORE = 16;
+
+    LANE_CHANGE_HOLD_YIELD = 17;
+    INTERFERENCE_YIELD = 18;
+    INTERFERENCE_RISK = 19;
+    CROSS_OVERTAKE = 20;
+    MP_YIELD = 21;
+
+    UNKNOWN = 30;
+  }
+  optional double t = 1;
+  optional double min_s = 2;
+  optional double max_s = 3;
+  optional double min_s_speed = 4;
+  optional double max_s_speed = 5;
+  optional double min_l = 6;
+  optional double max_l = 7;
+  optional double l_nearest = 8;
+  optional double l_speed = 9;
+  repeated MotionDecisionTypeDebug decision_vec = 10;
+  optional double speed = 11;
+  optional double path_s_lower = 12;
+  optional double path_s_upper = 13;
+  optional double path_l_nearest = 14;
+  optional double path_heading_diff = 15;
+  optional double path_ref_min_s = 16;
+  optional double path_ref_max_s = 17;
+  optional bool is_precise_path_projection = 18 [default = false];
+}
+
+message HmiLaneChangeReqStatus {
+  enum TaskState {
+    TASK_STATE_NONE = 0;
+    TASK_STATE_REJECTED = 1;
+    TASK_STATE_PREPARING = 2;
+    TASK_STATE_RUNNING = 3;
+    TASK_STATE_CANCELED = 4;
+    TASK_STATE_FINISHED = 5;
+  }
+  enum TaskError {
+    TASK_ERROR_NONE = 0;
+    TASK_ERROR_INTENTION_NOT_READY = 1;
+    TASK_ERROR_SPEED_OUT_OF_RANGE = 2;
+    TASK_ERROR_LANE_NOT_EXIST = 3;
+    TASK_ERROR_LANE_NOT_DRIVABLE = 4;
+    TASK_ERROR_LANE_BOUNDARY_FORBID = 5;
+    TASK_ERROR_LC_SPACE_NOT_ENOUGH = 6;
+    TASK_ERROR_NOT_INTERRUPT_LANE_CHANGING = 7;
+    TASK_ERROR_ON_LANE_CHANGING = 8;
+    TASK_ERROR_CANCELED_BY_HMI = 9;
+    TASK_ERROR_CANCELED_BY_SAFETY = 10;
+  }
+  optional TaskState task_state = 1;
+  optional TaskError task_error = 2;
+}
+
+enum LaneChangeCanceledReason {
+  CANCELED_NONE = 0;
+  CANCELED_BY_NOT_AUTO_MODE = 1;
+  CANCELED_BY_DRIVER = 2;
+  CANCELED_BY_SAFETY = 3;
+  CANCELED_BY_CURR_ROUTE_INVALID = 4;
+  CANCELED_BY_TARGET_ROUTE_INVALID = 5;
+  CANCELED_BY_DURATION = 6;
+  CANCELED_BY_FCT_SURP_SIGNAL = 7;
+  CANCELED_BY_OBSTACLE_SURP = 8;
+  CANCELED_BY_OVERTAKE_CUT_OUT = 9;
+  CANCELED_BY_BP_COLLISION = 10;
+  CANCELED_BY_BP_SAFETY_COST = 11;
+  CANCELED_BY_BP_SAFETY_AREA_CHECK = 12;
+  CANCELED_BY_CONE = 13;
+  CANCELED_BY_PERCEPTION_SOLID_LINE = 14;
+  CANCELED_BY_TARGET_SLOW_VEHICLE = 15;
+  CANCELED_BY_DA_INHIBIT = 16;
+  CANCELED_BY_LANE_MAP_MODE = 17;
+  CANCELED_BY_JUNCTION = 18;
+  CANCELED_BY_OVER_PREPARE_TIME_IN_JUNCTION = 19;
+  CANCELED_BY_STATIC_VEHICLE_MOVING = 20;
+  CANCELED_BY_DRIVER_STEER_TORQUE = 21;
+  CANCELED_BY_ROUTE_OBS_BLOCK = 22;
+  CANCELED_BY_TARGET_ROUTE_WIDTH_INVALID = 23;
+  CANCELED_BY_TARGET_ROUTE_GEOMETRY_INVALID = 24;
+  CANCELED_BY_TARGET_ROUTE_TYPE_INVALID = 25;
+  CANCELED_BY_ROUTE_PRIORITY_CHANGE = 26;
+  CANCELED_BY_RAMP_RISK_SCENARIO = 27;
+  CANCELED_BY_CURRENT_ROUTE_NOT_BLOCKED = 28;
+  CANCELED_BY_ONE_MAP_JUNCTION = 29;
+  CANCELED_BY_BUS_LANE_NOT_EXIST = 30;
+  CANCELED_BY_LEADING_VEHICLE_SLOW_MOVING = 31;
+}
+
+message LaneChangeSlotAlignmentInfo {
+  optional string id = 1;
+  optional bool is_align_front = 2;
+  optional bool is_acc_to_dec = 3;
+  optional double aligned_s = 4;
+  optional double acc_t = 5;
+  optional double dec_t = 6;
+  optional double aligned_v = 7;
+  optional double aligned_space = 8;
+  optional double acc = 9;
+  optional double dec = 10;
+}
+
+message LaneChangeStatus {
+  enum LaneChangeType {
+    SUCCEEDING = 0;
+    LEFT_FORWARD = 1;
+    LEFT_REVERSE = 2;
+    RIGHT_FORWARD = 3;
+  }
+  enum StatusType {
+    NONE = 0;
+    LANE_CHANGING = 1;
+    CANCEL = 2;
+    READY_TO_FINISH = 3;
+    FINISH = 4;
+    PREPARING = 5;
+  }
+  enum TriggerType {
+    TRIGGER_TYPE_NONE = 0;
+    TRIGGER_TYPE_PASSIVE = 1;
+    TRIGGER_TYPE_INITIATIVE = 2;
+  }
+  optional LaneChangeType lane_change_type = 1;
+  optional StatusType status_type = 2;
+  optional TriggerType trigger_type = 3;
+  optional HmiLaneChangeReqStatus hmi_lane_change_req_status = 4;
+  optional LaneChangeCanceledReason lane_change_canceled_reason = 5;
+  optional LaneChangeSlotAlignmentInfo slot_alignment_info = 6;
+  optional int64 lane_change_canceled_reason_bit_flag = 7;
+}
+
+message LaneChangeTask {
+  message LaneChangeInfo {
+    optional double current_crossable_remain_s = 1;
+    optional double crossable_remain_s = 2;
+    optional double min_ave_speed = 3;
+    optional double max_ave_speed = 4;
+    optional int64 priority = 5;
+  }
+  enum TaskType {
+    TASK_TYPE_HMI_REQ = 0;
+    TASK_TYPE_ROUTING = 1;
+  }
+  enum LaneChangeTriggerType {
+    DRIVER = 0;
+    EMERGENCY_AVOIDANCE = 1;
+    SPLIT = 2;
+    OFF_RAMP = 3;
+    RAMP_TO_ROAD = 4;
+    MERGE = 5;
+    PRIORITY = 6;
+    SPEED = 7;
+    OVERTAKE = 8;
+    NONE = 9;
+    PREFERED_LANE = 10;
+    LANE_KEEP_SPLIT = 11;
+    RISK_OBSTACLE = 12;
+    AVOID_MERGE_LANE = 13;
+    AVOID_CONSTRUCTION_ZONE = 14;
+    AVOID_STATIC_VEHICLE = 15;
+    AVOID_VEHICLE_IN_JUNCTION = 16;
+    AVOID_BUS_LANE = 17;
+  }
+  optional LaneChangeStatus.LaneChangeType lane_change_type = 1;
+  optional double remain_s = 2;
+  optional LaneChangeInfo left_lane_change_info = 3;
+  optional LaneChangeInfo right_lane_change_info = 4;
+  optional TaskType task_type = 5;
+  optional bool is_cancel_lane_change = 6;
+  optional LaneChangeTriggerType trigger_type = 7;
+  optional LaneChangeInfo current_route_info = 8;
+  optional double user_set_speed = 9;
+  optional double distance_to_odd_end = 10;
+  optional double distance_to_split = 11;
+}
+
+message BehaviorPlanningEgoInput {
+  optional LaneChangeStatus lane_change_status = 1;
+  optional LaneChangeTask lane_change_task = 2;
+  optional bool is_auto_mode = 3;
+  optional BehaviorVehicle ego_vehicle = 4;
+}
+
+message ObstacleTraj {
+  optional int64 obstacle_id = 1;
+  repeated PathPointNop points = 2;
+}
+
+message ObstacleRelationSet {
+  message ObstacleRelation {
+    enum Type {
+      DEFAULT = 0;
+      SAME = 1 [deprecated = true];
+      FRONT = 2 [deprecated = true];
+      BACK = 3 [deprecated = true];
+      LEFT = 4 [deprecated = true];
+      RIGHT = 5 [deprecated = true];
+      MERGE = 6;
+      SAME_FRONT = 7;
+      SAME_BACK = 8;
+      LEFT_FRONT = 9;
+      LEFT_BACK = 10;
+      RIGHT_FRONT = 11;
+      RIGHT_BACK = 12;
+    };
+    optional Type type = 1;
+    repeated int64 relation_obstacle_ids = 2;
+  }
+  optional int64 obstacle_id = 1;
+  repeated ObstacleRelation obstacle_relations = 2;
+}
+
+// several obstacles relation set
+message FrameObstaclesRelationSet {
+  repeated ObstacleRelationSet obstacles_relation_set = 1;
+}
+
+message ActionObstaclesRelationSet {
+  repeated FrameObstaclesRelationSet frame_obstacles_relation_sets = 1;
+}
+
+message FrameIntention {
+  message Intention {
+    enum Type {
+      LEADING = 0;
+      VIRTUAL_LEADING = 1;
+      MERGE_LEADING = 2;
+    };
+    optional Type type = 1;
+    optional int64 obstacle_id = 2;
+    optional int64 lane_id = 3;
+  }
+  repeated Intention intentions = 1;
+}
+
+message ActionIntentionSet {
+  repeated FrameIntention frame_intentions = 1;
+}
+
+
+message CrossPoint {
+  optional double x = 1;
+  optional double y = 2;
+}
+
+message VruCrossDecision {
+  enum VruCrossDecisionType {
+    YIELD = 0;
+    NOT_YIELD = 1;
+    RISK = 2;
+  }
+  optional string id = 1;
+  optional VruCrossDecisionType decision = 2;
+  optional CrossPoint cross_point = 3;
+  optional double prob = 4 [default = -1.0];
+}
+
+message LCSlotInfo {
+  enum SlotType {
+    LANE_CHANGE = 0;
+    MERGE = 1;
+    CROSS = 2;
+  }
+  optional string id = 1;
+  optional SlotType slot_type = 2;
+  repeated int32 front_obstacle_id = 3;
+  repeated int32 back_obstacle_id = 4;
+  optional uint64 target_lane_id = 5;
+  optional bool is_safe_to_lane_change = 6;
+  optional Vector3d conflict_point = 7;
+  optional Vector3d merge_point = 8;
+}
+
+message WtiInMerge {
+  optional bool wti_in_merge_for_motion = 1 [default = false];
+  optional bool right_of_current_lane = 2 [default = false];
+}
+message DecisionStrategyOutput {
+  optional double timestamp = 1;
+  optional int32 leading_vehicle_id = 2;
+  repeated ObsDecision lane_keep_decision = 3;
+  repeated LCSlotInfo slot_info = 4;
+  optional double ego_s_to_merge_point = 5;
+  optional double ego_s_to_conflict_point = 6;
+  optional WtiInMerge need_wti_in_merge = 7;
+  repeated VruCrossDecision vru_cross_decision = 8;
+  repeated ObsDecision uni_decision = 9;
+}
+
+message CrossingDecision {
+  optional int32 cross_obs_id = 1;
+  optional ObsDecision cross_obs_decision = 2;
+}
+
+// Next id: 4
+message CrossSingleJunctionDecision {
+  optional int32 junction_id = 1;
+  optional int32 start_yield_obj_id = 2;
+  optional Vector2d junction_stop_point = 3;
+}
+enum SourceTag {
+  EXPERT_DRIVING = 0;
+  DRIVINGGOAL_AS_REFLINE = 1;
+  CONTINUE_AS_REFLINE = 2;
+  ASTRA_AS_REFLINE = 3;
+  ASTRA_AS_EGO_TRAJ = 4;
+  ASTRA_AS_SCENE = 5;
+}
+enum LatCommandSource {
+  LatCommandSource_NONE = 0; LatCommandSource_YILED = 1; LatCommandSource_NUDGE = 2;
+  LatCommandSource_CHANGE = 3;
+  LatCommandSource_HOLD = 4;
+  LatCommandSource_DRIVE_LOSS = 5;
+}
+// Next id: 3
+message CrossJunctionDecision {
+  optional bool has_cross_yield = 1;
+  repeated CrossSingleJunctionDecision single_junction_decision = 2;
+}
+
+// Next id: 15
+message InteractiveScene {
+  message InteractiveDecision {
+    optional int32 obstacle_id = 1;
+    optional int32 source_type = 2;
+    optional int32 decision_type = 3;
+    optional double prob = 4;
+    optional bool is_have_virtual = 5;
+    optional int32 interactive_type = 55;
+    optional Vector2d virtual_point = 6;
+    optional double virtual_speed = 7;
+    optional Vector2d merge_point = 8;
+    optional int32 risk_level = 9;
+  }
+
+  message ObstalceTrajGenCmd {
+    optional float timestamp = 1 [default=-1.0];
+    optional int32 leading_vehicle_id = 2 [default=-1];
+    optional float desired_velocity = 3 [default=0.0];
+  }
+
+  message TrajectoryPoint {
+    optional float relative_start_time = 1;  // unit is second
+    optional float position_x = 2;
+    optional float position_y = 3;
+    optional float speed = 4;
+    optional float acceleration = 5;
+    optional float heading = 6;
+    optional bool is_virtual = 7 [default = false];
+    optional ObstalceTrajGenCmd obs_cmd = 8;
+  }
+
+  message InteractiveObstacle {
+    optional int32 obstacle_id = 1;
+    repeated TrajectoryPoint sim_point = 2;
+  }
+
+ message SingleAgentCostResult {
+    optional int32 main_agent_id = 1;
+    map<string, double> cost = 10;
+    map<int32, double> simulate_result = 20;
+    map<string, string> msg = 100;
+  }
+
+  message CostResult {
+    optional double total_cost = 1;
+    repeated SingleAgentCostResult data = 10;
+  }
+
+  message RefPath {
+    optional string label = 1;
+
+    message EgoLatCommand {
+      optional double s = 1 [default = 0.0];
+      optional double l = 2 [default = 0.0];
+      optional double dl = 3 [default = 0.0];
+      optional double t = 4 [default = 0.0];
+      optional bool valid = 5 [default = false];
+      optional LatCommandSource lat_command_source = 6 [default = LatCommandSource_NONE];
+    };
+    repeated EgoLatCommand ego_lat_command = 50;
+    optional Polyline xy_points = 100;
+    optional Polyline sl_points = 101;
+    optional double start_s = 102;
+    optional string msg = 200;
+  }
+
+  optional double reward = 1;
+  optional double softmax_prob = 2;
+  repeated int32 multimodal_obs_id = 3;
+  repeated InteractiveDecision interactive_decision = 4;
+  repeated InteractiveObstacle interactive_obstacle = 5;
+  optional double scene_prob = 6;
+  optional SourceTag source_tag = 7;
+  optional CostResult cost_result = 10;
+  optional RefPath refpath = 100;
+  optional int32 scene_index = 101;
+  optional int32 ego_traj_index = 102;
+  optional bool ego_traj_changed = 103;
+  optional EgoCommandResult ego_command_result = 120;
+  optional CmdGeneratorInfo.CommandSource command_source = 121;
+  optional LimitSeq cmd_limit = 122;
+}
+
+message OfflineEgoInfo {
+  enum DecisionType {
+    DEFAULT_DECISION = 0; YILED = 1; NOT_YILED = 2; ALIGN_YIELD = 3; ALIGN_NOT_YIELD = 4;
+  }
+  enum BehaviorType { DEFAULT_TYPE = 0; KEEP = 1; ALIGN = 2; }
+  enum DriveIntention { 
+    None = 0; 
+    Keep = 1; 
+    Align = 2; 
+    Left_nudge = 3; 
+    Right_nudge = 4;
+    Left_change = 5;
+    Right_change = 6;
+  }
+  enum DriveLossInvalidType {
+    NONE = 0;
+    CMD_PARSE = 1;
+    INIT_STATE_DIFF = 2;
+    INTENTION_ODD = 3;
+    TRAJECTORY_PEAK_ACC = 4;
+    TRAJECTORY_PEAK_JERK = 5;
+    TRAJECTORY_DURATION = 6;
+  }
+  message ObsInfo {
+    optional int32 obs_id = 1;
+    optional DecisionType decision_type = 2;
+  }
+   message KeyPoint {
+    optional Vector2d point_xy = 1;
+    optional double s = 2;
+    optional double v = 3;
+    optional double a = 4;
+    optional double t = 5;
+  }
+  message StaticCommand {
+    optional Vector2d start_point = 1;
+    optional Vector2d end_point = 2;
+    optional double desired_velocity = 3;
+    optional double desired_acceleration = 4;
+  }
+  message DynamicCommand {
+    optional BehaviorType behavior_type = 1;
+    repeated ObsInfo obs_info = 2;
+    repeated KeyPoint key_point = 3;
+  }
+  message SimPoint {
+    optional uint64 relative_start_time = 1;  // unit is nanosecond
+    optional float position_x = 2;
+    optional float position_y = 3;
+    optional float speed = 4;
+    optional float acceleration = 5;
+    optional float heading = 6;
+  }
+    optional uint64 time = 1;
+  optional StaticCommand static_command = 2;
+  optional DynamicCommand dynamic_command = 3;
+  repeated SimPoint sim_point_array = 4;
+  optional DriveIntention drive_intention = 5;
+  optional DriveLossInvalidType drive_loss_invalid_type = 6;
+}
+message RemoveReason {
+  enum ReasonType {
+    ACC = 1;                      // 加速度过大
+    CENTRIPETAL_ACCEL = 2;        // 向心加速度超过阈值
+    LANE_CHANGE_SAFETY = 3;       // 车道变道安全
+    LANE_CHANGE_TASK = 4;         // 换道任务
+    FRONT_OBS = 5;                // THW/TTC
+    OVER_SPEED = 6;               // 超过限速
+    DATA_VALID = 7;               // 数据无效
+    KEEP_CENTERING = 8;           // 保持中心
+    KEY_OBSTACLE = 9;             // 关键障碍物
+    VECTOR_DIFF = 10;             // 序列向量夹角
+    TLD = 11;                     // 红绿灯
+    ASTRA_APPLY_SCENE = 12;       // ASTRA应用场景
+    NONE = 10000;                 // 无
+  }
+
+  optional ReasonType reason_type = 1;
+  optional SourceTag source_tag = 2;  // 数据来源
+  optional string reason = 10000;
+}
+
+message BehaviorDebug {
+  message ActionSequenceInfo {
+    // NEXT ID: 13
+    optional int64 seq_id = 1;
+    optional string action = 2;
+    repeated PathPointNop points = 3;
+    optional double final_cost = 4;
+    optional double efficiency_cost = 5;
+    optional double safety_cost = 6;
+    optional double navigation_cost = 7;
+    optional double utility_cost = 8;
+    repeated ObstacleTraj obstacle_trajs = 9;
+    repeated ActionObstaclesRelationSet action_obstacles_relation_sets = 10;
+    repeated ActionObstaclesRelationSet action_virtual_obstacles_relation_sets =
+        11 [deprecated = true];
+    repeated ActionIntentionSet ego_action_intentions = 12;
+  }
+  optional BehaviorPlanningEgoInput behavior_planning_ego_input = 1;
+  optional BehaviorVehicleSet all_vehicle_set = 2;
+  optional BehaviorVehicleSet virtual_vehicle_set = 3;
+  optional VehicleSemanticInfoSet vehicle_semantic_info_set = 4
+      [deprecated = true];
+  repeated ActionSequenceInfo action_sequence_info = 8;
+  optional Polyline best_behavior_target_lane_points = 9 [deprecated = true];
+  repeated DecisionStrategyOutput strategy_output = 10;
+  repeated Vector3d conflict_point = 11;
+  repeated Vector3d merge_point = 12;
+  repeated CrossingDecision crossing_decision = 13;
+  optional CrossJunctionDecision cross_junction_decision = 14;
+  repeated InteractiveScene interactive_scene = 15;
+  optional OfflineEgoInfo offline_ego_info = 16;
+  repeated RemoveReason invalid_scene_erase_info = 17;
+  repeated CmdGeneratorDebug cmd_generator_debug = 18;
+  repeated CmdTrajDebug cmd_traj_debug = 19;
+}
+
+message CmdGeneratorDebug {
+  optional string refpath_label = 1;
+  repeated CmdGeneratorInfo cmd_generator_info = 2;
+}
+message CmdGeneratorInfo {
+  enum CommandSource {
+    UNKNOWN = 0;
+    KEEP = 1;
+    MERGE = 2;
+    CROSS = 3;
+    ALIGN = 4;
+    GOD = 5;
+    STATIC = 6;
+    DRIVE_LOSS = 7;
+    FUSION = 8;
+    VRU_CROSS = 9;
+    LAST_FRAME = 10;
+  }
+  optional CommandSource command_source = 1;
+  repeated LimitSeq limit_seq = 2;
+  repeated int32 cmd_obs_id = 3; 
+  repeated int32 key_obs_id = 4; 
+}
+message LimitSeq {
+  repeated LimitPoint limit_point = 1;
+}
+
+message LimitPoint {
+  enum LimitDim {
+    NONE = 0;
+    S = 1;
+    V = 2;
+    A = 3;
+    T = 4;
+  }
+
+  enum LimitType {
+    UNKNOWN = 0;
+    FIXED = 1;
+    RANGE = 2;
+  }
+    message LimitInfo {
+    optional LimitDim limit_dim = 1;
+    optional LimitType limit_type = 2;
+    optional double fixed_value = 3;
+    optional double range_min = 4;
+    optional double range_max = 5;
+  }
+  repeated LimitInfo limit_info = 1;
+}
+message CmdTrajDebug {
+  optional string refpath_label = 1;
+  repeated CmdTrajInfo cmd_traj_infos = 2;
+}
+
+message CmdTrajInfo {
+  optional CmdGeneratorInfo.CommandSource command_source = 1;
+  optional LimitSeq sample_limit_seq = 2;
+  optional Trajectory trajectory = 3;
+}
+
+
+message BoundPoint {
+  optional double s = 1;
+  optional double u = 2;
+  optional double d = 3;
+}
+
+message Bound {
+  repeated BoundPoint sl_bounds = 1;
+  repeated BoundPoint st_bounds = 2;
+}
+
+message TrajectoryNop {
+  repeated PathPointNop path_points = 2;
+}
+
+message Box {
+  optional double time = 1;
+  repeated SLPoint sl = 2;
+}
+
+message ObstacleBox {
+  optional string id = 1;
+  repeated Box boxs = 2;
+}
+
+message BehaviorInfo {
+  optional TrajectoryNop ego_trajectory = 1;
+  repeated TrajectoryNop obs_trajectory = 2 [deprecated = true];
+  repeated ObstacleBox obs_box = 3 [deprecated = true];
+}
+message VirtualObstacle {
+  optional string id = 1;
+  optional Vector3d position = 2;
+}
+
+enum FallbackType {
+  kLevel0 = 0;  // unavailable
+  kLevel1 = 1;
+  kLevel2 = 2;
+  kLevel3 = 3;
+}
+enum MotionPreCheckFailReason {
+  LocalRouteTooShort = 0;
+  EgoLOutOfRange = 1;
+  EgoHeadingDiffOutofRange = 2;
+  PointLOutOfRange = 3;
+}
+message PlaningFallBackMsg {
+  optional FallbackType speed_fall_back_type = 1;
+  optional FallbackType path_fall_back_type = 2;
+  optional MotionPlannerReturnInfo mp_info = 3;
+  optional MotionPreCheckFailReason motion_pre_check_fail_reason = 4;
+}
+
+message MotionPlannerReturnInfo {
+  optional bool is_mp_success = 1 [default = true];
+  optional string mp_fail_task = 2;
+}
+
+message TrajPt {
+  optional double x = 1;
+  optional double y = 2;
+  optional double heading = 3;
+  optional double acc = 4;
+  optional double steer = 5;
+  optional double t = 6;
+  optional int64 time_stamp = 7;
+}
+
+
+message RefLinePt {
+  optional double x = 1;
+  optional double y = 2;
+  optional double heading = 3;
+  optional uint64 lane_id = 4;
+  optional double speed_limit = 5;
+  optional double left_width = 6;
+  optional double right_width = 7;
+
+  optional LaneBoundaryRoadMap.Crossable left_bnd_type = 8;
+  optional LaneBoundaryRoadMap.Crossable right_bnd_type = 9;
+
+  optional double s = 10;
+  optional double kappa = 11;
+  optional double dkappa = 12;
+  optional double offset_to_map_center_line = 13;
+}
+
+message ReferenceLine {
+  repeated RefLinePt ref_line_pts = 1;
+  optional double s_init = 2;
+
+  message AnchorPoint {
+    optional double x = 1;
+    optional double y = 2;
+    optional double heading = 3;
+    optional double longitudinal_bound = 4;
+    optional double left_lateral_bound = 5;
+    optional double right_lateral_bound = 6;
+    optional bool curb_shifted = 7;
+    optional uint64 lane_id = 8;
+    optional bool enforced = 9;
+    optional double s = 10;
+    optional double kappa = 11;
+    optional double dkappa = 12;
+    optional double enforced_x = 13;
+    optional double enforced_y = 14;
+    optional double map_x = 15;
+    optional double map_y = 16;
+    optional double map_left_width = 17;
+    optional double map_right_width = 18;
+    optional bool is_map_left_width_extended = 19;
+    optional bool is_map_right_width_extended = 20;
+  }
+  repeated AnchorPoint anchor_points = 3;
+  optional uint64 last_updated_frame_id = 4 [default = 0];
+  optional uint64 road_map_timestamp = 5 [default = 0];
+  optional uint64 route_id = 6 [default = 0];
+}
+
+message SLTMapData {
+  repeated uint32 idx_vec = 1;
+  repeated uint32 fill_vec = 2;
+}
+message SLTPt {
+  optional double s = 1;
+  optional double l = 2;
+  optional double t = 3;
+}
+message SLTIndex {
+  optional int32 s_idx = 1;
+  optional int32 l_idx = 2;
+  optional int32 t_idx = 3;
+}
+message SLTMapSeed {
+  optional SLTPt slt_pt = 1;
+  optional SLTIndex slt_idx = 2;
+}
+message SLTMapSemanticInfo {
+  optional bool filled = 1;
+  optional bool out_ranged = 2;
+  optional string obs_id = 3;
+}
+message SLTMapCube {
+  optional SLTIndex up_bnd_idx = 1;
+  optional SLTIndex low_bnd_idx = 2;
+  optional SLTPt up_bnd_pt = 3;
+  optional SLTPt low_bnd_pt = 4;
+  optional SLTMapSemanticInfo up_bnd_semantic_info_s = 5;
+  optional SLTMapSemanticInfo up_bnd_semantic_info_l = 6;
+  optional SLTMapSemanticInfo up_bnd_semantic_info_t = 7;
+  optional SLTMapSemanticInfo low_bnd_semantic_info_s = 8;
+  optional SLTMapSemanticInfo low_bnd_semantic_info_l = 9;
+  optional SLTMapSemanticInfo low_bnd_semantic_info_t = 10;
+}
+message SLTMap {
+  optional SLTMapData slt_map_data = 1;
+  repeated SLTMapSeed slt_map_seeds = 2;
+  repeated SLTMapCube slt_map_cubes = 3;
+}
+message TimePointDecisions {
+  optional double t = 1 [default = 0.0];
+  repeated ObsDecision obs_decision = 2;
+}
+message ObsDecisionDebug {
+  repeated TimePointDecisions decisions = 1;
+}
+message BoundLine {
+  optional string name = 1;   // name of boundary
+  repeated double value = 2;  // value of boundary points
+}
+message MotionBoundary {
+  // for any i, must satisfy:
+  // x.size == bound_lines[i].value.size
+  repeated double x = 1;               // s or t etc.
+  repeated BoundLine bound_lines = 2;  // value of all bounds
+}
+
+message SpeedOptimizerReproduction {
+  optional int32 stop_status_frame_count = 1;
+  optional double last_lane_keep_map_speed_limit = 2;
+}
+
+message PlannerRunnerReproduction {
+  repeated int32 emergency_info_history = 1;
+  optional double last_expect_thw = 2;
+  optional OverrideReq last_override_req = 3 [default = NO_REQ_OVERRIDE];
+  optional bool first_lane_change_l_set = 4;
+  optional double first_lane_change_l = 5;
+}
+
+message Reproduction {
+  optional SpeedOptimizerReproduction speed_optimizer = 1;
+  optional PlannerRunnerReproduction planner_runner = 2;
+}
+
+message MotionInput {
+  optional ReplanType replan_type = 1;
+  optional double lon_diff = 2;
+  optional FunctionRequest func_request = 3;
+}
+
+message STSoftBndDebug {
+  enum STBoundaryType {
+    NUDGE = 1;
+    YIELD = 2;
+    NOT_YIELD = 3;
+    SLOT_YIELD = 4;
+    SLOT_NOT_YIELD = 5;
+    MERGE_YIELD = 6;
+    MERGE_NOT_YIELD = 7;
+    ALIGN_YIELD = 8;
+    ALIGN_NOT_YIELD = 9;
+    CROSS_OVERTAKE = 10;
+    RISK = 11;
+    CROSS_YIELD = 12;
+    LANE_CHANGE_HOLD_YIELD = 13
+        [deprecated =
+             true];  // deprecated lc hold type, using slot alignment instead
+    VRU_YIELD = 14;
+    UNKNOWN = 16;
+    INTERFERENCE_YIELD = 17;
+    INTERFERENCE_RISK = 18;
+    MULTIMODAL_YIELD = 19;
+    MP_YIELD = 20;
+  }
+  optional double bnd_position = 1;
+  optional double bnd_velocity = 2;
+  optional string obs_id = 4;
+  optional double bnd_ttc = 5;
+  optional double bnd_thw = 6;
+  optional STBoundaryType bnd_source_type = 7;
+  optional double epsilon = 8 [default = 0.0];
+  optional double weight = 9;
+  optional double cl_thw = 10;
+  optional double cl_ttc = 11;
+  optional double obs_projection_ds = 12;
+  optional double raw_lane_uncertainty = 13;
+  optional double expect_buffer = 14 [default = 0.0];
+  optional STConstarintSourceType constraint_source_type = 15;
+  optional double cl_ref_s = 16;
+  optional double ref_s = 17;
+}
+
+message STConstraintPoint {
+  optional double x = 1 [default = 0.0];
+  optional uint64 index = 2;
+  optional HardBndDebug hard_bound = 3;
+  repeated STSoftBndDebug upper_bound = 4;
+  repeated STSoftBndDebug lower_bound = 5;
+  repeated HardBndDebug hard_bound_vec = 6;
+}
+
+message MMSTConstraintPoint {
+  optional int32 modal_id = 1;
+  repeated STConstraintPoint bound_constraint_points = 2;
+  optional float modal_prob = 3 [default = 0.0];
+}
+
+message MergedMotionUpperBound {
+  repeated SpeedPoint merged_motion_upper_bound = 1;
+}
+
+message SpeedConstraintDebug {
+  repeated STConstraintPoint bound_constraint_points = 1;
+  repeated SpeedLimitPoint kappa_speed_limits = 2;
+  repeated SpeedLimitPoint origin_map_speed_limits = 3;
+  repeated SpeedLimitPoint comfort_speed_limits = 4;
+  repeated SpeedLimitPoint map_speed_limits = 5;
+  repeated SpeedLimitPoint risk_speed_limits = 6 [deprecated = true];
+  repeated SpeedLimitPoint ref_v_vec = 7;
+  repeated RiskSpeedLimitPoint risk_speed_limits_with_type = 8;
+  repeated MMSTConstraintPoint mm_bound_constraint_points = 9;
+  optional MergedMotionUpperBound merged_motion_upper_bound = 10;
+}
+
+
+// Next id: 4
+message StoppingModeState {
+  optional int32 stopping_mode = 1;
+  optional double min_blocking_s = 2;
+  optional string blocking_obs_id = 3;
+  optional double last_stopping_average_speed = 4;
+}
+
+// Next id: 14
+message CILQRStatePoint {
+  optional double x = 1;
+  optional double y = 2;
+  optional double theta = 3;
+  optional double kappa = 4;
+  optional double kapparate = 5;
+}
+
+message CILQRCostPoint {
+  optional int64 horizon_step = 1;
+  optional double refstate_tracking_cost = 2;
+  optional double refposition_tracking_cost = 3;
+  optional double reftheta_tracking_cost = 4;
+  optional double refkappa_tracking_cost = 5;
+  optional double kapparate_tracking_cost = 6;
+  optional double max_kappa_constraint_cost = 10;
+  optional double min_kappa_constraint_cost = 11;
+  optional double max_kapparate_constraint_cost = 12;
+  optional double min_kapparate_constraint_cost = 13;
+  optional double lane_boundary_constraint_cost = 14;
+}
+
+message CILQRStateSequence {
+  repeated CILQRStatePoint state_point = 1;
+}
+
+message CILQRCostSequence {
+  repeated CILQRCostPoint cost_point = 1;
+}
+
+message CILQRIterationStateSequence {
+  optional int64 iteration = 1;
+  optional CILQRStateSequence state_sequence_old = 2;
+  optional CILQRStateSequence state_sequence_new = 3;
+  optional CILQRStateSequence state_sequence_reference_old = 4;
+  optional CILQRStateSequence state_sequence_reference_new = 5;
+}
+
+message CILQRIterationCostSequence {
+  optional int64 iteration = 1;
+  optional CILQRCostSequence cost_sequence_old = 2;
+  optional CILQRCostSequence cost_sequence_new = 3;
+}
+
+message CILQRSequenceInfo {
+  repeated CILQRIterationCostSequence iteration_cost_sequence = 1;
+  repeated CILQRIterationStateSequence iteration_state_sequence = 2;
+}
+
+message CILQRCostInfo {
+  optional int64 iteration = 1;
+  optional double J_position = 2;
+  optional double J_kappa = 3;
+  optional double J_kapparate = 4;
+  optional double J_kappa_constraint = 5;
+  optional double J_kapparate_constraint = 6;
+  optional double J_crossable_soft_boundary_constraint = 7;
+  optional double J_shoulder_nudge_soft_boundary_constraint = 8;
+  optional double J_obs_nudge_soft_boundary_constraint = 9;
+  optional double J_soft_boundary_constraint = 10;
+  optional double J_hard_boundary_constraint = 11;
+  optional double J_lane_boundary_constraint = 12;
+  optional double J_state = 13;
+  optional double J_control = 14;
+  optional double J_total = 15;
+}
+
+// Next id: 3
+message CILQRDebugInfo {
+  repeated CILQRCostInfo cost_info = 1;
+  optional bool is_path_tuning_weight_in_lane_map = 2;
+  repeated SolverStatus err_info = 3;
+  optional double steer_speed_ratio_for_active = 4;
+  optional bool is_in_left_right_turn = 5;
+}
+
+message SceneFusionCommon {
+  enum CorridorType {
+    MAP = 0;
+    OBSTACLE = 1;
+  }
+
+  enum FusionDecisionType {
+    UNKNOWN = 0;
+    YIELD = 1;
+    OVERTAKE = 2;
+    LEFT_NUDGE = 4;
+    RIGHT_NUDGE = 8;
+  }
+}
+
+message AgentPoint {
+  optional double t = 1;
+  optional SceneFusionCommon.FusionDecisionType fusion_decision_type = 2;
+  optional double x = 3;
+  optional double y = 4;
+  optional double heading = 5;
+  optional double heading_diff = 6;
+  optional double min_s = 8;
+  optional double min_l = 9;
+  optional double max_s = 10;
+  optional double max_l = 11;
+  optional double speed = 12;
+  optional double acc = 17;
+  optional double kappa = 18;
+  optional double dkappa = 19;
+  optional double jerk = 20;
+  optional double acc_s = 21;
+  optional double prob = 22;
+}
+
+message MmTrajectory {
+  optional int64 modal_id = 1;
+  optional double prob = 2;
+  repeated AgentPoint mm_traj = 3;
+}
+
+message Agentinfo{
+  optional int64 agent_id = 1;
+  repeated AgentPoint fusion_traj = 3;
+  repeated MmTrajectory mm_trajs = 4;
+}
+
+message CorridorPoint {
+  optional double x = 1;
+  optional double y = 2;
+  optional double s = 3;
+  optional double l = 4;
+  optional SceneFusionCommon.CorridorType type = 5;
+  repeated int64 line_index = 6;
+}
+
+message MapCorridorLine {
+  optional int64 lane_id = 1;
+  optional SceneFusionCommon.FusionDecisionType decision_type = 2;
+  optional CorridorPoint sp = 3;
+  optional CorridorPoint ep = 4;
+  optional LaneBoundaryRoadMap.Crossable bnd_type = 5;
+  optional bool is_virtual  = 6;
+  optional bool plural_junction  = 7;
+}
+
+message ObsCorridorLine {
+  enum ObstacleType {
+    UNKNOWN = 0;
+    UNKNOWN_STATIC = 1;
+    UNKNOWN_DYNAMIC = 2;
+    PEDESTRIAN = 3;
+    BIKE = 4;
+    CAR = 5;
+    TRUCK = 6;
+    CONE = 7;
+    BOUNDARY = 8;
+    RED_WARNING_SIGN = 9;
+  }
+
+  optional int64 id = 1;
+  optional SceneFusionCommon.FusionDecisionType decision_type  = 2;
+  optional double modal_prob = 3;
+  optional CorridorPoint sp = 4;
+  optional CorridorPoint ep = 5;
+  optional ObstacleType obs_type  = 6;
+  optional int64 modal_index = 7;
+}
+
+message Corridorinfo{
+  repeated MapCorridorLine map_lines = 1;
+  repeated ObsCorridorLine obs_lines = 2;
+}
+
+message SceneFusionDebug{
+  repeated Agentinfo agent_info_map = 1;
+  optional Corridorinfo corridor_info = 2;
+  repeated SourceTag source_tags = 3;
+}
+
+// Next id: 2
+message SpeedProfile {
+  repeated SpeedPoint speed_points = 1;
+}
+
+// Next id: 11
+message RawPathDebug {
+  optional PiecewiseCubicFunction s_to_speed_limit = 1;
+  optional SpeedProfile ref_s_debug= 2;
+  optional SpeedProfile obs_s_debug= 3;
+  optional SpeedProfile raw_ref_s_debug = 4;
+  optional bool is_user_set_speed = 5;
+  optional double user_set_speed = 6;
+  optional double tau_gap = 7;
+
+  message FollowingObstacleInfo {
+    optional string obs_id = 1;
+  }
+  optional FollowingObstacleInfo nearest_following_obs = 8;
+  optional FollowingObstacleInfo second_nearest_following_obs = 9;
+  optional FollowingObstacleInfo potential_cutin_obs = 10;
+}
+
+message MotionDebug {
+  optional PlaningFallBackMsg fall_back_msg = 1;
+  optional TrajPt init_state = 2 [deprecated = true];
+  optional ReferLine refer_line = 3 [deprecated = true];
+  optional SLTMap slt_map = 4 [deprecated = true];
+  optional MotionBoundary path_boundary = 5;
+  optional MotionBoundary speed_boundary = 6;
+  optional PathDataDebug path_data_debug = 7;
+  optional SpeedDataDebug speed_data_debug = 8;
+  optional ObsDecisionDebug obs_decision_debug = 9 [deprecated = true];
+  optional MotionInput motion_input = 10;
+  optional PathConstraintDebug path_constraint_debug = 11;
+  optional SpeedConstraintDebug speed_constraint_debug = 12;
+  optional StoppingModeState stopping_mode = 13;
+  optional MotionBoundList motion_bound_list = 14;
+  optional SpeedLimitRequestList speed_limit_list = 15;
+
+  repeated LongitudinalProcessorDebugInfo processor_debug = 16;
+  repeated TrajectoryConstraints traj_corridor = 17;
+  optional SpeedDataDebug reference_s_debug= 18 [deprecated = true];
+  optional SpeedDataDebug obs_s_debug= 19 [deprecated = true];
+  optional RawPathDebug raw_path_debug = 20;
+  optional SpeedDataDebug raw_ref_s_debug = 21;
+
+  optional CILQRDebugInfo cilqr_debug_info = 101;
+  optional PathDataDebug cilqr_path_data_debug = 102;
+
+  optional SceneFusionDebug scene_fusion_debug = 110;
+}
+
+enum ReproductionState {
+  ONLINE_NO_RECORD = 0;
+  ONLINE_RECORD = 1;
+  OFFLINE_REPRODUCTION = 2;
+}
+
+message LaneWayPoint {
+  optional Vector3d position = 1;
+  optional double heading = 2;
+  optional uint64 lane_id = 3;
+  optional double start_s = 4;
+}
+
+message LocalRoute {
+  optional uint64 route_id = 1 [default = 0];
+  optional LaneSegments lane_segments = 2;
+  optional double route_length = 3 [default = 0.0];
+  optional uint64 priority = 4 [default = 0];
+  optional bool can_exit = 5 [default = false];
+  repeated uint64 left_neighbor_ids = 6;
+  repeated uint64 right_neighbor_ids = 7;
+  optional double average_max_speed_limit = 8 [default = 0.0];
+  optional double average_min_speed_limit = 9 [default = 0.0];
+  optional double travelable_probability = 10 [default = 0.0];
+  optional double size_of_lane_with_virtual_boundary = 11 [default = 0.0];
+  optional double overlap_ratio = 12 [default = 0.0];
+  optional bool probe_can_exit = 13 [default = false];
+  optional double probe_length = 14 [default = 0.0];
+  optional double split_reward = 15 [default = 0.0];
+  optional string extra_info = 16;
+  optional double first_driving_event_probability = 17 [default = 0.0];
+  optional double travelable_remain_distance = 18 [default = 0.0];
+  optional int32 exit_junction_index = 19 [default = -1];
+}
+
+message LocalRoutesDebugInfo {
+  optional uint64 frame_id = 1 [default = 0];
+  optional LocalRoute current_route = 2;
+  repeated LocalRoute all_other_routes = 3;
+  optional LaneWayPoint adc_waypoint = 5;
+  optional uint64 road_map_timestamp = 6 [default = 0];
+  repeated Vector3d replaced_junction_topo_traj = 7;
+  repeated uint64 topological_inference_enter_lanes = 8;
+  repeated double route_travelable_probability = 9;
+  optional bool is_route_evaluate_by_sdmap = 10;
+  optional double distance_to_hd_map_break_point = 11;
+  optional double distance_to_hd_map_first_junction = 12;
+  optional uint64 laner_id_for_route_evaluate = 13;
+  optional double distance_to_route_evaluate_point = 14;
+  optional string extra_info = 15;
+  repeated double final_route_travelable_probability = 16;
+  optional int32 static_travelable_confidence = 17;
+  repeated double all_junctions_distance = 18;
+}
+
+message NavigationDebugInfo {
+  enum SplitType {
+    NONE = 0;
+    LEFT_TURN = 1;
+    RIGHT_TURN = 2;
+    RAMP = 3;
+    ROAD_SPLIT_LEVEL_1 = 4;
+    ROAD_SPLIT_LEVEL_2 = 5;
+  }
+  enum SplitDirection {
+    INVALID = 0;
+    LEFT = 1;
+    RIGHT = 2;
+  }
+  optional SplitType split_type = 1 [default = NONE];
+  optional SplitDirection split_direction = 2 [default = INVALID];
+  optional double split_distance = 3 [default = 0];
+  repeated uint64 entry_lane_group = 4;
+  repeated uint64 exit_lane_group = 5;
+  optional uint64 split_info_source = 6;
+  optional uint64 junction_num_to_split = 7 [default = 0];
+}
+message FsPathDebug {
+  enum FSState {
+    NOT_FS = 0;
+    WAIT_FS_PATH = 1;
+    ON_TRACK = 2;
+    GEAR_SHIFT = 3;
+    FINISH = 4;
+  }
+  repeated PathDataDebug path = 1;
+  repeated bool is_reverse = 2;
+  optional Polygon xy_bound = 3;
+  repeated Polyline polyline_obs = 4;
+  repeated Polygon polygon_obs = 5;
+  optional Vector3d goal_point = 6;
+  optional double goal_heading = 7;
+  repeated PathPointNop search_points = 8;
+  repeated Vector3d point_obs = 9;
+  optional double point_obs_resolution = 10;
+  optional string debug_txt = 11;
+  optional FSState fs_state = 12 [default = NOT_FS];
+  optional int32 fs_scene = 13 [default = 0];
+  optional int32 fs_replan_type = 14 [default = 0];
+  optional int32 fs_replan_count = 15 [default = 0];
+  optional PathPointNop curve_seg_point = 16;
+  optional bool is_curve_seg = 17;
+  optional Polygon dynamic_stop_area = 18;
+  repeated PathPoint queue_area = 19;
+  optional bool is_dynamic_stop_area_find = 20;
+}
+
+message RelativeCoorDebugInfo {
+  optional PathPointNop planning_init_point = 1;
+  optional CarState relative_car_state = 2;
+  optional Transformation3d object_transformation = 3;
+}
+// output trajectory already in path.proto
+
+message HDMapDebugInfo {
+  optional string hd_map_suppression_reason = 1;
+}
+
+message LaneMapDebugInfo {
+  optional string lane_map_suppression_reason = 1;
+  optional string lane_seg_wti_send_reason = 2;
+  optional double lane_seg_length = 3;
+  optional double merge_distance = 4;
+  optional double split_distance = 5;
+}
+
+message MapManagerDebugInfo {
+  optional HDMapDebugInfo hd_map_debug = 1;
+  optional LaneMapDebugInfo lane_map_debug = 2;
+}
+
+message TaskDebugInfo {
+  enum MapMode {
+    INVALID = 0;
+    HD_MAP = 1;
+    LANE_MAP = 2;
+  }
+  optional MapMode map_mode = 1;
+  optional MapManagerDebugInfo map_manager_debug = 2;
+}
+
+message JunctionGoalPathDebugInfo {
+  optional Polyline junction_goal_info = 1;
+  optional int32 optimal_path_index = 2;
+  repeated Polyline junction_path_info = 3;
+}
+
+message ExplorationJunctionDebugInfo {
+  optional int32 optimal_goal_index = 1;
+  repeated JunctionGoalPathDebugInfo goal_path_debug = 2;
+}
+
+
+message ExplorationDebugInfo {
+  optional bool high_road_class_trigger = 1 [default = false];
+  optional bool exploration_trigger = 2 [default = false];
+  optional uint32 road_class_level = 3 [default = 0];
+  optional string check_low_road_class_failed_reason = 4;
+  optional string suppress_exploration_reason = 5;
+  optional string need_exploration_reason = 6;
+  optional bool exploration_in_driving_space_success = 7 [default = false];
+  optional bool has_reverse_space = 8;
+  optional ExplorationJunctionDebugInfo exploration_junction_debug = 9;
+}
+
+message FollowVehicleDebugInfo {
+  optional bool follow_vehicle_trigger = 1 [default = false];
+  optional string need_follow_vehicle_reason = 2;
+  optional string suppress_follow_vehicle_reason = 3;
+  optional string follow_vehicle_failed_reason = 4;
+}
+
+message LocalMapDebugInfo {
+  optional string refline_generator_failed_reason = 1;
+  optional string map_reconstruction_failed_reason = 2;
+  optional ExplorationDebugInfo exploration_debug = 3;
+  optional FollowVehicleDebugInfo follow_vehicle_debug = 4;
+  optional bool map_reconstruction_trigger = 5 [default = false];
+  optional string map_reconstruction_scenario = 6;
+}
+
+message JunctionTopoInfoDebug {
+  optional Polygon junction_polygon = 1;
+  optional uint64 junction_id = 2;
+  optional bool has_sd_link_info = 3;
+}
+
+message ConeInfo {
+  optional int64 cone_num = 1;
+  optional double first_cone_s = 2;
+  optional double last_cone_s = 3;
+  repeated int64 cone_ids = 4;
+  optional bool is_emengency_or_shoulder_lane = 5;
+  optional int64 narrow_center_cone_num = 6;
+}
+
+message ConeDistributionDebugInfo {
+  optional ConeInfo left_other_cone_info = 1;
+  optional ConeInfo left_left_lane_cone_info = 2;
+  optional ConeInfo left_lane_cone_info = 3;
+  optional ConeInfo left_boundary_cone_info = 4;
+  optional ConeInfo front_center_lane_cone_info = 5;
+  optional ConeInfo right_boundary_cone_info = 6;
+  optional ConeInfo right_lane_cone_info = 7;
+  optional ConeInfo right_right_lane_cone_info = 8;
+  optional ConeInfo right_other_cone_info = 9;
+}
+message TrafficLightDebugInfo {
+  optional double ego_to_stopline_distance = 1;
+  optional double green_countdown_time = 2;
+  optional double red_countdown_time = 3;
+  optional double yellow_color_time_tracker = 4;
+  optional double blocked_tl_time_tracker = 5;
+  optional double flash_yellow_color_time_tracker = 6;
+  optional double flash_green_color_time_tracker = 7;
+  optional double time_to_go = 8;
+}
+
+message RiskAwareInfoDebug {
+  enum RiskAwareType {
+    NONE = 0;
+    CUTIN = 1;
+    AWARE = 2;
+    SLOW_NEIGHBOR_TRAFFIC_SPEED = 3;
+    SLOW_NEIGHBOR_TRAFFIC_DEC_WTI = 4;
+    SLOW_NEIGHBOR_TRAFFIC_ACC_WTI = 5;
+    CONSTRUCTION_ZONE = 6;
+    CUTIN_RISK_BRAKE = 7;
+    SLOW_NEIGHBOR_TRAFFIC_LANE_CHANGE = 8;
+    JUNCTION = 9;
+    CROSSWALK = 10;
+    RAMP_MERGE_IN = 11;
+    OPENING = 12;
+    NO_TRAFFIC_LIGHT_STOPLINE = 13;
+    RELIEF_ENTRANCE = 14;
+    OCCLUSION = 15;
+    CURB_PARKING = 16;
+    MERGE_OCCLUSION = 17;
+    CROWDED_ROAD = 18;
+    SCENE_FRONTAGE = 19;
+    HIGHWAY_MERGE_RIGHTMOST_SCENE = 20;
+    URBAN_MERGE_OCCLUSION = 21;
+  }
+  repeated uint64 risk_aware_type = 1;
+}
+
+message DrivingSpaceRefTrafficInfo {
+  enum TrafficType {
+    UNKNOWN = 0;
+    VEHILCE = 1;
+    VRU = 2;
+  }
+  enum RefType {
+    REF_TYPE_REVERSE = 0;
+    REF_TYPE_CONCURRENT = 1;
+  }
+  optional RefType ref_type = 1;
+  optional int32 id = 2;
+  optional Polyline history_path = 3;
+  optional TrafficType traffic_type = 4;
+}
+
+message ExitEstimationInfo {
+  enum RefType {
+    UNKNOWN = 0;
+    LANE_AND_VEHICLE = 1;
+    LANE_ONLY = 2;
+    VEHICLE_ONLY = 3;
+  }
+  enum LaneType {
+    NORMAL = 1;
+    BUS_ONLY = 2;
+    BICYCLE_ONLY = 3;
+  }
+  optional RefType ref_type = 1;
+  optional Polyline exit_centerline = 2;
+  optional LaneType lane_type = 3;
+  optional string lane_feature = 4;
+  optional string lane_feature_desc = 5;
+}
+
+message DrivingSpaceLinkLevelBoundaryInfo {
+  optional int32 id = 1;
+  optional Polyline boundary = 2;
+  optional int32 strategy_info_id = 3;
+  optional string strategy_info_string = 4;
+}
+
+message DrivingSpaceJunctionInfo {
+  enum TurnInfoType {
+    UNKNOWN = 0;
+    GO_STRAIGHT = 1;
+    TURN_LEFT = 2;
+    TURN_RIGHT = 3;
+  }
+  optional Polyline entry_line = 1;
+  optional Polyline exit_line = 2;
+  optional double entry_exit_distance = 3;
+  optional TurnInfoType turn_info = 4;
+}
+
+message DrivingSpaceDebugInfo {
+  optional Polyline left_space_boundary = 1;   // navigation space
+  optional Polyline right_space_boundary = 2;  // navigation space
+  repeated DrivingSpaceRefTrafficInfo traffic_info = 3;
+  repeated ExitEstimationInfo exit_estimation_info = 4;
+  optional Polyline left_driving_space_boundary = 5;   // driving space
+  optional Polyline right_driving_space_boundary = 6;  // driving space
+  optional DrivingSpaceLinkLevelBoundaryInfo link_left_boundary_info =
+      7;  // link level boundary
+  optional DrivingSpaceLinkLevelBoundaryInfo link_right_boundary_info =
+      8;  // link level boundary
+  optional int32 return_code = 9;
+  optional string fail_reason = 10;
+  optional Polyline link_centerline = 11;  // link centerline
+  optional int32 junction_info = 12 [deprecated = true];
+  optional DrivingSpaceJunctionInfo junction_recognize_result =
+      13;  // junction recognizer
+}
+
+message RoadMapUpdateTimeInfo {
+  optional string update_fail_reason = 1;
+  optional uint64 map_message_time_meas = 2;
+  optional uint64 map_update_thread_start_time = 3;
+  optional uint64 map_update_thread_end_time = 4;
+  optional uint64 map_update_thread_duration = 5;
+  optional uint64 driving_space_update_start_time = 6;
+  optional uint64 driving_space_update_end_time = 7;
+  optional uint64 driving_space_update_duration = 8;
+  optional uint64 driving_space_update_duration_99p = 9;
+  optional uint64 driving_space_update_duration_90p = 10;
+}
+
+message RoadMapUpdateDebugInfo {
+  optional RoadMapUpdateTimeInfo dynamic_map_update_timeinfo = 1;
+  optional RoadMapUpdateTimeInfo static_map_update_timeinfo = 2;
+}
+
+message VehicleFlowStateInfo {
+  optional int32 id = 1;
+  optional Polyline trajectory = 2;
+}
+
+message HybridAStarStateInfo {
+  optional Polyline position = 1;
+  optional Polyline cost = 2;
+}
+
+message ReflineEvaluationDebugInfo {
+  map<string, double> vehicle_scores = 1;
+  map<string, string> score_infos = 2;
+  map<string, string> stability_infos = 3;
+};
+
+message VehicleFlowDebugInfo {
+  optional Polyline left_vehicle_flow_reference_line = 1;
+  optional Polyline center_vehicle_flow_reference_line = 2;
+  optional Polyline right_vehicle_flow_reference_line = 3;
+  optional Polyline exit_reference_line = 4;
+  repeated Polyline exit_connect_lines = 5;
+  optional int32 choose_line_index = 6;
+  optional Polyline search_result = 7;
+  optional bool method_flag = 8;
+  repeated VehicleFlowStateInfo vehicle_flow_state = 9;
+  optional bool is_virtual_vehicle_flow = 10;
+  repeated Polyline section_polylines = 11;
+  optional bool is_in_exploration_scenario = 12;
+  optional int32 nearby_line_index = 13;
+  optional int32 forward_line_index = 14;
+  optional Polyline activate_shift_reference = 15;
+  optional Polyline general_search_left_boundary = 16;
+  optional Polyline general_search_right_boundary = 17;
+  repeated VehicleFlowStateInfo exploration_fitting_data_state = 18;
+  optional int32 exploration_type = 19 [default = -1];
+  optional HybridAStarStateInfo hybrid_a_star_state = 20;
+  repeated Polyline search_goal = 21;
+  optional Polyline dijkstra_reference = 22;
+  repeated Polyline raw_solution_cost_map = 23;
+  optional Polyline collision_free_raw_solution = 24;
+
+  optional uint64 timestamp_ns = 51;
+  repeated string lane_id = 52;
+  repeated Polyline cut_refline = 53;
+  repeated double raw_refline_score = 54;
+  repeated double final_refline_score = 55;
+  repeated ReflineEvaluationDebugInfo refline_evaluation_debug = 56;
+  map<string, Polyline> refline_evaluation_plot_polylines = 57;
+  map<string, string> refline_evaluation_infos = 58;
+
+  optional Polyline psp_link_geometry_forward = 100;
+  optional Polyline psp_link_geometry_smooth = 101;
+  optional Polyline psp_search_fuzzy_goal = 102;
+  optional Polyline psp_search_left_boundary = 103;
+  optional Polyline psp_search_right_boundary = 104;
+  optional Polyline psp_search_xybound = 105;
+  optional Polyline psp_search_reference = 106;
+  optional Polyline psp_connect_result = 107;
+}
+
+message PspTaskSchedulerDebug {
+  optional string psp_event_debug = 1;
+  optional string pc_map_response_debug = 2;
+  optional uint32 current_power_swap_station_type_debug = 3;
+  optional bool has_reset_task_result = 4;
+  optional routing.GlobalRoutingState global_routing_state = 5;
+}
+
+message MapLane {
+  optional Polyline left_space_boundary = 1;
+  optional Polyline right_space_boundary = 2;
+  optional Polyline center_line = 3;
+}
+
+message MapReconstructionDebug {
+  repeated MapLane MapLanes = 1;
+}
+
+message Gate {
+  optional Polyline gate_point = 1;
+  optional Polyline travel_line = 2;
+  optional uint64 id = 3;
+  optional uint64 lane_num = 4;
+}
+
+message GateTopo {
+  optional uint64 entry_gate = 1;
+  optional uint64 exit_gate = 2;
+}
+
+message JunctionPredictDebug {
+  repeated Gate gate = 1;
+  optional Polygon junction = 2;
+  repeated Polyline links = 3;
+  repeated GateTopo gate_topo = 4;
+  optional uint64 routing_entry_gate = 5;
+  optional uint64 routing_exit_gate = 6;
+}
+
+message RoutingMatchDebug {
+  repeated uint64 miss_junction = 1;
+  repeated uint64 junction_queue = 2;
+  repeated uint64 index = 3;
+  optional uint64 next_junction = 4;
+  optional double distance_to_next_junction = 5;
+  optional bool match_entry = 6;
+  optional bool match_exit = 7;
+  optional bool fallback = 8;
+}
+
+message SearchObstacles{
+  enum ObstacleType {
+    TYPE_UNKNOWN = 0;
+    TYPE_SPACE_BOUNDARY_AREA = 1;
+    TYPE_ROAD_EDGE_AREA = 2;
+    TYPE_GOD_AREA = 3;
+    TYPE_REVERSE_AREA = 4;
+    TYPE_VRU_AREA = 5;
+    TYPE_BUS_AREA = 6;
+    TYPE_RESTRICTED_AREA = 7;
+    TYPE_PARKING_AREA = 8;
+  }
+
+  optional Polyline points = 1;
+  optional ObstacleType type = 2;
+}
+
+message OptimizationInfo{
+  optional Polyline key_points = 1;
+  optional Polyline left_bound = 2;
+  optional Polyline right_bound = 3;
+}
+
+message ExplorationSpaceBoundaryPoint {
+  enum PointType {
+    TYPE_UNKNOWN = 0;
+    TYPE_PHYSICAL = 1;
+    TYPE_VIRTUAL = 2;
+  }
+
+  optional Vector3d point = 1;
+  optional PointType type = 2;
+}
+
+message GridPoints {
+  repeated GridPoint points = 1;
+
+  message GridPoint {
+    optional uint32 xidx = 1;
+    optional uint32 yidx = 2;
+    optional double x = 3;
+    optional double y = 4;
+  }
+}
+
+message GoalInfoDebug {
+  optional uint64 id = 1;
+  optional GridPoints.GridPoint goal = 2;
+  optional double heading = 3;
+  optional GridPoints region = 4;
+  optional uint64 matched_cnt = 5;
+  map<string, double> score = 6;
+  map<string, string> infos = 7;
+}
+
+message GlobalExplorationPriorInfoDebug {
+  repeated Polyline navi_link_geometry = 1;
+
+  message RoadSplitInfo {
+    enum SplitType {
+      Normal = 0;
+      Routing = 1;
+      Junction = 2;
+    };
+    repeated SplitType split_types = 1;
+    repeated Polyline split_polylines = 2;
+  }
+  optional RoadSplitInfo road_split_info = 2;
+}
+
+message GlobalExplorationSpeedLimitDebug {
+  optional double car_state_speed = 1;
+  optional double speed_limit_for_uncertainty = 2;
+  optional double speed_limit_for_safety = 3;
+  optional double speed_limit_for_split = 4;
+}
+
+message GlobalExplorationDebug {
+  optional uint64 timestamp_ns = 1;
+  // x,y,heading
+  optional Polyline global_route = 2;
+  optional uint64 generated_timestamp_ns = 3;
+  optional int32 grid_x_size = 4;
+  optional int32 grid_y_size = 5;
+  map<string, string> grid_infos = 8;
+  map<string, GridPoints> point_clusters = 6;
+  repeated GoalInfoDebug goal_infos = 7;
+
+  optional GlobalExplorationReturnCode ret_code = 20;
+  optional string ret_error_info = 21;
+  enum GlobalExplorationReturnCode {
+    OK = 0;
+    ENVIRONMENT_PROCESS = 1;
+    GOAL_CONSTRUCTION_ERROR = 20;
+    GOAL_EVALUATION_ERROR = 30;
+    GOAL_SEARCH_ERROR = 40;
+    GOAL_SORT_ERROR = 50;
+    GOAL_POST_CHECK_ERROR = 60;
+  };
+
+  optional GlobalExplorationPriorInfoDebug prior_info = 30;
+  optional GlobalExplorationSpeedLimitDebug speed_limit = 40;
+}
+
+message P2PLaneChangeDebug {
+  optional uint32 bf_is_outer_most_route = 1 [default = 0];
+  optional uint32 bf_ptp_roadside_parkin_flag_set = 2 [default = 0];
+  optional bool current_gear_is_P = 3 [default = false];
+  optional double p_gear_duration_sec = 4 [default = 0.0];
+  optional bool ptp_roadside_parkin_flag = 5 [default = false];
+  optional bool roadside_parkin_lanecenter_valid = 6 [default = false];
+  optional int32 roadside_parkin_lanecenter_size = 7 [default = 0];
+}
+
+message P2pGoalTaskDebug {
+  optional int32 nad_sts = 1;
+  optional bool road_class_in_odd = 2;
+  optional bool hzrdwarnsts_open = 3;
+  optional bool is_arrive = 4;
+  optional double navi_remain_len = 5;
+  optional bool is_pulling_over = 6;
+  optional Polyline virtual_lane = 7;
+  optional P2PLaneChangeDebug p2p_lane_change_debug = 8;
+  optional bool is_side_park_use_entry = 9;
+  optional bool is_judged_in_junction = 10;
+  optional int32 odd_last_navi_stub_id = 11;
+}
+
+message LocalRoadSpaceDebug {
+  optional Polyline left_space_boundary = 1;
+  optional Polyline right_space_boundary = 2;
+  optional int32 grid_x_size = 3;
+  optional int32 grid_y_size = 4;
+  map<string, GridPoints> point_clusters = 5;
+}
+
+message LocalSmootherDebug {
+  optional Polyline left_road_boundary = 1;
+  optional Polyline right_road_boundary = 2;
+  optional Polyline local_route = 3;
+
+  message InitState {
+    optional double x = 1;
+    optional double y = 2;
+    optional double theta = 3;
+    optional double kappa = 4;
+    optional double steer = 5;
+    optional double velocity = 6;
+    optional double acceleration = 7;
+  };
+  optional InitState init_state = 4;
+
+  optional string debug_string = 5;
+}
+message LocalExplorationDebug {
+  optional uint64 timestamp_ns = 1;
+  optional Polyline local_route = 2;
+  repeated ExplorationSpaceBoundaryPoint road_left_boundary = 3;
+  repeated ExplorationSpaceBoundaryPoint road_right_boundary = 4;
+  repeated Polygon unsafe_area = 5;
+  repeated Polyline search_goal = 6;
+  optional Polyline search_reference = 7;
+  repeated Polyline sample_result = 8;
+  optional Polyline raw_search_result = 9;
+  optional Polyline optimized_search_result = 10;
+  optional Polyline left_vehicle_flow_reference_line = 11;
+  optional Polyline center_vehicle_flow_reference_line = 12;
+  optional Polyline right_vehicle_flow_reference_line = 13;
+  repeated Polyline physical_lane = 14;
+  optional LocalRoadSpaceDebug road_space = 15;
+  repeated SearchObstacles search_obstacles = 16;
+  optional OptimizationInfo optimization_info = 17;
+  optional string general_environment_infer_txt = 18;
+  optional LocalSmootherDebug smoother_info = 19;
+  repeated Polyline roadedge = 20;
+}
+
+message LegalInfoDebug {
+}
+
+message ContinuousArbitratorDebug {
+  optional string new_exploration_info = 1;
+  optional bool select_continuous_refline = 2;
+}
+message ExplorationDebug {
+  optional GlobalExplorationDebug global_exploration = 1;
+  optional LocalExplorationDebug local_exploration = 2;
+  optional LegalInfoDebug legal_info = 3;
+  optional string new_exploration_info = 4 [deprecated = true];
+  optional ContinuousArbitratorDebug arbitrator_debug = 5;
+}
+
+message ModelInputStructureDebug{
+  optional int32 astra_planner_into_das_level = 1;
+}
+
+message ETCStateMachineDebug{
+  optional string etc_wti_str = 1;
+  optional string etc_wti_map_str = 2;
+}
+
+message SolspDebug {
+  optional uint32 mode_flag = 1;
+  optional uint32 mode_dynamic = 2;
+  optional uint32 navi_campus_state_ = 3;
+
+  message GeoInfo{
+    optional string key = 1;
+    optional uint64 id = 2;
+    repeated string extra_infos = 3;
+    repeated Vector3d points = 4;
+  };
+  message RouteInfo{
+    optional uint64 hash_id = 1;
+    optional GeoInfo geo_line = 2;
+    optional double travel_prob = 3;
+  };
+  message RouteManagerDebug{
+    repeated RouteInfo routes = 1;
+  }
+  optional RouteManagerDebug route_manager_debug = 4; // 全量route
+
+  message ReachableReflineInfo{
+    optional GeoInfo geo_line = 1;
+  };
+    message RefLineGeneratorDebug{
+    repeated ReachableReflineInfo reachable_reflines = 1;
+  }
+  optional RefLineGeneratorDebug refline_generator_debug = 5; // 可达参考线
+
+  message ContinuousDrivingRefLineInfo{
+    optional GeoInfo geo_line = 1;
+  };
+  message ContinousDrvInfos{
+    repeated ContinuousDrivingRefLineInfo continous_drv_refline_info = 1;
+    optional bool gridmap_valid = 2;
+    optional Vector2d gridmap_sz = 3;
+  };
+  optional ContinousDrvInfos continous_drv_refline_info = 6; // 连续性驾驶
+
+  message CollisionCheckDebug{
+    repeated GeoInfo collision_checkd_lines = 1; // 用于碰撞检测的线
+    repeated GeoInfo collision_checkd_road_edgs = 2; // 用于碰撞检测的路沿
+    repeated GeoInfo collision_checkd_polygons = 3; // 用于碰撞检测的polygon
+    optional bool collision_by_god = 4; // 是否距离god过近
+    optional bool collision_by_kdtree_points = 5; // 是否距离kdtree的点过近
+    repeated Vector3d collision_point_by_god = 6; // 参考线上的碰撞点
+    repeated Vector3d nearst_points_to_checked_line_from_kdtree = 7; // 从kdtree中找出的距离被检测线最近的点
+
+    repeated string infos = 1001; // 其他信息
+  }
+  message TriggerInfo{
+    optional bool force_by_flag = 1; // gflag配置
+    optional bool force_by_psp = 2; // psp
+    optional bool force_by_campus = 3; // 园区
+    optional bool continous_drv_unstructed_scene = 4; // 连续驾驶判定为非结构化场景
+    optional bool continous_drv_exploration = 5; // 连续驾驶触发了exploration
+    optional bool reachable_refline_valid = 6; // 可达参考线有效
+    optional bool reachable_refline_collision = 7; // 可达参考线碰撞检测
+    optional bool reachable_refline_unstable = 8; // 可达参考线不稳定
+    repeated string extra_infos = 1001;
+  }
+  // 择优过程中的一些信息
+  message Decision{
+    optional CollisionCheckDebug collision_check_debug = 1; // 碰撞检测
+    optional TriggerInfo trigger_info = 2; // triggers
+  };
+  optional Decision decision_debug = 7;
+
+  optional GeoInfo last_refline = 8;  // 上一次参考线
+  optional RouteInfo matched_route = 9;  // 匹配出的route
+  repeated GeoInfo map_reflines = 10;    // 当前帧使用的map refline
+
+  repeated string extra_infos = 1001;
+  optional Vector3d car_state_map_to_ego_position = 1002; // 自车在图系下的位置
+  optional Vector3d car_state_map_to_ego_rpy = 1003; // 自车在图系下的rpy
+
+  repeated GeoInfo reserves = 2001;  // 预留用于临时调试用的
+}
+
+// Debug Message
+message PlannerDebug {
+  optional ReferenceLineDebug reference_line_debug = 1 [deprecated = true];
+  optional PathBoundsDebug path_bound_debug = 2 [deprecated = true];
+  optional ObstaclesDebug obstacles_debug = 3 [deprecated = true];
+  optional PathDataDebug path_data_debug = 4 [deprecated = true];
+  optional SpeedBoundDebug speed_bound_debug = 5 [deprecated = true];
+  optional StGraphDebug st_graph_debug = 6 [deprecated = true];
+  optional StGraphResultDebug st_graph_result_debug = 7 [deprecated = true];
+  optional SpeedDataDebug speed_data_debug = 8 [deprecated = true];
+  optional BehaviorDebug behavior_debug = 9;
+  optional BehaviorInfo behavior_result = 10;
+  optional Bound slt_bound = 11 [deprecated = true];
+  // planning time
+  optional uint64 planning_timestamp = 12;
+  optional MotionDebug motion_debug = 13;
+  optional uint64 frame_id = 14;
+  optional LocalRoutesDebugInfo local_routes_debug = 15;
+  optional NavigationDebugInfo navi_debug = 16;
+  optional Transformation3d transformation_to_localization_coordinate = 17;
+  optional RelativeCoorDebugInfo relative_coor_debug = 18;
+  optional Reproduction reproduction = 19;
+  optional ReferenceLine reference_line = 20;
+  optional TaskDebugInfo task_debug = 21;
+  optional JunctionTopoInfoDebug junction_topo_info_debug = 22;
+  optional ConeDistributionDebugInfo cone_distr_debug = 23;
+  optional TrafficLightDebugInfo traffic_light_debug = 24;
+  optional RiskAwareInfoDebug risk_aware_debug = 25;
+  optional ObstacleFilterManagerInfo filter_manager_info = 26;
+  optional DrivingSpaceDebugInfo driving_space = 30;
+  optional LocalMapDebugInfo local_map_debug = 31;
+  optional JunctionPredictDebug junction_predict_debug = 32;
+  optional RoutingMatchDebug routing_match_debug = 33;
+  optional SolspDebug solsp_debug = 34;
+  optional FsPathDebug fs_path_debug = 100;
+  optional VehicleFlowDebugInfo vehicle_flow_debug = 110;
+  optional VehicleFlowDebugInfo reference_line_evaluation = 120;
+  optional PspTaskSchedulerDebug psp_task_scheduler_debug = 150;
+  optional RefPathDebugInfo ref_path_debug = 200;
+  optional MapReconstructionDebug map_reconstruction_debug = 201;
+  optional AttentionDebug attention_debug = 210;
+  optional RoadMapUpdateDebugInfo map_update_debug = 211;
+  optional ExplorationDebug exploration_debug = 220;
+  optional ParkLowSpeedDebug park_low_speed_debug = 230;
+  optional ModelInputStructureDebug model_input_structure_debug = 231;
+  optional P2pGoalTaskDebug p2p_goal_task_debug = 232;
+  optional ADMSDebug adms_debug = 240;
+  optional ConpreDebug conpre_debug = 250;
+  optional ETCStateMachineDebug etc_state_debug = 255;
+
+  optional uint64 timestamp = 536870905;     // ptp time, nanosec, for cosine bundle timestamp   
+  optional SensorTSHeader sensor_original_ts = 536870906;  // sensor original ts
+  optional uint64 publish_ptp_ts =
+      536870907;  // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909;  // uuid of the publisher
+  optional uint64 counter = 536870910;       // message counter
+  optional uint64 publish_ts =
+      536870911;  // publish utc timestamp; unit : nanosecond
+}

@@ -1,0 +1,56 @@
+
+
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+message PerceptionSignal {
+  optional uint64 id = 1;  // Traffic light ID as defined in road_map.proto.
+
+  enum Color {
+    OFF = 0;  // Light is off.
+    RED = 1;
+    YELLOW = 2;
+    GREEN = 3;
+    WHITE = 4;    // overexposed
+    UNKNOWN = 5;  // Light is covered by other object
+  };
+  // State of every light in this polygon. See road_map.proto for details.
+  repeated Color colors = 2 [packed = true];
+
+  // Flashing red should treated as a stop sign. Flashing yellow should treated
+  // as a yield sign.
+  optional bool is_flashing = 3;
+
+  optional double confidence = 4 [default = 1.0];
+
+  optional uint64 tracking_time =
+      5;  // duration of the light since detection, in ns
+}
+
+message PerceptionSignals {
+  optional uint64 time_meas = 1;  // in ns
+  repeated PerceptionSignal lights = 2;
+}
+
+message PerceptionSignalsRequest {
+  // Traffic light ID as defined in road_map.proto.  These lights should have
+  // the same status.
+  optional int32 request_id = 1;
+  repeated uint64 signal_ids = 2 [packed = true];
+  optional uint64 time_meas = 3;
+}
+
+message PerceptionSignalsResponse {
+  optional int32 request_id = 1;
+  optional uint64 time_meas = 2;  // timestamp of receiving image , in ns
+  optional PerceptionSignal.Color color = 3 [deprecated = true];
+  optional double confidence = 4 [default = 1.0, deprecated = true];
+  optional uint64 tracking_time = 5
+      [deprecated = true];  // duration of the light since detection, in ns
+  repeated PerceptionSignal lights = 6;
+  optional uint64 request_task_published_time_meas = 7;  // in ns
+  optional uint64 request_task_received_time_meas = 8;   // in ns
+}

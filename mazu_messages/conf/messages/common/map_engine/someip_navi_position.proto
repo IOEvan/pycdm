@@ -1,0 +1,38 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message SomeipNaviPosition {
+    optional string road_name = 1;
+    optional RoadLevel road_level = 2;
+    // KM/H
+    optional uint32 road_speed_limit = 3;
+    optional string nation = 4;
+    optional string province = 5;
+    optional string city = 6;
+    optional string area = 7;
+
+    enum RoadLevel {
+        HIGHWAY = 0; /**高速*/
+        CITY_FAST_WAY = 1; /**城市快速路*/
+        NATION_WAY = 2; /**国道*/
+        PROVINCE_WAY = 3;/**省道*/
+        COUNTY_WAY = 4;/**县道*/
+        TOWN_WAY = 5;/**乡道*/
+        OTHER_WAY = 6;/**其它类型*/
+        LEVEL9_WAY = 7;/**非导航路段*/
+        FERRY_WAY = 8;/**轮渡*/
+        WALK_WAY = 9;/**人行道*/
+        INVALID = 10;/**无效值*/
+        RAMP = 11;/**匝道*/
+    }
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin 
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907; // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909;  // uuid of the publisher
+    optional uint64 counter = 536870910;       // message counter
+    optional uint64 publish_ts = 536870911;    // publish utc timestamp; unit : nanosecond
+}

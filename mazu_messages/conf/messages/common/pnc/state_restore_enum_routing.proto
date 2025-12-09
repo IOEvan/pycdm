@@ -1,0 +1,14 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages.routing;
+
+enum GlobalRoutingState {
+  NONE = 0;
+  PROCESSING = 1;
+  SUCCESS = 2;
+  FAIL = 3;
+  TIMEOUT = 4;
+  WITHOUT_QUEUE_AREA = 5;
+}

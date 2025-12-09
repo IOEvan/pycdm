@@ -1,0 +1,63 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+message SVCFreeSpace {
+  reserved 6, 7;
+  optional float grid_size = 1;
+  optional int32 gridshape_row = 2;
+  optional int32 gridshape_col = 3;
+  optional float grid_pos_x = 4;
+  optional float grid_pos_y = 5;
+  enum FSPointType {
+    TYPE_NONE = 0;
+    TYPE_UNKNOWN = 1;
+    TYPE_CATOGORY1 = 2;    // general obstacles (tree, building, dust)
+    TYPE_CATOGORY2 = 3;    // freespace (transversable)
+    TYPE_CATOGORY3 = 4;    // cones
+    TYPE_CATOGORY4 = 5;    // pedestrian
+    TYPE_CATOGORY5 = 6;    // park stop
+    TYPE_CATOGORY6 = 7;    // parking lock
+    TYPE_CATOGORY7 = 8;    // curb stone
+    TYPE_CATOGORY8 = 9;    // pillar and wall
+    TYPE_CATOGORY9 = 10;   // speed bump
+    TYPE_CATOGORY10 = 11;  // motorized vehicles
+    TYPE_CATOGORY11 = 12;
+    TYPE_CATOGORY12 = 13;
+    TYPE_CATOGORY13 = 14;
+    TYPE_CATOGORY14 = 15;
+  }
+  enum GroundAttribueType {
+    TYPE_UNKNOWN_GROUND = 0;
+    TYPE_GROUND = 1;
+    TYPE_NOT_GROUND = 2;
+    TYPE_RESERVED_GROUND = 3;
+  }
+  message FSPoint {
+    optional float X = 1;
+    optional float y = 2;
+    optional FSPointType point_type = 3 [default = TYPE_NONE];
+    optional GroundAttribueType ground_type = 4 [default = TYPE_UNKNOWN_GROUND];
+  }
+  message FSBoundary {
+    repeated FSPoint boundary_map = 1;
+    optional int32 boundary_num = 2;
+    enum FSBoundaryType {
+      TYPE_UNKNOWN_BOUNDARY = 0;
+      TYPE_OUTER_BOUNDARY = 1;
+      TYPE_INNTER_BOUNDARY = 2;
+      TYPE_RESERVED_BOUNDARY = 3;
+    }
+    optional FSBoundaryType boundary_type = 3 [default = TYPE_UNKNOWN_BOUNDARY];
+  }
+  repeated FSBoundary boundary_maps = 15;  // boundary from svc camera
+  repeated FSPointType origin_grid_map = 8
+      [packed = true];            // 384x384 tbd,for future
+  optional uint64 timestamp = 9;  // Timestamp_Receive_Image
+  optional float confidence = 10;
+  optional int32 reserved1 = 11;
+  optional int32 reserved2 = 12;
+  repeated FSPoint boundary_map_FL = 13;
+  repeated FSPoint boundary_map_FR = 14;
+}

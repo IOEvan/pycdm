@@ -1,0 +1,70 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message TPPRecovery{
+  optional float lane_width = 1;
+  optional bool last_bothside_valid =2;
+  optional float last_bothside_hostwidth = 3;
+  optional bool last_lane_overwide = 4;
+  optional uint32 last_pick_mark_idx = 5;
+  optional bool is_intersection =6;
+  optional uint32 last_traj_src =7;
+  optional float last_traj_C0 =8;
+  optional float last_traj_C1 =9;
+  optional float last_traj_C2 =10;
+  optional float last_traj_C3 =11;
+}
+
+message ASRecovery{
+  optional float offset_co = 1;
+  optional uint32 obsta_mark = 2;
+}
+
+message SpdLmtTs{
+  optional uint32 id = 1;
+  optional uint64 sdmap_seg_idx = 2;
+  optional int32  sign_name = 3;
+  optional int32  speed_limit = 4;
+  optional int32 holding_cnt = 5;
+  optional float confidence = 6;
+  optional float sign_long_distance = 7;
+  optional float sign_lat_distance = 8;
+  optional bool update_spd_limit = 9;
+  optional bool spd_limit_canceled = 10;
+  optional bool is_spd_lmt_same_sdmap = 11;
+  optional bool is_condition = 12;  // whether is conditional sign
+  optional uint32 distrib = 13;
+}
+
+message SASRecovery{
+  optional bool valid_adas_map = 1;
+  optional bool valid_hdmap = 2;
+  optional bool valid_tsr = 3;
+  optional bool is_highway = 4;
+  optional uint32 fusion_state = 11;
+  optional uint32 current_weather = 12;
+  optional float stub_dst_thrds = 21;     // range to be regarded as RAMP
+  optional float ramp_cnt_down_dst = 22;  // stub_loc + dst_thrds
+  optional float sub_stub_dst_thrds = 23;  // range to be regarded as RAMP not in HW
+  optional float sub_ramp_cnt_down_dst = 24;  // stub_loc + dst_thrds not in HW
+  repeated SpdLmtTs spdlmt_ts = 51;
+  optional string serialize_info = 100;
+}
+
+message EHYRecovery{
+  optional TPPRecovery tpp_recovery = 1;
+  optional ASRecovery as_recovery = 2;
+  optional SASRecovery sas_recovery = 3;
+
+  optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+  optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+  optional uint64 publish_ptp_ts = 536870907; // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909;   // uuid of the publisher
+  optional uint64 counter = 536870910;        // message counter
+  optional uint64 publish_ts = 536870911;     // publish utc timestamp; unit : nanosecond
+}
+
+

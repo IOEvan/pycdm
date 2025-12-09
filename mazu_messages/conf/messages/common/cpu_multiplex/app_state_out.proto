@@ -1,0 +1,22 @@
+// @owner: ben.wang@nio.com
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+import "common/cpu_multiplex/app_state.proto";
+
+message AppStateOut {
+
+    repeated APPState AppState = 1;   
+     // format {APPID: APPName} 
+     // 0:calibration 1:DLB 2:parking_merge 3:planner 4: control 5:reserved_1 6:reserved_2 7:parking_post_proc(in arg) 8:reserved_3 9: desensitization_app
+    
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts     = 536870907;     // publish ptp timestamp; unit : nanosecond
+    optional string publisher_id       = 536870909;     // uuid of the publisher
+    optional uint64 counter            = 536870910;     // message counter
+    optional uint64 publish_ts         = 536870911;     // publish timestamp; unit : nanosecond
+
+}

@@ -1,0 +1,587 @@
+// @owner: jianxiao.hu@nio.com
+
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+
+message Point2d {
+  optional double longitude = 1;
+  optional double latitude = 2;
+}
+
+message Point3d {
+  optional double longitude = 1;
+  optional double latitude = 2;
+  optional double altitude = 3;
+}
+
+enum AdasRoadClass {
+  ROAD_CLASS_UNKNOWN = 0;
+  HIGH_WAY_EXPRESS_WAY = 1; // 高速道路 城市快速路
+  NATIONAL_ROAD = 2; // 国道
+  PROVINCE_ROAD = 3; // 省道
+  MAIN_ROAD_COUNTY_ROAD = 4; // 城市主干路 县道
+  SECONDARY_ROAD_TOWNSHIP_ROAD = 5; // 次要道路 乡道
+  NORMAL_ROAD_COUNTY_RURAL_INTERIOR_ROAD_AVENUE = 6; // 普通道路 县乡村内部道路 小路
+  ROAD_CLASS_NA = 7;
+}
+
+// 道路路段
+message SdMapSegment {
+  // distance to the car, in meters
+  optional uint64 offset = 1;
+  // global unique id
+  optional uint64 index = 2;
+
+  optional AdasRoadClass road_class = 3;
+
+  // speed limit, in kph
+  optional uint64 seg_spd_lmt = 4;
+  enum SpeedLimitType {
+    IMPLICIT = 0;             // for instance, default speed limit in the cities
+    EXPLICIT = 1;             // on traffic sign
+    EXPLICIT_BY_NIGHT = 2;    // by night
+    EXPLICIT_BY_DAY = 3;      // by day
+    EXPLICIT_TIME_OF_DAY = 4; // time of day
+    EXPLICIT_RAIN = 5;        // rain
+    EXPLICIT_SNOW = 6;        // snow
+    UNKNOWN = 7;
+  }
+  optional SpeedLimitType seg_spd_lmt_type = 5;
+
+  optional bool is_tunnel = 6;
+  optional bool is_bridge = 7;
+
+  // 0: Unknown
+  // 1: Freeway or Controlled access road that is not a slip road/ramp
+  // 2: Multiple carriageway or multiply digitized road
+  // 3: Single carriageway (default)
+  // 4: Roundabout circle
+  // 5: Traffic square/special traffic figure
+  // 6: Entry & Exit
+  // 7: Reserved
+  // 8: Parallel road (as special type of a slip road/ramp)
+  // 9: Slip road/ramp on a freeway or controlled access road
+  // 10: Slip road/ramp (not on a freeway or controlled access road)
+  // 11: Service road or frontage road
+  // 12: Entrance to or exit of a car park
+  // 13: Entrance to or exit to service
+  // 14: Pedestrian zone
+  // 15: N/A
+  optional uint32 form_of_way = 8;
+
+  optional bool is_part_of_calculated_route = 9;
+  // Complex intersection is defined by the GDF level 2 complex feature “Intersection”
+  // containing more than one junction and/or road element.
+  optional bool is_complex_intersection = 10;
+
+  // Value 5: For these STUBs, no physical path is created, i.e. no messages will be appended.
+  // This Stub type is typically used for systems with very low bandwidth or storage capacity or
+  // for very low probability branches or for disallowed turns at intersections, barely to indicate their existence.
+  // If the vehicle turns to a stub with Path Index 5, the Av2HP must initiate a new path.
+  // Typically, Av2HPs providing only the 'single-path-horizon-with-stubs'
+  // are sending STUB messages with a SUB-PATH INDEX value of 5.
+  //
+  // Value 6: As opposed to normal STUBs connecting side-branches to the main path,
+  // a STUB with a SUB-PATH INDEX of 6 provides information for the continuation of the main path
+  // such as TURN ANGLE and RELATIVE PROBABILITY. Most of the content of such a STUB message
+  // (such as NUMBER OF LANES) may be redundant as there is already a SEGMENT message with the same data.
+  // We will refer to this kind of stub as a continuation stub.
+  //
+  // Values 8 to 63: "Normal" STUB message, defining the origin of a new path;
+  // subsequent messages referring to this Index value will provide more data about it.
+  optional uint32 sub_path_idx = 11;
+
+  // Relative probability of this segment in relation to the previous segment on the same path;
+  // for the first segment on the path, this probability is equal as relative probability of the STUB,
+  // while for all subsequent segments till next crossing it will be 100%.
+  //
+  // 100/30 percent
+  // Value O indicates that driving along this segment of the path is not allowed.
+  // Value 31 means unknown or N/A.
+  optional uint32 relative_probability = 12;
+
+  // is a divided road/dual carriageway
+  optional bool is_divided_road = 13;
+  // is a built-up area
+  optional bool is_build_up_area = 14;
+
+  // 0: no opposite lane
+  // 1: one opposite lane
+  // 2: 2 or more lanes
+  // 3: N/A
+  optional uint32 num_of_lanes_opp_dir = 15;
+  // 0: one-direction road driven in wrong direction
+  // 1: one drv lane
+  // 2: two drv lane
+  // 3: three drv lane
+  // 4: four drv lane
+  // 5: five drv lane
+  // 6: six or more drv lane
+  // 7: N/A
+  optional uint32 num_of_lanes_drv_dir = 16;
+}
+
+// 要素点
+message ProfilePoint {
+  // distance to the car, in meters
+  optional uint64 offset = 1;
+  // global unique id
+  optional uint64 index = 2;
+
+  enum Type {
+    INVALID = 0;
+    CURVATURE = 1;
+    SPEED_CAMERA = 2;
+    RANGE_SPEEDLIMIT_BEGIN = 3;
+    RANGE_SPEEDLIMIT_END = 4;
+    TRAFFIC_FLOW = 5;
+    LONGITUDE = 6;
+    LATITUDE = 7;
+    ALTITUDE = 8;
+    ROUTE_NUMBER_TYPE = 9;
+    SLOPE = 10;
+    ROAD_ACCESSIBILITY = 11;
+    ROAD_CONDITION = 12;
+    VARIABLE_SPEED_SIGN_POSITION = 13;
+    HEADING_CHANGE = 14;
+    LINK_IDENTIFIER = 15;
+    CONSTRUCTION_AREA = 16;
+  }
+  optional Type type = 3;
+
+  // different unit for different type
+  // curvature：1/m
+  // speed_camera: kph
+  // range_speedlimit_begin: kph
+  // range_speedlimit_end: kph
+  // traffic_flow: Enum
+  // construction_area: Enum
+  //
+  // for traffic_flow:
+  // 0: unknown
+  // 1: unblocked
+  // 2: amble
+  // 3: congestion
+  // 4: severe congestion
+  // 5: no traffic flow
+  // 6: reserved
+  // 7: N/A
+  //
+  // for construction_area:
+  // 0: invalid
+  // 1: start
+  // 2: end
+  optional uint64 value = 4;
+
+  // Control point (for curvature information, judge whether it comes from the difference result)
+  optional bool is_control_point = 5;
+
+  optional double decoded_value = 6;
+}
+
+// 路口
+message Stub {
+  // distance to the car, in meters
+  optional uint64 offset = 1;
+  // global unique id
+  optional uint64 index = 2;
+
+  // Value 5: For these STUBs, no physical path is created, i.e. no messages will be appended.
+  // This Stub type is typically used for systems with very low bandwidth or storage capacity or
+  // for very low probability branches or for disallowed turns at intersections, barely to indicate their existence.
+  // If the vehicle turns to a stub with Path Index 5, the Av2HP must initiate a new path.
+  // Typically, Av2HPs providing only the 'single-path-horizon-with-stubs'
+  // are sending STUB messages with a SUB-PATH INDEX value of 5.
+  //
+  // Value 6: As opposed to normal STUBs connecting side-branches to the main path,
+  // a STUB with a SUB-PATH INDEX of 6 provides information for the continuation of the main path
+  // such as TURN ANGLE and RELATIVE PROBABILITY. Most of the content of such a STUB message
+  // (such as NUMBER OF LANES) may be redundant as there is already a SEGMENT message with the same data.
+  // We will refer to this kind of stub as a continuation stub.
+  //
+  // Values 8 to 63: "Normal" STUB message, defining the origin of a new path;
+  // subsequent messages referring to this Index value will provide more data about it.
+  optional uint32 sub_path_idx = 3;
+
+  // Relative probability of this segment in relation to the previous segment on the same path;
+  // for the first segment on the path, this probability is equal as relative probability of the STUB,
+  // while for all subsequent segments till next crossing it will be 100%.
+  //
+  // 100/30 percent
+  // Value O indicates that driving along this segment of the path is not allowed.
+  // Value 31 means unknown or N/A.
+  optional uint32 relative_probability = 4;
+
+  optional AdasRoadClass road_class = 5;
+
+  optional bool is_part_of_calculated_route = 6;
+  // Complex intersection is defined by the GDF level 2 complex feature “Intersection”
+  // containing more than one junction and/or road element.
+  optional bool is_complex_intersection = 7;
+
+  // 0: Unknown
+  // 1: Freeway or Controlled access road that is not a slip road/ramp
+  // 2: Multiple carriageway or multiply digitized road
+  // 3: Single carriageway (default)
+  // 4: Roundabout circle
+  // 5: Traffic square/special traffic figure
+  // 6: Entry & Exit
+  // 7: Reserved
+  // 8: Parallel road (as special type of a slip road/ramp)
+  // 9: Slip road/ramp on a freeway or controlled access road
+  // 10: Slip road/ramp (not on a freeway or controlled access road)
+  // 11: Service road or frontage road
+  // 12: Entrance to or exit of a car park
+  // 13: Entrance to or exit to service
+  // 14: Pedestrian zone
+  // 15: N/A
+  optional uint32 form_of_way = 8;
+
+  // Angle of new path relative to parent path: (360/254 degrees)
+  // 0:         In path direction
+  // 1:         1.417 degrees right
+  // 2..125:    Right from path direction
+  // 126:       178.583 degrees right
+  // 127:       Opposite direction
+  // 128:       178.583 degrees left (181.417 degrees right)
+  // 129..252:  Left from path direction
+  // 253:       1.417 degrees left (358.583 degrees right)
+  // 254:       Unknown
+  // 255:       N/A
+  //
+  // In general, this is angle between extension of incoming link and outgoing link.
+  // Exact method of calculation is not defined.
+  optional uint32 turn_angle = 9;
+
+  // indicate whether it is last one that refers to given parent path and offset
+  optional bool is_last_stub = 10;
+
+  // 0: priority over all conflicting vehicle movements
+  // 1: may require yielding to conflicting vehicle movements
+  // 2: Unknown
+  // 3: N/A
+  optional uint32 right_of_way = 11;
+
+  // 0: no opposite lane
+  // 1: one opposite lane
+  // 2: 2 or more lanes
+  // 3: N/A
+  optional uint32 num_of_lanes_opp_dir = 12;
+  // 0: one-direction road driven in wrong direction
+  // 1: one drv lane
+  // 2: two drv lane
+  // 3: three drv lane
+  // 4: four drv lane
+  // 5: five drv lane
+  // 6: six or more drv lane
+  // 7: N/A
+  optional uint32 num_of_lanes_drv_dir = 13;
+}
+
+message SdMapTrafficSign {
+  // distance to the car, in meters
+  optional uint64 offset = 1;
+  // global unique id
+  optional uint64 index = 2;
+
+  // Type enumeration of traffic signs and situations
+  // enum See ADASIS_V2 Specification
+  optional uint64 sign_type = 3;
+  // Depending on sign
+  // 0 if the traffic sign does not have a value.
+  // A value of 255 is used in update messages to invalidate or delete a sign.
+  optional uint64 value = 4;
+
+  // The lane that this sign is valid for. For signs above the road and on the road surface,
+  // also the lane above/on which the sign is located.
+  //
+  // 0: Not specific to any lane.
+  // 1..14: lane number
+  // 15: Unknown, or N/A
+  optional uint32 lane = 5;
+
+  // This field marks a sign that is valid only for specific vehicles.
+  // This includes signs valid only for vehicles with specific dimensions or loads.
+  //
+  // 0: Not vehicle specific.
+  // 1: Applies to this vehicle but not to all vehicles.
+  // 2: Does not apply to this vehicle but possibly to other vehicles.
+  // 3: It's not known whether the sign applies to this vehicle.
+  optional uint32 vehicle_specific = 6;
+
+  // This field marks a sign that is valid only on specific days or at specific times.
+  //
+  // 0: Not time dependent.
+  // 1: Applies now but not all the time.
+  // 2: Does not apply now but at other times.
+  // 3: It's not known whether the sign applies now.
+  optional uint32 time_specific = 7;
+
+  // This field describes other conditions and dependencies.
+  // Time and vehicle type/load dependencies are not taken into account here.
+  optional uint64 condition = 8;
+
+  // 0: Unknown
+  // 1: Right of the road
+  // 2: Left of the road
+  // 3: Above the road
+  // 4: On the road surface
+  // 5: Sign is not physically located at this position, see remark 1
+  // 6: The stretch of road that a sign applies to ends at this position, see remark 1
+  // 7: N/A
+  optional uint32 sign_location = 9;
+
+  // adas no position and height data now, 10~12 fields reserved
+  // is 2d coordinates available
+  optional bool position_valid = 10;
+  // 2d coordinates of traffic sign
+  optional Point2d position_pt = 11;
+  // height of traffic sign, in meters
+  optional double height = 12;
+}
+
+message TrafficEvent {
+  // distance to the car, in meters
+  optional uint64 offset = 1;
+  // global unique id
+  optional uint64 index = 2;
+
+  enum Status {
+    NEW = 0;
+    CANCEL = 1;
+  }
+  optional Status status = 3;
+
+  enum StartEndPoint {
+    START_POINT = 0;
+    END_POINT = 1;
+  }
+  optional StartEndPoint start_end_point = 4;
+
+  // The larger the value, the greater the reliability.
+  // 0: unknown
+  // 1~10: 1~10
+  // 11~14: Reserved
+  // 15: N/A
+  optional uint32 reliability = 5;
+
+  // Type enumeration of traffic events.
+  // 0: unknown
+  // 1~114: enum See AMAP_ADAS EHP Specification
+  // 115~126: Reserved
+  // 127: N/A
+  optional uint64 event_type = 6;
+}
+
+message SdMapLaneConnection {
+  // distance to the car, in meters
+  optional uint64 offset = 1;
+  // global unique id
+  optional uint64 index = 2;
+
+  // Number of the lane which is described in this message
+  // 0: invalid
+  // 1...14: lane num
+  // 15: N/A
+  optional uint32 lane_num = 3;
+
+  // Number of first predecessor lane
+  // 0: no predecessor
+  // 1...14: lane num
+  // 15: N/A
+  optional uint32 first_predecessor_lane = 4;
+  // Number of last predecessor lane
+  // 0: no predecessor
+  // 1...14: lane num
+  // 15: N/A
+  optional uint32 last_predecessor_lane = 5;
+  // Number of priority predecessor lane
+  // 0: no predecessor
+  // 1...14: lane num
+  // 15: N/A
+  optional uint32 priority_predecessor_lane = 6;
+
+  // If set, this lane has a road marking with an arrow into this direction
+  // 0: invalid
+  // 1: straight
+  // 2: slight right
+  // 3: right
+  // 4: hard right
+  // 5: U turn
+  // 6: hard left
+  // 7: left
+  // 8: slight left
+  optional uint32 arrow_marking = 7;
+
+  // Additional information about the lane type (e.g. exit lane, restricted lane, ...)
+  // 0: Virtual shoulder lane (this lane type can be used to transmit the right line marking of the right-most lane)
+  // 1: Normal lane
+  // 2: Exit lane
+  // 3: Entry lane
+  // 4: Auxiliary lane (combined exit and entry lane e.g. at highway intersections)
+  // 5: Emergency lane
+  // 6: Restricted lane we are not allowed to use (e.g. bus lane)
+  // 7: Restricted lane we are allowed to use (e.g. passenger car lane to overtake truck holding lane)
+  // 8: HOV lane
+  // 9: Express lane (for faster moving traffic on highways with possibly fewer entries/exits)
+  // 10: Reversible lane (i.e. traffic direction may change depending on the time)
+  // 11: Slow lane (e.g. truck crawler lane)
+  // 12: Drivable shoulder lane (i.e. emergency lane that is used as extra driving lane e.g. for rush hours)
+  // 13: Turn lane or suicide lane (i.e. lane may be used from both directions for turning or passing)
+  // 14: Reserved
+  // 15: unknown or N/A
+  optional uint32 lane_type = 8;
+
+  // Line marking for the inner side of this lane (i.e. left side for right-hand traffic)
+  // 0: Invalid
+  // 1: Solid line (single or double)
+  // 2: Dashed line (single or double)
+  // 3: Left solid and right dashed in the direction of traffic
+  // 4: Right solid and left dashed in the direction of traffic
+  // 5: Dashed blocks (wider dashes indicating an exit or entry lane)
+  // 6: Shaded Area Marking
+  optional uint32 line_marking = 9;
+
+  // True if traffic on this lane has to yield to incoming traffic from a neighboring road
+  // when entering this segment. 0 is default value.
+  // 0: default
+  // 1: yield
+  optional uint32 yield_flag = 10;
+}
+
+message HeartBeatInfo {
+  optional uint64 heart_beat = 1;
+
+  enum ReliableState {
+    RS_NONE = 0;
+    UNRELIABLE = 1;
+    UNRELIABLE_ROUTING = 2;
+    UNRELIABLE_YAWING = 3;
+    UNRELIABLE_SWITCHING = 4;
+    UNRELIABLE_UNKNOWN = 5;
+    UNRELIABLE_MAX = 6;
+    RELIABLE = 7;
+  }
+  optional ReliableState reliable_state = 2;
+
+  enum NavigationState {
+    NS_NONE = 0;
+    ROUTE_CRUISING = 1;
+    ROAMING = 2;
+    NAVIGATING = 3;
+  }
+  optional NavigationState navigation_state = 3;
+}
+
+message TurnInfo {
+  optional uint64 dist_to_first_turn = 1;
+  optional uint64 first_turn_info = 2;
+  optional uint64 dist_to_second_turn = 3;
+  optional uint64 second_turn_info = 4;
+  repeated uint64 lanenr_info = 5;
+}
+
+message SpeedLimitInfo {
+  optional uint64 speed_limit = 1;
+
+  enum SpeedLimitType {
+    ROAD_SPEED_LIMIT = 1;
+    CAMERA_SPEED_LIMIT = 2;
+    RANGE_SPEED_LIMIT = 3;
+  }
+  optional SpeedLimitType speed_limit_type = 2;
+}
+
+message AdasMeta {
+  //当前所在国家的ISO83166 country code, 数字代码，无效值0
+  optional uint32 country_code = 1;
+}
+
+message AdasInfo {
+  // SDMap是否有效
+  optional bool is_adasmap_valid = 1;
+  // 0: 判断不处于高速/高架
+  // 1: 判断处于高速/高架
+  // 2: SDMap无效/未接收到有效信号
+  optional uint32 m_adasmap_is_highway = 2;
+
+  // 道路路段信息
+  repeated SdMapSegment segment = 3;
+  // 要素点信息
+  repeated ProfilePoint profile_point = 4;
+  // 路口信息
+  repeated Stub stub = 5;
+  // 交通标志信息
+  repeated SdMapTrafficSign traffic_sign = 6;
+  // 车道连接关系
+  repeated SdMapLaneConnection lane_connection = 7;
+  // Adas Meta data
+  optional AdasMeta adas_meta = 8;
+  // 交通事件
+  repeated TrafficEvent traffic_event = 9;
+}
+
+message NavigationInfo {
+  // 状态信号
+  optional HeartBeatInfo heart_beat_info = 1;
+  // 转向引导信号
+  optional TurnInfo turn_info = 2;
+  // 限速信号
+  repeated SpeedLimitInfo speed_limit_info = 3;
+
+  enum RoadClass {
+    R_NONE = 0;
+    HIGHWAY = 1;
+    URBANHIGHWAY = 2;
+    NATIONALROAD = 3;
+    PROVINCIALROAD = 4;
+    COUNTYROAD = 5;
+    TOWNROAD = 6;
+    OTHERROAD = 7;
+    NONNAVIGATIONROAD = 8;
+    WALKINGROAD = 9;
+    FERRY = 10;
+    R_MAX = 11;
+  }
+  // 道路类型
+  // 枚举值与路段里adasmap给出的有差异
+  optional RoadClass road_class = 4;
+
+  optional int32 bridge_switch_button = 5;
+  optional int32 mainroad_switch_button = 6;
+
+  optional uint64 last_route_change_timestamp = 7;
+  optional uint64 link_id = 8;
+  optional int32 link_index = 9;
+  optional float link_distance = 10;
+  optional float link_remain_dist = 11;
+  // -1 无效, 0 普通道路, 1 航道, 2 隧道, 3 桥梁, 4 高架路
+  optional int32 link_type = 12;
+  // 0 公共道路, 1 内部道路, 2 私有道路, 3 地下停车场道路, 4 立体停车场道路
+  optional int32 owner_ship = 13;
+
+  // true是到达目的地，false是用户手动结束导航
+  optional bool is_arrive = 14;
+}
+
+message SdMap {
+  // 语义信息
+  optional AdasInfo adas_info = 1;
+  // 基础导航信息
+  optional NavigationInfo navigation_info = 2;
+  // 本车位置与SD地图做完map-matching后的坐标
+  optional Point3d map_loc = 3;
+
+  optional bool is_sd_map_valid = 4 [default = true];
+
+  optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin 
+  optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+  optional uint64 publish_ptp_ts = 536870907; // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909;  // uuid of the publisher
+  optional uint64 counter = 536870910;       // message counter
+  optional uint64 publish_ts = 536870911;    // publish utc timestamp; unit : nanosecond
+}

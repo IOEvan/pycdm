@@ -1,0 +1,191 @@
+{
+    "vdm_dense_tags" : [
+        {
+            "table_name": "ego",
+            "dense_tag_columns": [
+                {"column_name":"ego_longitudinal","column_type":"TEXT"},
+                {"column_name":"ego_lateral_lane_center_middle","column_type":"TEXT"},
+                {"column_name":"ego_junction_head_type_first","column_type":"INT"},
+                {"column_name":"road_lane_line_curvature_curvature","column_type":"INT"},
+                {"column_name":"light_weather_environment_weather","column_type":"TEXT"},
+                {"column_name":"light_weather_environment_unusual_weather","column_type":"TEXT"},
+                {"column_name":"light_weather_environment_illumination","column_type":"TEXT"},
+                {"column_name":"light_weather_image_quality_blockage","column_type":"TEXT"},
+                {"column_name":"light_weather_image_quality_smeared","column_type":"TEXT"},
+                {"column_name":"road_congestion","column_type":"INT"},
+                {"column_name":"lane_congestion","column_type":"INT"},
+                {"column_name":"lane_width","column_type":"FLOAT"},
+                {"column_name":"dst_to_opening_junction","column_type":"INT"},
+                {"column_name":"ego_highway_urban","column_type":"TEXT"}
+            ]
+        },
+        {
+            "table_name": "obj",
+            "dense_tag_columns": [
+                {"column_name":"obj_closures_door_fl_open", "column_type":"INT"},
+                {"column_name":"obj_closures_door_fr_open", "column_type":"INT"},
+                {"column_name":"obj_closures_door_rl_open", "column_type":"INT"},
+                {"column_name":"obj_closures_door_rr_open", "column_type":"INT"},
+                {"column_name":"obj_closures_tailgate_rear_open", "column_type":"INT"},
+                {"column_name":"obj_closures_hood_front_open", "column_type":"INT"},
+                {"column_name":"obj_traffic_flow_vehicle_density", "column_type":"TEXT"},
+                {"column_name":"obj_traffic_flow_vru_density", "column_type":"TEXT"},
+                {"column_name":"obj_traffic_flow_vehicle_pedestrian_density", "column_type":"TEXT"},
+                {"column_name":"obj_interactive_attribute", "column_type":"TEXT"},
+                {"column_name":"obj_orientation_obj_lon_distance", "column_type":"TEXT"},
+                {"column_name":"obj_orientation_obj_lat_distance", "column_type":"TEXT"},
+                {"column_name":"obj_light_brake_info", "column_type":"TEXT"},
+                {"column_name":"obj_light_left_indicator", "column_type":"TEXT"},
+                {"column_name":"obj_light_right_indicator", "column_type":"TEXT"},
+                {"column_name":"obj_light_reverse", "column_type":"TEXT"},
+                {"column_name":"obj_light_hazard_light", "column_type":"TEXT"},
+                {"column_name":"obj_motion_category", "column_type":"TEXT"}
+            ]
+        },
+        {
+            "table_name": "traffic_light",
+            "dense_tag_columns": [
+                {"column_name":"tld_sence_type", "column_type":"TEXT"},
+                {"column_name":"tld_color_status", "column_type":"TEXT"},
+                {"column_name":"tld_cap_semantic_info", "column_type":"TEXT"},
+                {"column_name":"countdown_tld", "column_type":"TEXT"},
+                {"column_name":"occulusion_info", "column_type":"TEXT"},
+                {"column_name":"tld_existing_none_tld", "column_type":"INT"},
+                {"column_name":"special_tld_scene", "column_type":"TEXT"},
+                {"column_name":"lane_associated_info", "column_type":"TEXT"},
+                {"column_name":"light_box_type", "column_type":"TEXT"},
+                {"column_name":"flash_status", "column_type":"TEXT"},
+                {"column_name":"tld_heading_info", "column_type":"TEXT"},
+                {"column_name":"tld_tld_associated_info_associated", "column_type":"INT"},
+                {"column_name":"tld_text_sematic_info", "column_type":"TEXT"},
+                {"column_name":"tld_tld_text_sematic_info_glare_tld", "column_type":"INT"}
+            ]
+        },
+        {
+            "table_name": "manner_virtual_traffic_light",
+            "dense_tag_columns": []
+        },
+        {
+            "table_name": "lane_infos",
+            "dense_tag_columns": [
+                {"column_name":"road_scene_lane_quantity", "column_type":"TEXT"},
+                {"column_name":"road_road_lane_blurred_lane_markings_severely_blurred", "column_type":"INT"},
+                {"column_name":"road_lane_lane_type", "column_type":"TEXT"},
+                {"column_name":"road_lane_line_mess", "column_type":"TEXT"},
+                {"column_name":"road_lane_line_type", "column_type":"TEXT"},
+                {"column_name":"road_lane_line_color", "column_type":"TEXT"},
+                {"column_name":"road_lane_line_blockage_type", "column_type":"TEXT"}
+            ]
+        },
+        {
+            "table_name": "traffic_sign",
+            "dense_tag_columns": [
+                {"column_name":"road_traffic_sign_sign_type", "column_type":"TEXT"},
+                {"column_name":"road_traffic_sign_geometry_type", "column_type":"TEXT"}
+            ]
+        },
+        {
+            "table_name": "manner_traffic_sign",
+            "dense_tag_columns": [
+                {"column_name":"road_traffic_sign_sign_type", "column_type":"TEXT"},
+                {"column_name":"road_traffic_sign_geometry_type", "column_type":"TEXT"}
+            ]
+        },
+        {
+            "table_name": "roadsign",
+            "dense_tag_columns": [
+                {"column_name":"road_arrow_turn_arrow", "column_type":"TEXT"},
+                {"column_name":"road_arrow_other_arrow", "column_type":"TEXT"},
+                {"column_name":"road_arrow_text_arrow", "column_type":"TEXT"}
+            ]
+        },
+        {
+            "table_name": "manner_roadsign",
+            "dense_tag_columns": [
+                {"column_name":"road_arrow_turn_arrow", "column_type":"TEXT"},
+                {"column_name":"road_arrow_other_arrow", "column_type":"TEXT"},
+                {"column_name":"road_arrow_text_arrow", "column_type":"TEXT"}
+            ]
+        },
+        {
+            "table_name": "roadedge",
+            "dense_tag_columns": [
+                {"column_name":"road_road_edge_road_edge", "column_type":"TEXT"},
+                {"column_name":"road_road_edge_hight_type", "column_type":"TEXT"}
+            ]
+        },
+        {
+            "table_name": "manner_roadedge",
+            "dense_tag_columns": [
+                {"column_name":"road_road_edge_road_edge", "column_type":"TEXT"},
+                {"column_name":"road_road_edge_hight_type", "column_type":"TEXT"}
+            ]
+        },
+        {
+            "table_name": "stopline",
+            "dense_tag_columns": [
+                {"column_name":"junction_stop_line_stop_line_type","column_type":"TEXT"},
+                {"column_name":"junction_stop_line_blurred_stop_line_blurred","column_type":"INT"}
+            ]
+        },
+        {
+            "table_name": "manner_stopline",
+            "dense_tag_columns": [
+                {"column_name":"junction_stop_line_blurred_stop_line_blurred","column_type":"INT"}
+            ]
+        },
+        {
+            "table_name": "rme",
+            "dense_tag_columns": [
+            ]
+        },
+        {
+            "table_name": "manner_lanes",
+            "dense_tag_columns": [
+            ]
+        },
+        {
+            "table_name": "manner_lane_boundaries",
+            "dense_tag_columns": [
+            ]
+        },
+        {
+            "table_name": "navigation_info",
+            "dense_tag_columns": [
+            ]
+        },
+        {
+            "table_name": "navigation_lane_info",
+            "dense_tag_columns": [
+            ]
+        },
+        {
+            "table_name": "parking_slot_info",
+            "dense_tag_columns": [
+            ]
+        },
+        {
+            "table_name": "cdm_model_object_2d",
+            "dense_tag_columns": [
+            ]
+        },
+        {
+            "table_name": "cdm_model",
+            "dense_tag_columns": [
+            ]
+        },
+        {
+            "table_name": "parking_ego_info",
+            "dense_tag_columns": [
+                {"column_name":"parking_status","column_type":"TEXT"},
+                {"column_name":"park_start_timestamp","column_type":"INT"},
+                {"column_name":"park_end_timestamp","column_type":"INT"}
+            ]
+        },
+        {
+            "table_name": "dynamic_dense_tags",
+            "dense_tag_columns": [
+            ]
+        }
+    ]
+}

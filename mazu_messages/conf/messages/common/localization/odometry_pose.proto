@@ -1,0 +1,83 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message OdometryPose {
+  message LocQuaternion {
+    optional double x = 1;
+    optional double y = 2;
+    optional double z = 3;
+    optional double w = 4;
+  }
+  
+  message LocVector3 {
+    optional double x = 1;
+    optional double y = 2;
+    optional double z = 3;
+  }
+
+  message Extrinsic {
+    optional LocQuaternion quaternion = 1;
+    optional LocVector3 position = 2;
+  }
+  
+  message FloorInfo {
+    enum Status {
+      OUTDOOR = 0;
+      GROUND_PLANE = 1; 
+      UPHILL = 2;
+      DOWNHILL = 3;
+      INVAILD = 4;
+    }
+    enum Mode {
+      MAP_FREE = 0;
+      MAP_BASED = 1;
+    }
+    optional uint64 timestamp_ptp_ns  = 1;  // ptp timestamp of result in nanosecond
+    optional int32 id = 2;  // Count from 0, INT_MAX: invaild id, others: floor id
+    optional float height = 3;
+    optional float confidence = 4; // Reserved confidence value in [0.0f, 1.0f].
+    optional Status status = 5;
+    optional Mode mode = 6;
+  }
+
+  enum Status {
+    UNINITIALIZED = 0; // Not initialized yet
+    INITIALIZING = 1; // Initializing in progress
+    NOT_CONVERGED = 2; // Not converged yet
+    CONVERGED = 3; // Converged now, module works well
+    PARTIAL_CONSTRAINED = 4; // module isn't fully constrained, such as in tunnel.
+    INVALID = 5; // results not available.
+    SENSOR_ERROR = 6; // Sensor failure, such as abnormal value.
+  }
+
+  optional uint64 measure_ts        = 1;  // Globally defined UTC time. [nanosecond]
+  optional int32  status            = 2;  // 0-invalid, 1-valid.
+  optional string sensor            = 3;  // e.g. "falcon", "fw"
+  optional string message           = 4;  // Reserved message. e.g. version or debug info.
+
+  // SE3 pose.
+  optional LocVector3 position      = 5;  // position of sensor, the  in meter
+  optional LocQuaternion quaternion = 6;  // orientation of the sensor in the local ENU frame.
+
+  optional bool key_frame = 7;            // whether this frame is key frame
+  optional uint64 frame_counter = 8;
+  optional uint64 reset_counter = 9;
+
+  repeated double covariance        = 10;  // 6x6 covariance matrix in order of [position, orientation]. [column-major]
+  optional float  confidence        = 11;  // Reserved confidence value in [0.0f, 1.0f].
+  optional uint64 timestamp_ptp_ns  = 12;  // ptp timestamp of odometry in nanosecond
+  repeated Extrinsic extrinsic  = 13;  //sensor extrinsic
+  optional Status system_status = 14;
+  optional LocVector3 gravity_align_vector = 15;  // gravity projection vector in world frame
+  optional FloorInfo floor_info = 16; // Information of floor in multi-storey parking lot
+
+  optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin 
+  optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+  optional uint64 publish_ptp_ts    = 536870907;   // publish ptp timestamp, uint in nanosec
+  optional string publisher_id      = 536870909;   // uuid of the publisher
+  optional uint64 counter           = 536870910;   // message counter
+  optional uint64 publish_ts        = 536870911;   // publish utc timestamp, unit : nanosecond
+}

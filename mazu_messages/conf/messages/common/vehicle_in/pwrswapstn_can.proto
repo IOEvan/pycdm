@@ -1,0 +1,80 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+message PsapStationCan{
+    enum ConnectionSts_e{
+		ConnectionSts_not_connected=0;
+		ConnectionSts_connected=1;
+	}
+	optional ConnectionSts_e ConnectionSts=1;//@Channel:ADAS @Message:0x302 @Signal:ConnectionSts
+	enum StationPlatformSts_e{
+		StationPl_no_pedestrian=0;
+		StationPl_pedestrian_present=1;
+		StationPl_cone_present=2;
+		StationPl_unknown=3;
+	}
+	optional StationPlatformSts_e StationPlatformSts=2;//@Channel:ADAS @Message:0x302 @Signal:StationPlatformSts
+	enum VehLongPosInStation_e{
+		VehLongPosInSta_position_ok=0;
+		VehLongPosInSta_position_rearward=1;
+		VehLongPosInSta_position_forward=2;
+		VehLongPosInSta_position_unknown=3;
+	}
+	optional VehLongPosInStation_e VehLongPosInStation=3;//@Channel:ADAS @Message:0x302 @Signal:VehLongPosInStation
+	enum VehLatPosInStation_e{
+		VehLatPosInSta_position_ok=0;
+		VehLatPosInSta_adjust_left=1;
+		VehLatPosInSta_adjust_right=2;
+		VehLatPosInSta_position_unknown=3;
+	}
+	optional VehLatPosInStation_e  VehLatPosInStation=4;//@Channel:ADAS @Message:0x302 @Signal:VehLatPosInStation
+	enum PwrSwapProc_e{
+		No_action = 0;
+		PSAP = 1;
+		Authen = 2;
+		Info_match = 3;
+		Vehicle_prepare = 4;
+		Swap_prepare = 5;
+		Swap_HV_battery = 6;
+		Diagnose = 7;
+		New_battery_info_match = 8;
+		Exit_PS = 9;
+		Reserved = 10;
+		PwrSwapPro_Reserved_11 = 11;
+		PwrSwapPro_Reserved_12 = 12;
+		PwrSwapPro_Reserved_13 = 13;
+		PwrSwapPro_Reserved_14 = 14;
+		PwrSwapPro_Reserved_15 = 15;
+	}
+	optional PwrSwapProc_e PwrSwapProc = 5  ;//@Channel:ADAS @Message:0x302 @Signal:PwrSwapProc
+	enum PwrSwapModSts_e{
+		Off = 0;//换电结束，允许出站
+		On = 1;//换电失败或换电中，不允许出站
+	}
+	optional PwrSwapModSts_e PwrSwapModSts = 6  ;//@Channel:ADAS @Message:0x302 @Signal:PwrSwapModSts
+	enum WFConSts_e{
+		Initail = 0;
+		Check_Switch_Status = 1;
+		Turn_On_WiFi = 2;
+		Scan_AP = 3;
+		Auth_AP = 4;
+		Connect_AP = 5;//wifi connecting
+		Check_AP_Status = 6; //wifi connected
+		Disconnect_AP = 7;
+		Forget_AP = 8;
+		Reset_AP = 9;
+		RequestResource = 10;
+		ReleaseResource = 11;
+		Turn_Off_WiFi = 12;
+	}
+	optional WFConSts_e WFConSts = 7  ;//@Channel:ADAS @Message:0x302 @Signal:WFConSts
+	enum PwrSwapRes_e{
+		No_Request = 0;
+		Success = 1;
+		Fail = 2;
+	}
+	optional PwrSwapRes_e PwrSwapRes = 8 ;//@Channel:ADAS @Message:0x302 @Signal:PwrSwapRes
+}

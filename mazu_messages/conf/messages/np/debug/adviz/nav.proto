@@ -1,0 +1,29 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+import "np/debug/adviz/ros/sensor_msgs.proto";
+import "np/debug/adviz/ros/std_msgs.proto";
+
+package ros.sensor_msgs;
+// import "common/perf/sensor_ts_header.proto";
+
+message NavSatFix {
+  optional ros.std_msgs.Header header = 1;
+  optional NavSatStatus status = 2;
+  optional double latitude = 3;
+  optional double longitude = 4;
+  optional double altitude = 5;
+  repeated double position_covariance = 6;  // length 9
+  // uint8 COVARIANCE_TYPE_UNKNOWN = 0
+  // uint8 COVARIANCE_TYPE_APPROXIMATED = 1
+  // uint8 COVARIANCE_TYPE_DIAGONAL_KNOWN = 2
+  // uint8 COVARIANCE_TYPE_KNOWN = 3
+  optional int32 position_covariance_type = 7;  // originally uint8
+
+  // optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+  optional uint64 publish_ptp_ts = 536870907; // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909; // uuid of the publisher
+  optional uint64 counter = 536870910;         // message counter
+  optional uint64 publish_ts = 536870911;    // publish timestamp; unit : nanosecond
+}

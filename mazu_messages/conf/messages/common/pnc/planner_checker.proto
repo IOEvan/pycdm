@@ -1,0 +1,182 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/pnc/dynamic_map.proto";
+
+message PlannerCheckerVelocity {
+    optional uint64 timestamp = 1;
+    optional double x = 2;
+    optional double y = 3;
+    optional double value = 4;
+}
+
+message PlannerCheckerAcceleration {
+    optional uint64 timestamp = 1;
+    optional double x = 2;
+    optional double y = 3;
+    optional double value = 4;
+}
+
+message PlannerCheckerJerk {
+    optional uint64 timestamp = 1;
+    optional double x = 2;
+    optional double y = 3;
+    optional double value = 4;
+}
+
+message ManualContextInfo {
+    optional bool isInUrban = 1;
+    optional bool isCutin = 2;
+    optional double manual_max_speed_x_last_5s = 3;
+    optional double manual_min_speed_x_last_5s = 4;
+    optional double manual_max_acc_x_last_5s = 5;
+    optional double manual_min_acc_x_last_5s = 6;
+    optional double manual_max_jerk_x_last_5s = 7;
+    optional double manual_min_jerk_x_last_5s = 8;
+    optional double manual_run_red_light_last_5s = 9;
+    optional double manual_run_yellow_light_last_5s = 10;
+    repeated double manual_ttc_x_last_5s = 11;
+    repeated double manual_thw_x_last_5s = 12;
+    repeated double manual_follow_s_last_5s = 13;
+    repeated double manual_speed_x_last_5s = 14;
+    repeated double manual_acc_x_last_5s = 15;
+    optional double speed_limit = 16;
+    optional double manual_mean_acc_x = 17;
+    optional double manual_max_lat_jerk = 18;
+    optional double manual_max_kappa = 19;
+    optional double manual_mean_speed_x = 20;
+    repeated PlannerCheckerVelocity history_ego_motion_speed = 21;
+    optional PlannerCheckerVelocity curr_ego_motion_speed = 22;
+    optional PlannerCheckerAcceleration history_ego_motion_min_acc = 23;
+    optional PlannerCheckerAcceleration history_ego_motion_max_acc = 24;
+    optional PlannerCheckerAcceleration curr_ego_motion_acc = 25;
+    optional PlannerCheckerJerk history_ego_motion_min_jerk = 26;
+    optional PlannerCheckerJerk history_ego_motion_max_jerk = 27;
+    optional PlannerCheckerJerk curr_ego_motion_jerk = 28;
+    optional double manual_min_lat_jerk = 29;
+    optional double manual_min_kappa = 30;
+    optional bool manual_traj_is_nudge_scenario = 31;
+    optional uint64 nudge_direction = 32;
+    optional int32 obj_id = 33;
+}
+
+message AstraContextInfo {
+    optional double astra_traj_length = 1;
+    repeated uint64 astra_brake_ts_last_2s = 2;
+    repeated double astra_min_acc_before_manual_brake_ts_plus_1s_last_2s = 3;
+    repeated double astra_0s_speed_last_3s = 4;
+    repeated double astra_1s_speed_last_3s = 5;
+    repeated double astra_2s_speed_last_3s = 6;
+    optional double astra_min_acc_x = 7;
+    optional double astra_max_lat_jerk = 8;
+    optional double astra_min_lat_jerk = 9;
+    optional double astra_max_kappa = 10;
+    optional double astra_min_kappa = 11;
+    optional double astra_mean_speed_x = 12;
+}
+
+// 纵向car planner checker依赖 @disheng
+message CarLongitudinalCheckerContext {
+    optional bool isManualBrakeCurrent = 1;
+    optional bool isLowSpeedScene = 2;
+}
+
+// 纵向vru planner checker依赖 @chuanwei
+message VRUCheckerContext {
+    optional bool is_ego_motion_compatible_with_plan = 1;
+    optional bool is_VRU_cutin = 2;
+}
+
+// traffic light planner checker依赖 @jinlong
+message TlCheckerContext{
+    optional double distance_to_stopline = 1;
+    optional TrafficLightStatus go_direction_light_status = 2;
+    optional bool is_wait_to_start_frame = 3;
+}
+
+message LaneChangeCheckerContext {
+    enum SceneType {
+        LANE_CHANGE = 0;
+        KEEP = 1;
+        INVALID = 2;
+    }
+
+    message TimestampPair {
+        optional uint64 start_ts = 1;
+        optional uint64 end_ts = 2;
+    }
+
+    message ALCWheelCrossSolidLine {
+        optional bool cross_solid_line = 1;
+        optional double nearest_dst_to_non_solid_point = 2;
+    }
+
+    message GroundTruthInfo {
+        optional TimestampPair ts_pair = 1;
+        optional SceneType scene_type = 2;
+    }
+
+    message ALCExecDangerParam {
+        optional double min_distance_between_ego_and_key_obs = 1;
+        optional double rear_obj_min_acc = 2;
+    }
+
+    message ALCExecDangerInfo {
+        optional TimestampPair ts_pair = 1;
+        optional ALCExecDangerParam alc_exec_danger_param = 2;
+    }
+
+    repeated ALCWheelCrossSolidLine alc_wheel_cross_solid_line_info = 1;
+    optional GroundTruthInfo ground_truth_info = 2;
+    optional ALCExecDangerInfo alc_exec_danger_info = 3;
+    optional TimestampPair alc_overtake_fn_info = 4;
+    optional TimestampPair alc_trigger_fp_info = 5;
+}
+
+// nudge planner checker依赖 @sifa
+message NudgeCheckerContext {
+   message NudgeCondition {
+       optional double l_position = 1;
+       optional double delta_l_5s = 2;
+       optional bool is_keep_away = 3;
+       optional double reserved_field_1 = 4;
+       optional double reserved_field_2 = 5;
+       optional uint32 reserved_field_3 = 6;
+       optional uint32 reserved_field_4 = 7;
+       repeated double reserved_field_5 = 8; 
+       repeated double reserved_field_6 = 9;
+       optional bool reserved_field_7 = 10;
+       optional bool reserved_field_8 = 11;
+   }
+   optional double nudge_safty_lat_distance = 1;
+   optional NudgeCondition human_condition = 2;
+   optional NudgeCondition astra_condition = 3;
+   optional double min_distance_to_traj = 4;
+   optional double reserved_field_1 = 5;
+   optional double reserved_field_2 = 6;
+   optional uint32 reserved_field_3 = 7;
+   optional uint32 reserved_field_4 = 8;
+   repeated double reserved_field_5 = 9; 
+   repeated double reserved_field_6 = 10;
+   optional bool reserved_field_7 = 11;
+   optional bool reserved_field_8 = 12;
+}
+
+//Checker Message
+message PlannerChecker {
+    optional uint64 time_meas = 1;
+    optional ManualContextInfo manual_context = 2;
+    optional AstraContextInfo astra_context = 3;
+    optional CarLongitudinalCheckerContext car_longitudinal_checker_context = 4;
+    optional VRUCheckerContext vru_checker_context = 5;
+    optional TlCheckerContext tl_checker_context = 6;
+    optional LaneChangeCheckerContext lane_change_checker_context = 7;
+    optional NudgeCheckerContext nudge_checker_context = 8;
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    optional uint64 publish_ptp_ts = 536870907; // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909; // uuid of the publisher
+    optional uint64 counter = 536870910;         // message counter
+    optional uint64 publish_ts = 536870911;    // publish timestamp; unit : nanosecond
+}

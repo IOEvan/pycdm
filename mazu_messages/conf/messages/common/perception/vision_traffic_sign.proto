@@ -1,0 +1,314 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+import "common/perception/od_output.proto";
+
+message TrafficSign{
+    optional uint32 TSR_ID = 1;
+    optional uint32 TSR_Age = 2;
+    optional TSRName TSR_Name = 3;          // type
+    optional TSRShape TSR_Shape = 4;        // shape
+    optional float TSR_Height = 5;          // 3d pos, z
+    optional float TSR_Lat_Distance = 6;    // 3d pos, y
+    optional float TSR_Long_Distance = 7;   // 3d post, x
+    optional TSRFilterType TSR_Filter_Type = 8;//无用的
+    optional TSRRelevancy TSR_Relevancy = 9 [deprecated=true]; 
+    optional TSRStructure TSR_Structure = 10;  // structure
+    optional float TSR_Panel_Width = 11;       // 3d size
+    optional float TSR_Panel_Height = 12;
+    optional float TSR_Confidence = 13;// type score
+    optional float TSR_Name_Value = 14;// value, like speed limit
+    // deprecated: use independent message to express 2d detection
+    // but still keep original observation in FN
+    optional float TSR_Lat_Pos_P = 15;//image coordinates,geometric center, x center
+    optional float TSR_Long_Pos_P = 16;//image coordinates,geometric center, y center
+    optional float TSR_Panel_Width_P =17;//image coordinates
+    optional float TSR_Panel_Height_P=18;//image coordinates
+    optional TSRColor TSR_Color =19;// color, reserved
+    optional float TSR_Confidence_Name =20;//0~1
+    optional float TSR_Confidence_Value =21;//0~1
+    optional float TSR_Relevancy_Value =22;//0~1
+    optional LaneAssign TSR_Lane_Assign = 23;  // relation with lane
+    optional float TSR_Lane_Assign_Prob = 24;//0~1
+    optional uint32 TSR_Is_Condition =25;//0-no，1-yes
+    optional TSRSubName TSR_Sub_Name =26;//Condition sign list
+    repeated SensorHeader sensors = 27; // input multi-sensors id && timestamp,(ns); sensor_ts means that the sensor-data measuresing time.
+    repeated float TSR_Dis_Roadedge = 28;//TSR相对LD_RE_ID的Roadedge横向距离,m,道路内横向距离为正，道路外横向距离为负
+    repeated uint32 TSR_LD_RE_ID = 29;//TSR_Dis_Roadedge是相对Roadedge横向距离的ID
+    // 2D detection result
+    repeated TrafficSign2D traffic_signs_nn = 30; // from model output
+    repeated TrafficSign2D traffic_signs = 31;    // with some post processing
+    optional bool has_bev_box = 32;// 判断当前Box条目是否有BEV结果
+    optional TSRBox3D bev_boxes_nn = 33;// 原始模型输出的BEV结果
+    optional TSRBox3D bev_boxes = 34;// 后处理后输出的BEV结果
+
+    enum TSRName{
+        TSRName_Unknown = 0;
+        TSRName_Numerical_LimitSpd_Max = 101;
+        TSRName_Numerical_LimitSpd_Min = 102;
+        TSRName_Numerical_Limit_Weight = 103;
+        TSRName_Numerical_Limit_Width = 104;
+        TSRName_Numerical_Limit_Height = 105;
+        TSRName_Numerical_Limit_Zones = 106;
+        reserved 107;
+        TSRName_Numerical_LimitCity_Max = 108;
+        TSRName_Numerical_LimitSpd_Max_Denmark = 111; //丹麦特殊最高限速
+        TSRName_Numerical_LimitSpd_Max_With_Arabic_Uae = 121;  //uae带有阿拉伯标识的限速牌
+        TSRName_Numerical_LimitSpd_Max_With_Car_Vehicle_Uae = 122; //uae带有轿车标识的限速牌
+        TSRName_Numerical_LimitSpd_Max_With_Two_Vehicle_Uae = 123; //uae双层限速牌
+        TSRName_Numerical_LimitSpd_Max_With_Other_Vehicle_Uae = 124; //uae非轿车标识的限速牌
+        TSRName_Numerical_LimitSpd_Cancel = 201;
+        TSRName_General_LimitSpd_Cancel = 202;
+        TSRName_Numerical_LimitZones_Cancel= 203;
+        TSRName_Numerical_LimitCity_Cancel = 204;
+        TSRName_Highway_Motorway_Entry = 211;
+        TSRName_Highway_Motorway_Exit = 212;
+        TSRName_Numerical_LimitSpd_Cancel_Denmark = 221; //丹麦特殊最高限速取消
+        TSRName_Forbid_Temp_Parking = 301;
+        TSRName_Forbid_Parking = 302;
+        TSRName_Forbid_Vehicle_Except_Motorcycle = 306; //禁机动车驶入
+        TSRName_Forbid_Straight =311;
+        TSRName_Forbid_Left =312;
+        TSRName_Forbid_Right =313;
+        TSRName_Forbid_Left_Right = 314;
+        TSRName_Forbid_Straight_Left = 315;
+        TSRName_Forbid_Straight_Right = 316;
+        TSRName_Forbid_Entry_veh = 322;
+        TSRName_Forbid_Honking = 323;
+        TSRName_Forbid_Around =324;
+        TSRName_Forbid_Stop_Sign = 341; // 停车让行
+        TSRName_Forbid_Oncomimg_T = 342;
+        TSRName_Forbid_Oncomimg_S = 343;
+        TSRName_Forbid_Yield_Sign =344; // 减速让行
+        TSRName_Forbid_Overtake =351; //禁止超车
+        TSRName_Forbid_Overtake_Cancel =352; // 取消禁止超车
+        TSRName_Forbid_Entry = 361;// 禁止驶入
+        TSRName_Warning_Pedestrian = 501;
+        TSRName_Warning_School = 502;
+        TSRName_Warning_Tunnel = 503;
+        TSRName_Warning_Danger = 504;
+        TSRName_Warning_Roadworks =511; //施工场景
+        TSRName_Warning_Fallingrocks_left = 512;
+        TSRName_Warning_Fallingrocks_Right = 513;
+        TSRName_Warning_Crossroads = 521;
+        TSRName_Warning_Junction_T = 522;
+        TSRName_Warning_Junction_Left = 523;
+        TSRName_Warning_Junction_Right = 524;
+        TSRName_Warning_Curve2_Right = 526;
+        TSRName_Warning_Curve2_Left = 527;
+        TSRName_Warning_Curve_N = 528;
+        TSRName_Warning_Slippery = 531;
+        TSRName_Warning_Narrows_Both = 532;
+        TSRName_Warning_Narrows_Right = 533;
+        TSRName_Warning_Narrows_Left = 534;
+        TSRName_Warning_Merging_Right = 535;
+        TSRName_Warning_Merging_Left = 536;
+        TSRName_Warning_Lane_Close_Right = 537;
+        TSRName_Warning_Lane_Close_Left = 538;
+        TSRName_Warning_Lane_Change_Right = 539;
+        TSRName_Warning_Lane_Change_Left = 540;
+        TSRName_Warning_Lane_Change_Both = 541;
+        TSRName_Warning_Detour_Left = 542;
+        TSRName_Warning_Detour_Right = 543;
+        TSRName_Warning_Detour_LR = 544;
+        TSRName_Warning_Slow = 545;
+        TSRName_Warning_Escape_Lane = 546;
+        TSRName_Warning_Rain = 551;
+        TSRName_Warning_Snow = 552;
+        TSRName_Warning_Fog = 553;
+        TSRName_Warning_Thunderstorm = 554;
+        TSRName_Warning_Reversible_Lane =555;
+
+        TSRName_Direct_Left_Only = 601;
+        TSRName_Direct_Right_Only = 602;
+        TSRName_Direct_Straight_Only = 603;
+        TSRName_Direct_Right_Left = 604;
+        TSRName_Direct_Around =605;
+        TSRName_Direct_Left_Side = 606;
+        TSRName_Direct_Right_Side = 607;
+        TSRName_Direct_Straight_Right = 608;
+        TSRName_Direct_Straight_Left = 609;
+        TSRName_Direct_U_Turn =610;
+        TSRName_Direct_Pedestrian =611;
+        TSRName_Direct_Junction_Priority = 621;
+        TSRName_Direct_Parking_Place = 622;
+        TSRName_Direct_Parking_Left = 623;
+        TSRName_Direct_Parking_Right = 624;
+        TSRName_Direct_Parking_Roadside = 625;
+        TSRName_Direct_Lane_Open_Right = 631;
+        TSRName_Direct_Lane_Open_Left = 632;
+        TSRName_Direct_Lane_Close_Right = 637;
+        TSRName_Direct_Lane_Close_Left = 638;
+
+        TSRName_PassLeftThrough = 639;
+        TSRName_PassRightThrough = 640;
+        TSRName_Under_Construction_PassLeftThrough = 641;
+        TSRName_Under_Construction_PassRightThrough = 642;
+        TSRName_Under_Construction_PassThrough = 643;
+        TSRName_Under_Construction_PassLeftThrough_Text = 644;
+        TSRName_Under_Construction_PassRightThrough_Text = 645;
+
+        TSRName_Comp_Sign = 700;
+        TSRName_Emergency_Exit = 709;
+        TSRName_ResidentialArea_Begin = 711;
+        TSRName_BicycleArea_Begin = 712;
+        TSRName_PedestrianArea_Begin = 713;
+        TSRName_City_Entry = 715;
+        TSRName_Expressway_Entry = 716;
+        TSRName_ResidentialArea_End = 811;
+        TSRName_BicycleArea_End = 812;
+        TSRName_PedestrianArea_End = 813;
+        TSRName_City_Exit = 815;
+        TSRName_Expressway_Exit = 816;
+        // 可变车道
+        TSRName_Variable_Lane_Up_Arrow = 821;
+        TSRName_Variable_Lane_Left_Arrow = 822;
+        TSRName_Variable_Lane_Right_Arrow = 823;
+        TSRName_Variable_Lane_Prohibit_Passage = 824; // 潮汐车道
+        TSRName_Direct_UTurn_Left_Lane = 825;
+        TSRName_Direct_Straight_Right_Lane = 826;
+        TSRName_Direct_Straight_Left_Lane = 827;
+        TSRName_Direct_UTurn_Lane = 828;
+        TSRName_Direct_Main_Aux_sign = 829;
+        // 公交车道
+        TSRName_Bus_Direct_Down_Arrow = 831;
+        TSRName_Bus_Direct_Left_Arrow = 832;
+        TSRName_Bus_Direct_Right_Arrow = 833;
+        TSRName_Bus_Direct_No_Arrow = 834;
+        // 非机动车道
+        TSRName_Bicycle_Down_Arrow = 841;
+        TSRName_Bicycle_Left_Arrow = 842;
+        TSRName_Bicycle_Right_Arrow = 843;
+        TSRName_Bicycle_No_Arrow = 844;
+
+        // 交通限制区域
+        TSRName_Traffic_Reduced_Area = 851;
+        TSRName_Traffic_Reduced_Area_Cancel = 852;
+        //公交红绿灯牌
+        TSRName_BusTrafficLight = 853; //公交红绿灯牌
+        TSRName_PassThrough = 854; 
+        TSRName_DirectOthers = 855;
+        TSRName_ForbidOthers = 856;
+        TSRName_WarningOthers = 857;
+        TSRName_BicycleOthers = 858;
+        TSRName_BusOthers = 859;
+        TSRName_VehicleOthers = 860;
+        TSRName_Vehicle_Left_Arrow = 861;
+        TSRName_Vehicle_Right_Arrow = 862;
+        TSRName_Vehicle_Down_Arrow = 863;
+        TSRName_Vehicle_No_Arrow = 864;
+        
+        reserved 910;
+        reserved 911;
+        reserved 912;
+        reserved 914;
+        reserved 915;
+        reserved 916;
+    }
+
+    enum TSRSubName{
+        TSRSubName_Default = 0;
+        TSRSubName_Undecipherable = 1;
+        TSRSubName_Time = 2;
+        TSRSubName_Rain = 3;
+        TSRSubName_Snow = 4;
+        TSRSubName_Fog = 5;
+        TSRSubName_Trailer = 6;
+        TSRSubName_Direction = 7;
+        TSRSubName_Distance = 8;
+        TSRSubName_Length = 9;
+        TSRSubName_Length_Direction = 10;
+        TSRSubName_Distance_Direction = 11;
+        TSRSubName_Stretch = 12;        
+    }
+
+    enum TSRShape{
+        TSRShape_Unknown = 0;
+        TSRShape_Circle = 1;
+        TSRShape_Rectangle = 2;
+        TSRShape_Triangular_Up = 3;
+        TSRShape_Triangular_Down = 4;
+        TSRShape_Reserve = 5;
+    }
+
+    enum TSRFilterType{
+        TSRFilterType_Unknown = 0;
+    }
+
+    enum TSRRelevancy{
+        TSRRelevancy_Unknown = 0;
+        TSRRelevancy_High = 1;
+        TSRRelevancy_None = 2;
+        TSRRelevancy_Reserve = 3;
+    }
+
+    enum TSRStructure{
+        TSRStructure_Unknown = 0;
+        TSRStructure_Normal = 1;
+        TSRStructure_Electronic  = 2;
+        TSRStructure_Variable = 3;
+    }
+    enum TSRColor{
+        TSRColor_Unknown = 0;
+        TSRColor_White = 1;
+        TSRColor_Yellow  = 2;
+        TSRColor_Blue = 3;
+    }
+    enum LaneAssign{
+        LaneAssign_Unknown = 0;
+        LaneAssign_Host_Lane = 1;
+        LaneAssign_Left_Lane = 2;
+        LaneAssign_Right_Lane = 3;
+        LaneAssign_Left_Left_Lane = 4;
+        LaneAssign_Right_Right_Lane = 5;
+        LaneAssign_Reserve2 = 6;
+    }
+    message TrafficSign2D {
+        optional SensorHeader sensor_header = 1; // measure time in ns
+        optional float cx = 2;
+        optional float cy = 3;
+        optional float width = 4;
+        optional float height = 5;
+        optional float depth = 6;
+        optional float alpha = 7;
+        optional TSRName type = 8;
+        optional float value = 9;
+        optional TSRShape shape = 10;
+        optional TSRColor color = 11;
+        optional TSRStructure structure = 12;
+        optional TSRRelevancy relevancy = 13;
+        optional float detection_conf = 14;
+        optional float type_conf = 15;
+        optional float value_conf = 16;
+        optional TSRBox3D mono_3d_box = 17;
+    }
+}
+
+message TSRBox3D {
+    optional float x = 1;
+    optional float y = 2;
+    optional float z = 3;
+    optional float h = 4;
+    optional float w = 5;
+    optional float l = 6;
+    optional float rotaion = 7; 
+    optional float pitch = 8; 
+    optional float yaw = 9; 
+    optional float alpha= 10;
+}
+
+message TrafficSignDetection{
+    optional uint64 timestamp = 1;//ptp time of perception result, unit: ns
+    repeated TrafficSign trafficsign = 2;
+    optional uint32 trafficsign_num = 3;//total numbers of traffic sign
+
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909; // uuid of the publisher
+    optional uint64 counter = 536870910;         // message counter
+    optional uint64 publish_ts = 536870911;    // publish utc timestamp; unit : nanosecond
+}

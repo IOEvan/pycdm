@@ -1,0 +1,65 @@
+syntax = "proto2"; 
+option cc_enable_arenas = true;
+       
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message PerceptionFimInfo{
+    optional bool FIM_IMU_Data_Error = 1;
+    optional bool FIM_Lidar_Data_Error = 2;
+    optional bool FIM_CAN_Data_Error = 3;
+    optional bool FIM_FW_Camera_Data_Error = 4;
+    optional bool FIM_FN_Camera_Data_Error = 5;
+    optional bool FIM_FL_Camera_Data_Error = 6;
+    optional bool FIM_FR_Camera_Data_Error = 7;
+    optional bool FIM_RL_Camera_Data_Error = 8;
+    optional bool FIM_RR_Camera_Data_Error = 9;
+    optional bool FIM_SVCLeft_Camera_Data_Error = 10;
+    optional bool FIM_SVCRight_Camera_Data_Error = 11;
+    optional bool FIM_SVCFront_Camera_Data_Error = 12;
+    optional bool FIM_SVCRear_Camera_Data_Error = 13;
+    optional bool FIM_RN_Camera_Data_Error = 14;
+    optional bool FIM_RTK_Data_Error = 15;
+    optional bool FIM_HDMAP_ERROR = 16;
+    optional FimInternalFaultResult FIM_NOP_Plus_Internal_Error = 17;
+    optional FimInternalFaultResult FIM_DA_Internal_Error = 18;
+    optional FimInternalFaultResult FIM_AEB_Internal_Error = 19;
+    optional FimInternalFaultResult FIM_ELK_Internal_Error = 20;
+    optional FimInternalFaultResult FIM_LKA_Internal_Error = 21;
+    optional FimInternalFaultResult FIM_EAS_Internal_Error = 22;
+    optional FimInternalFaultResult FIM_PASP_Internal_Error = 23;
+    optional FimInternalFaultResult FIM_SAPA_Internal_Error = 24;
+    optional bool FIM_IMU_Hw_Temporary_Error = 25;
+    optional bool FIM_IMU_Hw_Perpetual_Error = 26;
+    optional FimInternalFaultResult FIM_PSP_Internal_Error = 27; //psp app internal fault
+    optional FimInternalFaultResult FIM_RPS_Internal_Error = 28; //rps app internal fault
+    optional bool FIM_Reloc_General_Error = 29;
+    optional bool FIM_Global_Loc_General_Error = 30;
+    optional bool FIM_Perception_General_Error = 31;
+    optional bool FIM_Perception_Road_Error = 32;
+    optional bool FIM_Perception_OD_Error = 33;
+    optional bool FIM_Station_PSAP_Internal_Error = 34;
+    optional bool FIM_TrafficLight_Error = 35;
+    optional bool FIM_Left_Lidar_Data_Error = 36;
+    optional bool FIM_Right_Lidar_Data_Error = 37;
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;   // publish ptp timestamp, uint in nanosec
+    optional string publisher_id   = 536870909; // uuid of the publisher
+    optional uint64 counter        = 536870910;         // message counter
+    optional uint64 publish_ts     = 536870911;    // publish utc timestamp; unit : nanosecond
+}
+
+
+message FimInternalFaultResult {
+    optional bool Stop_Vehicle_Standstil              = 1;
+    optional bool Deactivate_Function                 = 2;
+    optional bool Lateral_Control_Suppression         = 3;
+    optional bool Longitudinal_Control_Suppression    = 4;
+    optional bool Lane_Change_Suppression             = 5;
+    optional bool Takeover_Warning                    = 6;
+    optional bool Attention_Warning                   = 7;
+    optional bool Insignificant                       = 8;
+}

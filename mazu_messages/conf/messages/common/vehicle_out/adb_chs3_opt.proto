@@ -1,0 +1,291 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+import "common/vehicle_in/adb_chs3_enum_type.proto";
+import "common/vehicle_out/adb_ads.proto";
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message AdbEnb{
+     optional AdbEnbMode GFAEnb = 1;                             //@Channel:CHS3_CANFD @Message:0x201 @Signal:GFA_Enable 
+}
+
+message ADBDarkAreaCtl{
+                repeated   float GFAHozlAgStrt       = 1;       //@Channel:CHS3_CANFD  @Message:0x201  @Signal:GFA1_HozlAgStrt 
+                                                                //@Channel:CHS3_CANFD  @Message:0x201  @Signal:GFA2_HozlAgStrt 
+                                                                //@Channel:CHS3_CANFD  @Message:0x201  @Signal:GFA3_HozlAgStrt
+                                                                //@Channel:CHS3_CANFD  @Message:0x201  @Signal:GFA4_HozlAgStrt 
+                                                                //@Channel:CHS3_CANFD  @Message:0x201  @Signal:GFA5_HozlAgStrt 
+                                                                //@Channel:CHS3_CANFD  @Message:0x204  @Signal:GFA6_HozlAgStrt 
+                                                                //@Channel:CHS3_CANFD  @Message:0x204  @Signal:GFA7_HozlAgStrt 
+                                                                //@Channel:CHS3_CANFD  @Message:0x202  @Signal:GFA8_HozlAgStrt 
+                                                                //@Channel:CHS3_CANFD  @Message:0x202  @Signal:GFA9_HozlAgStrt 
+                                                                //@Channel:CHS3_CANFD  @Message:0x202  @Signal:GFA10_HozlAgStrt 
+                                                                //@Channel:CHS3_CANFD  @Message:0x202  @Signal:GFA11_HozlAgStrt 
+                                                                //@Channel:CHS3_CANFD  @Message:0x202  @Signal:GFA12_HozlAgStrt 
+                                                                //@Channel:CHS3_CANFD  @Message:0x204  @Signal:GFA13_HozlAgStrt 
+                                                                //@Channel:CHS3_CANFD  @Message:0x204  @Signal:GFA14_HozlAgStrt 
+                                                                //@Channel:CHS3_CANFD  @Message:0x204  @Signal:GFA15_HozlAgStrt 
+                                                                //@Channel:CHS3_CANFD  @Message:0x203  @Signal:GFA16_HozlAgStrt 
+                                                                //@Channel:CHS3_CANFD  @Message:0x203  @Signal:GFA17_HozlAgStrt 
+                                                                //@Channel:CHS3_CANFD  @Message:0x203  @Signal:GFA18_HozlAgStrt                                                                
+                                                                //@Channel:CHS3_CANFD  @Message:0x203  @Signal:GFA19_HozlAgStrt 
+                                                                //@Channel:CHS3_CANFD  @Message:0x203  @Signal:GFA20_HozlAgStrt
+
+                repeated float GFAHozlAgEnd        = 2;        //@Channel:CHS3_CANFD   @Message:0x201  @Signal:GFA1_HozlAgEnd 
+                                                               //@Channel:CHS3_CANFD   @Message:0x201  @Signal:GFA2_HozlAgEnd               
+                                                               //@Channel:CHS3_CANFD   @Message:0x201  @Signal:GFA3_HozlAgEnd
+                                                               //@Channel:CHS3_CANFD   @Message:0x201  @Signal:GFA4_HozlAgEnd
+                                                               //@Channel:CHS3_CANFD   @Message:0x201  @Signal:GFA5_HozlAgEnd 
+                                                               //@Channel:CHS3_CANFD   @Message:0x204  @Signal:GFA6_HozlAgEnd
+                                                               //@Channel:CHS3_CANFD   @Message:0x204  @Signal:GFA7_HozlAgEnd               
+                                                               //@Channel:CHS3_CANFD   @Message:0x202  @Signal:GFA8_HozlAgEnd
+                                                               //@Channel:CHS3_CANFD   @Message:0x202  @Signal:GFA9_HozlAgEnd 
+                                                               //@Channel:CHS3_CANFD   @Message:0x202  @Signal:GFA10_HozlAgEnd                                                               
+                                                               //@Channel:CHS3_CANFD   @Message:0x202  @Signal:GFA11_HozlAgEnd               
+                                                               //@Channel:CHS3_CANFD   @Message:0x202  @Signal:GFA12_HozlAgEnd
+                                                               //@Channel:CHS3_CANFD   @Message:0x204  @Signal:GFA13_HozlAgEnd 
+                                                               //@Channel:CHS3_CANFD   @Message:0x204  @Signal:GFA14_HozlAgEnd 
+                                                               //@Channel:CHS3_CANFD   @Message:0x204  @Signal:GFA15_HozlAgEnd               
+                                                               //@Channel:CHS3_CANFD   @Message:0x203  @Signal:GFA16_HozlAgEnd
+                                                               //@Channel:CHS3_CANFD   @Message:0x203  @Signal:GFA17_HozlAgEnd 
+                                                               //@Channel:CHS3_CANFD   @Message:0x203  @Signal:GFA18_HozlAgEnd 
+                                                               //@Channel:CHS3_CANFD   @Message:0x203  @Signal:GFA19_HozlAgEnd               
+                                                               //@Channel:CHS3_CANFD   @Message:0x203  @Signal:GFA20_HozlAgEnd
+
+                repeated float GFAVertAgStrt       = 3;        //@Channel:CHS3_CANFD   @Message:0x201  @Signal:GFA1_VertAgStrt
+                                                               //@Channel:CHS3_CANFD   @Message:0x201  @Signal:GFA2_VertAgStrt               
+                                                               //@Channel:CHS3_CANFD   @Message:0x201  @Signal:GFA3_VertAgStrt
+                                                               //@Channel:CHS3_CANFD   @Message:0x201  @Signal:GFA4_VertAgStrt
+                                                               //@Channel:CHS3_CANFD   @Message:0x201  @Signal:GFA5_VertAgStrt 
+                                                               //@Channel:CHS3_CANFD   @Message:0x204  @Signal:GFA6_VertAgStrt
+                                                               //@Channel:CHS3_CANFD   @Message:0x204  @Signal:GFA7_VertAgStrt              
+                                                               //@Channel:CHS3_CANFD   @Message:0x202  @Signal:GFA8_VertAgStrt
+                                                               //@Channel:CHS3_CANFD   @Message:0x202  @Signal:GFA9_VertAgStrt 
+                                                               //@Channel:CHS3_CANFD   @Message:0x202  @Signal:GFA10_VertAgStrt                                                               
+                                                               //@Channel:CHS3_CANFD   @Message:0x202  @Signal:GFA11_VertAgStrt               
+                                                               //@Channel:CHS3_CANFD   @Message:0x202  @Signal:GFA12_VertAgStrt
+                                                               //@Channel:CHS3_CANFD   @Message:0x204  @Signal:GFA13_VertAgStrt 
+                                                               //@Channel:CHS3_CANFD   @Message:0x204  @Signal:GFA14_VertAgStrt 
+                                                               //@Channel:CHS3_CANFD   @Message:0x204  @Signal:GFA15_VertAgStrt               
+                                                               //@Channel:CHS3_CANFD   @Message:0x203  @Signal:GFA16_VertAgStrt
+                                                               //@Channel:CHS3_CANFD   @Message:0x203  @Signal:GFA17_VertAgStrt
+                                                               //@Channel:CHS3_CANFD   @Message:0x203  @Signal:GFA18_VertAgStrt 
+                                                               //@Channel:CHS3_CANFD   @Message:0x203  @Signal:GFA19_VertAgStrt               
+                                                               //@Channel:CHS3_CANFD   @Message:0x203  @Signal:GFA20_VertAgStrt
+
+                repeated float GFAVertAgEnd        = 4;        //@Channel:CHS3_CANFD   @Message:0x201  @Signal:GFA1_VertAgEnd
+                                                               //@Channel:CHS3_CANFD   @Message:0x201  @Signal:GFA2_VertAgEnd              
+                                                               //@Channel:CHS3_CANFD   @Message:0x201  @Signal:GFA3_VertAgEnd
+                                                               //@Channel:CHS3_CANFD   @Message:0x201  @Signal:GFA4_VertAgEnd
+                                                               //@Channel:CHS3_CANFD   @Message:0x201  @Signal:GFA5_VertAgEnd 
+                                                               //@Channel:CHS3_CANFD   @Message:0x204  @Signal:GFA6_VertAgEnd
+                                                               //@Channel:CHS3_CANFD   @Message:0x204  @Signal:GFA7_VertAgEnd              
+                                                               //@Channel:CHS3_CANFD   @Message:0x202  @Signal:GFA8_VertAgEnd
+                                                               //@Channel:CHS3_CANFD   @Message:0x202  @Signal:GFA9_VertAgEnd 
+                                                               //@Channel:CHS3_CANFD   @Message:0x202  @Signal:GFA10_VertAgEnd                                                               
+                                                               //@Channel:CHS3_CANFD   @Message:0x202  @Signal:GFA11_VertAgEnd               
+                                                               //@Channel:CHS3_CANFD   @Message:0x202  @Signal:GFA12_VertAgEnd 
+                                                               //@Channel:CHS3_CANFD   @Message:0x204  @Signal:GFA13_VertAgEnd  
+                                                               //@Channel:CHS3_CANFD   @Message:0x204  @Signal:GFA14_VertAgEnd  
+                                                               //@Channel:CHS3_CANFD   @Message:0x204  @Signal:GFA15_VertAgEnd                
+                                                               //@Channel:CHS3_CANFD   @Message:0x203  @Signal:GFA16_VertAgEnd 
+                                                               //@Channel:CHS3_CANFD   @Message:0x203  @Signal:GFA17_VertAgEnd 
+                                                               //@Channel:CHS3_CANFD   @Message:0x203  @Signal:GFA18_VertAgEnd  
+                                                               //@Channel:CHS3_CANFD   @Message:0x203  @Signal:GFA19_VertAgEnd                
+                                                               //@Channel:CHS3_CANFD   @Message:0x203  @Signal:GFA20_VertAgEnd 
+
+                repeated uint32 GFADimValue        = 5;        //@Channel:CHS3_CANFD   @Message:0x201  @Signal:GFA1_DimValue
+                                                               //@Channel:CHS3_CANFD   @Message:0x201  @Signal:GFA2_DimValue
+                                                               //@Channel:CHS3_CANFD   @Message:0x201  @Signal:GFA3_DimValue                
+                                                               //@Channel:CHS3_CANFD   @Message:0x201  @Signal:GFA4_DimValue
+                                                               //@Channel:CHS3_CANFD   @Message:0x201  @Signal:GFA5_DimValue 
+                                                               //@Channel:CHS3_CANFD   @Message:0x204  @Signal:GFA6_DimValue
+                                                               //@Channel:CHS3_CANFD   @Message:0x204  @Signal:GFA7_DimValue              
+                                                               //@Channel:CHS3_CANFD   @Message:0x202  @Signal:GFA8_DimValue
+                                                               //@Channel:CHS3_CANFD   @Message:0x202  @Signal:GFA9_DimValue 
+                                                               //@Channel:CHS3_CANFD   @Message:0x202  @Signal:GFA10_DimValue                                                               
+                                                               //@Channel:CHS3_CANFD   @Message:0x202  @Signal:GFA11_DimValue               
+                                                               //@Channel:CHS3_CANFD   @Message:0x202  @Signal:GFA12_DimValue
+                                                               //@Channel:CHS3_CANFD   @Message:0x204  @Signal:GFA13_DimValue 
+                                                               //@Channel:CHS3_CANFD   @Message:0x204  @Signal:GFA14_DimValue 
+                                                               //@Channel:CHS3_CANFD   @Message:0x204  @Signal:GFA15_DimValue               
+                                                               //@Channel:CHS3_CANFD   @Message:0x203  @Signal:GFA16_DimValue
+                                                               //@Channel:CHS3_CANFD   @Message:0x203  @Signal:GFA17_DimValue
+                                                               //@Channel:CHS3_CANFD   @Message:0x203  @Signal:GFA18_DimValue 
+                                                               //@Channel:CHS3_CANFD   @Message:0x203  @Signal:GFA19_DimValue               
+                                                               //@Channel:CHS3_CANFD   @Message:0x203  @Signal:GFA20_DimValue
+
+                repeated float GFADimSpeed         = 6;         //@Channel:CHS3_CANFD  @Message:0x201  @Signal:GFA1_DimSpeed
+                                                               //@Channel:CHS3_CANFD   @Message:0x201  @Signal:GFA2_DimSpeed             
+                                                               //@Channel:CHS3_CANFD   @Message:0x201  @Signal:GFA3_DimSpeed
+                                                               //@Channel:CHS3_CANFD   @Message:0x201  @Signal:GFA4_DimSpeed
+                                                               //@Channel:CHS3_CANFD   @Message:0x201  @Signal:GFA5_DimSpeed
+                                                               //@Channel:CHS3_CANFD   @Message:0x204  @Signal:GFA6_DimSpeed 
+                                                               //@Channel:CHS3_CANFD   @Message:0x204  @Signal:GFA7_DimSpeed              
+                                                               //@Channel:CHS3_CANFD   @Message:0x202  @Signal:GFA8_DimSpeed
+                                                               //@Channel:CHS3_CANFD   @Message:0x202  @Signal:GFA9_DimSpeed 
+                                                               //@Channel:CHS3_CANFD   @Message:0x202  @Signal:GFA10_DimSpeed                                                               
+                                                               //@Channel:CHS3_CANFD   @Message:0x202  @Signal:GFA11_DimSpeed              
+                                                               //@Channel:CHS3_CANFD   @Message:0x202  @Signal:GFA12_DimSpeed
+                                                               //@Channel:CHS3_CANFD   @Message:0x204  @Signal:GFA13_DimSpeed 
+                                                               //@Channel:CHS3_CANFD   @Message:0x204  @Signal:GFA14_DimSpeed 
+                                                               //@Channel:CHS3_CANFD   @Message:0x204  @Signal:GFA15_DimSpeed              
+                                                               //@Channel:CHS3_CANFD   @Message:0x203  @Signal:GFA16_DimSpeed
+                                                               //@Channel:CHS3_CANFD   @Message:0x203  @Signal:GFA17_DimSpeed
+                                                               //@Channel:CHS3_CANFD   @Message:0x203  @Signal:GFA18_DimSpeed
+                                                               //@Channel:CHS3_CANFD   @Message:0x203  @Signal:GFA19_DimSpeed               
+                                                               //@Channel:CHS3_CANFD   @Message:0x203  @Signal:GFA20_DimSpeed   
+
+                repeated AdbModeType_e GFASetMode  = 7;        //@Channel:CHS3_CANFD   @Message:0x201  @Signal:GFA1_Mode
+                                                               //@Channel:CHS3_CANFD   @Message:0x201  @Signal:GFA2_Mode               
+                                                               //@Channel:CHS3_CANFD   @Message:0x201  @Signal:GFA3_Mode
+                                                               //@Channel:CHS3_CANFD   @Message:0x201  @Signal:GFA4_Mode
+                                                               //@Channel:CHS3_CANFD   @Message:0x201  @Signal:GFA5_Mode
+                                                               //@Channel:CHS3_CANFD   @Message:0x204  @Signal:GFA6_Mode
+                                                               //@Channel:CHS3_CANFD   @Message:0x204  @Signal:GFA7_Mode             
+                                                               //@Channel:CHS3_CANFD   @Message:0x202  @Signal:GFA8_Mode
+                                                               //@Channel:CHS3_CANFD   @Message:0x202  @Signal:GFA9_Mode
+                                                               //@Channel:CHS3_CANFD   @Message:0x202  @Signal:GFA10_Mode                                                               
+                                                               //@Channel:CHS3_CANFD   @Message:0x202  @Signal:GFA11_Mode               
+                                                               //@Channel:CHS3_CANFD   @Message:0x202  @Signal:GFA12_Mode
+                                                               //@Channel:CHS3_CANFD   @Message:0x204  @Signal:GFA13_Mode
+                                                               //@Channel:CHS3_CANFD   @Message:0x204  @Signal:GFA14_Mode
+                                                               //@Channel:CHS3_CANFD   @Message:0x204  @Signal:GFA15_Mode              
+                                                               //@Channel:CHS3_CANFD   @Message:0x203  @Signal:GFA16_Mode
+                                                               //@Channel:CHS3_CANFD   @Message:0x203  @Signal:GFA17_Mode
+                                                               //@Channel:CHS3_CANFD   @Message:0x203  @Signal:GFA18_Mode 
+                                                               //@Channel:CHS3_CANFD   @Message:0x203  @Signal:GFA19_Mode               
+                                                               //@Channel:CHS3_CANFD   @Message:0x203  @Signal:GFA20_Mode 
+
+                repeated uint32 GFADistnce  = 8;               //@Channel:CHS3_CANFD   @Message:0x201  @Signal:GFA1_Dist
+                                                               //@Channel:CHS3_CANFD   @Message:0x201  @Signal:GFA2_Dist              
+                                                               //@Channel:CHS3_CANFD   @Message:0x201  @Signal:GFA3_Dist
+                                                               //@Channel:CHS3_CANFD   @Message:0x201  @Signal:GFA4_Dist
+                                                               //@Channel:CHS3_CANFD   @Message:0x201  @Signal:GFA5_Dist
+                                                               //@Channel:CHS3_CANFD   @Message:0x204  @Signal:GFA6_Dist
+                                                               //@Channel:CHS3_CANFD   @Message:0x204  @Signal:GFA7_Dist            
+                                                               //@Channel:CHS3_CANFD   @Message:0x202  @Signal:GFA8_Dist
+                                                               //@Channel:CHS3_CANFD   @Message:0x202  @Signal:GFA9_Dist
+                                                               //@Channel:CHS3_CANFD   @Message:0x202  @Signal:GFA10_Dist                                                              
+                                                               //@Channel:CHS3_CANFD   @Message:0x202  @Signal:GFA11_Dist               
+                                                               //@Channel:CHS3_CANFD   @Message:0x202  @Signal:GFA12_Dist
+                                                               //@Channel:CHS3_CANFD   @Message:0x204  @Signal:GFA13_Dist
+                                                               //@Channel:CHS3_CANFD   @Message:0x204  @Signal:GFA14_Dist
+                                                               //@Channel:CHS3_CANFD   @Message:0x204  @Signal:GFA15_Dist              
+                                                               //@Channel:CHS3_CANFD   @Message:0x203  @Signal:GFA16_Dist
+                                                               //@Channel:CHS3_CANFD   @Message:0x203  @Signal:GFA17_Dist
+                                                               //@Channel:CHS3_CANFD   @Message:0x203  @Signal:GFA18_Dist
+                                                               //@Channel:CHS3_CANFD   @Message:0x203  @Signal:GFA19_Dist               
+                                                               //@Channel:CHS3_CANFD   @Message:0x203  @Signal:GFA20_Dist
+}
+
+// @begin segscope: NT3
+message CarpetCtrlIf{
+    optional float CarpetShapeFa      = 1;
+    optional float CarpetShapeFb      = 2;
+    optional float CarpetShapeFc      = 3;
+    optional float CarpetShapeFd      = 4;
+    optional uint32 ProjectStartPoint = 5;
+    optional uint32 ProjectEndPoint   = 6;
+    optional float CarpetWidthReq     = 7;
+    optional uint32 AdjustMethod      = 8; //0 smart light carpet normal  1 smart light carpet dynamic
+    optional uint32 SlcWtiSet         = 9;
+}
+
+message CarpetSlcFunIf{
+    enum SlcPedReminder_e{
+        NO_REMINDER               = 0;
+        NEAR_DISTANCE_REMINDER    = 1;
+        MEDMIUM_DISTANCE_REMINDER = 2;
+        FAR_DISTANCE_REMINDER     = 3;
+    }
+    optional SlcPedReminder_e PedReminderMode = 1;
+    
+    enum SlcLengthAllow_e{
+        NO_SLC_ALLOW     = 0;
+        SHORT_SLC_ALLOW  = 1;
+        MEDIUM_SLC_ALLOW = 2;
+        LONG_SLC_ALLOW   = 3;
+    }
+    optional SlcLengthAllow_e CarpetLengthAllow = 2;
+
+    enum SlcLengthSwMode_e{
+        SOFT_SWITCH = 0;
+        HARD_SWITCH = 1;
+    }
+    optional SlcLengthSwMode_e CarpetLengthSwitch = 3;
+
+    optional bool PedRemHazardReq = 4;
+}
+
+message ReqSmartCarpetLi{
+    optional uint32 animt_li_set_2           = 1;
+    optional float smart_carpet_angle_le_req = 2;
+    optional float smart_carpet_angle_ri_req = 3;
+    optional uint32 smart_carpet_display_req = 4;
+    optional uint32 smart_carpet_length_req  = 5;
+    optional bool slc_completed_set          = 6;
+    optional int32  LampHeadOnVal            = 7;
+    optional uint32 animt_li_set_3           = 8;
+    optional uint32 li_interaction_project_set = 9;
+}
+
+message AdbCtrlIf{
+    enum LampLvlgModSetIn_e {
+        LAMP_LVLG_MOD_NO_REQ   = 0;
+        LAMP_LVLG_MOD_AUTO     = 1;
+        LAMP_LVLG_MOD_NEAREST  = 2;
+        LAMP_LVLG_MOD_NEARER   = 3;
+        LAMP_LVLG_MOD_FARTHER  = 4;
+        LAMP_LVLG_MOD_FARTHEST = 5;
+    }
+    optional LampLvlgModSetIn_e LampLvlgModSetIn = 1;
+    optional uint32 SmartLiCarpetSetIn      = 2;
+    optional bool IndvAfsErrorStsIn         = 3;
+    optional bool ActvofAdbIn               = 4;
+    optional uint32 AdbSet                  = 5;
+}
+
+message AdvAnimatMsgSetMsg{
+    optional uint32 indv_slc_work_sts  = 1;
+    optional uint32 indv_lip_work_sts  = 2;
+    optional uint32 indv_aph_work_sts  = 3;
+    optional uint32 adv_animat_msg_set = 4;
+}
+
+message LightingWelcomeOutIf{
+        optional string preview_uuid = 1;
+        optional uint32 preview_sts = 2;
+        optional string request_uuid = 3;
+        optional uint32 execution_sts = 4;     //interface: LeApplyStsMsg
+        optional string applied_uuid = 5;
+        repeated string effect_list = 6;
+        repeated string effect_url = 7;
+        optional uint32 execution_sts_sec = 8;   //interface:LeupdateStsMsg
+        optional string lighting_game_id = 9;    //interface:LightingGameSts
+        optional uint32 game_execution_sts = 10;
+    }
+// @end segscope: NT3
+
+message GFAMsg{
+    optional AdbEnb gfaEnable = 1;
+    optional ADBDarkAreaCtl AdbGFActrl = 2;
+    optional ADBCurStatus ADBStatus = 3; //ADB status to ADAS CAN
+// @begin segscope: NT3
+    optional CarpetCtrlIf CarpetCtrlCmd     = 4;
+    optional CarpetSlcFunIf CarpetSlcFunCmd = 5;
+    optional ReqSmartCarpetLi ReqSmartCarpetCmd = 6;
+    optional AdbCtrlIf        AdbCtrlIfCmd      = 7;
+    optional AdvAnimatMsgSetMsg AdvAnimatMsgSet = 8;
+    optional LightingWelcomeOutIf LightingWelcomeOut = 9;
+// @end segscope: NT3
+
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;   // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909;     // uuid of the publisher
+    optional uint64 counter = 536870910;         // message counter
+    optional uint64 publish_ts = 536870911;      // publish utc timestamp; unit : nanosecond
+}

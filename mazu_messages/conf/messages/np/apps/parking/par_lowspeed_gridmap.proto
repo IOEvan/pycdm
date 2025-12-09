@@ -1,0 +1,78 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message LowSpeedGrid {
+
+    message Vector3d {
+        optional double x = 1;
+        optional double y = 2;
+        optional double z = 3;
+    }
+
+    enum GridType {
+        GRIDTYPE_UNKNOWN = 0;
+        GRIDTYPE_WALL = 1;
+        GRIDTYPE_CURB = 2;
+        GRIDTYPE_CONE = 3;
+        GRIDTYPE_BUSH = 4;
+        GRIDTYPE_VEHICLE = 5;
+        GRIDTYPE_OTHER = 6; // barrier, water horse, anti-collision_bucket, pole tree-trunk, etc  
+        GRIDTYPE_PILLAR = 7;
+        GRIDTYPE_VRU = 8;
+    }
+
+    optional Vector3d position = 1;
+    optional double min_height = 2;
+    optional double max_height = 3;
+    optional uint32 source = 4; // bit0 for vocc, bit1 for lidar, bit2 for uss
+                                // 1 | 001: only vocc; 
+                                // 2 | 010: only lidar; 
+                                // 3 | 011: lidar & occ; 
+                                // 4 | 100: only uss;
+    optional GridType grid_type = 5;  
+
+}
+
+message ObservableMap {
+    message Vector3d {
+        optional double x = 1;
+        optional double y = 2;
+        optional double z = 3;
+    }
+
+    message Quaterniond {
+        optional double x = 1;
+        optional double y = 2;
+        optional double z = 3;
+        optional double w = 4;
+    }
+
+    // grids are flattened in row-major order
+    // every bit represent for a grid, 1 means observable, 0 means unobservable
+    optional bytes grids = 1;
+    // meta info
+    optional uint32 map_width = 2;
+    optional uint32 map_height = 3;
+    optional float map_resolution = 4; // meters
+    // observable map is in odometry frame
+    // convert to ego coordinate frame by vehicle pose
+    optional Vector3d odometry_to_ego_translation = 5;
+    optional Quaterniond odometry_to_ego_rotation = 6;
+}
+
+message LowSpeedGridMap {
+    repeated LowSpeedGrid grids = 1;
+
+    optional uint64 timestamp = 2;
+    optional ObservableMap observable_map = 3;
+    
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909; // uuid of the publisher
+    optional uint64 counter = 536870910; // message counter
+    optional uint64 publish_ts = 536870911; // publish utc timestamp; unit : nanosecond
+}

@@ -1,0 +1,33 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+enum AD_TYPE {
+    NP = 0;
+    NAD = 1; 
+}
+
+
+message LaneSegmentAD {
+  enum WeatherList {
+    RAIN = 0;
+    FOG = 1;
+    SNOW = 2;
+    SUNNY = 3;
+    CLOUD = 4;
+    FORST = 5;
+  }
+  optional uint64 id = 1;
+  optional double start_longitude = 2;   //Longitude [degree].
+  optional double start_latitude = 3;    //Latitude [degree].
+  optional double end_longitude = 4;     //Longitude [degree].
+  optional double end_latitude = 5;      //Latitude [degree].
+  optional WeatherList weather = 6;
+  optional double speed_limit = 7;      //m/s
+  optional double valid_start_time = 8; //hhmmss, 24 hours
+  optional double valid_end_time = 9;   //hhmmss, 24 hours
+  optional AD_TYPE type = 10;
+}
+
+

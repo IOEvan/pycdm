@@ -1,0 +1,161 @@
+// @filescope: NT3
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+import "common/perception/imaging_radar_base.proto";
+
+message ImagRadSwVersion {
+  optional string radar_sw_version  = 1;
+  optional string sdk_sw_version    = 2;
+}
+
+message ImagRadDumpReg {
+  repeated uint64 dump_reg  = 1;
+}
+
+message ImagRadBlindness {
+  optional bool valid           = 1;
+  optional float blindness_prob = 2;
+}
+
+message ImgRadActFault {
+  optional uint32 fault_num  = 1;
+  repeated uint32 fault_code = 2;
+  // optional bool hold_flag = 3;     // if fault_code are the same between frames, hold_flag==0, else hold_flag==1
+}
+
+message ImgRadActFaultSummarycode {
+    optional bool blindness_detected       = 1;
+    optional bool internal_fault_0         = 2;
+    optional bool alignment_incomplete     = 3;
+    optional bool alignment_out_of_range   = 4;
+    optional bool voltage_above_threshold  = 5;
+    optional bool voltage_below_threshold  = 6;
+    optional bool over_temperature         = 7;
+    optional bool missing_CCC_msg          = 8;
+    optional bool invalid_CCC_msg          = 9;
+    optional bool missing_ZONE_msg         = 10;
+    optional bool invalid_ZONE_msg         = 11;
+    optional bool internal_fault_1         = 12;
+    optional bool internal_fault_2         = 13;
+    repeated bool rsv                      = 14;
+    optional bool radar_data_invalid       = 15;
+    optional bool radar_version_mismatch   = 16;
+}
+
+message ImgRadActFaultSummary {
+  optional ImgRadActFaultSummarycode fault_summary_code = 1;
+  // optional bool hold_flag = 3;     // if fault_code are the same between frames, hold_flag==0, else hold_flag==1
+}
+
+message ImgRadLog {
+  repeated uint64 radar_log = 1;
+}
+
+message ImagRadSycData {
+  optional uint32 ptp_sync_status       = 1;
+  optional uint32 frame_sync_status     = 2;
+  optional bool chirp_sync_mode         = 3;
+  optional uint32 target_time_us        = 4;
+  optional uint32 short_chirp_center_us = 5;
+  optional uint32 long_chirp_center_us  = 6;
+  optional uint32 sync_step_us          = 7;
+  optional uint32 boot_to_sync_time_us  = 8;
+  optional uint32 sync_cost_time_us     = 9;
+  optional uint64 sync_start_time_us    = 10;
+}
+
+message ImgRadVolInfo {
+  optional uint32 vol_input   = 1;
+  optional uint32 vol_SBC_4V1 = 2;
+  optional uint32 vol_SBC_3V3 = 3;
+  optional uint32 vol_SBC_1V8 = 4;
+  repeated uint32 MMIC_2V3    = 5;
+}
+
+message ImgRadTempInfo {
+  optional int32 temp_SOC   = 1; //real_temperature
+  optional int32 temp_SBC   = 2; //real_temperature
+  optional int32 temp_PMIC  = 3; //real_temperature
+  optional int32 temp_MMIC  = 4; //real_temperature
+}
+
+message ImgRadResourceInfo {
+  optional uint32 CPU_load_M_core =1;
+  optional uint32 CPU_load_A_core =2;
+  optional uint32 stack_used_max  =3;
+  optional uint32 stack_ID        =4;
+}
+
+message ImgRadKeyMonitorInfo {
+  optional bool is_useful = 1;
+  optional ImgRadVolInfo vol_info = 2;
+  optional ImgRadTempInfo temp_info = 3;
+  optional ImgRadResourceInfo resource_info = 4;
+}
+
+message ImgRadDropDetect {
+  optional bool is_dropped = 1;//0-nodropped 1-dropped
+  optional uint32 drop_prob = 2;//dropratio
+  optional uint32 rsv = 3;
+}
+
+message ImagRadHwVersion {
+  optional string formal_hw_ver  = 1;
+  optional string local_hw_ver   = 2;
+  optional string radar_hw_pn    = 3;
+}
+
+message ImgRadKeyModuleStatus {
+  optional int64 gPTP_TS_deviation_ns = 1;
+  optional uint64 power_off_act_status = 2;//0-not ready, 1-ready, 2-timeout
+}
+
+message ImgRadFlsCnt {
+  repeated uint32 fls_count = 1;
+}
+
+message ImgRadMisaAlertMem {
+   repeated float yaw_array              = 1;
+   repeated float pitch_array            = 2;
+   optional uint32 yaw_final_judge_flag   = 3;
+   optional uint32 pitch_final_judge_flag = 4;
+}
+
+message ImgRadErrorReason {
+  repeated uint32 err_reason             = 1;
+}
+
+message ImagingRadarSystem {
+  optional uint32 vehicle_code                     = 1;
+  optional ImgRadCaliInfo calibration_info         = 2;
+  optional ImgRadActFault act_fault                = 3;
+  optional ImgRadHeader head                       = 4;
+  optional ImgRadVehTypeInfo veh_type_info         = 5;
+  optional ImagRadSwVersion sw_version             = 6;
+  optional ImagRadDumpReg dump_reg_list            = 7;
+  optional ImagRadBlindness blindness              = 8;
+  optional ImagRadSycData syc_status               = 9;
+  optional ImgRadActFaultSummary fault_summary     = 10;
+  optional ImgRadLog radar_log                     = 11;
+  optional uint32 isvalid                          = 12;
+  optional ImgRadKeyMonitorInfo key_monitor_info   = 13;
+  optional ImgRadDropDetect drop_detect_data       = 14;
+  optional ImagRadHwVersion hw_version             = 15;
+  optional ImgRadKeyModuleStatus key_module_status = 16;
+  optional ImgRadInvalidReason invalid_reason      = 17;
+  optional ImgRadFlsCnt fls_count                  = 18;
+  optional ImgRadMisaAlertMem misa_alert_mem       = 19;
+  optional ImgRadErrorReason err_reason            = 20;
+
+  optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin   
+  optional SensorTSHeader sensor_original_ts  = 536870906;  // sensor original ts
+  optional uint64 publish_ptp_ts              = 536870907;  // publish ptp timestamp, uint in nanosec
+  optional string publisher_id                = 536870909;  // uuid of the publisher
+  optional uint64 counter                     = 536870910;  // message counter
+  optional uint64 publish_ts                  = 536870911;  // publish utc timestamp; unit : nanosecond
+}

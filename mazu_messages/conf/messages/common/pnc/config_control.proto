@@ -1,0 +1,141 @@
+
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+message PidParam {
+  // pid param
+  optional float kp = 1;
+  optional float ki = 2;
+  optional float kd = 3;
+  // 2dof pid param
+  optional float kt = 4;
+  optional float wp = 5;
+  optional float tau = 6;
+  // integral saturation
+  optional float saturation = 7;
+}
+
+message CurveFittingParam {
+  // fitting coefficient
+  optional float a1 = 1;
+  optional float a2 = 2;
+  optional float a3 = 3;
+  optional float a4 = 4;
+  optional float a5 = 5;
+  optional float a6 = 6;
+}
+
+message CoastFittingParam {
+  // fitting coefficient
+  // used to clarify throttle/brake switching acceleration
+  optional float a1 = 1;
+  optional float a2 = 2;
+  optional float a3 = 3;
+  optional float lower_speed = 4;
+  optional float upper_speed = 5;
+}
+
+message PreviewPoint {
+  optional float slope = 1;
+  optional float slope_high_speed = 2;
+  optional float vel_low = 3;
+  optional float vel_up = 4;
+}
+
+message AdaptiveCruiseParam {
+  // determine the relative distance under dynamic case
+  optional float headway_time = 1 [default = 3.0];
+  // control parameters that determines the gain, cut-off frequency
+  optional float k1 = 2 [default = 0.3];
+  optional float k1_low_speed = 3 [default = 0.1];
+  optional float k1_emergency = 4 [default = 0.4];
+  optional float k2 = 5 [default = 0.042];
+  optional float k3 = 6 [default = 12.0];
+  optional float cd = 7 [default = 4.0];
+  // the relative distance under stationary case
+  optional float stand_still = 8 [default = 4.0];
+  // the emergency safety distance under stationary case
+  optional float safety_region = 9 [default = 0.0];
+  // the deceleration under emergency case
+  optional float emergency_acc = 10 [default = -1.0];
+  optional bool acc_function_on = 11 [default = false];
+  optional float k1_slew_rate = 12 [default = 0.1];
+}
+
+message ConfigControlLat {
+  optional float forward_len = 1;
+
+  // feedback preview points
+  repeated PreviewPoint fb_preview_points = 2;
+
+  // feedforward preview points
+  repeated PreviewPoint ff_preview_points = 3;
+
+  optional PidParam fb_pid_param = 4;
+
+  optional float ff_gain = 5;
+
+  optional float fb_gain = 6;
+
+  optional float fb_gain_high_speed = 7;
+
+  optional float slope_slew_rate = 8;
+
+  optional float gain_slew_rate = 9;
+}
+
+message ConfigControlLon {
+  optional PidParam vel_pid_param = 1;
+  optional AdaptiveCruiseParam adaptive_cruise_param = 2;
+  optional PidParam acc_throttle_pid_param = 3;
+  optional PidParam acc_brake_pid_param = 4;
+  optional CurveFittingParam throttle_fitting_param = 5;
+  optional CurveFittingParam brake_fitting_param = 6;
+  optional CoastFittingParam coast_fitting_param = 7;
+  optional float acc_ff_gain = 8;
+  optional float mild_speed_fb_gain = 9;
+  optional bool use_simulator = 10 [packed = false];
+}
+
+message ConfigControlLqr {
+  optional float max_iteration = 1;
+  optional float eps = 2;
+  repeated float matrix_q = 3 [packed = true];
+}
+
+message ConfigControlMpc {
+  optional double param_verbose = 1;
+  optional double param_max_iters = 2;
+  optional double param_eps = 3;
+  optional double param_resid_tol = 4;
+
+  optional double l = 5;
+  optional double np = 6;
+  repeated double matrix_r = 7 [packed = true];
+  repeated double matrix_q = 8 [packed = true];
+}
+
+message ConfigControlPid {
+  optional double forward_len = 1;
+
+  // feedback preview points
+  repeated PreviewPoint fb_preview_points = 2;
+
+  // feedforward preview points
+  repeated PreviewPoint ff_preview_points = 3;
+
+  optional PidParam fb_pid_param = 4;
+
+  optional double ff_gain = 5;
+
+  optional double fb_gain = 6;
+
+  optional double fb_gain_high_speed = 7;
+
+  optional double slope_slew_rate = 8;
+
+  optional double gain_slew_rate = 9;
+}

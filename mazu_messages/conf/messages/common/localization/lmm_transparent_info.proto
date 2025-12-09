@@ -1,0 +1,11 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+message LMMTransparentInfo {
+  optional uint64 timestamp_utc_ns = 1; // Globally defined time. [nano second]
+  optional uint64 timestamp_ptp_ns = 2; // Globally defined ptp time. [nano second]
+  optional float cross_layer_proportion = 3; // valid value [0:1], invalid result: -1
+  optional int32 global_floor_id = 4; // -100: invalid, -3xx: uphills, -2xx: downhills
+}

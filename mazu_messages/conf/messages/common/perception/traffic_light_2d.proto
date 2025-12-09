@@ -1,0 +1,129 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+import "common/perception/tld_raw.proto";
+
+message TLD_List{
+    optional uint32 sensor_id = 1;  // refer to: https://ad-gitlab.nioint.com/ad/perception/engineering/internal/argus_post_common/-/blob/master/include/argus_post_common/data_structure/common/sensors.h
+    optional TLDType TLD_Type = 2;
+    optional TLDColor TLD_Color = 3;
+    optional uint32 TLD_Status = 4; //0：常亮, 1：闪烁, 2：熄灭（预留）
+    optional float TLD_Confidence_Type = 5;//0~1
+    optional float TLD_Confidence_Color = 6;//0~1
+    optional float Width_2d = 7;//图像2d宽
+    optional float Height_2d = 8;//图像2d高
+    optional float Pos_x_2d = 9;//图像2d中心点
+    optional float Pos_y_2d = 10;//图像2d中心点
+    optional uint32 TLD_Panel_ID = 11;
+    optional float TLD_Detection_Confidence=12;//检测得分
+    repeated float TLD_Color_Probability_Distribution=13; //长度4
+    optional uint32 TLD_Timer =14;
+    optional float tld_confidence_timer =15;//0~1
+    repeated float tld_type_confidence_distribution =16;//0~1
+    repeated float tld_digit_confidence_distribution =17;//0~1
+    optional uint32 special_processing_status = 18;  // 检测结果特殊处理标记,0 正常, 1 标记检测框来源于抠图
+
+    enum TLDColor{
+        TLDColor_Unknown = 0;
+        TLDColor_Red = 1;
+        TLDColor_Yellow = 2;
+        TLDColor_Green = 3;
+        TLDColor_Gray = 4;
+    }
+
+    enum TLDType{
+        TLDType_Unknown = 0;
+        TLDType_Circle = 1;
+        TLDType_Left = 2;
+        TLDType_Right = 3;
+        TLDType_Up = 4;
+        TLDType_U_Turn = 5;
+        TLDType_Pedestrian = 6;
+        TLDType_Bicycle = 7;
+        TLDType_Straight_Up = 8;
+        TLDType_Forbid = 9;
+        TLDType_Straight_Down = 10;
+        TLDType_Warning = 11;
+        TLDType_Railway = 12;
+        TLDType_Turn_Right = 13;
+        TLDType_Turn_Left = 14;
+        TLDType_Bus = 15;
+        TLDType_Left_Uturn = 16;
+        TLDType_Right_Uturn = 17;
+        TLDType_Timer = 100;
+    }
+}
+
+message Panel_List{
+    optional uint32 sensor_id = 1; // refer to: https://ad-gitlab.nioint.com/ad/perception/engineering/internal/argus_post_common/-/blob/master/include/argus_post_common/data_structure/common/sensors.h
+    optional float Panel2d_Width =2; // 图像2d宽
+    optional float Panel2d_Height =3; // 图像2d高
+    optional float Panel2d_Pos_x =4; // 图像2d中心点
+    optional float Panel2d_Pos_y =5;
+    optional float Panel_Heading =6; // 灯框朝向
+    optional uint32 Panel_Movable=7;//是否临时交通灯
+    optional uint32 Panel_Broken=8;//是否故障,0：正常，1：故障, 2：来源于灯头【用于灯框漏检】
+    optional uint32 Panel_Occluded=9;//是否遮挡
+    optional float Panel_Movable_Confidence=10;
+    optional float Panel_Broken_Confidence=11;
+    repeated float Panel_Occluded_Confidence=12;
+    optional float Panel_Detection_Confidence=13;//检测得分
+    optional uint32 TLD_Panel_ID = 14;
+    optional float Panel_depth=15;     // 灯框深度
+    optional float Panel_theta=16;     // in rad, camera
+    optional bool Panel_Slow_light=17; // is slow light
+    optional PostureType posture = 18; // panel posture
+    repeated float reid_features = 19 [deprecated=true]; // size=128
+    optional int32 reid = 20;          // reid ID
+    optional uint32 special_processing_status = 21;  // 检测结果特殊处理标记,0 正常, 1 标记检测框来源于抠图
+    
+    enum PostureType {
+        UNKNOWN = 0;
+        VERTICAL = 1;
+        HORIZONTAL = 2;
+        SQUARE = 3;
+    }
+}
+
+message BevDetectionNN {
+    repeated int32 associate_mono3d_index = 1;  // 关联Mono框ID
+    optional BevBox bev_box = 2;                // BEV框
+    optional float bev_box_score = 3;           // BEV框检测置信度
+    optional LightType bev_box_type = 4;        // BEV框类型
+    optional uint32 id = 5;                     // BEV检测框ID
+}
+
+message BevBox {
+    optional float x = 1;
+    optional float y = 2;
+    optional float z = 3;
+    optional float h = 4;
+    optional float w = 5;
+    optional float l = 6;
+    optional float alpha = 7; 
+}
+
+enum LightType {
+        BULB = 0;
+        PANEL = 1;
+        OTHER = 2; 
+}
+
+message TrafficLight_Detection{
+    optional uint64 timestamp = 1;         // Timestamp_Receive_Image
+    repeated TLD_List TLDList = 2;         // bulb--for nn post: nn detection res，for tld post: 2d with post
+    repeated Panel_List PanelList =3;      // panel--for nn post: nn detection res，for tld post: 2d with post
+    repeated TLD_List tld_list_nn = 4;     // bulb--only for tld post: nn detection res
+    repeated Panel_List panel_list_nn =5;  // panel--only for tld post: nn detection res
+    optional TLDRawDLBObject tld_raw_dlb_buf = 6;  // raw image buffer with scores
+    repeated BevDetectionNN bev_lists = 7;         // bev nn res
+
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909;       // uuid of the publisher
+    optional uint64 counter = 536870910;            // message counter
+    optional uint64 publish_ts = 536870911;         // publish utc timestamp; unit : nanosecond
+}

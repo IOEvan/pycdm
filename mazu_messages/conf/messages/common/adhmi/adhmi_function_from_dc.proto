@@ -1,0 +1,119 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+import "common/adhmi/adhmi_environment.proto";
+import "common/adhmi/adhmi_function_to_dc.proto";
+
+// 20Hz 信号，DC->AD
+
+    // ESD工作模式
+    enum Hmi_EsdMode {
+        EsdMode_Off = 0;
+        EsdMode_Pro = 1;
+        EsdMode_Max = 2;
+    }
+
+    // 拖框泊车工作模式
+    enum Hmi_CustomParkSts {
+        CustomPark_Init = 0;             // 拖框泊车默认状态
+        CustomPark_Standstill = 1;       // 用户拖框完成，输出目标车位给AD识别可用性
+        CustomPark_Dragging = 2;         // 用户拖框执行中
+        CustomPark_Reserved_A = 3;
+        CustomPark_Reserved_B = 4;
+        CustomPark_Reserved_C = 5;
+        CustomPark_Reserved_D = 6;
+        CustomPark_Reserved_E = 7;
+        CustomPark_Reserved_F = 8;
+        CustomPark_Reserved_G = 9;
+    }
+
+    // PSAP调起状态
+    enum Hmi_PSAPSts {
+        PSAPSts_OutOfProcess = 0;        // 未在前台调起
+        PSAPSts_InProcess = 1;           // 已在前台调起
+    }
+
+    // 导航目的地类型
+    enum Hmi_NaviDestTyp {
+        NaviDest_None = 0;               // 未设置导航目的地
+        NaviDest_Other = 1;              // 导航目的地不是家或公司的其他地点
+        NaviDest_Home = 2;               // 导航目的地是家
+        NaviDest_Office = 3;             // 导航目的地是公司
+    }
+    
+    // 拖框泊车
+    message Hmi_CustomPark {
+        optional uint32 custom_park_mode_req = 1;          // 0x0 未启用拖框，0x1启动拖框
+        optional Hmi_CustomParkSts custom_park_sts = 2;    // 拖框泊车工作模式
+        repeated Hmi_Vector3f custom_slot = 3;             // 拖框车位四个角点坐标，基于自车坐标系，[0~1]对应车头左右点位，[2~3]对应车尾左右点位
+        optional uint32 custom_slot_id = 4;                // 拖框车位ID
+        optional bool adsorption_mode = 5;                 // 拖框泊车自动吸附是否使能，TRUE-使能，FALSE-未使能
+    }
+
+    message Hmi_OtherFunction_Sws{
+        optional bool nr_funciton_sws = 1;        // 窄路视角切换功能开关 true ：使能，false：关闭
+        optional bool whv_funciton_sws = 2;       // 轮毂视角切换功能开关 true ：使能，false：关闭
+    }
+
+     message Hmi_NOPFunction_Sws{
+        optional bool etc_function_set = 1;        // ETC功能开关 true ：使能，false：关闭
+
+    }
+
+    // 一键返回功能数据
+    message Hmi_ReverseAssist {
+        optional bool ManeuverSwsts = 1;          // 一键返回期间自动掉头开关，TRUE-启用自动掉头，FALSE-未启用自动掉头
+    }
+
+    // 离车泊功能数据
+    message Hmi_LeavePark {
+        optional bool LeaveParkExam = 1;          // 用户是否已完成离车泊功能学习和考试
+    }
+    
+    // 点到点园区和室内停车场领航功能数据
+    message Hmi_PtpNaviPark {
+        optional bool drive_in_intention_from_navi = 1;      // 用户针对导航目的地的驶入意图输入，True-有驶入意图，False-无驶入意图
+        optional Hmi_PtpRouteMgt route_record_resp = 2;      // 记忆路线保存提示用户应答
+        optional Hmi_PtpRouteMgt route_sync_req = 3;         // 点到点记忆路线信息发起同步
+        optional Hmi_PtpRouteMgt route_delete_req = 4;       // 点到点记忆路线删除请求
+        optional string route_id_with_navi_intention = 5;    // 导航意图关联的route id
+    } 
+
+    // Nomi输出的AD功能指令
+    message Hmi_NomiInput {
+        optional string instruction = 1;             // 给到AD功能的用户输入意图文本
+        repeated string key_segment = 2;             // 用户输入意图文本中的关键字段
+        optional uint64 instruction_id = 3;          // 用户输入意图id
+        optional bool is_user_input_avl = 4;         // 用户意图输入状态指示，仅ADHMI填充给AD上游
+        
+        optional uint64 timestamp = 1000;            // 指令时间戳
+    }
+
+
+message Hmi_AdFunction_from_dc {
+    optional Hmi_EsdMode esd_mode = 1;
+    optional Hmi_CustomPark custom_park_info = 2;               // 拖框泊车数据输入
+    optional uint32 driver_slot_park_direction = 3;             // 车辆泊入车位的方向，0x0-未知，0x1-车尾泊入，0x2-车头泊入 
+    optional Hmi_PSAPSts PSAP_Sts = 4;                          // PSAP是否在前台调起，0-未在前台调起，1-已在前台调起
+    optional Hmi_OtherFunction_Sws other_function_sws = 5;      // 未分类功能开关
+    optional Hmi_ReverseAssist ReverseAssistInfo = 6;           // 一键返回交互数据输入
+    optional Hmi_LeavePark leave_park_info = 7;                 // 离车泊交互数据输入
+    optional Hmi_NOPFunction_Sws nop_function_sws = 8;          // NOP相关功能开关
+    optional Hmi_NaviDestTyp navi_dest_type = 9;                // 导航目的地类型
+    optional Hmi_PtpNaviPark ptp_navipark_info = 10;            // 点到点园区/室内停车场领航DC输入
+    optional Hmi_NomiInput hmi_nomi_input = 11;                 // 经Nomi处理后给到AD的功能指令
+
+
+    optional string hmi_version = 1000 [default = "1.0.11"] ;         // proto version 
+    optional string hmi_update_date = 1001 [default = "20250323"] ;   // proto updated date
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    optional SensorTSHeader sensor_original_ts = 536870906;    // sensor original ts
+    optional string publisher_id = 536870909;                  // uuid of the publisher
+    optional uint64 publish_ptp_ts = 536870907;                // publish ptp timestamp, uint in nanosec
+    optional uint64 counter = 536870910;                       // message counter
+    optional uint64 publish_ts = 536870911;                    // publish timestamp; unit : nanosecond
+}

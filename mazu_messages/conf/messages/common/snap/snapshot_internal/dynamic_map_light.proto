@@ -1,0 +1,17 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/map_engine/fence_odd_list.proto";
+
+message FenceODD_light{
+    repeated FunctionFeatureControl feature_controls = 5;
+    repeated uint64 link_ids = 7;
+  }
+message NaviMap_light {
+    repeated FenceODD_light fence_odds = 9;
+}
+message DynamicMap_light {
+    optional NaviMap_light navi_map = 10;
+    optional uint64 publish_ptp_ts      = 536870907;
+}

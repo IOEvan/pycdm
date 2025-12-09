@@ -1,0 +1,75 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+import "common/pnc/map_projection.proto";
+import "common/pnc/geometry.proto";
+import "common/pnc/stream.proto";
+
+message ImuConfig {
+  enum Type {
+    // NovAtel
+    XW_GI7660 = 0;
+    IMAR_FSAS = 13;
+    ISA100C = 26;
+    ADIS16488 = 31;
+    STIM300 = 32;
+    ISA100 = 34;
+    ISA100_400HZ = 38;
+    ISA100C_400HZ = 39;
+    G320 = 41;
+  }
+
+  optional Type type = 1;
+
+  // NovAtel examples:
+  //  IMAR_FSAS: {1.893803441835e-9, 1.52587890625e-6, 200.0};
+  //  ADIS16488: {5.8516723170686385e-09, 9.31322574615478515625e-8, 200.0};
+  //  STIM300: {8.32237840649762e-09, 2.384185791015625e-07, 125.0};
+  //  ISA100/ISA100C: {1.0e-9, 2.0e-8, 200.0};
+  //  ISA100_400HZ/ISA100C_400HZ: {1.0e-9, 2.0e-8, 400.0}.
+  //  G320: {1.7044230976507124e-11, 2.44140625e-11 * 9.80665, 125.0}
+  optional double gyro_scale = 2;     // in rad/LSB
+  optional double accel_scale = 3;    // in m/s/LSB
+  optional double sampling_rate = 4;  // in Hz
+}
+
+message GnssConfig {
+  optional Stream data = 1;
+  optional Stream command = 2;  // If not given, use data.
+  optional Stream rtk_from = 3;
+  optional Stream rtk_to = 4;  // If not given, use data.
+  optional bytes rtk_request = 5;
+
+  repeated bytes login_commands = 6;
+  repeated bytes logout_commands = 7;
+
+  optional Vector3f vehicle_to_antenna = 8;
+  optional Vector3f vehicle_to_imu = 9;
+
+  optional ImuConfig imu_config = 10;
+
+  optional MapProjection projection = 11;
+
+  message Novatel {
+    optional int32 imu_orientation = 1 [default = 5];
+    optional double corrimudata_rate = 2 [default = 200.0];
+  }
+
+  message Ublox {}
+
+  message Asenssing {}
+
+  message Starneto {
+    optional int32 imu_orientation = 1 [default = 5];
+  }
+
+  oneof type {
+    Novatel novatel = 12;
+    Ublox ublox = 13;
+    Starneto starneto = 14;
+    Asenssing asenssing_570D = 15;
+  }
+}

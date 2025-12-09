@@ -1,0 +1,59 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message PsapStationInfo{
+	optional string station_id = 1;
+	enum PwrSwapStationGenerationType{
+		TYPE_GEN_NONE = 0;
+		TYPE_GEN1 = 1; // generation 1, does not support psap
+		TYPE_GEN2 = 2; // generation 2, support psap
+		TYPE_GEN3 = 3; // generation 3, support psap
+		TYPE_GEN4 = 4; // generation 4, support psap,regarded as gen3
+
+	}
+	optional PwrSwapStationGenerationType station_gen = 2;
+
+	enum PwrSwapStationType{
+		TYPE_STATION_NONE = 0;
+		TYPE_STATION_NO_LIFT = 1;
+		TYPE_STATION_LIFT = 2;
+	}
+	optional PwrSwapStationType station_type = 3;
+
+	enum PwrSwapStationEntranceType{
+		TYPE_ENTRANCE_NONE = 0;
+		TYPE_ENTRANCE_RIGHT = 1;
+		TYPE_ENTRANCE_LEFT = 2;
+	}
+	optional PwrSwapStationEntranceType station_entrance_type = 4;
+	optional float slope_length = 5;
+	optional bool station_available = 6;
+	optional string offline_reason = 7;
+	optional float station_platform_height = 8;
+	optional float station_tagb_to_slot_dst_x = 9;
+	optional float station_ref_offset = 10;
+	optional float station_reserved = 11;
+	optional float station_tagc_to_slot_dst_x = 12;
+	optional uint64 timestamp_ptp_ns	   = 13;
+	optional uint64 monitor_status = 14; //0 normal 1 no staff 2 reserved
+	optional bool station_based_psap_supported = 15;
+	optional float station_front_space_parallel_dir_dst = 16; 
+	optional float station_front_space_perpendicular_dir_dst = 17;
+	optional bool is_risk_station = 18; //是否为风险站，默认发0，需要wifi连接才能激活PSAP的站发1
+	optional bool loc_box_blind_psap_supported = 19; //是否支持重站端无框线PSAP，默认发0，by站配置
+
+	optional string blacklist_vehicle_project = 20; //黑名单管制车型,例如"LIBRA,FORCE"
+	optional string blacklist_app_uuid = 21;//黑名单管制版本，例如"981515,1033522,1214641"
+
+	optional string vid = 10000; // vid of source vehicle
+
+	optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+	optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+	optional string publisher_id = 536870909; // uuid of the publisher
+	optional uint64 counter = 536870910;       // message counter
+	optional uint64 publish_ts = 536870911;    // publish utc timestamp; unit : nanosecond
+}

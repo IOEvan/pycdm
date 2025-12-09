@@ -1,0 +1,19 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+message RadarPoints {
+    required uint32 det_id = 1;
+    required double range = 2;
+    required double range_rate = 3;
+    required double azimuth_ang = 4;
+    required double elevation_ang = 5;
+    required float det_rcs = 6;
+}
+
+message RadarDetections {
+    repeated uint64 rad_det_time = 1;       // Five radars' detection timestamp in this frame;
+    required uint32 det_fus_idx = 2;
+    repeated RadarPoints rad_pt= 3;        // Total 384 points from five radar detections; 
+}

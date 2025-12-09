@@ -1,0 +1,24 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perception/multisource_object.proto";
+// import "common/perception/radar_base.proto";
+
+message DynObject_light {
+    optional uint32 id = 1;
+    optional MoObjPos pos = 7;
+    optional MoObjVel vel = 9;
+    optional DynObject.ObjClass obj_class_type= 25;
+}
+message StaticObject_light {
+    optional uint32 id = 1;
+    optional StaticObject.ObsType obj_class_type= 4;
+    optional MoObjPos pos = 6;
+}
+message MultisourceObjects_light{
+    repeated DynObject_light dynamic_obj = 1;
+    repeated StaticObject_light static_obj = 2;
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    optional uint64 publish_ptp_ts = 536870907;
+}

@@ -1,0 +1,42 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+message Path_light {
+    optional uint32 path_mode = 18 [default = 0];
+    optional uint64 publish_ptp_ts = 536870907;
+}
+message DASMIOAdaptor_light {
+    optional bool is_in_odd_flg = 2004;
+}
+message NADStateMachine_light{
+    optional DASMIOAdaptor_light dasm_ioadaptor = 4;
+}
+message StateMachine_light {
+    optional uint32 nop_func_sts = 1 [default = 0];
+    optional uint32 nop_alc_sts = 2 [default = 0];
+    optional uint32 nop_distance_to_next_split = 29;
+    optional NADStateMachine_light nad_state_machine_debug = 38;
+}
+message DiagnoseReferenceLineDebug_light{
+    optional bool is_reference_line_replaced =  10000;
+}
+message ExplorationDiagnoseInfo_light {
+    optional bool exploration_trigger = 1 [default = false];
+}
+message DiagnoseLocalMapDebug_light {
+    optional ExplorationDiagnoseInfo_light exploration_debug = 5;
+}
+message PlannerDiagnose_light {
+    optional DiagnoseLocalMapDebug_light local_map_debug = 6;
+    optional DiagnoseReferenceLineDebug_light reference_line_debug =  10001;
+}
+message SchedulerTask_light {
+    optional uint32 trigger_type = 6;
+}
+message PlannerScheduler_light {
+    optional SchedulerTask_light scheduler_task = 1;
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    optional uint64 publish_ptp_ts = 1002;   // publish ptp timestamp, uint in nanosec
+}

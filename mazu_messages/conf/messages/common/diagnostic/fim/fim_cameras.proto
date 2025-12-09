@@ -1,0 +1,130 @@
+syntax = "proto2"; 
+option cc_enable_arenas = true;
+       
+
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message CameraFimInfo{// Detected by FW
+        reserved 1,4,5,6,7,8,9;
+        // optional F120AdcFimInfo f120_adc_fim_info = 1;
+        optional OMSAdcFimInfo oms_adc_fim_info = 2;
+        optional DMSAdcFimInfo dms_adc_fim_info = 3;
+        // optional F30AdcFimInfo f30_adc_fim_info = 4;
+        // optional RearAdcFimInfo rear_adc_fim_info = 5;        
+        // optional SVC1AdcFimInfo svc1_adc_fim_info = 6;
+        // optional SVC2AdcFimInfo svc2_adc_fim_info = 7;
+        // optional SVC3AdcFimInfo svc3_adc_fim_info = 8;
+        // optional SVC4AdcFimInfo svc4_adc_fim_info = 9;
+        optional SideFLAdcFimInfo sidefl_adc_fim_info =10;
+        optional SideFRAdcFimInfo sidefr_adc_fim_info = 11;
+        optional SideRLAdcFimInfo siderl_adc_fim_info = 12;
+        optional SideRRAdcFimInfo siderr_adc_fim_info = 13;
+        optional FWAdcFimInfo fw_adc_fim_info = 14;       
+        optional FNAdcFimInfo fn_adc_fim_info = 15;
+        optional RNAdcFimInfo rn_adc_fim_info = 16;        
+        optional SVCFrontAdcFimInfo svcfront_adc_fim_info = 17;
+        optional SVCLeftAdcFimInfo svcleft_adc_fim_info = 18;
+        optional SVCRearAdcFimInfo svcrear_adc_fim_info = 19;
+        optional SVCRightAdcFimInfo svcright_adc_fim_info = 20;
+
+        optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+        optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+        optional uint64 publish_ptp_ts = 536870907;   // publish ptp timestamp, uint in nanosec
+        optional string publisher_id   = 536870909; // uuid of the publisher
+        optional uint64 counter        = 536870910;         // message counter
+        optional uint64 publish_ts     = 536870911;    // publish utc timestamp; unit : nanosecond
+
+} 
+
+message FWAdcFimInfo{
+        optional bool FIM_FWPhysicalLinkage_Error = 1;
+        optional bool FIM_FW_Camera_Failsafe_3 = 2;
+        optional bool FIM_FW_Camera_Cal_Error = 3;
+        optional bool FIM_Windshield_Cal_Error = 4;
+        // 0: no fault, 1: has fault;
+}
+
+message OMSAdcFimInfo{
+        optional bool FIM_OMSPhysicalLinkage_Error = 1;
+        // 0: no fault, 1: has fault;
+}
+
+message DMSAdcFimInfo{
+        optional bool FIM_DMSPhysicalLinkage_Error = 1;
+        optional bool FIM_DMS_License_NotAvailable = 2;
+        optional bool FIM_DMS_Function_NotAvailable = 3;
+        optional bool FIM_DMS_Camera_Occluded       = 4;
+        optional bool FIM_DMS_No_Image_Recv         = 5;
+        // 0: no fault, 1: has fault;
+}
+
+message FNAdcFimInfo{
+        optional bool FIM_FNPhysicalLinkage_Error = 1;
+        optional bool FIM_FN_Camera_Failsafe_3 = 2;
+        optional bool FIM_FN_Camera_Cal_Error = 3;
+        // 0: no fault, 1: has fault;
+}
+
+message RNAdcFimInfo{
+        optional bool FIM_RNPhysicalLinkage_Error = 1;
+        optional bool FIM_RN_Camera_Failsafe_3 = 2;
+        optional bool FIM_RN_Camera_Cal_Error = 3;
+        // 0: no fault, 1: has fault;
+}
+
+message SVCFrontAdcFimInfo{
+        optional bool FIM_SVCFrontPhysicalLinkage_Error = 1;
+        optional bool FIM_SVCFront_Camera_Failsafe_3 = 2;
+        optional bool FIM_SVCFront_Camera_Cal_Error = 3;
+        // 0: no fault, 1: has fault;
+}
+
+message SVCLeftAdcFimInfo{
+        optional bool FIM_SVCLeftPhysicalLinkage_Error = 1;
+        optional bool FIM_SVCLeft_Camera_Failsafe_3 = 2;
+        optional bool FIM_SVCLeft_Camera_Cal_Error = 3;
+        // 0: no fault, 1: has fault;
+}
+
+message SVCRearAdcFimInfo{
+        optional bool FIM_SVCRearPhysicalLinkage_Error = 1;
+        optional bool FIM_SVCRear_Camera_Failsafe_3 = 2;
+        optional bool FIM_SVCRear_Camera_Cal_Error = 3;
+        // 0: no fault, 1: has fault;
+}
+
+message SVCRightAdcFimInfo{
+        optional bool FIM_SVCRightPhysicalLinkage_Error = 1;
+        optional bool FIM_SVCRight_Camera_Failsafe_3 = 2;
+        optional bool FIM_SVCRight_Camera_Cal_Error = 3;
+        // 0: no fault, 1: has fault;
+}
+
+message SideFLAdcFimInfo{
+        optional bool FIM_SideFLPhysicalLinkage_Error = 1;
+        optional bool FIM_FL_Camera_Failsafe_3 = 2;
+        optional bool FIM_FL_Camera_Cal_Error = 3;
+        // 0: no fault, 1: has fault;
+}
+
+message SideFRAdcFimInfo{
+        optional bool FIM_SideFRPhysicalLinkage_Error = 1;
+        optional bool FIM_FR_Camera_Failsafe_3 = 2;
+        optional bool FIM_FR_Camera_Cal_Error = 3;
+        // 0: no fault, 1: has fault;
+}
+
+message SideRLAdcFimInfo{
+        optional bool FIM_SideRLPhysicalLinkage_Error = 1;
+        optional bool FIM_RL_Camera_Failsafe_3 = 2;
+        optional bool FIM_RL_Camera_Cal_Error = 3;
+        // 0: no fault, 1: has fault;
+}
+
+message SideRRAdcFimInfo{
+        optional bool FIM_SideRRPhysicalLinkage_Error = 1;
+        optional bool FIM_RR_Camera_Failsafe_3 = 2;
+        optional bool FIM_RR_Camera_Cal_Error = 3;
+        // 0: no fault, 1: has fault;
+}

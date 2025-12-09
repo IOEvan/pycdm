@@ -1,0 +1,88 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+import "common/perception/svc_base.proto";
+
+message SVCObject {
+  optional int32 index = 1;
+  optional SVCPoint pt1 = 2;  // object points may less than 4
+  optional SVCPoint pt2 = 3;
+  optional SVCPoint pt3 = 4;
+  optional SVCPoint pt4 = 5;
+  optional float exist_prob = 6;
+  optional float height = 7;
+  optional float height_prob = 8;
+  enum ObjectType {
+    TYPE_UNKNOWN = 0;
+    TYPE_CURB = 1;                 //路沿
+    TYPE_PARK_STOP = 2;            //限位器
+    TYPE_PARK_LOCK_OPEN = 3;       //打开状态的地锁
+    TYPE_PARK_LOCK_CLOSE = 4;      //关闭状态的地锁
+    TYPE_BUSH = 5;                 //灌木丛
+    TYPE_HUMAN = 6;                //行人
+    TYPE_CONE = 7;                 //锥桶
+    TYPE_CAR_OR_TRUCK = 8;         //汽车或者卡车
+    TYPE_SPEED_BUMP = 9;           //减速带
+    TYPE_FLOOR_SIGN = 10;          //指示牌
+    TYPE_NONE_MOTOR_VEHICLE = 11;  //非机动车
+    TYPE_PILLAR = 12;              //停车场方形结构立柱
+    TYPE_RESERVED1 = 13;
+    TYPE_RESERVED2 = 14;
+    TYPE_RESERVED3 = 15;
+    TYPE_RESERVED4 = 16;
+  }
+  optional ObjectType obj_type = 9 [default = TYPE_UNKNOWN];
+  enum ObjMoveState {
+    OBJ_MOVE_UNKNOWN = 0;
+    OBJ_MOVING = 1;
+    OBJ_STOPED = 2;
+    OBJ_STATIONARY = 3;
+  }
+  optional ObjMoveState obj_mov_state = 10 [default = OBJ_MOVE_UNKNOWN];
+  enum ObjDimension {
+    DIM_UNKNOWN = 0;
+    DIM_2D = 1;
+    DIM_3D = 2;
+    DIM_RESERVED = 3;
+  }
+  optional ObjDimension obj_dim = 11 [default = DIM_UNKNOWN];
+  optional float obj_distance = 12;
+  optional float obj_rel_vel_x = 13;  // relative velocity of the object
+  optional float obj_rel_vel_y = 14;
+  enum GroundAttribueType {
+    TYPE_UNKNOWN_GROUND = 0;
+    TYPE_GROUND = 1;
+    TYPE_NOT_GROUND = 2;
+    TYPE_RESERVED_GROUND = 3;
+  }
+  optional GroundAttribueType ground_attribute_type = 15;
+  enum ObjectFacingType {
+    TYPE_UNKNOWN_FACING = 0;
+    TYPE_TOWARD = 1;
+    TYPE_BACKWARD = 2;
+    TYPE_RESERVED_FACING = 3;
+  }
+  optional ObjectFacingType obj_facing_type = 16;
+  optional int32 reserved1 = 17;
+  optional int32 reserved2 = 18;
+}
+
+message SVCObjResult {
+  optional uint64 timestamp = 1;  // Timestamp_Receive_Image
+  enum SensorID {
+    SENSOR_NONE = 0;
+    CAMERA1 = 1;
+    CAMERA2 = 2;
+    CAMERA3 = 3;
+    CAMERA4 = 4;
+    SENSOR_ID_RESERVED1 = 5;
+    SENSOR_ID_RESERVED2 = 6;
+    SENSOR_ID_RESERVED3 = 7;
+  }
+  optional SensorID obj_sensor_src = 2 [default = SENSOR_NONE];
+  repeated SVCObject objects = 3;  // at most 20
+  optional int32 od_reserved1 = 4;
+  optional int32 od_reserved2 = 5;
+}

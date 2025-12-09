@@ -1,0 +1,18 @@
+## folders|files|patterns lists to add to bundle, or excluded from bundle
+
+# folders add to bundle
+install_folders:
+  # - add here
+  - lib
+  - conf
+  - pkg-bin
+
+# files add to bundle
+install_files:
+  # - add here:
+  - mazu_messages_commit
+
+# what matches pattern need to excluded from bundle
+excludes_patterns:
+  # - add here
+  - include

@@ -1,0 +1,36 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+
+// SSM S1:Client
+message HardwareModeControlRequest{
+  enum HardwareModeType {
+      INVALID_TYPE = 0;
+      DEFAULT = 1; //OFF:S2,S4,SideCam-DES; ON:S1,S3,SVC-CDC
+      FULL = 2; //ON:All,SVC-CDC
+      REBOOT_SOC = 3; // reboot S1-S4
+      REBOOT_ALL = 4; // reboot all mazu 
+      ECO_PLUS_PLUS = 5; // eco++, S1-S4 OFF
+  }
+  optional HardwareModeType requested_hardware_mode = 1;
+}
+
+//Hw manager:Server
+message HardwareModeRespone{
+  enum HardwareModeType {
+      INVALID_TYPE = 0;
+      DEFAULT = 1; //OFF:S2,S4,SideCam-DES; ON:S1,S3,SVC-CDC
+      FULL = 2; //ON:All,SVC-CDC
+      REBOOT_SOC = 3; // reboot S1-S4
+      REBOOT_ALL = 4; // reboot All mazu 
+      ECO_PLUS_PLUS = 5; // eco++, S1-S4 OFF
+  }
+  optional HardwareModeType requested_hardware_mode = 1;
+  enum HardwareModeChangeResult {
+      GENERAL_FAILURE = 0;
+      SUCCESS = 1;
+      MODE_NO_CHANGE = 2;
+  }
+  optional HardwareModeChangeResult result = 2;
+}

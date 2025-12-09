@@ -1,0 +1,357 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+import "common/perception/od_output.proto";
+
+message BEVLane{
+  // Description reference: https://nio.feishu.cn/docx/doxcntHCjdLE9LZUAfJMNNvpnTg
+  repeated CriticalPath critical_paths = 1; // Critical paths. shape K.
+                                            // K:number of critical path role.
+  repeated Curb curbs = 2;  // Detected curbs. shape N1.
+                            // N1: number of detected curbs.
+  repeated Point_3D stoplines = 3;  // Detected stoplines. shape K2x2.
+                                    // K2: number of detected stoplines.
+                                    // 2: start and end point.
+                                    // Note: Only fill LD_Point_score for first point.
+  optional SpecialPointList_2D special_points = 4;
+  repeated GeometricPath geometric_paths = 5; // Geometric paths. shape N3.
+                                              // N3: Number of detected geometric paths.
+  repeated float lane_feature = 9; // N*M feature. N is the number of lanes or lines, M is the feature dimension.
+  repeated uint32 sensor_id_list = 6; //SENSOR_CAMERA_FW = 0,SENSOR_CAMERA_FN = 1,SENSOR_CAMERA_RN = 2,
+                                        //SENSOR_CAMERA_FL = 3,SENSOR_CAMERA_FR = 4,SENSOR_CAMERA_RR = 5,
+                                        //SENSOR_CAMERA_RL = 6, SENSOR_CAMERA_SFW = 7, SENSOR_CAMERA_SRCW = 8,
+                                        //SENSOR_CAMERA_SLW = 9, SENSOR_CAMERA_SRW = 10, SENSOR_LIDAR_FRONT = 11
+                                        //SENSOR_BEV_FRONT = 21, SENSOR_BEV_REAR = 22
+  repeated uint32 st_type = 7; // stopline type, shape N4 * 2
+                               // N4: Number of stoplines
+                               // 2: type class index, confidence
+  
+  repeated SensorHeader sensors = 8;// input multi-sensors id && timestamp,(ns) && valid_flag; sensor_ts means that the sensor-data measuresing time.
+  // NOTE: Current max idx: 9.
+
+  repeated LaneCenterLine lane_center_line = 10;
+
+  repeated PolygonArea unsafe_areas = 11;
+  
+  repeated uint32 stopline_visible = 12; //0 = unknown，1 = full_visible,2=partial_visible，3=unvisible；
+  
+  repeated float stopline_visible_conf = 13; // visible_conf,0-1
+
+  optional uint64 timestamp = 10000;     // image receive time
+
+  optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+  optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909; // uuid of the publisher
+  optional uint64 counter = 536870910;         // message counter
+  optional uint64 publish_ts = 536870911;      // publish utc timestamp, unit : nanosecond
+}
+
+message LaneCenterLine{
+  repeated Point_3D center_line_points = 1; // CenterLine points x,y,z. shape 3xP.
+                                         // P: number of points for each path.
+  repeated LanePointProperty center_line_properties = 2;// CenterLine type, confidence, direction of points, is virtual or not
+  repeated LaneType lane_type = 3; // CenterLine type
+  optional float confidence = 4; // CenterLine confidence
+  optional LaneDirection lane_direction = 5;  // CenterLine direction.
+  optional bool lane_is_virtual = 6; //虚拟中心线，0: no,  1: yes
+  repeated Point_3D key_point_position = 7;    // Path association point
+  repeated int32 key_point_type = 8;    // Path association point
+  
+  message LanePointProperty {
+    optional uint32 point_confidence = 1;
+    repeated LaneType point_lane_type = 2;
+    optional bool point_is_virtual = 3;
+    optional LaneDirection point_lane_direction = 4;
+  }
+
+  enum LaneDirection{
+    DIRECT_UNKNOWN = 0;
+    DIRECT_FRONT = 1; //同向车道
+    DIRECT_BEHIND = 2; //对向车道
+    DIRECT_LEFT = 3; //左向车道
+    DIRECT_RIGHT = 4; //右向车道
+  }
+  
+  enum LaneType{
+    UNKNOWN_LANE = 0;
+    NORMAL_LANE = 1; //常规车道
+    MOTORWAY_LANE =2; //机动车道
+    BICYCLE_LANE = 3; //非机动车道
+    VARIABLE_LANE = 4; //可变导向车道
+    REVERSIBLE_LANE = 5; //潮汐车道
+    EMERGENCY_LANE = 6; //应急车道
+    BUS_LANE = 7; //公交车道
+    BUS_HARBOR_LANE = 8; //公交停靠岛
+    WAITING_LANE = 9; //reserved,待行区车道
+    HOV_LANE = 10; //reserved，HOV车道
+    PARNKING_LANE = 11; //reserved,停车车道
+    CHECKPOINT_LANE = 12; //reserved,检查站车道
+    TOLL_LANE =13; //reserved,收费站车道
+  }
+}
+
+message CriticalPath{
+  optional uint32 role = 1; // Critical path role. Values:
+                            //    LANE_KEEPING_PATH = 0
+                            //    SPLIT_LEFT_PATH = 1
+                            //    SPLIT_RIGHT_PATH = 2
+                            //    FIRST_LEFT_PATH = 3
+                            //    FIRST_RIGHT_PATH = 4
+                            //    SECOND_LEFT_PATH = 5
+                            //    SECOND_RIGHT_PATH = 6
+                            //    LEFT_TURN = 7;  //预留
+                            //    RIGHT_TURN = 8; //预留
+
+  repeated Point_3D points = 2;   // Critical path points x,y,z. shape 3xP.
+                                  // 3: left boundary, right boundary, centerline.
+                                  // P: number of points for each path.
+  optional float exist = 3; // Critical path existence score.
+  repeated uint32 type_score = 4;  // Critical path boundary (type class index, confidence) pairs. shape 2xPx2.
+                                  // Value range of confidence is (0 ~ 100)
+                                  // 2: for left and right boundary.
+                                  // 2: (type class index，confidence) pairs. Currently
+                                  //    SOLID = 0
+                                  //    DASH = 1
+                                  //    SOLID_SOLID = 2
+                                  //    SOLID_DASH = 3
+                                  //    DASH_SOLID = 4
+                                  //    DASH_DASH = 5
+                                  //    DECELERATION_SOLID = 6
+                                  //    DECELERATION_DASH = 7
+                                  //    GUIDE = 8
+                                  //    CURB = 9
+                                  //    OTHER = 10
+  repeated uint32 color_score = 5; // Critical path boundary color confidence score. shape 2xPx2.
+                                  // 2: (color class index，confidence) pairs. Currently
+                                  // Value range of confidence is (0 ~ 100)
+                                  //    WHITE = 0
+                                  //    YELLOW = 1
+                                  //    WHITE_WHITE = 2
+                                  //    WHITE_YELLOW = 3
+                                  //    YELLOW_WHITE = 4
+                                  //    YELLOW_YELLOW = 5
+                                  //    ORANGE = 6
+                                  //    BLUE = 7
+                                  //    OTHER = 8
+  repeated uint32 visibility_score = 6;  // Critical path boundary visibility score. shape 2xP.
+                                        // Value range of confidence is (0 ~ 100)
+                                        // 2: Left boundary, right boundary.
+  repeated uint32 confidence = 7;  // Critical path boundary confidence score. shape 2xP.
+                                        // Value range of confidence is (0 ~ 100)
+                                        // 2: Left boundary, right boundary.
+  repeated float overlap = 8;     // Critical path boundary overlap score. shape 2.
+                                        // 2: Left boundary, right boundary.
+}
+
+message Curb{
+  repeated Point_3D points = 1; // Curb points x,y,z. shape P2.
+                                // P2: number of points for each curb.
+  optional float score = 2;     // Curb confidence score.
+  optional int32 type = 3 [deprecated = true];     // Curb type.
+                                // Currently has 2 type, 0: cross, 1: uncross.
+  optional int32 subtype = 4 [deprecated = true];   // Curb subtype. [Deprecated].
+                                // Currently
+                                //    0: cementBlock
+                                //    1: generalFence
+                                //    2: cone
+                                //    3: barrel
+                                //    4: barrier
+                                //    5: grass
+                                //    6: gravel
+                                //    7: wallFlat
+                                //    8: other
+  repeated uint32 confidence = 5 [deprecated = true];         // Curb point-wise confidence score, shape P2.
+                                          // Value range of confidence is (0 ~ 100).
+  repeated uint32 type_point_wise = 6;    // Curb point-wise type, shape P2. Currently has 2 types: 
+                                          // cross and uncross. Value range is (0 ~ 100), the value 
+                                          // means the degree of uncross.
+  repeated uint32 subtype_point_wise = 7; // Curb point-wise subtype (type class index, confidence).
+                                          // shape P2x2. Currently types:
+                                          //    0: cementBlock
+                                          //    1: generalFence
+                                          //    2: cone
+                                          //    3: barrel
+                                          //    4: barrier
+                                          //    5: grass
+                                          //    6: gravel
+                                          //    7: wallFlat
+                                          //    8: other
+                                          // refer to https://nio.feishu.cn/wiki/TvqIwu0MCiCRH0kgMEXcl5KAnch
+}
+
+message GeometricPath{
+  repeated Point_3D points = 1;   // Geometric path points x,y,z. shape 3xP.
+                                  // 3: centerline, left boundary, right boundary.
+                                  // P: number of points for each path.
+  repeated LineProperty_2D properties = 2;  // Geometric path type and colors. shape 2.
+                                            // 2: left boundary, right boundary.
+  repeated uint32 confidence = 3; // Geometric path confidence. shape P.
+                                  // Value range of confidence is (0 ~ 100)
+  optional float score = 4; // (Reserved) Geometric path line level score, range (0-1).
+  optional SpecialPointList_2D special_points = 5 [deprecated = true];
+}
+
+
+message LaneList{
+  optional uint32 LL_LANE_NUM = 1; // maximum 32 lines
+  repeated PointList_2D LL_Lane_List = 2;
+
+  // When the measurements were made. In nanoseconds.
+  optional uint64 time_meas = 3;
+
+  // Optional domain for rgb format image data.
+  optional string image_data = 4;
+
+  optional SpecialPointList_2D LL_SpecialPoint_List = 5;
+  optional GroundList LL_Ground_List = 6;     // ground detection results
+
+  optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+  optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909; // uuid of the publisher
+  optional uint64 counter = 536870910;         // message counter
+  optional uint64 publish_ts = 536870911;      // publish utc timestamp, unit : nanosecond
+}
+
+message GroundCoef {
+    optional uint32 GC_sensor_id = 1;
+    optional float GC_a = 2;           // camera coordinate， x-right，y-downward，z-forward
+    optional float GC_b = 3;           // y = ax + bz + c
+    optional float GC_c = 4;
+    optional float GC_score = 5;
+}
+
+message GroundList {
+    repeated GroundCoef GroundCoef_List = 1;
+}
+
+message PolygonArea{
+  repeated Point_3D points = 1;    // Area boundary points x,y,z. shape 3xN.
+                                   // First point position is unrestricted.
+                                   // Neighboring points have neighboring index.
+                                   // First point is not last point.
+  optional float score = 2;        // Area level score, range (0-1).
+  optional int32 type = 3;         // (Reserved) Area type.
+}
+
+message PointList_2D {
+  optional uint32 PL_POINT_NUM = 1; // maximum 300 points are supported
+  repeated Point_2D PL_Points_List = 2;
+  optional LineProperty_2D PL_Line_Property = 3; // Line property 
+                                                  // refer to https://nio.feishu.cn/wiki/BkwvwialDiU2RFkgMFvcQazsnNc
+  optional uint32 sensor_id = 4; //SENSOR_CAMERA_FW = 0,SENSOR_CAMERA_FN = 1,SENSOR_CAMERA_RN = 2,
+                                  //SENSOR_CAMERA_FL = 3,SENSOR_CAMERA_FR = 4,SENSOR_CAMERA_RR = 5,
+                                  //SENSOR_CAMERA_RL = 6, SENSOR_CAMERA_SFW = 7, SENSOR_CAMERA_SRCW = 8,
+                                  //SENSOR_CAMERA_SLW = 9, SENSOR_CAMERA_SRW = 10, SENSOR_LIDAR_FRONT = 11
+  optional float PL_score = 5;
+  repeated Point_3D PL_Points_3D_List = 6;
+
+}
+
+message SpecialPointList_2D {
+  optional uint32 SPL_POINT_NUM = 1 [deprecated = true]; // maximum 300 points are supported
+  repeated Point_2D SPL_Points_List = 2 [deprecated = true];
+  repeated SPLType SPL_Type = 3; // Special point type 
+                                // refer to https://nio.feishu.cn/wiki/BkwvwialDiU2RFkgMFvcQazsnNc
+  repeated uint32 sensor_id_list = 4 [deprecated = true]; //SENSOR_CAMERA_FW = 0,SENSOR_CAMERA_FN = 1,SENSOR_CAMERA_RN = 2,
+                                      //SENSOR_CAMERA_FL = 3,SENSOR_CAMERA_FR = 4,SENSOR_CAMERA_RR = 5,
+                                      //SENSOR_CAMERA_RL = 6, SENSOR_CAMERA_SFW = 7, SENSOR_CAMERA_SRCW = 8,
+                                      //SENSOR_CAMERA_SLW = 9, SENSOR_CAMERA_SRW = 10, SENSOR_LIDAR_FRONT = 11
+  repeated Point_3D SPL_Points_3D_List = 5;
+
+  enum SPLType {
+    SPLType_Unknown = 0;
+    SPLType_line_type_change = 1;
+    SPLType_color_type_change = 2;
+    SPLType_y_merge = 3;
+    SPLType_y_split = 4;
+    SPLType_miss_point = 5;
+  }
+}
+
+message Point_2D {
+  optional float LD_Point_x = 1; // x_pixel in the picture
+  optional float LD_Point_y = 2; // y_pixel in the picture
+  optional float LD_Point_score = 3;
+}
+
+message Point_3D {
+  optional float LD_Point_x = 1;
+  optional float LD_Point_y = 2;
+  optional float LD_Point_z = 3;
+  optional float LD_Point_score = 4; // point score range (0, 100)
+}
+
+message LineProperty_2D {
+  optional LDType LD_Type = 1;
+  optional LDColor LD_Color = 2;
+  optional LDClass LD_Class = 3;
+  optional LDAbrasion LD_Abrasion = 4;
+  optional LDCross LD_Cross = 5;
+  optional LDLaneRole LD_LaneRole = 6;
+  optional uint32 LD_TypeConfidence = 7;
+  optional uint32 LD_ColorConfidence = 8;
+
+  enum LDType {
+    LDType_Unknown = 0;
+    LDType_Solid = 1;
+    LDType_Dash = 2;
+    LDType_Solid_Dash = 3;
+    LDType_Dash_Solid = 4;
+    LDType_Solid_Solid = 5;
+    LDType_Dash_Dash = 9;
+    LDType_Deceleration_Dash = 6;
+    LDType_Deceleration_Solid = 7;
+    LDType_Guide = 8;
+    // value from 0 - 9.
+    LDType_Serrate = 10;
+    LDType_Composite = 11;
+    LDType_Parking_Space_Entrace = 12;
+  }
+
+  enum LDColor {
+    LDColor_Unknown = 0;  // unavailable
+    LDColor_White = 1;
+    LDColor_Yellow = 2;
+    LDColor_Orange = 3;  // unavailable
+    LDColor_Blue = 4;    // unavailable
+    LDColor_Others = 5;
+    LDColor_Green = 6;
+    LDColor_Yellow_White = 7;
+    LDColor_White_Yellow = 8;
+  }
+
+  enum LDAbrasion {
+    LDAbrasion_Unknown = 0;
+    LDAbrasion_no  = 1;
+    LDAbrasion_yes = 2;
+  }
+
+  enum LDClass{
+    LDClass_Line = 0;
+    LDClass_Curb = 1;
+    LDClass_StopLine = 2;
+    LDClass_Street_Pole = 3;
+    LDClass_Elec_Pole = 4;
+    LDClass_Traffic_Pole = 5;
+    LDClass_Mark_Pole = 6;
+    LDClass_Line_Virtual = 7;
+  }
+
+  enum LDCross {
+    LDCross_Unknown = 0;  // not curb
+    LDCross_no = 1;
+    LDCross_yes = 2;
+  }
+
+  enum LDLaneRole {
+    LDLaneRole_Unknown = 0;
+    LDLaneRole_Main_Left = 1;
+    LDLaneRole_Main_Right = 2;
+    LDLaneRole_Left_Left = 3;
+    LDLaneRole_Left_Right = 4;
+    LDLaneRole_Right_Left = 5;
+    LDLaneRole_Right_Right = 6;
+  }
+}

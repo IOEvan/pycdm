@@ -1,0 +1,81 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+message OccupancyGridCell {
+    optional SemanticClass grid_semantic_class = 1;  // Used for local mapping, the semantic label of the most likely semantic class
+    optional uint32 grid_semantic_probability = 2;  // Used for local mapping
+                                                // Includes the predictive probability of the semantic label. unit 1/255Length is the same as the total number of categories
+    optional MotionStatus grid_motion_state = 3;  // Used for local mapping
+    // Some cluster points features
+    optional int32 grid_points_height_max = 4;  // W.R.T local ground. 
+                                                         // Local ground refers to the corresponding ground height of the grid, not the cluster average ground height, unit cm
+    optional int32 grid_points_height_min = 5;  // W.R.T local ground
+                                                         // Local ground refers to the corresponding ground height of the grid, not the cluster average ground height, unit cm
+    optional int32 grid_point_height_ground = 6;  // Average ground height of cluster
+    optional int32 grid_point_index_x = 7;  // Grid 2D center x,y index in 2D Grid map (shape [m, n]). Value is range in [-0.5m, 0.5m] or [-0.5n, 0.5n] and belongs int value
+    optional int32 grid_point_index_y = 8;  
+    optional SensorType sensor_type = 9;  // for multi-sensor fusion
+    
+    enum SensorType {
+        LIDAR_ONLY       = 0;
+        USS_ONLY         = 1;
+        SVC_ONLY         = 2;
+        LIDAR_AND_SVC    = 3;
+        LIDAR_AND_USS    = 4;
+        USS_AND_SVC      = 5;
+        LIDAR_SVC_USS    = 6;
+    }
+    enum MotionStatus {  // The same as defined in perception_objects.proto DynamicObj message. Waiting for uniform variable abstraction and merge
+        MOTION_STATUS_UNKNOWN = 0;
+        MOTION_STATUS_STATIC = 1;
+        MOTION_STATUS_MOVING = 2;
+    }
+
+    enum SemanticClass {
+        Vehicle                   = 0;  // Including small_vehicle, large_vehicle, three_wheel_vehicle, trailer, emergency_vehicle and other vehicles
+        Pedestrian                = 1;  // Including adult, child and other pedestrian
+        Pedestrian_object         = 2;  // Including stroller, wheelchair and other pedestrain object 
+        Cyclist                   = 3;  // Including motorcyclist, ebicyclist, bicyclist and other two wheel vhicle and its riders
+        Cycle                     = 4;  // Including bicycle, ebicycle, motorcycle and other two wheel vhicle without riders
+        Animal                    = 5;  // Including dog, cat and other animal
+        Cone                      = 6;  // Including all kinds of cone bucket
+        Construction_Pole         = 7;  // Including warning post in construction or warning area
+        Barrier                   = 8;  // Including temporal barrier and drum objects
+        Vegetation                = 9;  // Including vegetation without tree trunk
+        Curb                      = 10;  // Including all kinds of curb
+        Pole_TreeTrunk            = 11;  // Including pole, tree trunk and other cylindrical objects
+        Sign                      = 12;  // Including all kinds of sign, such as traffic sign, construction sign
+        Ground                    = 13;  // Including all kinds of road surface and road marker
+        Walkable_Ground           = 14;  // Including all kinds of walkable surface, such as sidewalk and lawn 
+        Bump                      = 15;  // Including bump, cateye
+        Hollow                    = 16;  // Including all kinds of holes
+        Filterable                = 17;  // Including all filterable objects, such as spray, rooster tail, dust, rain, snow and other noise or filterable ojbect 
+        OtherImpermanentObject    = 18;  // Including other impermanent object that class is not included above, such as debris, tire, dropped object
+        OtherPermanentObject      = 19;  // Including other permanent object that class is not included above, such as building, traffic light, fire hydrant and parterre
+        USS_General               = 20;  // general class from USS
+    }
+}
+
+message OccupancyGridMap {  // Used for local mapping
+    optional uint64 timestamp_utc_ns = 1; // Globally defined utc tiem. [nano sec]
+    optional uint64 timestamp_ptp_ns = 2; // Globally defined ptp time. [nano second]
+
+    repeated OccupancyGridCell Occupancy_Grid_List = 3;
+    
+    optional float offset_x = 4; // the offset x of the car with respect to the grid cell's corner
+    optional float offset_y = 5; // same with offset_x
+    optional float yaw = 6; // yaw is the global yaw with respect to the map; R = [cos(yaw), -sin(yaw); sin(yaw), cos(yaw] ; T = [R, 0; 0, 1]; coordinate_xy = inv(T) * coordinate_xy'  
+    optional float grid_resolution = 7; 
+    // R = [cos(yaw), -sin(yaw); sin(yaw), cos(yaw)] ;
+    // coordinate_xy'=R(grid_resolution * grid_center_index_x - offset_x;resolution * grid_center_index_y - offset_y)
+
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+    optional uint64 publish_ptp_ts = 536870907;   // publish ptp timestamp, uint in nanosec
+    optional string publisher_id = 536870909;     // uuid of the publisher
+    optional uint64 counter = 536870910;          // message counter
+    optional uint64 publish_ts = 536870911;       // publish utc timestamp; unit : nanosecond
+}

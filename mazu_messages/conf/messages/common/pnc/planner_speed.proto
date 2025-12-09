@@ -1,0 +1,113 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+
+package nio.ad.messages;
+
+message PiecewiseCubicFunction {
+  repeated double x = 1;
+  repeated double y = 2;
+}
+
+message STBoundaryInfo {
+  // Next id: 21
+  enum STBoundaryType {
+    NUDGE = 1;
+    YIELD = 2;
+    NOT_YIELD = 3;
+    SLOT_YIELD = 4;
+    SLOT_NOT_YIELD = 5;
+    MERGE_YIELD = 6;
+    MERGE_OVERTAKE = 7;
+    ALIGN_YIELD = 8;
+    ALIGN_NOT_YIELD = 9;
+    VRU_YIELD = 10;
+    VRU_NOT_YIELD = 11;
+    RISK = 12;
+    CROSS_YIELD = 13;
+    CROSS_OVERTAKE = 14;
+    LANE_CHANGE_HOLD_YIELD = 15
+        [deprecated =
+             true];  // deprecated lc hold type, using slot alignment instead
+    PATH_END = 16;
+    INTERFERENCE_YIELD = 17;
+    INTERFERENCE_RISK = 18;
+    MOTION_BOUND = 19;
+    UNKNOWN = 20;
+  }
+}
+
+// Next id: 15
+message MotionBound {
+  optional string id = 1;
+
+  enum BoundDirection {
+    BLOCKING = 0;
+    PUSHING = 1;
+  }
+  optional BoundDirection direction = 2;
+
+  optional PiecewiseCubicFunction motion = 3;
+
+  optional double s_at_t_min = 4;
+  optional double t_min = 5;
+  optional double t_max = 6;
+
+  optional double ttc = 7;
+  optional double ttc_weight = 8;
+  optional double thw = 9;
+  optional double thw_weight = 10;
+
+  optional double min_acc = 11;
+  optional double min_jerk = 12;
+
+  optional string debug_message = 13;
+
+  optional STBoundaryInfo.STBoundaryType boundary_type = 14;
+  optional double cost = 15;
+}
+
+// Next id: 2
+message MotionBoundList {
+  repeated MotionBound motion_bound = 1;
+}
+
+// Next id: 9
+message SpeedLimitRequest {
+  optional string id = 1;
+  optional double begin_s = 2;
+  optional double end_s = 3;
+
+  enum Strength {
+    COMFORT = 1;
+    SAFETY = 2;
+    CRITICAL = 3;
+  }
+
+  optional Strength strength = 4;
+  optional double speed_limit = 5;
+
+  optional double min_acc = 6;
+  optional double min_jerk = 7;
+
+  optional double begin_v_offset = 8;
+
+  optional double cost = 9;
+}
+
+message SpeedLimitRequestList {
+  repeated SpeedLimitRequest speed_limit_requests = 1;
+}
+
+// Next id: 4
+message LongitudinalProcessorDebugInfo {
+  enum ProcessorType {
+    GENERAL_CUTIN = 1;
+    TOPO_MERGE = 2;
+    CROSS = 3;
+    REVERSE = 4;
+  }
+  optional string obs_id = 1;
+  repeated ProcessorType processor_type = 2;
+  repeated string debug_message = 3;
+}

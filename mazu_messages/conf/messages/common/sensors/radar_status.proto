@@ -1,0 +1,60 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+
+message RadarDiagnoseCAN {
+                                                // All error status, 0-No failure, 1-Failure exists;
+  optional bool blok_det = 1;                   // RadarBlockageDetected;
+  optional bool volt_low = 2;                   // Voltage_Below_Threshold_Fault
+  optional bool volt_high = 3;                  // Voltage_Above_Threshold_Fault
+  optional bool align_incomp = 4;               // AlignmentIncomplete_Fault
+  optional bool inter_fault = 5;                // Radar_Internal_Fault including hardware and software fault
+  optional bool align_out_range = 6;            // Alignment_Out_of_Range_Fault
+  optional bool ivlid_data_adc =7;              // Invalid_Data_From_ADC_Fault
+  optional bool loss_comm_adc = 8;              // Lost_Communication_ADC_Fault
+  optional bool temp_high = 9;                  // Temperature_High_Fault_Fault
+}
+
+
+message RadarActiveFaults {
+                                                // Radar internal active fault bits;
+                                                // One bit for one internal fault;
+  optional uint64 act_fault_1 = 1;
+  optional uint64 act_fault_2 = 2;
+}
+
+
+message RadarSDKActiveFaults {
+                                                 // Radar SDK active fault bits;
+                                                 // One bit for one active fault;
+  optional uint64 sdk_fault_1 = 1;
+  optional uint64 sdk_fault_2 = 2;
+  optional uint64 sdk_fault_3 = 3;
+}
+
+
+message RadarFaultStatus {
+  optional RadarDiagnoseCAN rad_fc_fail = 1;
+  optional RadarDiagnoseCAN rad_fl_fail = 2;
+  optional RadarDiagnoseCAN rad_fr_fail = 3;
+  optional RadarDiagnoseCAN rad_rl_fail = 4;
+  optional RadarDiagnoseCAN rad_rr_fail = 5;
+
+  optional RadarActiveFaults rad_fc_act_fault = 6;
+  optional RadarActiveFaults rad_fl_act_fault = 7;
+  optional RadarActiveFaults rad_fr_act_fault = 8;
+  optional RadarActiveFaults rad_rl_act_fault = 9;
+  optional RadarActiveFaults rad_rr_act_fault = 10;
+
+  optional RadarSDKActiveFaults rad_sdk_act_fault = 11;
+
+  optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin 
+  optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+  optional uint64 publish_ptp_ts = 536870907;     // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909; // uuid of the publisher
+  optional uint64 counter = 536870910;           // message counter
+  optional uint64 publish_ts = 536870911;        // publish utc timestamp; unit : nanosecond
+}

@@ -1,0 +1,13 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+message GlobalRouting_light {
+    optional int32 route_match_state = 1; // 0:未进入导航状态, 1:已进入导航状态
+    optional uint64 current_hd_link_id = 3; // 当前hd_link_id
+    optional uint64 current_sd_link_id = 4; // 当前sd_link_id
+    optional uint64 last_match_time_ns = 5; // 最近一次重新计算匹配的时间，单位为ns
+    
+    optional uint64 timestamp = 536870905; // ptp timestamp, nanosecond，used for data bundle readin
+    optional uint64 publish_ptp_ts = 536870907; // publish ptp timestamp, uint in nanosec
+}

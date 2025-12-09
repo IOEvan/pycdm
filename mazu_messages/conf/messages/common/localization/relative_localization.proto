@@ -1,0 +1,94 @@
+syntax = "proto2";
+
+option cc_enable_arenas = true;
+package nio.ad.messages;
+import "common/perf/sensor_ts_header.proto";
+
+import "common/localization/geometry.proto";
+
+// Refs: https://nio.feishu.cn/docs/doccn9gPfk2XQBK1aR9rLykc1eX#
+message RelativeLocalization {
+  optional double timestamp = 1; // Globally defined time. [second]
+
+  enum LocMode {
+    LOC_INVALID       = 0; // Invalid mode, [default].
+    LOC_ONLY_IMU      = 1; // Only imu, missing wheel, prediction.
+    LOC_ONLY_WHEEL    = 2; // Only wheel, missing imu, 2D pose state.
+    LOC_WHEEL_AND_IMU = 3; // Wheel and imu, 3D complete pose state.
+    LOC_PREDICT_MODE  = 4; // Extrapolation mode, used in query service.
+  }
+
+  enum AhrsStatus {
+    AHRS_INVALID        = 0; // Output invalid status [default].
+    AHRS_UNINITIALIZED  = 1; // Wait for initialization.
+    AHRS_DIVERGENT      = 2; // State divergent by checking fusion error.
+    AHRS_CONVERGENT     = 3; // State convergent.
+    AHRS_INCONSISTENT   = 4; // State inconsistent, checking acc and velocity difference.
+    AHRS_SENSOR_ERROR   = 5; // Imu missing, accuracy decline etc.
+  }
+
+  enum LocStateInvalidReason {
+    REASON_STATUS_VALID            = 0; // Output valid status, no invalid reason [default].
+    REASON_UNINITIALIZED           = 1; // Uninitialized: short-lived usage internally.
+    REASON_ONLY_WHEEL_TIMEOUT      = 2; // Sensor error: only wheel timeout > 5.0s;
+    REASON_BOTH_WHEEL_IMU_TIMEOUT  = 3; // Sensor error: wheel and imu timeout > 200.0ms;
+    REASON_STATE_INCONSISTENT      = 4; // Fail pass to consistence checking.
+    REASON_INVALID_STATE_REMAIN    = 5; // Invalid state remain, used in query service.
+    REASON_SENSOR_ACCURACY_DECLINE = 6; // Imu wheel accuracy decline etc.
+  }
+
+  enum OnlineParametersSource {
+    LOSS_ONLINE_PARAMETERS     = 0; // Loss online parameters.
+    INITIALIZATION_CORRECTION  = 1; // Initialization correction: bias is abnormal, ACM corrected.
+    STATIC_ESTIMATION          = 2; // Static estimation
+    GLOBAL_STATE_ESTIMATION    = 3; // Global localization estimation result.
+    OFFLINE_FILE_LOADING       = 4; // Offline parameter file loading.
+  }
+
+  enum Status {
+    UNINITIALIZED = 0; // Not initialized yet.
+    VALID = 1;         // Relative localization works well.
+    INVALID = 2;       // Relative localization not available.
+    SENSOR_ERROR = 3;  // Sensor failure, such as abnormal value.
+  }
+  optional Status status = 2;
+
+  // Relative pose.
+  optional LocEulerAngle euler_angle = 3; // 3 DoFs attitude in the local frame, expressed using Euler angle. [radian] 
+  optional LocVector3 position = 4;       // 3 DoFs position in the local frame. [m]
+  optional LocVector3 velocity = 5;       // 3 DoFs velocity in the vehicle frame. [m/s]
+  optional LocQuaternion quaternion = 6;  // 3 DoFs attitude in the local frame, expressed using Quaternion.
+
+  optional LocVector3 linear_acc = 7;     // 3 DoFs acceleration in the vehicle frame. [m/s^2]
+  optional LocVector3 angular_vel = 8;    // 3 DoFs angular velocity in the vehicle frame. [radian/s]
+
+  optional float confidence = 9;          // Reserved systematic confidence value in [0.0, 1.0].
+  optional string status_message = 10;
+
+  optional uint64 timestamp_ptp_ns = 11; // Globally defined ptp time. [nano second]
+
+  // Confidence in different dimension in vehicle frame, recorded as [poistion_x, position_y, heading, ...]
+  // Valid range [0.0, 1.0]
+  repeated float dim_confidence = 12;
+
+  // Parameters estimated online, such as wheel_scale
+  repeated double online_parameters = 13;
+
+  // Attitude reference data, only roll and pitch is effective. [radian]
+  optional LocEulerAngle attitude_ref = 14;
+
+  optional LocMode mode = 15;
+  optional LocStateInvalidReason invalid_reason = 16;
+  optional AhrsStatus ahrs_status = 17;
+
+  // Note that: corresponding to online_parameters fields, one by one.
+  repeated OnlineParametersSource online_parameters_source = 18;
+
+  optional string vid = 10000; // vid of source vehicle
+
+  optional SensorTSHeader sensor_original_ts = 536870906;   // sensor original ts
+  optional uint64 publish_ptp_ts = 536870907;  // publish ptp timestamp, uint in nanosec
+  optional string publisher_id = 536870909;    // uuid of the publisher
+  optional uint64 counter = 536870910;         // message counter
+  optional uint64 publish_ts = 536870911;      // publish utc timestamp, unit : nanosecond
+}
